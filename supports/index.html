@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.28"></script>
+<script src="../commun/auth.js?v=2.29"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.28">
+<link rel="stylesheet" href="../commun/calc.css?v=2.29">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.28"></script>
-<script src="../commun/data/tuyauterie.js?v=2.28"></script>
-<script src="../commun/acier.js?v=2.28"></script>
-<script src="../commun/barres3d.js?v=2.28"></script>
-<script src="../commun/dessin.js?v=2.28"></script>
-<script src="../commun/coefvent.js?v=2.28"></script>
-<script src="../commun/cahier.js?v=2.28"></script>
+<script src="../commun/data/profils.js?v=2.29"></script>
+<script src="../commun/data/tuyauterie.js?v=2.29"></script>
+<script src="../commun/acier.js?v=2.29"></script>
+<script src="../commun/barres3d.js?v=2.29"></script>
+<script src="../commun/dessin.js?v=2.29"></script>
+<script src="../commun/coefvent.js?v=2.29"></script>
+<script src="../commun/cahier.js?v=2.29"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -781,7 +781,7 @@ function enveloppe(V){
 }
 function ddc(V,env){
   const cas=[['G','G – permanentes (tuyaux + profilés + équipements)'],['T','T – température (frottement, dilatation) ±'],['S','S – neige'],['WY','W<sub>y</sub> – vent transversal ±'],['WX','W<sub>x</sub> – vent longitudinal ±'],['EP','EP – surcharge d\'épreuve'],['EX','E<sub>x</sub> – séisme longitudinal ±'],['EY','E<sub>y</sub> – séisme transversal ±']];
-  let h=`<div class="note">Efforts exercés <b>par le support sur l'ouvrage</b> à chaque appui, repère global : X = axe des tuyaux, Y = horizontal transversal, Z = vertical ↑ (F<sub>z</sub> &lt; 0 : vers le bas). Moments au point d'appui (nuls pour les rotations libres d'un appui articulé).</div>`;
+  let h=`<div class="msg warn">⚠ Valeurs de <b>prédimensionnement (phase APS/APD)</b> : non valables pour exécution, à confirmer par les études d'exécution (efforts concomitants, détails d'assemblage, chevilles retenues).</div><div class="note">Efforts exercés <b>par le support sur l'ouvrage</b> à chaque appui, repère global : X = axe des tuyaux, Y = horizontal transversal, Z = vertical ↑ (F<sub>z</sub> &lt; 0 : vers le bas). Moments au point d'appui (nuls pour les rotations libres d'un appui articulé).</div>`;
   env.forEach((E,ia)=>{
     const a=E.a; h+=`<h3>${escH(a.lib)} – position (y = ${f(a.pt[1],2)} m ; z = ${f(a.pt[2],2)} m)</h3><table class="ddc"><tr><th>Cas (caractéristique)</th>${COMP.map(c=>`<th class="n">${c}</th>`).join('')}</tr>`;
     for(const [c,n] of cas){ if(!V.R[c]) continue; const r=V.R[c].reactions[a.n].map(x=>-x); h+=`<tr><td>${n}</td>${r.map(x=>`<td class="n">${f(x,2)}</td>`).join('')}</tr>`; }
@@ -1158,10 +1158,11 @@ function specDessin(D,V,opt={}){
   if(opt.ddc){ const env=Array.isArray(opt.ddc)?opt.ddc:enveloppe(V).map(E=>({lib:E.a.lib,ELU:E.ELU.map(e=>e.v),SIS:V.res.some(r=>r.c.type==='Sismique')?E.SIS.map(e=>e.v):null}));
     appuisL=Gm.appuis.map((a,i)=>({p:a.pt,n:'A'+(i+1),vues:['face']}));
     const fv=v=>f(v,2), rows=[]; env.forEach((E,i)=>{ rows.push(['A'+(i+1),'ELU',...E.ELU.map(fv)]); if(E.SIS) rows.push(['','Sism.',...E.SIS.map(fv)]); });
-    tableaux.push({titre:'Descente de charges sur l\'ouvrage – repère SCU (par support)',cols:['Appui','Comb.','Fx (kN)','Fy (kN)','Fz (kN)','Mx (kN·m)','My (kN·m)','Mz (kN·m)'],larg:[0.9,0.9,1,1,1,1.1,1.1,1.1],rows,
+    tableaux.push({titre:'Descente de charges sur l\'ouvrage – repère SCU (par support) – prédimensionnement, non valable pour exécution',cols:['Appui','Comb.','Fx (kN)','Fy (kN)','Fz (kN)','Mx (kN·m)','My (kN·m)','Mz (kN·m)'],larg:[0.9,0.9,1,1,1,1.1,1.1,1.1],rows,
       note:`${env.map((E,i)=>'A'+(i+1)+' : '+E.lib).join(' ; ')}. Efforts du support sur l'ouvrage, enveloppes non concomitantes ; Fz < 0 : descendant.`}); }
   if(opt.tableau) tableaux.push(opt.tableau);
-  return {format:opt.format||formatIndus,vues,solides:S,tableaux,scu:!!opt.ddc||!!opt.scu,appuis:appuisL||[],interruptions:opt.interrompre===false?[]:interruptions,iso:opt.perspective===false?null:iso,aides,cercles,sols,murs,cotes,reperes,etiquettes:etiq,nomenclature:nom,cartouche:K,
+  const phase=opt.phase||(CAHIER.existe()?(CAHIER.lire().affaire.phase||'APS'):'APS/APD');
+  return {format:opt.format||formatIndus,statut:{phase},vues,solides:S,tableaux,scu:!!opt.ddc||!!opt.scu,appuis:appuisL||[],interruptions:opt.interrompre===false?[]:interruptions,iso:opt.perspective===false?null:iso,aides,cercles,sols,murs,cotes,reperes,etiquettes:etiq,nomenclature:nom,cartouche:K,
     notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''}. Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (hors visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`]};
 }
 function planIndus(D,V,opt){ return DESSIN.planche(specDessin(D,V,opt)); }
@@ -1376,7 +1377,7 @@ function resumeS1(){                                     // résultats synthéti
       cas:Object.fromEntries(['G','T','S','WY','WX','EP','EX','EY'].filter(c=>V.R[c]).map(c=>[c,V.R[c].reactions[E.a.n].map(x=>-x)]))})),
     lignes:V.lignes.map(l=>({n:l.n.replace(/<[^>]+>/g,''),r:l.r})),date:new Date().toISOString()};
 }
-window.S1API={cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:true,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
+window.S1API={cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:true,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
   perspective:async()=>{await perspective();return $('persp').hidden?'':$('imgPersp').src;}};
 const QS=new URLSearchParams(location.search), ID_CAHIER=QS.get('cahier'), ID_CONF=QS.get('conf');
 function initCahier(){
@@ -1412,10 +1413,10 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.28"></script>
-<script src="../commun/aide.js?v=2.28"></script>
-<script src="aide-s1.js?v=2.28"></script>
-<script src="../commun/export.js?v=2.28"></script>
+<script src="../commun/replier.js?v=2.29"></script>
+<script src="../commun/aide.js?v=2.29"></script>
+<script src="aide-s1.js?v=2.29"></script>
+<script src="../commun/export.js?v=2.29"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

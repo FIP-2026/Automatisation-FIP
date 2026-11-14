@@ -114,8 +114,10 @@ const DESSIN = (() => {
     const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
     const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
-    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 5 + 4.5 + 2.5 + (t.note ? 3.2 : 0), 0), hB = hCart + hNom + hTab + (tabs.length ? 1 : 0);
+    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 5 + 4.5 + 2.5 + (t.note ? 3.2 : 0), 0), hTp = spec.statut ? 15 : 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
     const bloc = { x0: zx1 - wB, y0: zy1 - hB, x1: zx1, y1: zy1 };
+    const tampon = spec.statut ? { x0: bloc.x0, y0: bloc.y0, x1: bloc.x1, y1: bloc.y0 + hTp - 2 } : null;   // « non valable pour exécution » : en tête du bloc cartouche
+    const coupeR = (R, B) => B && R[0] < B.x1 && R[2] > B.x0 && R[1] < B.y1 && R[3] > B.y0;
     const lignesNotes = [], ncN = Math.max(30, Math.floor((bloc.x0 - zx0 - 6) / 1.35));      // notes coupées à la largeur disponible
     (spec.notes || []).forEach((n) => { let l = ""; String(n).split(" ").forEach((m) => { if ((l + " " + m).trim().length > ncN) { lignesNotes.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) lignesNotes.push(l.trim()); });
     const hNotes = lignesNotes.length ? lignesNotes.length * 3.4 + 4 : 0;
@@ -149,7 +151,7 @@ const DESSIN = (() => {
         const gx = Math.min(12, (zx1 - zx0 - W) / Math.max(cols.length, 1)), x0 = {}, y0 = {}; let x = zx0 + gx / 2; cols.forEach((c) => { x0[c] = x; x += wc[c] + gx; });
         let y = zy0 + 2; ligs.forEach((r) => { y0[r] = y; y += hl[r] + 4; });
         const rects = vues.map((V) => ({ V, x: x0[V.col] + V.mg.g, y: y0[V.lig] + V.mg.h, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k }));
-        const chev = rects.some((r) => r.x - r.V.mg.g < bloc.x1 && r.x + r.w + r.V.mg.d > bloc.x0 && r.y - r.V.mg.h < bloc.y1 && r.y + r.h + r.V.mg.b > bloc.y0);
+        const chev = rects.some((r) => { const R = [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b]; return coupeR(R, bloc) || coupeR(R, tampon); });
         if (chev) continue;
         ech = e; place = rects; grille = { x0, y0, wc, hl, cols, ligs }; break;
       }
@@ -167,6 +169,11 @@ const DESSIN = (() => {
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
     s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
     [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; });   // repères de centrage
+    if (spec.statut) { const T = tampon, ph = spec.statut.phase || "APS/APD";
+      s += `<text x="${PW / 2}" y="${PH / 2}" font-family="${F}" font-size="${(PW * 0.034).toFixed(1)}" font-weight="700" fill="#000" fill-opacity="0.06" text-anchor="middle" transform="rotate(-25 ${PW / 2} ${PH / 2})">PHASE ${esc(ph)} – NON VALABLE POUR EXÉCUTION</text>`;
+      s += `<rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
+        txt((T.x0 + T.x1) / 2, T.y0 + 6.2, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: 4.2, b: 1 }) +
+        txt((T.x0 + T.x1) / 2, T.y0 + 10.6, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: 2.2 }); }
     place.forEach(({ V, x, y, w, h }) => {
       const X = (u) => x + (V.mu(u) - V.u0) * k, Y = (v) => y + (V.v1 - V.mv(v)) * k, P = (p) => [X(dot(p, V.u)), Y(dot(p, V.v))], dans = (o) => !o.vues || o.vues.includes(V.id);
       let g = "";
@@ -215,7 +222,8 @@ const DESSIN = (() => {
       const gR = Math.max(...occ.map((o) => o[2])), gB = Math.max(...occ.map((o) => o[3]));
       const cand = [[gR + 4, zy0 + 4, zx1 - 4, bloc.y0 - 4], [zx0 + 4, gB + 2, bloc.x0 - 4, zy1 - hNotes - 2]];
       if (grille) grille.cols.forEach((c) => grille.ligs.forEach((r) => { if (!place.some((p) => p.V.col === c && p.V.lig === r)) cand.push([grille.x0[c] + 2, grille.y0[r] + 2, zx1 - 4, bloc.y0 - 4]); }));
-      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !(bloc.x0 < R[2] && bloc.x1 > R[0] && bloc.y0 < R[3] && bloc.y1 > R[1]);
+      if (tampon) cand.forEach((R) => { if (coupeR(R, tampon)) R[1] = Math.max(R[1], tampon.y1 + 3); });
+      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !coupeR(R, bloc) && !coupeR(R, tampon);
       let mieux = null;
       cand.forEach((R) => { if (R[2] - R[0] < 50 || R[3] - R[1] < 50 || !libre(R)) return; const ki = Math.min((R[2] - R[0] - 10) / du, (R[3] - R[1] - 16) / dv); if (!mieux || ki > mieux.ki) mieux = { R, ki }; });
       if (mieux) { const { R, ki } = mieux, kk = Math.min(ki, k * 1.5), cx = (R[0] + R[2]) / 2, cy = (R[1] + R[3] - 8) / 2, um = (Math.max(...us) + Math.min(...us)) / 2, vm = (Math.max(...vs) + Math.min(...vs)) / 2;
@@ -225,7 +233,7 @@ const DESSIN = (() => {
         s += "</g>"; }
     }
     // tableau des configurations
-    let yb = bloc.y0;
+    let yb = bloc.y0 + hTp;
     const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
     tabs.forEach((tab) => {
       const hl = 5, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
@@ -256,7 +264,7 @@ const DESSIN = (() => {
     s += txt(xc + w1 / 2, yc + 17.5, "France Ingénierie Process", { a: "middle", h: 2 });
     s += cel(xc + w1, yc, w2 / 2, 9, "Affaire", K.affaire || "—") + cel(xc + w1 + w2 / 2, yc, w2 / 2, 9, "Client / site", K.client || "—");
     s += cel(xc + w1, yc + 9, w2, 10, "Désignation", K.titre || "—", { h: 3.5, b: 1 });
-    const w3 = w2 / 4; [["Échelle", "1:" + ech], ["Format", (spec.format || "A3") + " paysage"], ["Date", K.date || new Date().toLocaleDateString("fr-FR")], ["Indice", K.indice || "—"]].forEach(([l, v], i) => { s += cel(xc + w1 + w3 * i, yc + 19, w3, 8.5, l, v); });
+    const w3 = w2 / 4; [["Échelle", "1:" + ech], ["Format", (spec.format || "A3") + " paysage"], ["Date", K.date || new Date().toLocaleDateString("fr-FR")], ["Indice / phase", [K.indice, spec.statut ? spec.statut.phase || "APS/APD" : ""].filter(Boolean).join(" – ") || "—"]].forEach(([l, v], i) => { s += cel(xc + w1 + w3 * i, yc + 19, w3, 8.5, l, v); });
     [["Dessiné", K.dessine || "—"], ["Vérifié", K.verifie || "—"], ["N° de plan", K.plan || "—"]].forEach(([l, v], i) => { s += cel(xc + w1 + (w2 / 3) * i, yc + 27.5, w2 / 3, 8.5, l, v, { b: i === 2 }); });
     s += ligne(xc, yc + 19, xc + w1, yc + 19) + txt(xc + w1 / 2, yc + 24.5, "Projection européenne", { a: "middle", h: 2 });
     // symbole de la méthode E (ISO 5456-2)
