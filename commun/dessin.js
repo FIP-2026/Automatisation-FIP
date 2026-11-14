@@ -209,7 +209,7 @@ const DESSIN = (() => {
       (spec.reperes || []).filter((r) => r.vue === V.id).forEach((r) => { const [px, py] = P(r.p); let dx = r.dx ?? (px - cx0), dy = r.dy ?? (py - cy0); const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
         const L = r.L || 14, bx = px + dx * L, by = py + dy * L, R = 3.5;
         g += `<circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }); });
-      if (spec.scu) { g += triedre(V, Math.max(x - V.mg.g + 12, zx0 + 12), y + h + V.mg.b - 7); (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
+      if (spec.scu) { g += triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - V.titre.length * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7); /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
       g += txt(x + w / 2, y + h + V.mg.b + 1, V.titre, { a: "middle", h: 3.5, b: 1 });
       s += `<g>${g}</g>`;
     });
