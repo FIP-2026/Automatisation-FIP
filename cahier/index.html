@@ -209,7 +209,7 @@ async function recalculer(avecImages){
       A.appliquerCotes({...T.cotes0,...(c.cotes||{})}); c.resume=A.resume(); }
     T.resume=T.configs[0].resume;
     if(md!=='schema'){ A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})});                     // planche dessinée sur la 1re configuration, DDC = enveloppe des configurations
-    const a=K.affaire, defs=A.cotes(), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
+    const a=K.affaire, defs=A.cotes().filter(d=>d.id!=='zsol'), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
     T.vues=A.vues(md==='schema'?{}:{indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
       ddc:avecDDC?envType(T):null,phase:a.phase||'APS',tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}});
     }
