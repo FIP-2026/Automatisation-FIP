@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.29"></script>
+<script src="../commun/auth.js?v=2.30"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.29">
+<link rel="stylesheet" href="../commun/calc.css?v=2.30">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.29"></script>
-<script src="../commun/data/tuyauterie.js?v=2.29"></script>
-<script src="../commun/acier.js?v=2.29"></script>
-<script src="../commun/barres3d.js?v=2.29"></script>
-<script src="../commun/dessin.js?v=2.29"></script>
-<script src="../commun/coefvent.js?v=2.29"></script>
-<script src="../commun/cahier.js?v=2.29"></script>
+<script src="../commun/data/profils.js?v=2.30"></script>
+<script src="../commun/data/tuyauterie.js?v=2.30"></script>
+<script src="../commun/acier.js?v=2.30"></script>
+<script src="../commun/barres3d.js?v=2.30"></script>
+<script src="../commun/dessin.js?v=2.30"></script>
+<script src="../commun/coefvent.js?v=2.30"></script>
+<script src="../commun/cahier.js?v=2.30"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -1075,7 +1075,7 @@ function specDessin(D,V,opt={}){
   const ys=Gm.B.flatMap(b=>[b.A[1],b.B[1]]), zs=Gm.B.flatMap(b=>[b.A[2],b.B[2]]), y0=Math.min(...ys), y1=Math.max(...ys), z0=Math.min(...zs), z1=Math.max(...zs);
   // --- platines et fixations
   const a1=Math.max(num('fa1',120),20)/1000, a2=Math.max(num('fa2',120),20)/1000, dF=fixM==='tige'?+$('tD').value:12, ep=0.012, cx=Math.max(a1+0.08,0.15), cz=Math.max(a2+0.08,0.15);
-  const pl=[], trou=(c,n)=>cercles.push({c,r:(dF+1)/2000,n,style:'fort',croix:true});
+  const pl=[], trou=()=>{};                                   // platines : ni trous, ni entraxes, ni dimensions (relèvent de la note de chevillage)
   Gm.appuis.forEach(a=>{ const P=a.pt;
     if(a.k==='sol'){ S.push(boiteAA(P[0]-cx/2,P[0]+cx/2,P[1]-cz/2,P[1]+cz/2,P[2]-ep,P[2])); pl.push({k:a.k,d:[cx,cz]}); [-1,1].forEach(i=>[-1,1].forEach(j=>trou([P[0]+i*a1/2,P[1]+j*a2/2,P[2]],[0,0,1])));
       sols.push({a:[P[0]-0.3,P[1]-cz/2-0.12,P[2]-ep],b:[P[0]+0.3,P[1]+cz/2+0.12,P[2]-ep],mat:[P[0],P[1],P[2]-0.2],vues:['face','gauche','droite']}); }
@@ -1119,11 +1119,7 @@ function specDessin(D,V,opt={}){
   Gm.T.forEach((t,i)=>{ const b=Gm.B[t.bi], lib=lc('a'+(i+1),Math.abs(+t.pos||0));
     if(b.vert){ const zr=D.typ==='plafond'?0:b.A[2], n=nv[t.bi]=(nv[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,t.c[1],zr],b:[0,t.c[1],t.c[2]],cote:'droite',niv:n+(D.typ==='L'&&D.nc>1?1:0),txt:lib}); }
     else { const yr=D.typ==='T'?0:b.A[1], n=nh[t.bi]=(nh[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,yr,t.c[2]],b:[0,t.c[1],t.c[2]],cote:'haut',niv:n,txt:lib}); } });
-  // cotes de platine (vue où elle est vue de face)
-  const pm=Gm.appuis.find(a=>['sol','plafond','mur'].includes(a.k));
-  if(pm&&!crap){ const P=pm.pt, vueP=pm.k==='mur'?vCote:'dessus', Z=pm.k==='mur'?P[2]:0;
-    if(pm.k==='mur'){ cotes.push({vue:vueP,a:[-a1/2,0,P[2]-cz/2],b:[a1/2,0,P[2]-cz/2],cote:'bas',niv:0,txt:lettres?'a₁':mm(a1)},{vue:vueP,a:[-cx/2,0,P[2]-cz/2],b:[cx/2,0,P[2]-cz/2],cote:'bas',niv:1,txt:mm(cx)}); }
-    else { cotes.push({vue:'dessus',a:[-a1/2,P[1]+cz/2,P[2]],b:[a1/2,P[1]+cz/2,P[2]],cote:'droite',niv:0,txt:lettres?'a₁':mm(a1)},{vue:'dessus',a:[-cx/2,P[1]+cz/2,P[2]],b:[cx/2,P[1]+cz/2,P[2]],cote:'droite',niv:1,txt:mm(cx)}); } }
+  const pm=Gm.appuis.find(a=>['sol','plafond','mur'].includes(a.k));                 // pas de cote de platine : dimensions, épaisseur et fixations selon la note de chevillage
   // --- nomenclature et repères
   let rep=0; const grp=new Map();
   Gm.B.forEach(b=>{ const k=b.p.n+'|'+Math.round(b.L*1000); if(!grp.has(k)) grp.set(k,{b,n:0}); grp.get(k).n++; });
@@ -1131,19 +1127,21 @@ function specDessin(D,V,opt={}){
   [...grp.values()].forEach(({b,n})=>{ rep++; nom.push([rep,n,`${b.lib.replace(/ (gauche|droit|\d+)$/,'')} ${b.p.n}`,$('nuance').value,varie?'selon config.':mm(b.L),varie?'selon config.':f(b.p.m*b.L*n,1)]);
     const vert=b.vert, incl=!vert&&Math.abs(b.dir[2])>0.05, m=add3(b.A,mul3(b.dir,b.L*(vert?0.4:incl?0.5:0.78)));
     reperes.push(vert?{vue:'face',p:m,n:String(rep),dx:-1,dy:0.35}:incl?{vue:'face',p:m,n:String(rep),dx:Math.abs(b.dir[2]),dy:Math.abs(b.dir[1])}:{vue:'face',p:m,n:String(rep),dx:0.35,dy:1}); });
-  const gp=new Map(); pl.forEach(p=>{ const e=p.e||ep, k=p.d.map(v=>Math.round(v*1000)).join('×')+'×'+Math.round(e*1000); p.key=k; gp.set(k,{k,e,d:p.d,n:(gp.get(k)?.n||0)+1}); });
-  [...gp.values()].forEach(p=>{ rep++; p.rep=rep; nom.push([rep,p.n,`Platine ${p.k}`,$('nuance').value,'—',f(7850*p.d[0]*p.d[1]*p.e*p.n,1)]); });
+  const LIBPL={sol:'Platine de pied',plafond:'Platine de tête',mur:'Platine murale',murPied:'Platine de pied de jambe',murArt:'Platine d\'appui mural'};
+  const gp=new Map(); pl.forEach(p=>{ const k=LIBPL[p.k]||'Platine'; p.key=k; gp.set(k,{k,n:(gp.get(k)?.n||0)+1}); });
+  [...gp.values()].forEach(p=>{ rep++; p.rep=rep; nom.push([rep,p.n,`${p.k} – dimensions selon note de chevillage`,$('nuance').value,'—','—']); });
   const repPl=k=>String((gp.get((pl.find(p=>p.k===k)||{}).key)||{}).rep||'');
   if(pm&&!crap){ const P=pm.pt; reperes.push({vue:'face',p:pm.k==='mur'?[0,-ep/2,P[2]-cz/2]:[0,P[1]-cz/2,P[2]+(pm.k==='sol'?-ep/2:ep/2)],n:repPl(pm.k),dx:pm.k==='mur'?1:-1,dy:pm.k==='plafond'?-1:1}); }
   Gm.appuis.filter(a=>a.k==='murPied'||a.k==='murArt').forEach(a=>reperes.push({vue:'face',p:[0,a.pt[1]+(a.k==='murArt'?0.005:-0.005),a.pt[2]-0.07],n:repPl(a.k),dx:a.k==='murArt'?1:-1,dy:1}));
   const nP=pl.filter(p=>!p.e).length;
-  if(nP){ rep++; const L=fixM==='tige'?`Tige filetée M${dF} cl. ${$('tCl').value} L = ${mm(Math.max(num('eMur',200),20)/1000+2*ep+0.07)} + écrous, rondelles`:crap?`Crapaud (${$('crType').value==='maison'?'maison, boulon précontraint':'catalogue'})`:`Cheville d'ancrage (choix fournisseur – efforts : note de calcul)`;
-    nom.push([rep,4*nP,L,fixM==='tige'?'cl. '+$('tCl').value:'—','—','—']);
-    if(pm&&!crap){ const P=pm.pt; reperes.push(pm.k==='mur'?{vue:vCote,p:[a1/2,0,P[2]+a2/2],n:String(rep),dx:-1,dy:-1}:{vue:'dessus',p:[a1/2,P[1]-a2/2,P[2]],n:String(rep),dx:-1,dy:1}); } if(tige) { rep++; nom.push([rep,nP,`Contre-plaque ${mm(cx)}×${mm(cz)}×${Math.round(ep*1000)}`,$('nuance').value,'—',f(7850*cx*cz*ep*nP,1)]); } }
+  if(nP){ rep++; const L=fixM==='tige'?'Tiges filetées traversantes + écrous, rondelles':crap?`Crapauds (${$('crType').value==='maison'?'maison, boulon précontraint':'catalogue'})`:'Chevilles d\'ancrage';
+    nom.push([rep,'—',L+' – selon note de chevillage','—','—','—']);
+    if(pm&&!crap){ const P=pm.pt; reperes.push(pm.k==='mur'?{vue:vCote,p:[cx*0.3,0,P[2]+cz*0.3],n:String(rep),dx:-1,dy:-1}:{vue:'dessus',p:[cx*0.3,P[1]-cz*0.3,P[2]],n:String(rep),dx:-1,dy:1}); }
+    if(tige){ rep++; nom.push([rep,nP,'Contre-plaque – dimensions selon note de chevillage',$('nuance').value,'—','—']); } }
   const ge=new Map(); Gm.T.forEach(t=>{ const d=diamEtrier(t), k=`Étrier (U-bolt) M${d} pour Ø${f(t.P.De,1)}`; ge.set(k,(ge.get(k)||0)+1); });
   [...ge.entries()].forEach(([k,n])=>{ rep++; nom.push([rep,n,k+' + écrous','acier galva.','—','—']); });
   if(Gm.T[0]) reperes.push({vue:'face',p:[0,Gm.T[0].c[1]-Gm.T[0].P.De/2000*0.7-diamEtrier(Gm.T[0])/2000,Gm.T[0].c[2]+Gm.T[0].P.De/2000*0.7],n:String(rep),dx:-1,dy:-0.6});
-  const masse=Gm.B.reduce((s,b)=>s+b.p.m*b.L,0)+[...gp.values()].reduce((s,p)=>s+7850*p.d[0]*p.d[1]*p.e*p.n,0);
+  const masse=Gm.B.reduce((s,b)=>s+b.p.m*b.L,0);
   const K=opt.cartouche||{affaire:$('affaire').value,client:'',titre:`Support ${$('repere').value||''} – ${TYPES[D.typ].n}`,dessine:$('auteur').value,plan:$('repere').value};
   // --- vues interrompues : plus grande plage sans détail le long d'une barre droite (pas de barre inclinée qui la traverse)
   const interruptions=[]; [[2,[0,0,1]],[1,[0,1,0]]].forEach(([i,ax])=>{
@@ -1163,7 +1161,7 @@ function specDessin(D,V,opt={}){
   if(opt.tableau) tableaux.push(opt.tableau);
   const phase=opt.phase||(CAHIER.existe()?(CAHIER.lire().affaire.phase||'APS'):'APS/APD');
   return {format:opt.format||formatIndus,statut:{phase},vues,solides:S,tableaux,scu:!!opt.ddc||!!opt.scu,appuis:appuisL||[],interruptions:opt.interrompre===false?[]:interruptions,iso:opt.perspective===false?null:iso,aides,cercles,sols,murs,cotes,reperes,etiquettes:etiq,nomenclature:nom,cartouche:K,
-    notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''}. Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (hors visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`]};
+    notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''} : a = positionnement des tuyauteries (axe), autres cotes = géométrie du support. Platines et fixations représentées à titre indicatif : dimensions, épaisseurs, entraxes et chevilles selon la note de chevillage.`,`Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (profilés seuls, hors platines et visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`]};
 }
 function planIndus(D,V,opt){ return DESSIN.planche(specDessin(D,V,opt)); }
 function majIndus(){ if(!modeIndus||!dernier) return; try{ const P=planIndus(dernier.D,dernier.V,{format:formatIndus,ddc:$('ddcInd').checked}); $('vInd').innerHTML=P.svg; $('nInd').innerHTML=`Échelle 1:${P.echelle} sur ${P.format} paysage · projection européenne · faces cachées supprimées. Cartouche provisoire en attendant le cartouche FIP.`; dernier.planche=P; }
@@ -1413,10 +1411,10 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.29"></script>
-<script src="../commun/aide.js?v=2.29"></script>
-<script src="aide-s1.js?v=2.29"></script>
-<script src="../commun/export.js?v=2.29"></script>
+<script src="../commun/replier.js?v=2.30"></script>
+<script src="../commun/aide.js?v=2.30"></script>
+<script src="aide-s1.js?v=2.30"></script>
+<script src="../commun/export.js?v=2.30"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
