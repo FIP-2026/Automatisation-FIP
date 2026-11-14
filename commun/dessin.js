@@ -11,7 +11,7 @@ const DESSIN = (() => {
   const sub = (a, b) => a.map((v, i) => v - b[i]), cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   const nrm = (a) => { const n = Math.hypot(...a) || 1; return a.map((v) => v / n); };
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const F = "Arial,Helvetica,sans-serif", TF = 0.5, TFin = 0.25;
+  const F = "Arial,Helvetica,sans-serif", TF = 0.5, TFin = 0.25, SEG = 0.04;
   const FORMATS = { A3: [420, 297], A4: [297, 210] };
   const ECHELLES = [1, 2, 5, 10, 20, 50, 100];                                  // échelles recommandées NF EN ISO 5455
   /* Vues : u → droite, v → haut, w → vers l'observateur */
@@ -33,8 +33,9 @@ const DESSIN = (() => {
     const P = (s, [y, z]) => add(add(add(o, mul(ex, s === 0 ? sP(opt.c0, y, z, 0) : s === L ? sP(opt.c1, y, z, L) : s)), mul(ey, y)), mul(ez, z));
     const nc = (pl, sg) => { if (!pl) return mul(ex, sg); const n = nrm(pl.n); return dot(n, ex) * sg < 0 ? mul(n, -1) : n; };
     const faces = [];
-    const cotes = (R) => R.forEach((p, i) => { const q = R[(i + 1) % R.length], dy = q[0] - p[0], dz = q[1] - p[1];
-      faces.push({ rings: [[P(0, p), P(0, q), P(L, q), P(L, p)]], n: nrm(add(mul(ey, dz), mul(ez, -dy))) }); });
+    const nS = Math.max(1, Math.ceil(L / (opt.seg || SEG))), I = (p, t) => { const a = P(0, p), b = P(L, p); return a.map((v, i) => v + (b[i] - v) * t); };   // faces longues découpées : tri du peintre fiable
+    const cotes = (R) => R.forEach((p, i) => { const q = R[(i + 1) % R.length], dy = q[0] - p[0], dz = q[1] - p[1], n = nrm(add(mul(ey, dz), mul(ez, -dy)));
+      for (let j = 0; j < nS; j++) faces.push({ rings: [[I(p, j / nS), I(q, j / nS), I(q, (j + 1) / nS), I(p, (j + 1) / nS)]], n }); });
     cotes(O); if (H) cotes(H);
     faces.push({ rings: [O.map((p) => P(0, p)), ...(H ? [H.map((p) => P(0, p))] : [])], n: nc(opt.c0, -1) });
     faces.push({ rings: [O.map((p) => P(L, p)), ...(H ? [H.map((p) => P(L, p))] : [])], n: nc(opt.c1, 1) });
@@ -93,6 +94,18 @@ const DESSIN = (() => {
   const hachures = (x1, y1, x2, y2, nx, ny, pas = 2.5, lg = 3) => { const L = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.floor(L / pas)); let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${STY.fort}/>`;
     for (let i = 0; i <= n; i++) { const x = x1 + (x2 - x1) * i / n, y = y1 + (y2 - y1) * i / n; s += `<line x1="${x}" y1="${y}" x2="${x + (nx + (y2 - y1) / L * 0.7) * lg}" y2="${y + (ny - (x2 - x1) / L * 0.7) * lg}" ${STY.fin}/>`; } return s; };
 
+  /* trièdre du SCU dans une vue orthogonale (flèches pour les axes dans le plan, ⊙ / ⊗ pour l'axe normal) ou en perspective */
+  const AXES = [["X", [1, 0, 0]], ["Y", [0, 1, 0]], ["Z", [0, 0, 1]]];
+  function triedre(V, ox, oy, L = 9) {
+    let s = "";
+    AXES.forEach(([n, e]) => { const cu = dot(e, V.u), cv = dot(e, V.v), cw = dot(e, V.w);
+      if (Math.abs(cw) > 0.9 && V.id !== "iso") { s += `<circle cx="${ox}" cy="${oy}" r="1.6" fill="#fff" ${STY.fin}/>` + (cw > 0 ? `<circle cx="${ox}" cy="${oy}" r="0.45" fill="#000"/>` : `<path d="M${ox - 1.1},${oy - 1.1}L${ox + 1.1},${oy + 1.1}M${ox + 1.1},${oy - 1.1}L${ox - 1.1},${oy + 1.1}" ${STY.fin}/>`) + txt(ox - 2.4, oy + 4.2, n, { h: 2.5, b: 1, a: "end" }); return; }
+      const dx = cu * L, dy = -cv * L; if (Math.hypot(dx, dy) < 2) return;
+      s += `<line x1="${ox}" y1="${oy}" x2="${ox + dx}" y2="${oy + dy}" stroke="#000" stroke-width="0.35"/>` + fleche(ox + dx, oy + dy, dx, dy) + txt(ox + dx * 1.3 + (Math.abs(dx) < 1 ? 1.2 : 0), oy + dy * 1.3 + 1, n, { h: 2.5, b: 1, a: "middle" }); });
+    return s + txt(ox + 1.5, oy + 5.5, "SCU", { h: 1.8, a: "start" });
+  }
+  const etiqAppui = (px, py, n) => `<path d="M${px},${py} l-1.4,2.6 h2.8z" fill="#000"/><line x1="${px}" y1="${py + 2.6}" x2="${px + 6}" y2="${py + 7}" ${STY.fin}/><rect x="${px + 6}" y="${py + 4.8}" width="7" height="4.4" fill="#fff" ${STY.fin}/>` + txt(px + 9.5, py + 8.1, n, { h: 2.5, b: 1, a: "middle" });   // appui : triangle + étiquette encadrée (à droite)
+
   /* ---------- planche ---------- */
   /* spec : { format:'A3'|'A4', vues:[{id, col, lig}], solides:[...], aides:[{type:'axe'|'tirets'|'fin', pts:[[x,y,z]...], vues?}], cercles:[{c, r, n, style, vues?}],
              sols:[{a, b, mat:[x,y,z] (côté matière), vues?}], murs:[{rect:[[...]...] (4 pts), vues?}], cotes:[{vue, a, b, dir, cote:'haut'|'bas'|'gauche'|'droite', niv, txt}],
@@ -100,7 +113,8 @@ const DESSIN = (() => {
   function planche(spec) {
     const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
-    const nom = spec.nomenclature || [], tab = spec.tableau, lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0, hTab = tab ? (tab.rows.length + 2) * 5.5 : 0, hB = hCart + hNom + (tab ? hTab + 3 : 0);
+    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
+    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 5 + 4.5 + 2.5 + (t.note ? 3.2 : 0), 0), hB = hCart + hNom + hTab + (tabs.length ? 1 : 0);
     const bloc = { x0: zx1 - wB, y0: zy1 - hB, x1: zx1, y1: zy1 };
     const lignesNotes = [], ncN = Math.max(30, Math.floor((bloc.x0 - zx0 - 6) / 1.35));      // notes coupées à la largeur disponible
     (spec.notes || []).forEach((n) => { let l = ""; String(n).split(" ").forEach((m) => { if ((l + " " + m).trim().length > ncN) { lignesNotes.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) lignesNotes.push(l.trim()); });
@@ -188,6 +202,7 @@ const DESSIN = (() => {
       (spec.reperes || []).filter((r) => r.vue === V.id).forEach((r) => { const [px, py] = P(r.p); let dx = r.dx ?? (px - cx0), dy = r.dy ?? (py - cy0); const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
         const L = r.L || 14, bx = px + dx * L, by = py + dy * L, R = 3.5;
         g += `<circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }); });
+      if (spec.scu) { g += triedre(V, Math.max(x - V.mg.g + 12, zx0 + 12), y + h + V.mg.b - 7); (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
       g += txt(x + w / 2, y + h + V.mg.b + 1, V.titre, { a: "middle", h: 3.5, b: 1 });
       s += `<g>${g}</g>`;
     });
@@ -204,18 +219,23 @@ const DESSIN = (() => {
       let mieux = null;
       cand.forEach((R) => { if (R[2] - R[0] < 50 || R[3] - R[1] < 50 || !libre(R)) return; const ki = Math.min((R[2] - R[0] - 10) / du, (R[3] - R[1] - 16) / dv); if (!mieux || ki > mieux.ki) mieux = { R, ki }; });
       if (mieux) { const { R, ki } = mieux, kk = Math.min(ki, k * 1.5), cx = (R[0] + R[2]) / 2, cy = (R[1] + R[3] - 8) / 2, um = (Math.max(...us) + Math.min(...us)) / 2, vm = (Math.max(...vs) + Math.min(...vs)) / 2;
-        s += `<g>${rendreVue(Vi, sols, (a) => cx + (a - um) * kk, (b) => cy - (b - vm) * kk)}${txt(cx, cy + dv * kk / 2 + 8, "PERSPECTIVE (sans échelle)", { a: "middle", b: 1 })}</g>`; }
+        const XI = (a) => cx + (a - um) * kk, YI = (b) => cy - (b - vm) * kk;
+        s += `<g>${rendreVue(Vi, sols, XI, YI)}${txt(cx, cy + dv * kk / 2 + 8, "PERSPECTIVE (sans échelle)", { a: "middle", b: 1 })}`;
+        if (spec.scu) { s += triedre(Vi, Math.max(R[0] + 12, cx - du * kk / 2 - 6), Math.min(R[3] - 14, cy + dv * kk / 2 + 2), 10); (spec.appuis || []).forEach((a) => { s += etiqAppui(XI(dot(a.p, u)), YI(dot(a.p, v)), a.n); }); }
+        s += "</g>"; }
     }
     // tableau des configurations
     let yb = bloc.y0;
     const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
-    if (tab) {
-      const nc = tab.cols.length, wcol = wB / nc, hl = 5.5; s += txt(bloc.x0, yb + 3.5, tab.titre || "Tableau des configurations", { h: 3, b: 1 }); yb += 4.5;
+    tabs.forEach((tab) => {
+      const hl = 5, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
+      s += txt(bloc.x0, yb + 3.5, tab.titre || "Tableau", { h: 3, b: 1 }); yb += 4.5;
       s += `<rect x="${bloc.x0}" y="${yb}" width="${wB}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
-      tab.cols.forEach((c, i) => { s += txt(bloc.x0 + wcol * (i + 0.5), yb + 3.8, c, { a: "middle", h: 2.5, b: 1 }); if (i) s += ligne(bloc.x0 + wcol * i, yb, bloc.x0 + wcol * i, yb + hl * (tab.rows.length + 1)); });
-      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(bloc.x0 + wcol * (i + 0.5), yy + 3.8, c, { a: "middle", h: 2.5 }); }); });
-      yb += hl * (tab.rows.length + 1) + 2;
-    }
+      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + 3.5, c, { a: "middle", h: 2.3, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
+      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + 3.5, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: 2.3, b: tab.gras && tab.gras(j, i) }); }); });
+      yb += hl * (tab.rows.length + 1) + 2.5;
+      if (tab.note) { s += txt(bloc.x0, yb + 1.2, tab.note, { h: 2 }); yb += 3.2; }
+    });
     // nomenclature (repères numérotés de bas en haut, en-tête en bas, au-dessus du cartouche)
     if (nom.length) {
       const C = [[12, "Rep."], [12, "Qté"], [78, "Désignation"], [22, "Matière"], [28, "Long. (mm)"], [28, "Masse (kg)"]], wt = C.reduce((a, c) => a + c[0], 0), kx = wB / wt;
