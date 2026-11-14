@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.26"></script>
+<script src="../commun/auth.js?v=2.30"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.26">
-<script src="../commun/acier.js?v=2.26"></script>
-<script src="../commun/cahier.js?v=2.26"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.30">
+<script src="../commun/acier.js?v=2.30"></script>
+<script src="../commun/cahier.js?v=2.30"></script>
 <style>
   .logoAff{max-height:48px;max-width:160px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff}
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:5px 10px;font-size:12px}
@@ -70,7 +70,7 @@
     <div class="opts" id="opts"></div>
     <label>Présentation des plans types</label>
     <select id="plansMode"><option value="schema">Vues schématiques (cotes en lettres, perspective)</option><option value="A3">Dessin industriel – planches A3 paysage</option><option value="A4">Dessin industriel – planches A4 paysage</option></select>
-    <div class="note">Toujours inclus : identification, listing des repères, BOM générale. Dessin industriel : une planche par support type (vues orthogonales à l'échelle, cotes en lettres, tableau des configurations, nomenclature, cartouche), imprimée au format choisi.</div>
+    <div class="note">Toujours inclus : identification, listing des repères, BOM générale. Dessin industriel : une planche par support type (vues orthogonales à l'échelle, perspective, cotes en lettres, tableau des configurations, nomenclature, cartouche), imprimée au format choisi. Si une section DDC est cochée, la planche porte aussi le SCU, le repérage des appuis A1, A2… et le tableau des descentes de charges (enveloppe des configurations).</div>
     <h3>Réglages</h3>
     <div class="row"><div><label>Préfixe supports types</label><input id="g_prefST" data-g="prefST"></div><div><label>Préfixe supports spéciaux</label><input id="g_prefSPE" data-g="prefSPE"></div></div>
     <div class="row"><div><label>Chevilles par platine (forfait)</label><input id="g_chev" data-g="chev" type="number" min="0" step="1"></div><div><label>Majoration accessoires (%)</label><input id="g_majo" data-g="majo" type="number" min="0" step="1"></div></div>
@@ -100,7 +100,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.26"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.30"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -192,7 +192,7 @@ let api=null;
 function moteur(){
   if(api) return Promise.resolve(api);
   return new Promise((ok,ko)=>{ const fr=$('iframeS1'), t0=Date.now();
-    fr.src='../supports/?moteur=1&v=2.26';
+    fr.src='../supports/?moteur=1&v=2.30';
     const att=()=>{ try{ const w=fr.contentWindow; if(w&&w.S1API&&w.document.readyState==='complete'){ api=w.S1API; return ok(api);} }catch(e){ return ko(e); }
       if(Date.now()-t0>20000) return ko(new Error('S1 ne répond pas')); setTimeout(att,150); };
     setTimeout(att,300); });
@@ -202,13 +202,17 @@ async function recalculer(avecImages){
   const A=await moteur(), nTot=L.reduce((s,T)=>s+T.configs.length,0); let i=0;
   for(const T of L){
     A.charger(T.etat); A.appliquerCotes(T.cotes0||{}); T.etat=A.etat(); T.cotesDef=A.cotes(); T.cotes0={...A.cotesValeurs(),...(T.cotes0||{})};
-    const md=K.rapport.plans||'schema', a=K.affaire, defs=A.cotes();
-    T.vues=A.vues(md==='schema'?{}:{indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
-      tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}});
+    const md=K.rapport.plans||'schema';
+    if(md==='schema') T.vues=A.vues();
     if(avecImages&&md==='schema') IMG[T.id]=await A.perspective();
     for(const c of T.configs){ $('etat').innerHTML=`<div class="msg info">⏳ Calcul ${++i} / ${nTot} : ${h(repere(T,c))}…</div>`;
       A.appliquerCotes({...T.cotes0,...(c.cotes||{})}); c.resume=A.resume(); }
     T.resume=T.configs[0].resume;
+    if(md!=='schema'){ A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})});                     // planche dessinée sur la 1re configuration, DDC = enveloppe des configurations
+    const a=K.affaire, defs=A.cotes().filter(d=>d.id!=='zsol'), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
+    T.vues=A.vues(md==='schema'?{}:{indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
+      ddc:avecDDC?envType(T):null,phase:a.phase||'APS',tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}});
+    }
   }
   K.aRecalc=false; enr(); $('etat').innerHTML=''; tout();
 }
@@ -226,7 +230,7 @@ function nouveauType(kind){
   K.types.push(T); enr(); tout();
 }
 $('addNC').onclick=()=>nouveauType('s1'); $('addSPE').onclick=()=>nouveauType('spe');
-const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.26`;
+const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.30`;
 function gestion(){
   if(!K.types.length){ $('rGestion').innerHTML='<div class="msg info">Cahier vide. « ➕ Type calculé (S1) » : créer le support dans S1 puis « Ajouter au cahier ». « ➕ Type à calculer » : réserver un type et ses quantités, à calculer plus tard. « ➕ Support spécial » : support dessiné à part, compté dans la BOM.</div>'; etatRecalc(); return; }
   $('rGestion').innerHTML=K.types.map((T,ti)=>{
@@ -323,7 +327,7 @@ function envType(T){                                    // enveloppe des configu
     return {lib:a.lib,ELU:pire(A.map(x=>x.ELU)),SIS:A.some(x=>x.SIS)?pire(A.map(x=>x.SIS)):null,cas}; });
 }
 const tdV=(v,b)=>v.map(x=>`<td class="n">${b?'<b>':''}${f(x,2)}${b?'</b>':''}</td>`).join('');
-const NOTE_DDC=`Efforts exercés par le support sur la structure porteuse (X ∥ tuyaux, Y transversal, Z vertical ascendant ; F<sub>z</sub> &lt; 0 = charge descendante), par support unitaire. Enveloppe : pour chaque composante, valeur de plus grande valeur absolue sur l'ensemble des combinaisons et des configurations (composantes non concomitantes, sécuritaire). ELU : NF EN 1990 éq. 6.10 + AN ; sismique : éq. 6.12b et NF EN 1998-1 §4.3.5 (100 % / 30 %).`;
+const NOTE_DDC=`<b>Prédimensionnement (phase APS/APD) – valeurs non valables pour exécution</b>, à confirmer par les études d'exécution. Efforts exercés par le support sur la structure porteuse (X ∥ tuyaux, Y transversal, Z vertical ascendant ; F<sub>z</sub> &lt; 0 = charge descendante), par support unitaire. Enveloppe : pour chaque composante, valeur de plus grande valeur absolue sur l'ensemble des combinaisons et des configurations (composantes non concomitantes, sécuritaire). ELU : NF EN 1990 éq. 6.10 + AN ; sismique : éq. 6.12b et NF EN 1998-1 §4.3.5 (100 % / 30 %).`;
 function tableEnv(env,avecCas){
   return `<table class="ddc"><tr><th>Appui</th><th>Valeur</th>${thC}</tr>`+env.map(a=>{ const cas=avecCas?Object.keys(a.cas):['G'].filter(k=>a.cas.G); const n=1+(a.SIS?1:0)+cas.length;
     return `<tr><td rowspan="${n}">${h(a.lib)}</td><td><b>ELU (enveloppe)</b></td>${tdV(a.ELU,1)}</tr>`+(a.SIS?`<tr><td><b>Sismique (enveloppe)</b></td>${tdV(a.SIS,1)}</tr>`:'')+
@@ -393,10 +397,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 demarrer();
 </script>
-<script src="../commun/replier.js?v=2.26"></script>
-<script src="../commun/aide.js?v=2.26"></script>
-<script src="aide-cs.js?v=2.26"></script>
-<script src="../commun/export.js?v=2.26"></script>
+<script src="../commun/replier.js?v=2.30"></script>
+<script src="../commun/aide.js?v=2.30"></script>
+<script src="aide-cs.js?v=2.30"></script>
+<script src="../commun/export.js?v=2.30"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>
