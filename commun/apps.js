@@ -9,7 +9,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.34";
+const CALC_VERSION = "v2.35";
 
 const CALC_CATEGORIES = [
   { id: "tuy", nom: "Tuyauterie", sousTitre: "Supportage, portées et descentes de charges · CODETI / EN 13480-3, ASME B31.3", couleur: "#e30009", marqueur: "●" },
@@ -20,6 +20,24 @@ const CALC_CATEGORIES = [
 ];
 
 const CALC_APPS = [
+  {
+    code: "MT",
+    titre: "Manuel technique",
+    description: "Mode d'emploi, manuel de référence (hypothèses, formules détaillées, paragraphes des normes, limites) et tests de validation exécutés en direct : pour comprendre, contrôler et qualifier les calculettes.",
+    url: "manuel/",
+    categorie: "ress",
+    normes: ["Qualification", "Eurocodes + AN"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="120" y="22" width="160" height="155" rx="6" fill="#fff" stroke="#171a1e"/><rect x="120" y="22" width="18" height="155" fill="#114088"/>
+  <text x="210" y="62" font-size="15" text-anchor="middle" fill="#114088" font-weight="800">MANUEL</text>
+  <text x="210" y="92" font-size="12" text-anchor="middle" fill="#171a1e">χ = 1/(Φ+√(Φ²−λ̄²))</text>
+  <text x="210" y="116" font-size="12" text-anchor="middle" fill="#171a1e">δ = PL³/3EI</text>
+  <circle cx="190" cy="148" r="9" fill="#1d7a36"/><path d="M185 148 l4 4 l7 -8" stroke="#fff" stroke-width="2.4" fill="none"/>
+  <text x="206" y="153" font-size="12" fill="#1d7a36" font-weight="700">tests OK</text>
+</svg>`,
+  },
   {
     code: "RF",
     titre: "Référentiel",
