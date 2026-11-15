@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.39"></script>
+<script src="../commun/auth.js?v=2.40"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.39">
+<link rel="stylesheet" href="../commun/calc.css?v=2.40">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.39"></script>
-<script src="../commun/data/tuyauterie.js?v=2.39"></script>
-<script src="../commun/acier.js?v=2.39"></script>
-<script src="../commun/barres3d.js?v=2.39"></script>
-<script src="../commun/dessin.js?v=2.39"></script>
-<script src="../commun/coefvent.js?v=2.39"></script>
-<script src="../commun/cahier.js?v=2.39"></script>
+<script src="../commun/data/profils.js?v=2.40"></script>
+<script src="../commun/data/tuyauterie.js?v=2.40"></script>
+<script src="../commun/acier.js?v=2.40"></script>
+<script src="../commun/barres3d.js?v=2.40"></script>
+<script src="../commun/dessin.js?v=2.40"></script>
+<script src="../commun/coefvent.js?v=2.40"></script>
+<script src="../commun/cahier.js?v=2.40"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -147,7 +147,7 @@
     <label class="chk"><input type="checkbox" id="cW" checked> Vent sur tuyaux et profilé (W)</label>
     <label class="chk"><input type="checkbox" id="cS"> Neige sur tuyaux (S) — support extérieur</label>
     <label class="chk"><input type="checkbox" id="cE"> Séisme (A<sub>Ed</sub>, éléments non structuraux)</label>
-    <label class="chk"><input type="checkbox" id="cEP"> Épreuve hydraulique (tuyauteries remplies d'eau)</label>
+    <label class="chk"><input type="checkbox" id="cEP"> Épreuve hydraulique (eau en Q, lignes à fluide plus léger que l'eau)</label>
     <h3>Données climatiques et sismiques</h3>
     <button class="sec noprint" id="impC1" style="width:100%">⬇ Importer les hypothèses de la calculette C1</button>
     <div class="note" id="infoC1"></div>
@@ -250,11 +250,11 @@ function propsTuyau(t){
     const P=PIPES.find(p=>p.dn==t.dn)||PIPES[0], en=P.s[t.sch]??Object.values(P.s)[0], m=MATS.find(x=>x.id===t.mat)||MATS[0];
     De=P.od; const di=De-2*en, aire=d=>Math.PI/4*d*d*1e-6;
     const mt=(aire(De)-aire(di))*m.rho, mf=aire(di)*(+t.rho||0), mw=aire(di)*1000, mi=(aire(De+2*ecal)-aire(De))*(+t.rhoCal||0);
-    qop=(mt+mf+mi)*gN/1000; qeau=(mt+mw+mi)*gN/1000;
-    return {De,ecal,Dc:De+2*ecal,qop,qeau,en,di,desc:`DN${P.dn} Sch ${t.sch} – Ø${De}×${en} – ${m.id}`};
+    qop=(mt+mf+mi)*gN/1000; qeau=(mt+mw+mi)*gN/1000; const qvide=(mt+mi)*gN/1000;
+    return {De,ecal,Dc:De+2*ecal,qop,qeau,qvide,leger:(+t.rho||0)<1000,en,di,desc:`DN${P.dn} Sch ${t.sch} – Ø${De}×${en} – ${m.id}`};
   }
   De=+t.Dd||100; qop=+t.qd||0; qeau=qop;
-  return {De,ecal,Dc:De+2*ecal,qop,qeau,desc:`Ø${De} mm – q = ${f(qop,3)} kN/m (saisie)`};
+  return {De,ecal,Dc:De+2*ecal,qop,qeau,qvide:qop,leger:false,desc:`Ø${De} mm – q = ${f(qop,3)} kN/m (saisie)`};
 }
 /* ---------- point fixe : estimation prudente de l'effort d'ancrage axial F_x (aide APS) ----------
    Δ = α·ΔT·L_r ; frottement F_f = μ·q·L_r (supports glissants / guidés de la ligne, côté le plus long)
@@ -449,7 +449,7 @@ function geometrie(D){
 const CF_FAM=CV.cfFamilles();
 const cfProfil=(p,D)=>D.cfp!=null?D.cfp:(CF_FAM[p.f]??2.0);
 function casDeCharge(D,Gm){
-  const cas={}; ['G','T','S','WY','WX','EP','EX','EY'].forEach(c=>cas[c]={charges:[],reparties:[]});
+  const cas={}; ['G','FL','T','S','WY','WX','EP','EX','EY'].forEach(c=>cas[c]={charges:[],reparties:[]});
   const add=(c,n,F)=>cas[c].charges.push({n,F}), rep=(c,b,q)=>cas[c].reparties.push({b,q});
   const transfert=(t,F)=>{const n=Gm.noeuds[t.n], r=[t.c[0]-n.x,t.c[1]-n.y,t.c[2]-n.z];
     return [F[0],F[1],F[2], r[1]*F[2]-r[2]*F[1], r[2]*F[0]-r[0]*F[2], r[0]*F[1]-r[1]*F[0]];};
@@ -460,7 +460,9 @@ function casDeCharge(D,Gm){
     if(D.cT){ const fr=(+t.mu||0)*G; let Ft=[fr,0,0]; if(t.fonc==='guide') Ft=[fr,+t.Fy||0,0]; if(t.fonc==='fixe') Ft=[t.est?(ancrage(t,P).F||0):(+t.Fx||0),+t.Fy||0,+t.Fz||0]; d.T=Ft; add('T',t.n,transfert(t,Ft)); }
     if(D.cS){ d.S=D.mus*D.sk*P.Dc/1000*Lp; add('S',t.n,transfert(t,[0,0,-d.S])); }
     if(D.cW){ d.W=D.qp*D.cft*P.Dc/1000*Lp; add('WY',t.n,transfert(t,[0,d.W,0])); }
-    if(D.cEP){ d.EP=Math.max(0,(P.qeau-P.qop)*Lp); add('EP',t.n,transfert(t,[0,0,-d.EP])); }
+    // épreuve hydraulique (fluide moins dense que l'eau) : situation où le fluide de service est remplacé par l'eau, classée Q.
+    // FL = fluide en service (compris dans G, retiré dans les combinaisons d'épreuve) ; EP = eau d'épreuve (contenu complet)
+    if(D.cEP&&P.leger){ d.FL=(P.qop-P.qvide)*Lp; d.EP=(P.qeau-P.qvide)*Lp; if(d.FL>0) add('FL',t.n,transfert(t,[0,0,-d.FL])); if(d.EP>0) add('EP',t.n,transfert(t,[0,0,-d.EP])); }
     if(D.cE){ d.E=kE*G; add('EX',t.n,transfert(t,[d.E,0,0])); add('EY',t.n,transfert(t,[0,d.E,0])); }
     detail.push(d);
   }
@@ -514,7 +516,7 @@ function verifier(D){
   if(actif('EP')) vars.push({id:'EP',psi:[0,0,0],exclut:['T+','T−','S','W+Y','W−Y','W+X','W−X']});
   const C=genererCombinaisons(vars);
   const MAP={G:['G',1],'T+':['T',1],'T−':['T',-1],S:['S',1],'W+Y':['WY',1],'W−Y':['WY',-1],'W+X':['WX',1],'W−X':['WX',-1],EP:['EP',1]};
-  const base=c=>{const o={};for(const [k,v] of Object.entries(c.f)){const [b,sg]=MAP[k];o[b]=(o[b]||0)+sg*v;}return o;};
+  const base=c=>{const o={};for(const [k,v] of Object.entries(c.f)){const [b,sg]=MAP[k];o[b]=(o[b]||0)+sg*v;} if(o.EP) o.FL=-(o.G||0); return o;};   // épreuve : G sans le fluide de service + γQ·eau
   const sism=[]; if(actif('EX')||actif('EY')) for(const [a,b] of [[1,0.3],[0.3,1]]) for(const sx of [1,-1]) for(const sy of [1,-1]) sism.push({nom:`1·G ${sx>0?'+':'−'} ${a===1?'':'0,3·'}E<sub>x</sub> ${sy>0?'+':'−'} ${b===1?'':'0,3·'}E<sub>y</sub>`,b:{G:1,EX:sx*a,EY:sy*b},type:'Sismique'});
   const ELU=C.ELU.map(c=>({nom:c.nom,b:base(c),type:'ELU'})).concat(sism), CAR=C.CAR.map(c=>({nom:c.nom,b:base(c)}));
   const somme=(b,fn)=>{let o=null;for(const [c,k] of Object.entries(b)){if(!R[c]||!k)continue;const v=fn(R[c]);o=o?o.map((x,i)=>x+k*v[i]):v.map(x=>k*x);}return o||[0,0,0,0,0,0];};
@@ -796,7 +798,7 @@ function enveloppe(V){
   });
 }
 function ddc(V,env){
-  const cas=[['G','G – permanentes (tuyaux + profilés + équipements)'],['T','T – température (frottement, dilatation) ±'],['S','S – neige'],['WY','W<sub>y</sub> – vent transversal ±'],['WX','W<sub>x</sub> – vent longitudinal ±'],['EP','EP – surcharge d\'épreuve'],['EX','E<sub>x</sub> – séisme longitudinal ±'],['EY','E<sub>y</sub> – séisme transversal ±']];
+  const cas=[['G','G – permanentes (tuyaux + profilés + équipements)'],['T','T – température (frottement, dilatation) ±'],['S','S – neige'],['WY','W<sub>y</sub> – vent transversal ±'],['WX','W<sub>x</sub> – vent longitudinal ±'],['FL','G<sub>fl</sub> – fluide en service (compris dans G, remplacé par l\'eau à l\'épreuve)'],['EP','E<sub>P</sub> – eau d\'épreuve (lignes à fluide moins dense que l\'eau)'],['EX','E<sub>x</sub> – séisme longitudinal ±'],['EY','E<sub>y</sub> – séisme transversal ±']];
   let h=`<div class="msg warn">⚠ Valeurs de <b>prédimensionnement (phase APS/APD)</b> : non valables pour exécution, à confirmer par les études d'exécution (efforts concomitants, détails d'assemblage, chevilles retenues).</div><div class="note">Efforts exercés <b>par le support sur l'ouvrage</b> à chaque appui, repère global : X = axe des tuyaux, Y = horizontal transversal, Z = vertical ↑ (F<sub>z</sub> &lt; 0 : vers le bas). Moments au point d'appui (nuls pour les rotations libres d'un appui articulé).</div>`;
   env.forEach((E,ia)=>{
     const a=E.a; h+=`<h3>${escH(a.lib)} – position (y = ${f(a.pt[1],2)} m ; z = ${f(a.pt[2],2)} m)</h3><table class="ddc"><tr><th>Cas (caractéristique)</th>${COMP.map(c=>`<th class="n">${c}</th>`).join('')}</tr>`;
@@ -810,9 +812,9 @@ function ddc(V,env){
   $('rDDC').innerHTML=h;
 }
 function charges(V,D){
-  $('rCharges').innerHTML=`<table><tr><th>Tuyauterie</th><th>Barre</th><th class="n">G (kN)</th><th class="n">T : F<sub>x</sub> / F<sub>y</sub> / F<sub>z</sub> (kN)</th><th class="n">S (kN)</th><th class="n">W (kN)</th><th class="n">EP (kN)</th><th class="n">E (kN)</th></tr>`+
-   V.CC.detail.map((d,k)=>`<tr><td>${escH(d.nom)}</td><td>${escH(V.Gm.B[V.Gm.T[k].bi].lib)}</td><td class="n">${f(d.G,2)}</td><td class="n">${d.T.map(x=>f(x,2)).join(' / ')}</td><td class="n">${f(d.S,2)}</td><td class="n">${f(d.W,2)}</td><td class="n">${f(d.EP,2)}</td><td class="n">${f(d.E,2)}</td></tr>`).join('')+
-   `</table><div class="note">G = q<sub>service</sub> × portée + G suppl. · T : frottement μ·G (glissant), + F<sub>y</sub> (guidé), efforts saisis (point fixe) · S = μ·s<sub>k</sub>·D<sub>cal</sub>·portée · W = q<sub>p</sub>·c<sub>f</sub>·D<sub>cal</sub>·portée (EN 1991-1-4 §7.9) · E = S<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub>·G avec S<sub>a</sub> = ${f(V.CC.Sa,3)} (EN 1998-1 éq. 4.24). Profilés : poids propre, vent q<sub>p</sub>·c<sub>f</sub>·largeur exposée (ψ<sub>λ</sub> = 1), c<sub>f</sub> = ${D.cfp!=null?f(D.cfp,2)+' (saisi)':[...new Set(V.Gm.B.map(b=>b.p.f))].map(fa=>fa+' '+f(CF_FAM[fa]??2,2)).join(', ')+' (NF EN 1991-1-4/NA fig. 7.39–7.50, ramené à la largeur projetée)'}, masse sismique.</div>`;
+  $('rCharges').innerHTML=`<table><tr><th>Tuyauterie</th><th>Barre</th><th class="n">G (kN)</th><th class="n">T : F<sub>x</sub> / F<sub>y</sub> / F<sub>z</sub> (kN)</th><th class="n">S (kN)</th><th class="n">W (kN)</th><th class="n">E<sub>P</sub> eau (kN)</th><th class="n">E (kN)</th></tr>`+
+   V.CC.detail.map((d,k)=>`<tr><td>${escH(d.nom)}</td><td>${escH(V.Gm.B[V.Gm.T[k].bi].lib)}</td><td class="n">${f(d.G,2)}</td><td class="n">${d.T.map(x=>f(x,2)).join(' / ')}</td><td class="n">${f(d.S,2)}</td><td class="n">${f(d.W,2)}</td><td class="n">${d.EP?f(d.EP,2)+(d.FL!=null?`<br><span class="note">fluide ${f(d.FL,2)}</span>`:''):'—'}</td><td class="n">${f(d.E,2)}</td></tr>`).join('')+
+   `</table><div class="note">G = q<sub>service</sub> × portée + G suppl. · E<sub>P</sub> = eau d'épreuve × portée (lignes à fluide moins dense que l'eau, l'eau remplaçant le fluide de service) · T : frottement μ·G (glissant), + F<sub>y</sub> (guidé), efforts saisis (point fixe) · S = μ·s<sub>k</sub>·D<sub>cal</sub>·portée · W = q<sub>p</sub>·c<sub>f</sub>·D<sub>cal</sub>·portée (EN 1991-1-4 §7.9) · E = S<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub>·G avec S<sub>a</sub> = ${f(V.CC.Sa,3)} (EN 1998-1 éq. 4.24). Profilés : poids propre, vent q<sub>p</sub>·c<sub>f</sub>·largeur exposée (ψ<sub>λ</sub> = 1), c<sub>f</sub> = ${D.cfp!=null?f(D.cfp,2)+' (saisi)':[...new Set(V.Gm.B.map(b=>b.p.f))].map(fa=>fa+' '+f(CF_FAM[fa]??2,2)).join(', ')+' (NF EN 1991-1-4/NA fig. 7.39–7.50, ramené à la largeur projetée)'}, masse sismique.</div>`;
 }
 function entraxes(D,V){
   const T=V.Gm.T,out=[];
@@ -939,7 +941,7 @@ function notes(D,V){
    <li>Prédimensionnement (APS/APD) ; les études d'exécution restent à la charge des entreprises. Cas complexes : Robot, Nastran, Hilti PROFIS.</li>
    <li>Modèle de barres 3D élastique au 1<sup>er</sup> ordre : platines encastrées (pieds, plafond, mur), traverse du L mural articulée sur le mur (translations et torsion bloquées), assemblages montant/traverse/consoles rigides et lignes moyennes concourantes. Charges des tuyaux appliquées à leur axe et transmises par bras rigides. Excentricité automatique : demi-emprise du profilé + rayon calorifugé + sabot.</li>
    <li>Longueurs de flambement (prudentes) : montants, suspentes et porte-à-faux L<sub>cr</sub> = 2L (y compris montants du U, pieds encastrés supposés à nœuds déplaçables hors plan) ; traverses entre appuis (U, L mural) L<sub>cr</sub> = L. Déplacements limités à min(L<sub>réf</sub>/n ; d<sub>max</sub>) avec L<sub>réf</sub> = longueur de la barre portant le tuyau (demi-traverse pour le T).</li>
-   <li>Combinaisons NF EN 1990 + AN : 6.10 (γ<sub>G</sub> = 1,35/1,0 ; γ<sub>Q</sub> = 1,5), chaque action variable dominante ; T (ψ = 0,6/0,5/0), neige, vent (0,6/0,2/0), directions ±X ±Y exclusives (supports muraux : vent transversal uniquement dirigé vers le mur, le mur masquant l'autre sens) ; épreuve non combinée aux autres variables. Situation sismique : G + A<sub>Ed</sub>, 100 % / 30 % (EN 1998-1 §4.3.3.5.2), composante verticale non prise en compte.</li>
+   <li>Combinaisons NF EN 1990 + AN : 6.10 (γ<sub>G</sub> = 1,35/1,0 ; γ<sub>Q</sub> = 1,5), chaque action variable dominante ; T (ψ = 0,6/0,5/0), neige, vent (0,6/0,2/0), directions ±X ±Y exclusives (supports muraux : vent transversal uniquement dirigé vers le mur, le mur masquant l'autre sens) ; épreuve (lignes à fluide moins dense que l'eau) : γ<sub>G</sub>·(G − G<sub>fl</sub>) + 1,5·E<sub>P</sub>, l'eau remplaçant le fluide de service, non combinée aux autres variables. Situation sismique : G + A<sub>Ed</sub>, 100 % / 30 % (EN 1998-1 §4.3.3.5.2), composante verticale non prise en compte.</li>
    <li>Vérifications NF EN 1993-1-1 : section (critère linéaire §6.2.1(7)), cisaillement + torsion de Saint-Venant (gauchissement négligé), stabilité simplifiée (k = 1 + 0,6·λ̄·n). Cornières : axes principaux, élastique, sans déversement. Tubes : courbe c (formés à froid, prudent).</li>
    <li>Gauchissement (profilés I et U) : bi-moment B = T·a·tanh(L<sub>e</sub>/a) avec gauchissement bloqué à l'encastrement (L<sub>e</sub> = L pour un porte-à-faux, L/2 entre appuis), σ<sub>w</sub> = B·ω/I<sub>w</sub>, ajouté aux taux de section et de stabilité (prudent, U traité comme un I). Raideur : pour une barre I / U encastrée (platine soudée), le modèle prend I<sub>t,eff</sub> = I<sub>t</sub>·L/(L − a·tanh(L/a)) (gauchissement bloqué à l'encastrement, libre à l'autre extrémité : prudent) ; les autres barres gardent la seule raideur de Saint-Venant.</li>
    <li>Platines semi-rigides par défaut (S<sub>j</sub> = 10·EI/L) : hypothèse prudente pour les déplacements. Taux au-delà du taux cible signalés en jaune (non bloquant) ; l'optimisation vise le taux cible.</li>
@@ -1392,7 +1394,7 @@ function resumeS1(){                                     // résultats synthéti
     taux:V.gov.r,critere:V.gov.n.replace(/<[^>]+>/g,''),statut,bloq:nb,warn:nw,alertes:A.filter(a=>a.niv!=='info').map(a=>(a.niv==='bloq'?'⛔ ':'⚠ ')+a.titre.replace(/<[^>]+>/g,'')),
     tuyaux:V.Gm.T.map(t=>({nom:t.nom,desc:t.P.desc,G:V.CC.detail[V.Gm.T.indexOf(t)].G,barre:V.Gm.B[t.bi].lib,d:diamEtrier(t),dn:t.mode==='base'?+t.dn:null,De:t.P.De})),
     fix:{mode:$('fix').value||'chev',d:+$('tD').value,cl:$('tCl').value},appuis:env.map(E=>({lib:E.a.lib,k:E.a.k,profil:(V.Gm.B.find(b=>[b.A,b.B].some(P=>Math.hypot(...P.map((v,i)=>v-E.a.pt[i]))<1e-6))||V.Gm.B[0]).p.n,ELU:E.ELU.map(e=>e.v),SIS:V.res.some(r=>r.c.type==='Sismique')?E.SIS.map(e=>e.v):null,
-      cas:Object.fromEntries(['G','T','S','WY','WX','EP','EX','EY'].filter(c=>V.R[c]).map(c=>[c,V.R[c].reactions[E.a.n].map(x=>-x)]))})),
+      cas:Object.fromEntries(['G','FL','T','S','WY','WX','EP','EX','EY'].filter(c=>V.R[c]).map(c=>[c,V.R[c].reactions[E.a.n].map(x=>-x)]))})),
     lignes:V.lignes.map(l=>({n:l.n.replace(/<[^>]+>/g,''),r:l.r})),date:new Date().toISOString()};
 }
 window.S1API={ndc:async(o={})=>{ const sv={...NDC}; Object.assign(NDC,o); try{ const el=await ndcRendre(true), h=el.outerHTML; $('ndcHors').innerHTML=''; return h; } finally{ Object.keys(NDC).forEach(k=>delete NDC[k]); Object.assign(NDC,sv); } },ndcCSS:()=>NDC_CSS,
@@ -1432,12 +1434,12 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.39"></script>
-<script src="../commun/aide.js?v=2.39"></script>
-<script src="ndc-s1.js?v=2.39"></script>
+<script src="../commun/replier.js?v=2.40"></script>
+<script src="../commun/aide.js?v=2.40"></script>
+<script src="ndc-s1.js?v=2.40"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.39"></script>
-<script src="../commun/export.js?v=2.39"></script>
+<script src="aide-s1.js?v=2.40"></script>
+<script src="../commun/export.js?v=2.40"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

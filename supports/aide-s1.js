@@ -62,7 +62,7 @@ AIDE.init({
     cW: "Vent sur les tuyaux et sur le profilé (supports extérieurs).",
     cS: "Neige sur les tuyaux (supports extérieurs uniquement).",
     cE: "Séisme : à cocher si le bâtiment est en zone sismique et que les tuyauteries le demandent.",
-    cEP: "Épreuve hydraulique : tuyauteries remplies d'eau (cas de charge temporaire).",
+    cEP: "Épreuve hydraulique : pour les lignes dont le fluide est moins dense que l'eau (gaz, vapeur, hydrocarbures légers), cas où l'eau d'épreuve, classée Q, remplace le fluide : γG·(G − fluide) + 1,5·eau, sans autre action variable. Lignes à fluide ≥ 1 000 kg/m³ : épreuve couverte par G.",
     qp: "Pression dynamique de pointe du vent en kN/m², à prendre dans C1 (bouton Importer).",
     cft: "Coefficient de force du vent sur un tuyau rond (1,2 : valeur maximale de la norme, prudente).",
     cfp: "Coefficient de force du vent sur le profilé. Laisser vide : valeur de l'Annexe nationale selon la famille (UPN 2,0 ; cornière 2,4 ; tube carré 2,1…).",

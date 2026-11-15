@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.39"></script>
+<script src="../commun/auth.js?v=2.40"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — G1 Charges permanentes</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.39">
-<script src="../commun/apps.js?v=2.39"></script>
-<script src="../commun/cahier.js?v=2.39"></script>
-<script src="../climat/data/zonage.js?v=2.39"></script>
-<script src="../commun/data/tuyauterie.js?v=2.39"></script>
-<script src="../commun/charges.js?v=2.39"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.40">
+<script src="../commun/apps.js?v=2.40"></script>
+<script src="../commun/cahier.js?v=2.40"></script>
+<script src="../climat/data/zonage.js?v=2.40"></script>
+<script src="../commun/data/tuyauterie.js?v=2.40"></script>
+<script src="../commun/charges.js?v=2.40"></script>
 <style>
   main{display:block;max-width:1400px}
   table.ed td,table.ed th{font-size:12.5px;vertical-align:middle}
@@ -57,7 +57,7 @@
   <div class="card" id="cTuy"><h2>Lignes de tuyauterie – poids linéiques</h2>
     <div class="noprint" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="addTuy">➕ Ligne</button><button type="button" id="impTuy" class="sec" title="Reprendre les tuyauteries des supports enregistrés dans le cahier de supportage (S1)">📥 Importer les lignes du cahier (S1)</button></div>
     <div id="tuy"></div>
-    <div class="note">Même base que T1 et S1 (ASME B36.10M / B36.19M). <b>G</b> = tube + calorifuge + fluide en service. Si le fluide est moins dense que l'eau (gaz, vapeur, hydrocarbures légers…), l'épreuve hydraulique ajoute une action variable <b>Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>service</sub></b> (cas E<sub>P</sub> de S1) ; sinon elle est couverte par G.</div></div>
+    <div class="note">Même base que T1 et S1 (ASME B36.10M / B36.19M). <b>G</b> = tube + calorifuge + fluide en service. Si le fluide est moins dense que l'eau (gaz, vapeur, hydrocarbures légers…), une situation d'épreuve hydraulique est prévue : l'eau remplace le fluide et est classée en action variable <b>Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>vide</sub></b> (cas E<sub>P</sub> de S1), avec G = q<sub>vide</sub> ; sinon elle est couverte par G.</div></div>
 
   <div class="card" id="cPon"><h2>Charges ponctuelles – équipements</h2>
     <div class="noprint"><button type="button" id="addPon">➕ Équipement</button></div>
@@ -120,14 +120,14 @@ document.querySelector('#cLin').addEventListener('change',e=>{ const tr=e.target
 /* ---------- tuyauteries ---------- */
 const nvTuy=(o={})=>({id:uid(),type:'tuy',nom:'L'+(G.lineiques.filter(l=>l.type==='tuy').length+1),dn:100,sch:'40',mat:'P265GH',fluide:0,rhoF:1000,ecal:0,rhoCal:100,q:0,note:true,...o});
 function rendreTuy(){ const L=G.lineiques.map((l,i)=>[l,i]).filter(([l])=>l.type==='tuy');
-  $('tuy').innerHTML=L.length?`<table class="ed"><tr><th>Ligne</th><th>DN / sch / matériau</th><th>Fluide</th><th class="n">ρ<sub>f</sub> (kg/m³)</th><th>Calorifuge</th><th class="n">q vide</th><th class="n">G service</th><th class="n">q eau</th><th class="n">Q<sub>ép</sub></th><th>note</th><th></th></tr>`+L.map(([l,i])=>{ const r=CH.qTuyau(l), P=PIPES.find(p=>p.dn==l.dn)||PIPES[0], sch=SCH_ORDER.filter(x=>P.s[x]!==undefined);
+  $('tuy').innerHTML=L.length?`<table class="ed"><tr><th>Ligne</th><th>DN / sch / matériau</th><th>Fluide</th><th class="n">ρ<sub>f</sub> (kg/m³)</th><th>Calorifuge</th><th class="n">q vide</th><th class="n">Service : G</th><th class="n">Épreuve : Q<sub>ép</sub> eau</th><th>note</th><th></th></tr>`+L.map(([l,i])=>{ const r=CH.qTuyau(l), P=PIPES.find(p=>p.dn==l.dn)||PIPES[0], sch=SCH_ORDER.filter(x=>P.s[x]!==undefined);
     return `<tr data-i="${i}"><td><input data-l="nom" value="${h(l.nom)}" style="width:90px"></td>
       <td><span class="inl">DN <select data-l="dn">${PIPES.map(p=>`<option ${p.dn==l.dn?'selected':''}>${p.dn}</option>`).join('')}</select> <select data-l="sch">${sch.map(x=>`<option ${x===l.sch?'selected':''}>${x}</option>`).join('')}</select> <select data-l="mat">${MATS.map(m=>`<option ${m.id===l.mat?'selected':''}>${m.id}</option>`).join('')}</select></span><div class="note">Ø${f(r.D,1)} × ${f(r.en,2)}</div></td>
       <td><select data-l="fluide">${FLUIDS.map((x,k)=>`<option value="${k}" ${+l.fluide===k?'selected':''}>${h(x.n)}</option>`).join('')}</select></td>
       <td style="width:80px"><input data-l="rhoF" type="number" value="${l.rhoF}"></td>
       <td><span class="inl"><input data-l="ecal" type="number" value="${l.ecal}" style="width:55px"> mm × <input data-l="rhoCal" type="number" value="${l.rhoCal}" style="width:60px"> kg/m³</span></td>
-      <td class="n">${f(r.qVide,3)}</td><td class="n"><b>${f(r.qServ,3)}</b></td><td class="n">${f(r.qEau,3)}</td><td class="n">${r.qEp>0?`<b style="color:#0098db">${f(r.qEp,3)}</b>`:'<span class="note">couverte</span>'}</td>
-      <td><input type="checkbox" data-l="note" ${l.note!==false?'checked':''}></td><td class="noprint"><button type="button" class="sec mini" data-x>✕</button></td></tr>`; }).join('')+'</table><div class="note">Valeurs en kN/m. G = charge permanente ; Q<sub>ép</sub> = action variable d\'épreuve (bleu).</div>':'<div class="note">Aucune ligne.</div>'; }
+      <td class="n">${f(r.qVide,3)}</td><td class="n"><b>${f(r.qServ,3)}</b></td><td class="n">${r.qEp>0?`<b style="color:#0098db">${f(r.qEp,3)}</b>`:'<span class="note">couverte</span>'}</td>
+      <td><input type="checkbox" data-l="note" ${l.note!==false?'checked':''}></td><td class="noprint"><button type="button" class="sec mini" data-x>✕</button></td></tr>`; }).join('')+'</table><div class="note">Valeurs en kN/m. Service : G = tube + calorifuge + fluide. Épreuve (fluide plus léger que l\'eau) : G = q vide et eau Q<sub>ép</sub> (action variable, bleu) ; « couverte » : fluide au moins aussi dense que l\'eau.</div>':'<div class="note">Aucune ligne.</div>'; }
 $('addTuy').onclick=()=>{ G.lineiques.push(nvTuy()); maj(); };
 $('impTuy').onclick=()=>{ const K=CAHIER.existe()?CAHIER.lire():null, T=K?K.types.filter(t=>t.kind==='s1'&&t.etat&&t.etat.tuyaux):[];
   if(!T.length){ alert('Aucun support S1 dans le cahier de supportage de ce navigateur.'); return; }
@@ -157,16 +157,16 @@ $('sym').innerHTML=CH.symboles();
 function maj(){ calcLin(); rendreCpx(); rendreLin(); rendreTuy(); rendrePon(); enr(); }
 maj(); rendreMat();
 </script>
-<script src="../commun/replier.js?v=2.39"></script>
-<script src="../commun/aide.js?v=2.39"></script>
+<script src="../commun/replier.js?v=2.40"></script>
+<script src="../commun/aide.js?v=2.40"></script>
 <script>AIDE.init({titre:"Aide – G1 Charges permanentes",manuel:"g1",intro:"G1 recense les charges permanentes de l'affaire autres que le poids propre des éléments calculés (ajouté automatiquement par S1, P1, P2, T1). Chaque élément coché « note » est repris dans la note d'hypothèses (NH).",
   etapes:[{t:"Complexes",html:"« ➕ Couverture / Bardage / Plancher / Autre » : choisir les couches dans le catalogue, saisir les épaisseurs (mode vol) ou une valeur libre ; la coupe de principe se dessine à droite.",cible:"#cCpx"},
     {t:"Charges linéiques",html:"Garde-corps (valeurs indicatives ou saisies) ou autre charge linéique.",cible:"#cLin"},
-    {t:"Lignes de tuyauterie",html:"« ➕ Ligne » ou « 📥 Importer les lignes du cahier » (tuyauteries des supports S1, doublons ignorés). Pour chaque ligne : q à vide, G en service, q pleine d'eau et, si le fluide est moins dense que l'eau, la surcharge d'épreuve Q<sub>ép</sub> (action variable).",cible:"#cTuy"},
+    {t:"Lignes de tuyauterie",html:"« ➕ Ligne » ou « 📥 Importer les lignes du cahier » (tuyauteries des supports S1, doublons ignorés). Pour chaque ligne : q à vide, G en service et, si le fluide est moins dense que l'eau, le poids de l'eau d'épreuve Q<sub>ép</sub> (action variable, en remplacement du fluide).",cible:"#cTuy"},
     {t:"Équipements",html:"Masses à vide et en service (fiche fabricant), nombre d'appuis : charge par appui.",cible:"#cPon"},
     {t:"Poids volumiques",html:"Cocher les valeurs de l'Annexe A à citer dans la note.",cible:"#cMat"},
     {t:"Note d'hypothèses",html:"« 📑 Note d'hypothèses » rassemble G1, Q1, C1 et les hypothèses générales."}],
-  faq:[{q:"Tuyauterie : contenu en G ou en Q ?",r:"Le contenu en service est classé en G (niveau stable). Si ρ<sub>fluide</sub> &lt; 1 000 kg/m³, l'épreuve hydraulique à l'eau est plus lourde : l'écart Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>service</sub> est une action variable de situation transitoire (NF EN 1990 §3.2, §4.1.1), comme le cas E<sub>P</sub> de S1. Si l'épreuve est faite au gaz ou si la ligne n'est jamais remplie d'eau, ne pas la retenir (à justifier)."},
+  faq:[{q:"Tuyauterie : contenu en G ou en Q ?",r:"En service, le fluide est classé en G. Si ρ<sub>fluide</sub> &lt; 1 000 kg/m³, une situation d\'épreuve hydraulique est prévue : la ligne est remplie d\'eau à la place du fluide et cette eau est une action variable Q<sub>ép</sub> (situation transitoire, NF EN 1990 §3.2, §4.1.1) : ELU 1,35·q<sub>vide</sub> + 1,5·Q<sub>ép</sub>, sans autre action variable (cas E<sub>P</sub> de S1). Si l\'épreuve est pneumatique ou si la ligne n\'est jamais remplie d\'eau, ne pas retenir ce cas (à justifier)."},
     {q:"Le poids propre est-il compté deux fois ?",r:"Non : le poids propre des profilés calculés est ajouté par les calculettes ; ne mettre dans G1 que les charges rapportées (complexes, équipements, réseaux…). Pour un complexe porté par une ossature calculée (pannes, lisses), ne pas cocher le forfait « ossature secondaire » si les pannes sont dimensionnées dans un autre outil."},
     {q:"Contenu des équipements : permanent ou variable ?",r:"Le contenu en service d'un équipement à niveau stable peut être traité en charge permanente ; s'il varie (cuve, trémie), le traiter en charge variable (Q1 ou valeur du projet) et préciser l'hypothèse."}]});</script>
 </body>

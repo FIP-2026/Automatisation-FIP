@@ -70,7 +70,9 @@ const CH = (() => {
     ["A.7 Matériaux de construction stockés", "Ciment en vrac", 16], ["A.7 Matériaux de construction stockés", "Ciment en sacs", 15], ["A.7 Matériaux de construction stockés", "Sable sec", [15, 16]], ["A.7 Matériaux de construction stockés", "Gravier, granulats", [15, 20]], ["A.7 Matériaux de construction stockés", "Chaux", 13],
     ["A.10 Liquides", "Eau douce", 10.0], ["A.10 Liquides (voir H1 pour la température)", "Hydrocarbures : voir H1 Propriétés des fluides", null],
   ].map(([fam, nom, v], i) => ({ id: "A" + i, fam, nom, v }));
-  const valA = (v) => (Array.isArray(v) ? `${fx(v[0], 1)} à ${fx(v[1], 1)}` : v == null ? "—" : fx(v, 1));
+  /* AN 2 (NF P 06-111-2) : à défaut de spécification du projet, valeur médiane des fourchettes des tableaux A.1 à A.12 */
+  const medA = (v) => (Array.isArray(v) ? (v[0] + v[1]) / 2 : v);
+  const valA = (v) => (Array.isArray(v) ? `${fx(v[0], 1)} à ${fx(v[1], 1)} → ${fx(medA(v), 2)} (médiane)` : v == null ? "—" : fx(v, 1));
 
   /* ---------- charges d'exploitation : NF EN 1991-1-1 + AN ---------- */
   /* [code, libellé, qk (kN/m²), Qk (kN), aire de Qk, ψ0, ψ1, ψ2, référence, à vérifier ?] */
@@ -88,18 +90,25 @@ const CH = (() => {
     ["D2", "D2 – grands magasins", 5.0, 7.0, "50 × 50 mm", 0.7, 0.7, 0.6, "Tab. 6.2(NF)"],
     ["E1", "E1 – stockage (accumulation de marchandises)", 7.5, 7.0, "50 × 50 mm", 1.0, 0.9, 0.8, "Tab. 6.4 ; §6.3.2"],
     ["E2", "E2 – usage industriel (valeur du projet)", null, null, "projet", 1.0, 0.9, 0.8, "§6.3.2.3 : charges définies par le projet (process, équipements, chariots)"],
-    ["F", "F – circulation et stationnement, véhicules ≤ 30 kN", 2.3, 15, "2 × 100 × 100 mm", 0.7, 0.7, 0.6, "Tab. 6.8 + AN", true],
-    ["G", "G – circulation et stationnement, véhicules 30 à 160 kN", 5.0, 90, "2 × 200 × 200 mm", 0.7, 0.5, 0.3, "Tab. 6.8 + AN", true],
+    ["F", "F – circulation et stationnement, véhicules ≤ 30 kN", 2.3, 15, "2 × 100 × 100 mm", 0.7, 0.7, 0.6, "Tab. 6.8(NF) – effets dynamiques couverts jusqu'à 20 km/h ; αA, αn applicables"],
+    ["G", "G – circulation et stationnement, véhicules 30 à 160 kN", 5.0, 90, "2 × 200 × 200 mm", 0.7, 0.5, 0.3, "Tab. 6.8(NF) – effets dynamiques couverts jusqu'à 10 km/h ; véhicules lourds à spécifier pour le projet (AN 1.1(5))"],
     ["PASS", "Passerelle, plate-forme industrielle (NF EN ISO 14122-2)", 2.0, 1.5, "200 × 200 mm", 0.7, 0.7, 0.6, "NF EN ISO 14122-2 §4.2 (minimum ; à majorer selon l'exploitation) ; ψ assimilés à C"],
     ["H-et", "H – toiture inaccessible sauf entretien, pente < 15 % avec étanchéité", 0.8, 1.5, "sur 10 m² (q) ; 50 × 50 mm (Q)", 0, 0, 0, "Tab. 6.10(NF) ; q et Q non simultanés ; non cumulée avec neige et vent (AN)"],
     ["H", "H – autre toiture inaccessible sauf entretien", 0, 1.5, "50 × 50 mm", 0, 0, 0, "Tab. 6.10(NF) ; non cumulée avec neige et vent (AN)"],
+    ["ND", "Catégorie non spécifiée (utilisation future inconnue) → D1", 5.0, 5.0, "50 × 50 mm", 0.7, 0.7, 0.6, "AN §6.3.1.2(1) : valeurs de D1 ; vérifier la compatibilité une fois l'usage connu"],
+    ["I-pays", "I – toiture accessible avec aménagement paysager", 3.0, null, "projet", 0.7, 0.7, 0.6, "AN §6.3.4.1 : minimum recommandé 3 kN/m² (Qk selon l'usage)"],
     ["perso", "Valeur du projet (cahier des charges)", null, null, "projet", 0.7, 0.7, 0.6, "Cahier des charges du maître d'ouvrage"],
   ].map(([c, n, qk, Qk, aire, p0, p1, p2, ref, verif]) => ({ c, n, qk, Qk, aire, psi: [p0, p1, p2], ref, verif: !!verif }));
   /* charges horizontales sur garde-corps et parois : Tab. 6.12(NF) (valeurs à vérifier sur l'AN), industrie NF EN ISO 14122-3 */
   const GARDE_CORPS = [
-    ["A", "Catégorie A (habitation)", 0.6], ["B", "Catégories B et C1", 0.6], ["C", "Catégories C2 à C4 et D", 1.0], ["C5", "Catégorie C5 (foules)", 3.0], ["E", "Catégorie E (stockage)", 2.0],
-    ["ISO", "Accès industriel aux machines (NF EN ISO 14122-3 ; NF E 85-015)", 0.3], ["perso", "Valeur du projet", null],
-  ].map(([c, n, q]) => ({ c, n, q, verif: true }));
+    ["A", "Catégorie A (habitation)", 0.6, "Tab. 6.12(NF)"], ["B", "Catégories B et C1", 0.6, "Tab. 6.12(NF)"], ["C", "Catégories C2 à C4 et D", 1.0, "Tab. 6.12(NF)"], ["C5", "Catégorie C5 (foules)", 3.0, "Tab. 6.12(NF)"], ["E", "Catégorie E (stockage) – minimum", 2.0, "Tab. 6.12(NF) NOTE 1 : valeur minimale selon la destination"],
+    ["P01", "Garde-corps de bâtiment – NF P 01-012 (valeur de la norme à saisir)", null, "NF P 01-012", true], ["E85", "Garde-corps industriel – NF E 85-015 (valeur de la norme à saisir)", null, "NF E 85-015", true],
+    ["ISO", "Accès aux machines – NF EN ISO 14122-3", 0.3, "NF EN ISO 14122-3", true], ["perso", "Valeur du projet", null, "Cahier des charges"],
+  ].map(([c, n, q, ref, verif]) => ({ c, n, q, ref, verif: !!verif }));
+  /* AN §6.3.1.2(10) et (11) : coefficients de réduction (non simultanés, AN §6.2) */
+  const ALPHA_A = ["A", "A-esc", "A-bal", "B", "C3", "D1", "F"], ALPHA_N = { A: [0.5, 1.36], "A-esc": [0.5, 1.36], "A-bal": [0.5, 1.36], B: [0.7, 0.8], F: [0.7, 0.8] };
+  const alphaA = (cat, A) => (ALPHA_A.includes(cat) && A > 0 ? Math.min(0.77 + 3.5 / A, 1) : 1);
+  const alphaN = (cat, n) => (ALPHA_N[cat] && n >= 2 ? Math.min(ALPHA_N[cat][0] + ALPHA_N[cat][1] / n, 1) : 1);
   const CLOISONS = [[0, "aucune"], [0.5, "cloisons ≤ 1,0 kN/m → q = 0,5 kN/m²"], [0.8, "cloisons ≤ 2,0 kN/m → q = 0,8 kN/m²"], [1.2, "cloisons ≤ 3,0 kN/m → q = 1,2 kN/m²"]];
 
   /* ---------- schémas ---------- */
@@ -143,14 +152,14 @@ const CH = (() => {
   }
   /* ---------- charge linéique d'une tuyauterie (kN/m) ---------- */
   /* Tuyauterie (linéique) : q_vide = tube + calorifuge ; q_service = q_vide + fluide (ρ_f) ; q_eau = q_vide + eau (épreuve hydraulique)
-     Classement : G = q_service (contenu en service permanent) ; si ρ_f < ρ_eau, surcharge d'épreuve Q_ép = q_eau − q_service
-     (action variable, situation transitoire, cas EP de S1) ; sinon l'épreuve est couverte par G. */
+     Classement : en service G = q_service ; si ρ_f < ρ_eau, situation d'épreuve hydraulique où l'eau remplace le fluide :
+     G = q_vide et Q_ép = eau = q_eau − q_vide (action variable, cas EP de S1) ; sinon l'épreuve est couverte par G. */
   function qTuyau(t) {
     if (t.mode === "saisie" || typeof PIPES === "undefined") { const q = +t.q || 0; return { q, qVide: q, qServ: q, qEau: q, qEp: 0, desc: "valeur saisie" }; }
     const P = PIPES.find((p) => p.dn == t.dn) || PIPES[0], en = P.s[t.sch] ?? Object.values(P.s)[0], m = (typeof MATS !== "undefined" ? MATS.find((x) => x.id === t.mat) : null) || { rho: 7850, id: "acier" };
     const D = P.od, di = D - 2 * en, A = (d) => Math.PI / 4 * d * d * 1e-6, ec = +t.ecal || 0, rf = +t.rhoF || 0;
     const mt = (A(D) - A(di)) * m.rho, mf = A(di) * rf, mw = A(di) * 1000, mi = (A(D + 2 * ec) - A(D)) * (+t.rhoCal || 0);
-    const qVide = (mt + mi) * g / 1000, qServ = (mt + mf + mi) * g / 1000, qEau = (mt + mw + mi) * g / 1000, qEp = Math.max(0, qEau - qServ);
+    const qVide = (mt + mi) * g / 1000, qServ = (mt + mf + mi) * g / 1000, qEau = (mt + mw + mi) * g / 1000, qEp = rf < 1000 ? qEau - qVide : 0;
     const fl = typeof FLUIDS !== "undefined" && t.fluide != null && FLUIDS[+t.fluide] ? FLUIDS[+t.fluide].n.replace(/ \(négligé\)/, "") : "fluide";
     return { q: qServ, qVide, qServ, qEau, qEp, mt, mf, mw, mi, D, en, di, fl, rf, leger: rf < 1000,
       desc: `DN${P.dn} – Ø${fx(D, 1)} × ${fx(en, 2)} (sch ${t.sch}) – ${m.id}${rf ? ` – ${fl} ${fx(rf, 0)} kg/m³` : " – vide / gaz"}${ec ? ` – calorifuge ${ec} mm à ${fx(+t.rhoCal || 0, 0)} kg/m³` : ""}` };
@@ -173,9 +182,9 @@ const CH = (() => {
     if (au.length) { h += `<h3>Charges linéiques</h3>` + (niv === "simple" ? `<ul>${au.map((l) => `<li>${esc(l.nom)} : <b>${fx(l.q, 3)} kN/m</b>${l.detail ? ` (${esc(l.detail)})` : ""}</li>`).join("")}</ul>` :
       T(["Élément", "Nature", "Détail", "g (kN/m)"], au.map((l) => `<tr><td>${esc(l.nom)}</td><td>${esc({ gc: "Garde-corps", autre: "Autre" }[l.type] || "")}</td><td>${esc(l.detail || "")}</td><td class="n"><b>${fx(l.q, 3)}</b></td></tr>`))); }
     if (tu.length) { const R = tu.map((l) => ({ l, r: qTuyau(l) }));
-      h += `<h3>Tuyauteries (charges linéiques)</h3>` + (niv === "simple" ? `<ul>${R.map(({ l, r }) => `<li>${esc(l.nom)} (${esc(r.desc)}) : à vide ${fx(r.qVide, 3)} kN/m ; <b>G = ${fx(r.qServ, 3)} kN/m</b> en service${r.qEp > 0 ? ` ; épreuve à l'eau : <b>Q<sub>ép</sub> = ${fx(r.qEp, 3)} kN/m</b> (action variable)` : " ; épreuve à l'eau couverte par G"}.</li>`).join("")}</ul>` :
-        T(["Ligne", "Description", "q vide (kN/m)", "q en service – G (kN/m)", "q pleine d'eau (kN/m)", "Q<sub>ép</sub> épreuve (kN/m)"], R.map(({ l, r }) => `<tr><td>${esc(l.nom)}</td><td>${esc(r.desc)}</td><td class="n">${fx(r.qVide, 3)}</td><td class="n"><b>${fx(r.qServ, 3)}</b></td><td class="n">${fx(r.qEau, 3)}</td><td class="n">${r.qEp > 0 ? `<b>${fx(r.qEp, 3)}</b>` : "— (couverte par G)"}</td></tr>`))
-        + `<p class="pied">Classement : le contenu en service est une charge permanente (G = tube + calorifuge + fluide). Lorsque le fluide est moins dense que l'eau (ρ<sub>f</sub> &lt; 1 000 kg/m³ : gaz, vapeur, hydrocarbures légers…), l'épreuve hydraulique à l'eau ajoute Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>service</sub>, traitée comme action variable de situation transitoire (NF EN 1990 §3.2 et §4.1.1) ; sinon elle est couverte par G.</p>`
+      h += `<h3>Tuyauteries (charges linéiques)</h3>` + (niv === "simple" ? `<ul>${R.map(({ l, r }) => `<li>${esc(l.nom)} (${esc(r.desc)}) : à vide ${fx(r.qVide, 3)} kN/m ; <b>G = ${fx(r.qServ, 3)} kN/m</b> en service${r.qEp > 0 ? ` ; épreuve hydraulique : G = ${fx(r.qVide, 3)} kN/m et eau <b>Q<sub>ép</sub> = ${fx(r.qEp, 3)} kN/m</b> (action variable)` : " ; épreuve à l'eau couverte par G"}.</li>`).join("")}</ul>` :
+        T(["Ligne", "Description", "q vide (kN/m)", "Service : G (kN/m)", "Épreuve : G = q vide + Q<sub>ép</sub> eau (kN/m)"], R.map(({ l, r }) => `<tr><td>${esc(l.nom)}</td><td>${esc(r.desc)}</td><td class="n">${fx(r.qVide, 3)}</td><td class="n"><b>${fx(r.qServ, 3)}</b></td><td class="n">${r.qEp > 0 ? `${fx(r.qVide, 3)} + <b>${fx(r.qEp, 3)}</b>` : "— (couverte par G)"}</td></tr>`))
+        + `<p class="pied">Classement : le contenu en service est une charge permanente (G = tube + calorifuge + fluide). Lorsque le fluide est moins dense que l'eau (ρ<sub>f</sub> &lt; 1 000 kg/m³ : gaz, vapeur, hydrocarbures légers…), une situation d'épreuve hydraulique est étudiée : l'eau remplace le fluide et est classée en action variable Q<sub>ép</sub> (situation transitoire, NF EN 1990 §3.2 et §4.1.1), soit γ<sub>G</sub>·q<sub>vide</sub> + γ<sub>Q</sub>·Q<sub>ép</sub>, sans cumul avec les autres actions variables. Sinon l'épreuve est couverte par G.</p>`
         + (niv === "complet" ? `<p class="pied">q = g<sub>0</sub>·[π/4·(D² − d<sub>i</sub>²)·ρ<sub>tube</sub> + π/4·((D + 2t<sub>c</sub>)² − D²)·ρ<sub>calo</sub> + π/4·d<sub>i</sub>²·ρ<sub>contenu</sub>] ; D et épaisseur nominale selon ASME B36.10M / B36.19M (base T1), d<sub>i</sub> = D − 2e.</p>` : "")); }
     if (po.length) { h += `<h3>Charges ponctuelles (équipements)</h3>` + (niv === "simple" ? `<ul>${po.map((p) => `<li>${esc(p.nom)} : ${fx(p.mServ * g / 1000, 2)} kN en service sur ${p.n} appui(s), soit <b>${fx(p.mServ * g / 1000 / Math.max(p.n, 1), 2)} kN par appui</b></li>`).join("")}</ul>` :
       T(["Équipement", "Masse à vide (kg)", "Masse en service (kg)", "Appuis", "G à vide / appui (kN)", "G en service / appui (kN)"], po.map((p) => `<tr><td>${esc(p.nom)}${p.obs ? `<br><span class="pied">${esc(p.obs)}</span>` : ""}</td><td class="n">${fx(p.mVide, 0)}</td><td class="n">${fx(p.mServ, 0)}</td><td class="n">${p.n}</td><td class="n">${fx(p.mVide * g / 1000 / Math.max(p.n, 1), 2)}</td><td class="n"><b>${fx(p.mServ * g / 1000 / Math.max(p.n, 1), 2)}</b></td></tr>`))
@@ -189,13 +198,13 @@ const CH = (() => {
     const z = (Q.zones || []).filter((c) => c.note !== false), gc = (Q.gardecorps || []).filter((c) => c.note !== false);
     let h = `<p>Charges d'exploitation selon la NF EN 1991-1-1 et son annexe nationale (NF EN 1991-1-1/NA)${z.some((x) => x.cat === "PASS") ? " et la NF EN ISO 14122 pour les accès industriels" : ""}. Les charges concentrées Q<sub>k</sub> ne se cumulent pas avec les charges réparties q<sub>k</sub> (§6.3.1.2(5)) ; elles servent aux vérifications locales.</p>`;
     if (z.length) { h += `<h3>Charges réparties et concentrées</h3>`;
-      if (niv === "simple") h += `<ul>${z.map((x) => { const c = CAT_Q.find((k) => k.c === x.cat) || {}; return `<li><b>${esc(x.nom)}</b> (${esc(c.n || x.cat)}) : q<sub>k</sub> = <b>${fx(+x.qk + (+x.cl || 0), 2)} kN/m²</b>${+x.cl ? ` dont cloisons ${fx(+x.cl, 1)}` : ""} ; Q<sub>k</sub> = ${fx(+x.Qk, 1)} kN (${esc(c.aire || "")}) ; ψ<sub>0</sub>/ψ<sub>1</sub>/ψ<sub>2</sub> = ${(c.psi || []).map((v) => fx(v, 1)).join(" / ")}.</li>`; }).join("")}</ul>`;
-      else h += T(["Zone", "Catégorie", "q<sub>k</sub> (kN/m²)", "Cloisons (kN/m²)", "Q<sub>k</sub> (kN)", "Aire de Q<sub>k</sub>", "ψ<sub>0</sub> / ψ<sub>1</sub> / ψ<sub>2</sub>", "Référence"], z.map((x) => { const c = CAT_Q.find((k) => k.c === x.cat) || {};
-          return `<tr><td>${esc(x.nom)}</td><td>${esc(c.n || x.cat)}</td><td class="n"><b>${fx(+x.qk, 2)}</b></td><td class="n">${+x.cl ? fx(+x.cl, 1) : "—"}</td><td class="n"><b>${fx(+x.Qk, 1)}</b></td><td>${esc(c.aire || "")}</td><td>${(c.psi || []).map((v) => fx(v, 1)).join(" / ")}</td><td class="pied">${esc(c.ref || "")}${c.verif ? " – valeur à vérifier sur l'AN" : ""}</td></tr>`; }))
-          + (niv === "complet" ? `<p class="pied">Cloisons mobiles (§6.3.1.2(8)) : poids propre ≤ 1,0 / 2,0 / 3,0 kN/m → charge uniforme équivalente 0,5 / 0,8 / 1,2 kN/m². Coefficient de réduction de surface α<sub>A</sub> = 5/7·ψ<sub>0</sub> + A<sub>0</sub>/A ≤ 1,0, A<sub>0</sub> = 10 m² (§6.3.1.2(10), éq. 6.1) et de nombre d'étages α<sub>n</sub> (éq. 6.2) : non appliqués sauf indication contraire (prudent). Coefficients ψ : NF EN 1990 Tab. A1.1 + AN.</p>` : "")
+      if (niv === "simple") h += `<ul>${z.map((x) => { const c = CAT_Q.find((k) => k.c === x.cat) || {}; const aA = alphaA(x.cat, +x.A); return `<li><b>${esc(x.nom)}</b> (${esc(c.n || x.cat)}) : q<sub>k</sub> = <b>${fx(+x.qk + (+x.cl || 0), 2)} kN/m²</b>${+x.cl ? ` dont cloisons ${fx(+x.cl, 1)}` : ""}${aA < 1 ? ` (α<sub>A</sub> = ${fx(aA, 3)} pour A = ${fx(+x.A, 1)} m² : ${fx(aA * x.qk, 2)} kN/m²)` : ""} ; Q<sub>k</sub> = ${fx(+x.Qk, 1)} kN (${esc(c.aire || "")}) ; ψ<sub>0</sub>/ψ<sub>1</sub>/ψ<sub>2</sub> = ${(c.psi || []).map((v) => fx(v, 1)).join(" / ")}.</li>`; }).join("")}</ul>`;
+      else h += T(["Zone", "Catégorie", "q<sub>k</sub> (kN/m²)", "Cloisons (kN/m²)", "Q<sub>k</sub> (kN)", "Aire de Q<sub>k</sub>", "ψ<sub>0</sub> / ψ<sub>1</sub> / ψ<sub>2</sub>", "Référence"], z.map((x) => { const c = CAT_Q.find((k) => k.c === x.cat) || {}, aA = alphaA(x.cat, +x.A);
+          return `<tr><td>${esc(x.nom)}</td><td>${esc(c.n || x.cat)}</td><td class="n"><b>${fx(+x.qk, 2)}</b>${aA < 1 ? `<br><span class="pied">α<sub>A</sub> = ${fx(aA, 3)} (A = ${fx(+x.A, 1)} m²) → ${fx(aA * x.qk, 2)}</span>` : ""}</td><td class="n">${+x.cl ? fx(+x.cl, 1) : "—"}</td><td class="n"><b>${fx(+x.Qk, 1)}</b></td><td>${esc(c.aire || "")}</td><td>${(c.psi || []).map((v) => fx(v, 1)).join(" / ")}</td><td class="pied">${esc(c.ref || "")}${c.verif ? " – valeur à vérifier sur l'AN" : ""}</td></tr>`; }))
+          + (niv === "complet" ? `<p class="pied">Cloisons mobiles (§6.3.1.2(8)) : poids propre ≤ 1,0 / 2,0 / 3,0 kN/m → charge uniforme équivalente 0,5 / 0,8 / 1,2 kN/m². Coefficients de réduction (AN, non simultanés) : surface α<sub>A</sub> = 0,77 + A<sub>0</sub>/A ≤ 1,0, A<sub>0</sub> = 3,5 m², catégories A, B, C3, D1, F seulement (AN §6.3.1.2(10)) ; nombre d'étages n &gt; 2 : α<sub>n</sub> = 0,5 + 1,36/n (A), 0,7 + 0,8/n (B, F) (AN §6.3.1.2(11)). α<sub>A</sub> appliqué uniquement aux zones dont l'aire est renseignée. Coefficients ψ : NF EN 1990 Tab. A1.1 + AN.</p>` : "")
           + (niv !== "simple" ? schemaQ() : ""); }
     if (gc.length) { h += `<h3>Charges horizontales sur garde-corps et parois</h3>` + (niv === "simple" ? `<ul>${gc.map((x) => `<li>${esc(x.nom)} : <b>${fx(+x.q, 2)} kN/m</b> à la hauteur de la main courante (${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")})</li>`).join("")}</ul>` :
-      T(["Garde-corps / paroi", "Catégorie", "q<sub>k</sub> (kN/m)", "Référence"], gc.map((x) => `<tr><td>${esc(x.nom)}</td><td>${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")}</td><td class="n"><b>${fx(+x.q, 2)}</b></td><td class="pied">${x.cat === "ISO" ? "NF EN ISO 14122-3 ; NF E 85-015" : "NF EN 1991-1-1 §6.4, Tab. 6.12(NF)"} – valeur à vérifier</td></tr>`))); }
+      T(["Garde-corps / paroi", "Catégorie", "q<sub>k</sub> (kN/m)", "Référence"], gc.map((x) => `<tr><td>${esc(x.nom)}</td><td>${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")}</td><td class="n"><b>${fx(+x.q, 2)}</b></td><td class="pied">${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).ref || "")}${(GARDE_CORPS.find((k) => k.c === x.cat) || {}).verif ? " – valeur à confirmer sur la norme" : ""}</td></tr>`))); }
     return h;
   }
   function schemaQ() {
@@ -206,5 +215,5 @@ const CH = (() => {
     s += `<text x="498" y="30" fill="#e30009" font-weight="700">Q<tspan font-size="9" dy="3">k</tspan></text><text x="485" y="125" text-anchor="middle" font-weight="700">Q<tspan font-size="9" dy="3">k</tspan><tspan dy="-3"> concentrée, position la plus défavorable (non cumulée)</tspan></text></svg>`;
     return s;
   }
-  return { lire, ecrire, catalogue, DEFAUTS_CPX, poidsComplexe, ANNEXE_A, valA, CAT_Q, GARDE_CORPS, CLOISONS, symboles, coupeComplexe, schemaQ, qTuyau, noteG, noteQ, fx, esc, g, PLANCHERS };
+  return { lire, ecrire, catalogue, DEFAUTS_CPX, poidsComplexe, ANNEXE_A, valA, medA, CAT_Q, alphaA, alphaN, ALPHA_A, GARDE_CORPS, CLOISONS, symboles, coupeComplexe, schemaQ, qTuyau, noteG, noteQ, fx, esc, g, PLANCHERS };
 })();
