@@ -12,7 +12,8 @@ Toute modification d'un outil (formule, valeur, nouvel outil, nouvelle option, c
    - formules et exemples de contrôle du chapitre de l'outil ;
    - tests de validation en direct (fonction `tests()`) si un calcul change ou apparaît ;
    - ligne du **journal des modifications** (version, outil, nature, impact sur les résultats).
-4. **Version** : `CALC_VERSION` dans `commun/apps.js` et tous les `?v=` (cache) des pages ; fiche de l'outil dans `commun/apps.js` (titre, description, vignette) si besoin.
+4. **Familles d'outils (accueil)** : à chaque ajout ou changement d'un outil, relire le nom et le résumé (`nom`, `sousTitre`) de sa famille dans `CALC_CATEGORIES` (`commun/apps.js`) et les renommer s'ils ne couvrent plus tous les outils (ex. « Tuyauterie » → « Tuyauterie et fluides » avec H1 ; « Actions climatiques et sismiques » → « Hypothèses de charges » avec G1, Q1, NH).
+5. **Version** : `CALC_VERSION` dans `commun/apps.js` et tous les `?v=` (cache) des pages ; fiche de l'outil dans `commun/apps.js` (titre, description, vignette) si besoin.
 
 ## Autres règles
 

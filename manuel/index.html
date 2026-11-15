@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.43"></script>
+<script src="../commun/auth.js?v=2.44"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.43">
-<script src="../commun/apps.js?v=2.43"></script>
-<script src="../commun/barres3d.js?v=2.43"></script>
-<script src="../commun/acier.js?v=2.43"></script>
-<script src="../commun/data/tuyauterie.js?v=2.43"></script>
-<script src="../commun/charges.js?v=2.43"></script>
-<script src="../commun/coefvent.js?v=2.43"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.44">
+<script src="../commun/apps.js?v=2.44"></script>
+<script src="../commun/barres3d.js?v=2.44"></script>
+<script src="../commun/acier.js?v=2.44"></script>
+<script src="../commun/data/tuyauterie.js?v=2.44"></script>
+<script src="../commun/charges.js?v=2.44"></script>
+<script src="../commun/coefvent.js?v=2.44"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -256,6 +256,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.44</td><td>Accueil</td><td>Familles renommées : « Hypothèses de charges » (C1, G1, Q1, NH, présentée en premier), « Tuyauterie et fluides » (H1, T1, S1, CS), « Aide et ressources » ; résumés mis à jour ; encart « 4 · Comprendre » (tutoriels « ? », référentiel, manuel).</td><td>Aucun.</td></tr>
 <tr><td>2.43</td><td>Base de données, Q1, NH, S1, cahier</td><td>Base : propriétés des fluides à 20 °C (ρ, μ, ν, P<sub>v</sub>, corrélations de H1) et tableau des charges d'exploitation surfaciques q<sub>k</sub>, ponctuelles Q<sub>k</sub> et garde-corps (repris dans Q1) ; NH et notes de calcul : documents de référence et tableau des unités ; NH : un seul bouton Word (en-tête).</td><td>Aucun (présentation et documentation).</td></tr>
 <tr><td>2.42</td><td>C1, NH</td><td>Bâtiment fermé : choix de c<sub>pi</sub> (forfaitaire +0,2 / −0,3, face dominante §7.2.9(5), selon les ouvertures μ et fig. 7.13) et tableau des c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> avec w = q<sub>p</sub>·c<sub>p,net</sub> ; reprise de c<sub>pi</sub>, c<sub>p,net</sub> et des éléments à pression nette (toiture isolée, mur isolé) dans la note d'hypothèses.</td><td>Aucun pour le mode forfaitaire (valeurs déjà retenues) ; nouveaux résultats pour les deux autres modes.</td></tr>
 <tr><td>2.41</td><td>Q1</td><td>Garde-corps industriels : NF E 85-015 et NF EN ISO 14122-3 regroupées en une seule catégorie, 0,3 kN/m (30 daN/m) par défaut.</td><td>Valeur par défaut seulement (inchangée pour la catégorie ISO) ; lignes NF E 85-015 existantes basculées sur cette catégorie.</td></tr>
@@ -316,6 +317,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.43"></script>
+<script src="../commun/replier.js?v=2.44"></script>
 </body>
 </html>

@@ -5,17 +5,18 @@
      1. créer son dossier à la racine (ex. « poutre-acier/index.html ») ;
      2. ajouter une entrée dans CALC_APPS (code, titre, catégorie…) ;
      3. si besoin, ajouter une catégorie dans CALC_CATEGORIES.
+     4. relire le nom (nom) et le résumé (sousTitre) de la famille : ils doivent couvrir tous ses outils (renommer si besoin).
    statut : "ok" (disponible) ou "bientot" (carte grisée « à venir »)
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.43";
+const CALC_VERSION = "v2.44";
 
 const CALC_CATEGORIES = [
-  { id: "tuy", nom: "Tuyauterie", sousTitre: "Supportage, portées et descentes de charges · CODETI / EN 13480-3, ASME B31.3", couleur: "#e30009", marqueur: "●" },
-  { id: "acier", nom: "Structure acier", sousTitre: "Poutres et poteaux laminés · NF EN 1990 + AN (combinaisons), NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
-  { id: "clim", nom: "Actions climatiques et sismiques", sousTitre: "Vent, neige, séisme, poids des complexes · NF EN 1991-1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
-  { id: "ress", nom: "Ressources", sousTitre: "Référentiel normatif vulgarisé et bases de données utilisées par les calculettes", couleur: "#e30009", marqueur: "◇" },
+  { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes, d'exploitation et note d'hypothèses de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
+  { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
+  { id: "acier", nom: "Structure acier", sousTitre: "Poutres et poteaux laminés : prédimensionnement et vérification · NF EN 1990 + AN (combinaisons), NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
+  { id: "ress", nom: "Aide et ressources", sousTitre: "Pour comprendre et contrôler : manuel technique (mode d'emploi, formules, tests de validation), référentiel des normes vulgarisé, bases de données", couleur: "#e30009", marqueur: "◇" },
   { id: "avenir", nom: "À venir", sousTitre: "Emplacements réservés pour les prochaines calculettes", couleur: "#e30009", marqueur: "■" },
 ];
 
@@ -238,13 +239,13 @@ const CALC_APPS = [
     statut: "ok",
     vignette: `
 <svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
-  <rect x="40" y="60" width="320" height="10" fill="#9aa3ad"/><rect x="40" y="70" width="320" height="22" fill="#f4e7a1" stroke="#8a929c"/><rect x="40" y="92" width="320" height="6" fill="#5f6670"/>
-  <path d="M40,98 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6" fill="none" stroke="#171a1e"/>
-  <text x="370" y="68" font-size="9">étanchéité</text><text x="370" y="85" font-size="9">isolant</text><text x="370" y="100" font-size="9">bac</text>
-  ${[...Array(9)].map((_, i) => `<line x1="${60 + i * 35}" y1="20" x2="${60 + i * 35}" y2="54" stroke="#114088" stroke-width="1.6"/><path d="M${55 + i * 35},48 l5,8 l5,-8z" fill="#114088"/>`).join("")}
-  <line x1="60" y1="20" x2="340" y2="20" stroke="#114088" stroke-width="1.6"/><text x="200" y="14" font-size="11" text-anchor="middle" fill="#114088" font-weight="700">g = Σ γ·e  (kN/m²)</text>
-  <circle cx="120" cy="150" r="18" fill="#cfd8e3" stroke="#171a1e"/><circle cx="120" cy="150" r="12" fill="#55a9e2"/><text x="150" y="154" font-size="10">tuyauterie pleine + calorifuge (kN/m)</text>
-  <rect x="270" y="132" width="40" height="30" fill="#e3e7ec" stroke="#171a1e"/><line x1="290" y1="112" x2="290" y2="130" stroke="#e30009" stroke-width="2"/><path d="M285,124 l5,8 l5,-8z" fill="#e30009"/><text x="318" y="152" font-size="10">CTA</text>
+  <rect x="40" y="60" width="270" height="10" fill="#9aa3ad"/><rect x="40" y="70" width="270" height="22" fill="#f4e7a1" stroke="#8a929c"/><rect x="40" y="92" width="270" height="6" fill="#5f6670"/>
+  <path d="M40,98 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6 l15,-6 l15,6" fill="none" stroke="#171a1e"/>
+  <text x="318" y="68" font-size="9">étanchéité</text><text x="318" y="85" font-size="9">isolant</text><text x="318" y="100" font-size="9">bac acier</text>
+  ${[...Array(8)].map((_, i) => `<line x1="${55 + i * 35}" y1="20" x2="${55 + i * 35}" y2="54" stroke="#114088" stroke-width="1.6"/><path d="M${50 + i * 35},48 l5,8 l5,-8z" fill="#114088"/>`).join("")}
+  <line x1="55" y1="20" x2="300" y2="20" stroke="#114088" stroke-width="1.6"/><text x="175" y="14" font-size="11" text-anchor="middle" fill="#114088" font-weight="700">g = Σ γ·e  (kN/m²)</text>
+  <circle cx="70" cy="150" r="18" fill="#cfd8e3" stroke="#171a1e"/><circle cx="70" cy="150" r="12" fill="#55a9e2"/><text x="96" y="147" font-size="10">tuyauterie</text><text x="96" y="160" font-size="10">G / Q épreuve (kN/m)</text>
+  <rect x="250" y="134" width="40" height="30" fill="#e3e7ec" stroke="#171a1e"/><line x1="270" y1="112" x2="270" y2="132" stroke="#e30009" stroke-width="2"/><path d="M265,126 l5,8 l5,-8z" fill="#e30009"/><text x="298" y="147" font-size="10">équipement</text><text x="298" y="160" font-size="10">CTA (kN)</text>
 </svg>`,
   },
   {
