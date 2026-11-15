@@ -72,6 +72,9 @@ const PORTIQUE = (() => {
     Gm.B.forEach((b, k) => { ajout(G, k, [0, 0, -S[k].m * g0 / 1000]); });
     const gs = (D.gCouv || 0) + (D.gDiv || 0) + (D.gPannes || 0);
     traverses.forEach(({ k }) => ajout(G, k, [0, 0, -gs * e * kc]));
+    // bandeau de bardage (long-pans) : poids réparti sur la hauteur du bandeau en tête de poteau
+    const enBande = (b) => { if (!D.band || !D.band.hb || b.sec !== "col") return false; const a = Gm.N[b.i], c = Gm.N[b.j], hc = a.x < L / 2 ? Gm.H : Gm.hD; return (a.z + c.z) / 2 >= hc - D.band.hb; };
+    if (D.band && D.band.hb) Gm.B.forEach((b, k) => { if (enBande(b)) ajout(G, k, [0, 0, -(D.band.g || 0) * e]); });
     // neige
     const s0 = D.neige && D.neige.sk ? 0.8 * D.neige.Ce * D.neige.Ct * D.neige.sk : 0, maj = D.neige ? D.neige.maj || 0 : 0;
     const neige = (id, nom, fg, fd) => { const c = mk(id, nom, "S"); traverses.forEach(({ b, k }) => { const [cx] = dir(b), f = !Gm.bi || b.xm < L / 2 ? fg : fd; ajout(c, k, [0, 0, -(f * s0 + maj) * e * kc * Math.abs(cx)]); }); };
@@ -87,7 +90,7 @@ const PORTIQUE = (() => {
     if (qp) {
       const W = (id, nom, cfun, sens) => { const c = mk(id, nom, "W");
         traverses.forEach(({ b, k }) => { const [tx, tz] = dir(b), cc = cfun(b.xm); if (!cc) return; const w = cc * qp * e * kc; ajout(c, k, [w * tz, 0, -w * tx]); });
-        if (sens) Gm.B.forEach((b, k) => { if (b.sec === "col") ajout(c, k, [sens * qp * (D.cfCol || 2.0) * S[k].h / 1000, 0, 0]); }); };
+        if (sens) Gm.B.forEach((b, k) => { if (b.sec === "col") ajout(c, k, [sens * qp * (enBande(b) ? (D.band.cf || 1.8) * e : (D.cfCol || 2.0) * S[k].h / 1000), 0, 0]); }); };   // bandeau : panneau surélevé §7.4.3
       if (Gm.bi) {
         const T = CV.toitIsolee2(D.p >= 0 ? Math.atan(Gm.pt) * 180 / Math.PI : 0, D.vent.phi || 0), mx = T.max[0], mn = T.min[0], G_ = (x) => x < L / 2, D_ = (x) => x >= L / 2;
         W("W1", `W – deux versants c<sub>f</sub> max ${CV.fx(mx)} (vent →)`, () => mx, 1); W("W2", `W – deux versants c<sub>f</sub> max ${CV.fx(mx)} (vent ←)`, () => mx, -1);
@@ -314,13 +317,13 @@ const PORTIQUE = (() => {
     const p = P.prof, fy = fyDe(D.nuance || "S355", p), cb = courbesS(p), lt = (D.liernes || 0) + 1, et = e / lt;
     for (const c of combos) {
       const My = Math.max(coef.mTrav, coef.mApp) * Math.abs(c.n) * e * e, Mz = Math.abs(c.t) * et * et / 8, Vz = 0.6 * Math.abs(c.n) * e * (cont ? 1.0 : 0.833);
-      const Mply = p.Wply * fy / 1000, Mplz = p.Wplz * fy / 1000, rS = (My / Mply) ** 2 + Mz / Mplz;   // 6.2.9 (6.41), α = 2, β = 1
+      const Mply = p.Wply * fy / 1000, Mplz = (p.Wplz || p.Welz) * fy / 1000, aU = /^U/.test(p.f) ? 1 : 2, rS = (My / Mply) ** aU + Mz / Mplz;   // 6.2.9 (6.41) : α = 2 (I, H), 1 (U, prudent), β = 1 ; W_el,z si W_pl,z absent
       const up = c.n < 0, Llt = up ? (lt > 1 ? et : e) : 0, mcr = Llt ? Mcr(p, Llt, 1.13, 0, 0) : Infinity, lamLT = Llt ? Math.sqrt(Mply / mcr) : 0, chiLT = lamLT <= 0.2 ? 1 : chi(lamLT, cb.lt).chi;
       const rB = My / (chiLT * Mply) + Mz / Mplz;
       c.res = { My, Mz, rS, rB, chiLT, Llt, up };
     }
     const g1 = combos.reduce((a, c) => (c.res.rS > a.res.rS ? c : a)), g2 = combos.reduce((a, c) => (c.res.rB > a.res.rB ? c : a));
-    out.lignes.push({ n: "Pannes – résistance en flexion déviée", ref: "§6.2.9 (6.41), α = 2, β = 1", val: `M<sub>y</sub> = ${fmtN(g1.res.My, 2)} ; M<sub>z</sub> = ${fmtN(g1.res.Mz, 2)} kNm`, lim: `${escH(p.n)}, ${cont ? `continue ${n} travées` : "deux appuis"}, liernes ${D.liernes ? (D.liernes === 1 ? "à mi-portée" : "aux tiers") : "aucune"}`, r: g1.res.rS, comb: g1.nom });
+    out.lignes.push({ n: "Pannes – résistance en flexion déviée", ref: `§6.2.9 (6.41), α = ${/^U/.test(p.f) ? 1 : 2}, β = 1`, val: `M<sub>y</sub> = ${fmtN(g1.res.My, 2)} ; M<sub>z</sub> = ${fmtN(g1.res.Mz, 2)} kNm`, lim: `${escH(p.n)}, ${cont ? `continue ${n} travées` : "deux appuis"}, liernes ${D.liernes ? (D.liernes === 1 ? "à mi-portée" : "aux tiers") : "aucune"}`, r: g1.res.rS, comb: g1.nom });
     out.lignes.push({ n: "Pannes – déversement (semelle libre comprimée sous soulèvement)", ref: "§6.3.2, §6.3.3 simplifiée", val: g2.res.up ? `χ<sub>LT</sub> = ${fmtN(g2.res.chiLT, 3)} (L = ${fmtN(g2.res.Llt || 0, 2)} m)` : "χ<sub>LT</sub> = 1 (semelle comprimée maintenue) ; M<sub>y</sub>/M<sub>pl,y</sub> + M<sub>z</sub>/M<sub>pl,z</sub>", lim: "semelle supérieure maintenue par la couverture sous charge descendante", r: g2.res.rB, comb: g2.nom });
     const w = coef.w * Math.max(carS, -carU) * e ** 4 / (Ek * p.Iy * 1e-8) * 1000, lim = e * 1000 / (D.wPanne || 200);
     out.lignes.push({ n: "Pannes – flèche (ELS caractéristique)", ref: "NF EN 1993-1-1/NA Tab. 7.1", val: `${fmtN(w, 1)} mm`, lim: `L/${D.wPanne || 200} = ${fmtN(lim, 1)} mm`, r: w / lim, comb: "caractéristique" });
@@ -340,6 +343,8 @@ const PORTIQUE = (() => {
   function resDiag(dg, nu) {
     if (dg.type === "rond") { const d = dg.d, A = Math.PI * d * d / 4, As = AS_TIGE[d] || 0.78 * A, fy = 235, fu = 360;
       return { n: `rond Ø${d} S235 fileté`, A, NRd: Math.min(A * fy / 1000, 0.9 * As * fu / 1.25 / 1000), txt: `min(A·f<sub>y</sub> ; 0,9·A<sub>s</sub>·f<sub>u</sub>/γ<sub>M2</sub>), A<sub>s</sub> = ${fmtN(As, 0)} mm²` }; }
+    if (typeof TENDUES !== "undefined") { const R = TENDUES.calculer(TENDUES.defaut(dg.prof, nu, 0));   // attache par défaut (AS1) : 2 M16 8.8, gousset 8 mm
+      return { n: `${dg.prof.n} ${nu} (attache 2 M16 8.8, gousset 8 mm)`, A: dg.prof.A * 100, NRd: R.NRd, txt: `capacité de l'attache AS1 : ${R.gouv.n}`, as1: true }; }
     const p = dg.prof, fy = fyDe(nu, p), fu = NUANCES[nu][2], t = p.t || p.tf || 6, Anet = p.A * 100 - 18 * t, beta = 0.5;
     return { n: `${p.n} ${nu}`, A: p.A * 100, NRd: Math.min(p.A * fy / 10, beta * Anet * fu / 1.25 / 1000), txt: `min(A·f<sub>y</sub> ; β<sub>2</sub>·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub>), β<sub>2</sub> = 0,5 (2 boulons M16, NF EN 1993-1-8 §3.10.3), A<sub>net</sub> = ${fmtN(Anet, 0)} mm²` };
   }
@@ -348,7 +353,8 @@ const PORTIQUE = (() => {
     const kc = S.findIndex((s, k) => Gm.B[k].sec === "col"), kt = S.findIndex((s, k) => Gm.B[k].sec === "tra"), pc = S[kc], pt = S[kt], lignes = [];
     // 1. actions longitudinales (vent parallèle au faîtage)
     const Lroof = Gm.bi ? 2 * Gm.Lr : Gm.Lr, hm = (Gm.H + Gm.Hd) / 2;
-    const Fpig = qp * 2.0 * (Gm.H * pc.h / 1000 + Gm.hD * pc.h / 1000 + Lroof * pt.h / 1000);        // traînée du portique de pignon, c_f = 2,0
+    const Fpig = qp * 2.0 * (Gm.H * pc.h / 1000 + Gm.hD * pc.h / 1000 + Lroof * pt.h / 1000)        // traînée du portique de pignon, c_f = 2,0
+      + (D.band && D.band.tour ? qp * (D.band.cf || 1.8) * L * D.band.hb : 0);                       // bandeau de pignon (pourtour), §7.4.3
     const lfr = Math.max(0, Lt - Math.min(2 * L, 4 * hm)), Ffr = (cv.cfr || 0.04) * qp * 2 * Lroof * lfr;  // frottement deux faces (§7.5, Tab. 7.10)
     const FW = (Fpig + Ffr) / nPav;
     // 2. stabilisation des traverses (§5.3.3) : m traverses par PAV, effort de semelle comprimée
@@ -357,9 +363,9 @@ const PORTIQUE = (() => {
     // 3. séisme longitudinal : masse totale / nPav, plateau du spectre (prudent)
     let FE = 0; if (A.sis) { FE = A.sis.Sd > 0 ? spectreSd(D.seisme, (D.seisme.TB + D.seisme.TC) / 2) * A.sis.m * nP / nPav : 0; }
     // 4. géométrie de la PAV : panneaux sur les cours de pannes, angle des diagonales 30° à 60° (au plus près de 45°)
-    const ap = (D.aPanne || 1.5) * Math.cos(Gm.alpha), nb = Math.max(1, Math.round(Gm.Lr / (D.aPanne || 1.5))), apR = Gm.Lr * Math.cos(Gm.alpha) / nb;
+    const ap = (D.aPanne || 1.5) * Math.cos(Gm.alpha), nb = D.nbCours || Math.max(1, Math.round(Gm.Lr / (D.aPanne || 1.5)));
     const Lh = Gm.bi ? L / 2 : L; let best = null;                     // nœuds sur les cours de pannes : nombre de panneaux par rampant diviseur du nombre d'intervalles
-    for (let nr = 1; nr <= nb; nr++) { if (nb % nr) continue; const ax = Lh / nr, th = Math.atan(e / ax) * 180 / Math.PI, sc = Math.abs(th - 45) + (th < 30 || th > 60 ? 100 : 0); if (!best || sc < best.sc) best = { nr, j: nb / nr, ax, th, sc }; }
+    for (let nr = 1; nr <= nb; nr++) { if (nb % nr) continue; const ax = (nb / nr) * ap, th = Math.atan(e / ax) * 180 / Math.PI, sc = Math.abs(th - 45) + (th < 30 || th > 60 ? 100 : 0); if (!best || sc < best.sc) best = { nr, j: nb / nr, ax, th, sc }; }
     const nPan = best.nr * (Gm.bi ? 2 : 1), d = Math.hypot(best.ax, e);
     const dg = resDiag(cv.diag || { type: "rond", d: 20 }, cv.nuanceDiag || "S235"), pv = cv.palee || "croix";
     // 5. efforts dans la PAV (poutre sur 2 appuis de portée L, charge répartie), δq par itération (flexion des membrures + cisaillement des diagonales)
@@ -385,5 +391,10 @@ const PORTIQUE = (() => {
       lignes.push({ n: "Palée en cadre – déplacement en tête (ELS)", ref: "NF EN 1993-1-1/NA §7.2.2", val: `${fmtN(dz, 1)} mm`, lim: `H/${D.hH || 150} = ${fmtN(Gm.H * 1000 / (D.hH || 150), 1)} mm`, r: dz / (Gm.H * 1000 / (D.hH || 150)), comb: "vent longitudinal caractéristique" }); }
     out.lignes = lignes; return out;
   }
-  return { spectreSd, contreventement, sectionI, courbesS, geometrie, analyser, combinaisons, verifier, efforts, reactions, deplacement, pannes };
+  /* lisses de bandeau : pannes() avec α = 90° (effort « normal » = vent, « tangentiel » = poids du bardage, repris par les suspentes / liernes) */
+  function lisses(D) { if (!D.band || !D.band.hb || !D.band.lisse) return null;
+    const B = D.band, Dl = { ...D, p: 1e9, aPanne: B.al, gCouv: B.g, gDiv: 0, neige: null, panne: B.lisse, liernes: B.liernes || 0, wPanne: B.wL || 200 }, cf = B.cf || 1.8;
+    const r = pannes(Dl, { max: cf, min: -cf }); r.lignes.forEach((l) => { l.n = l.n.replace(/^Pannes/, "Lisses").replace("SADEF", "SADEF").replace("(semelle libre comprimée sous soulèvement)", "(semelle intérieure comprimée sous dépression)"); l.lim = (l.lim || "").replace("semelle supérieure maintenue par la couverture sous charge descendante", "semelle extérieure maintenue par le bardage sous pression"); l.comb = (l.comb || "").replace("W↓", "W").replace("W↑", "W (dépression)").replace(" + 0,75·S", "").replace(" + 1,5·S", ""); });
+    r.lignes = r.lignes.filter((l) => !/1,35·G \+ 1,5·S$/.test(l.comb)); return r; }
+  return { lisses, spectreSd, contreventement, sectionI, courbesS, geometrie, analyser, combinaisons, verifier, efforts, reactions, deplacement, pannes };
 })();

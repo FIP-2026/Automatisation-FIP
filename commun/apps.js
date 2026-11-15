@@ -10,12 +10,13 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.47";
+const CALC_VERSION = "v2.48";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes, d'exploitation et note d'hypothèses de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
   { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
   { id: "acier", nom: "Structure acier – éléments et ossatures", sousTitre: "Poutres et poteaux, portiques de toitures isolées (auvents) : prédimensionnement APS/APD · NF EN 1990, NF EN 1991-1-3 / 1-4, NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
+  { id: "asm", nom: "Assemblages", sousTitre: "Attaches boulonnées des barres tendues (cornières, UPN) ; reliées aux outils d'ossature (diagonales de contreventement de A1) · NF EN 1993-1-8 + AN, méthodes CTICM", couleur: "#e30009", marqueur: "▲" },
   { id: "ress", nom: "Aide et ressources", sousTitre: "Pour comprendre et contrôler : manuel technique (mode d'emploi, formules, tests de validation), référentiel des normes vulgarisé, bases de données", couleur: "#e30009", marqueur: "◇" },
   { id: "avenir", nom: "À venir", sousTitre: "Emplacements réservés pour les prochaines calculettes", couleur: "#e30009", marqueur: "■" },
 ];
@@ -198,6 +199,23 @@ const CALC_APPS = [
   <path d="M70,80 Q60,60 50,80" fill="none" stroke="#e30009" stroke-width="1.4"/><text x="32" y="60" font-size="10" fill="#e30009" font-weight="700">M</text>
   <text x="200" y="120" font-size="12" text-anchor="middle" fill="#114088" font-weight="800">α<tspan font-size="9" dy="3">cr</tspan><tspan dy="-3"> · φ · 1/(1−1/α</tspan><tspan font-size="9" dy="3">cr</tspan><tspan dy="-3">)</tspan></text>
   <text x="200" y="140" font-size="10" text-anchor="middle" fill="#5f6670">toiture isolée · CNC2M / Tab. 7.7</text>
+</svg>`,
+  },
+  {
+    code: "AS1",
+    titre: "Barres tendues boulonnées",
+    description: "Cornières simples ou jumelées attachées par une aile, UPN par l'âme, sur gousset : boulons (avec excentricité CTICM), section brute et nette, pression diamétrale, cisaillement de bloc, gousset (diffusion à 30°). Reprend le classeur BE CM ; ouvert depuis A1.",
+    url: "barres-tendues/",
+    categorie: "asm",
+    normes: ["NF EN 1993-1-8 + AN", "CTICM"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <polygon points="40,40 200,40 250,97 200,155 40,155" fill="#eef1f5" stroke="#8a929c"/>
+  <rect x="90" y="75" width="270" height="45" fill="#cfd8e3" stroke="#171a1e"/>
+  <circle cx="130" cy="105" r="8" fill="#fff" stroke="#e30009" stroke-width="2"/><circle cx="180" cy="105" r="8" fill="#fff" stroke="#e30009" stroke-width="2"/>
+  <line x1="300" y1="97" x2="380" y2="97" stroke="#e30009" stroke-width="3"/><path d="M380,90 l12,7 l-12,7z" fill="#e30009"/>
+  <text x="300" y="70" font-size="12" fill="#e30009" font-weight="700">N_t,Ed</text><text x="45" y="180" font-size="11" fill="#5f6670">gousset · L 60×60×6 · 2 M16 8.8</text>
 </svg>`,
   },
   {
