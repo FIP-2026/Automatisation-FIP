@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.41"></script>
+<script src="../commun/auth.js?v=2.42"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.41">
-<script src="../commun/apps.js?v=2.41"></script>
-<script src="../commun/barres3d.js?v=2.41"></script>
-<script src="../commun/acier.js?v=2.41"></script>
-<script src="../commun/data/tuyauterie.js?v=2.41"></script>
-<script src="../commun/charges.js?v=2.41"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.42">
+<script src="../commun/apps.js?v=2.42"></script>
+<script src="../commun/barres3d.js?v=2.42"></script>
+<script src="../commun/acier.js?v=2.42"></script>
+<script src="../commun/data/tuyauterie.js?v=2.42"></script>
+<script src="../commun/charges.js?v=2.42"></script>
+<script src="../commun/coefvent.js?v=2.42"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -124,6 +125,9 @@
 <p><b>Exemple de contrôle</b> : zone 2, catégorie II, z = 10 m, c<sub>o</sub> = 1 → q<sub>b</sub> = 352,8 Pa ; c<sub>r</sub> = 1,0067 ; v<sub>m</sub> = 24,16 m/s ; I<sub>v</sub> = 0,1878 ; <b>q<sub>p</sub> = 827,5 Pa</b> (c<sub>e</sub> = 2,346).</p>
 <h3 id="c1-coef">6.2 Coefficients aérodynamiques</h3>
 <p>Profilés : c<sub>f</sub> des figures 7.39(NA) à 7.50(NA), ramené à la largeur projetée (maximum sur l'incidence) ; tubes ronds c<sub>f</sub> = 1,2 (fig. 7.28, sous-critique, prudent) ; ψ<sub>λ</sub> = 1. Bâtiments fermés (Tab. 7.1, 7.3a, 7.4a-b + AN), toitures isolées (Tab. 7.6 / CNC2M, 7.7), murs isolés (Tab. 7.9), c<sub>pi</sub> et k<sub>dc</sub> : valeurs tabulées des normes citées.</p>
+<p id="c1-cpi"><b>Pression intérieure c<sub>pi</sub> (§7.2.9)</b>, trois modes : (1) <b>forfaitaire</b> +0,2 / −0,3 lorsque la perméabilité n'est pas connue avec certitude (§7.2.9(6) + AN NOTE 2), la valeur la plus défavorable étant retenue zone par zone ; (2) <b>face dominante</b> (aire des ouvertures d'une face ≥ 2 fois celle des autres) : c<sub>pi</sub> = 0,75·c<sub>pe</sub> (rapport 2), 0,90·c<sub>pe</sub> (rapport ≥ 3), interpolation linéaire entre les deux (§7.2.9(5), éq. 7.1 et 7.2), c<sub>pe</sub> de la zone de l'ouverture ; à traiter en situation accidentelle si l'ouverture n'est pas permanente (§7.2.9(3)) ; (3) <b>selon les ouvertures</b> : μ = Σ A<sub>ouv</sub>(c<sub>pe</sub> ≤ 0) / Σ A<sub>ouv</sub> (éq. 7.3), c<sub>pi</sub> lu par l'utilisateur sur la fig. 7.13 en fonction de μ et h/d (interpolation linéaire entre h/d = 0,25 et 1) : la courbe n'est pas numérisée dans l'outil.</p>
+<div class="form">c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> ; par zone : c<sub>p,net,max</sub> = c<sub>pe</sub> − min(c<sub>pi</sub>), c<sub>p,net,min</sub> = c<sub>pe</sub> − max(c<sub>pi</sub>) ; w = q<sub>p</sub>(z<sub>e</sub>)·c<sub>p,net</sub> (§5.2, éq. 5.1-5.2 ; c<sub>pe</sub> et c<sub>pi</sub> simultanés §7.2.9(1)) ; convention : &gt; 0 vers l'intérieur de la paroi<br>Toitures isolées (§7.3, Tab. 7.6 / 7.7) et murs isolés (§7.4, Tab. 7.9) : c<sub>p,net</sub> tabulés directement (deux faces combinées, pas de c<sub>pi</sub>)</div>
+<p><b>Exemple de contrôle</b> : bâtiment 30 × 20 m, h = 8 m, θ = 0° (d = 20 m) : h/d = 0,40 → c<sub>pe,10</sub>(D) = 0,70 + 0,10 × (0,40 − 0,25)/0,75 = <b>+0,72</b> ; forfaitaire : c<sub>p,net,max</sub>(D) = 0,72 + 0,30 = <b>+1,02</b> ; face dominante D, rapport 3 : c<sub>pi</sub> = 0,9 × 0,72 = <b>+0,648</b>.</p>
 <h3 id="c1-neige">6.3 Neige (NF EN 1991-1-3 + AN)</h3>
 <div class="form">s<sub>k</sub>(A) = s<sub>k,200</sub> + Δs (AN §4.1) ; régions A1 à D : Δs = A/1000 − 0,20 (200–500 m) ; 1,5A/1000 − 0,45 (500–1000 m) ; 3,5A/1000 − 2,45 (1000–2000 m)<br>Région E : Δs = 1,5A/1000 − 0,30 ; 3,5A/1000 − 1,30 ; 7A/1000 − 4,80<br>s = μ<sub>i</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> (5.1) ; μ<sub>1</sub> = 0,8 (α ≤ 30°), 0,8·(60 − α)/30 (30–60°), 0 (≥ 60°)<br>Accidentelle : s<sub>Ad</sub> (A2, B1, B2, C2, D) ; majoration faible pente : +0,2 kN/m² (p &lt; 3 %), +0,1 (3 à 5 %) (AN §5.2(6))</div>
 <p><b>Exemple</b> : région A1, A = 600 m → s<sub>k</sub> = 0,45 + (1,5 × 0,6 − 0,45) = <b>0,90 kN/m²</b>.</p>
@@ -251,6 +255,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.42</td><td>C1, NH</td><td>Bâtiment fermé : choix de c<sub>pi</sub> (forfaitaire +0,2 / −0,3, face dominante §7.2.9(5), selon les ouvertures μ et fig. 7.13) et tableau des c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> avec w = q<sub>p</sub>·c<sub>p,net</sub> ; reprise de c<sub>pi</sub>, c<sub>p,net</sub> et des éléments à pression nette (toiture isolée, mur isolé) dans la note d'hypothèses.</td><td>Aucun pour le mode forfaitaire (valeurs déjà retenues) ; nouveaux résultats pour les deux autres modes.</td></tr>
 <tr><td>2.41</td><td>Q1</td><td>Garde-corps industriels : NF E 85-015 et NF EN ISO 14122-3 regroupées en une seule catégorie, 0,3 kN/m (30 daN/m) par défaut.</td><td>Valeur par défaut seulement (inchangée pour la catégorie ISO) ; lignes NF E 85-015 existantes basculées sur cette catégorie.</td></tr>
 <tr><td>2.40</td><td>S1, G1, Q1, cahier</td><td>Épreuve hydraulique : appliquée aux seules lignes à fluide moins dense que l'eau ; l'eau d'épreuve (contenu complet) est classée Q et remplace le fluide de service : γ<sub>G</sub>·(G − G<sub>fl</sub>) + 1,5·E<sub>P</sub> (avant : E<sub>P</sub> = q<sub>eau</sub> − q<sub>service</sub> ajouté à G complet, et pour toutes les lignes). Nouveau cas simple G<sub>fl</sub> dans les DDC. Q1 et G1 contrôlés sur l'AN NF P 06-111-2 : F, G (Tab. 6.8(NF)) et garde-corps (Tab. 6.12(NF)) confirmés, α<sub>A</sub> AN ajouté, catégorie non spécifiée (D1) et I paysager ; Annexe A : valeur médiane (AN 2) au lieu de la valeur haute ; garde-corps NF P 01-012 / NF E 85-015 à saisir.</td><td><b>Résultats S1 modifiés</b> pour les supports avec épreuve cochée : légère hausse pour les lignes à gaz (1,35·q<sub>vide</sub> + 1,5·eau), suppression du cas d'épreuve pour les lignes à fluide ≥ 1 000 kg/m³. Relancer les supports concernés du cahier.</td></tr>
 <tr><td>2.39</td><td>G1, C1</td><td>G1 : lignes de tuyauterie (q vide, G en service, q eau, Q<sub>ép</sub> automatique si ρ<sub>f</sub> &lt; ρ<sub>eau</sub>), import depuis le cahier ; C1 : schémas des zones de vent (lettres toujours lisibles, cotes e/10, e/4, e/2, légende des c<sub>pe</sub>).</td><td>Nouveau classement G / Q des tuyauteries dans la note d'hypothèses ; dessins seulement pour C1 (valeurs inchangées).</td></tr>
@@ -293,6 +298,9 @@ function tests(){
   [['a',0.6656],['b',0.5970],['c',0.5399],['d',0.4671]].forEach(([c,v])=>ajout(`Coefficient de flambement χ, λ̄ = 1,0, courbe ${c}`,'courbes EN 1993-1-1 fig. 6.4 – valeur tabulée usuelle',chi(1,ALPHA[c]).chi,v,''));
   ajout('χ, λ̄ = 0,5, courbe b','valeur tabulée 0,8842',chi(0.5,ALPHA.b).chi,0.8842,''); ajout('χ, λ̄ = 2,0, courbe c','valeur tabulée 0,1962',chi(2,ALPHA.c).chi,0.1962,'');
   ajout('χ, λ̄ = 0,2 (palier)','1',chi(0.2,ALPHA.c).chi,1,'');
+  if(typeof CV!=='undefined'){ const M=CV.murs(30,20,8);
+    ajout('C1 – c_pe,10 zone D, h/d = 0,40','Tab. 7.1, interpolation 0,70 → 0,80',M.cpe.D,0.72,''); ajout('C1 – c_p,net,max zone D, c_pi forfaitaire −0,3','c_pe − min(c_pi)',M.cpe.D-Math.min(...CV.CPI),1.02,'');
+    ajout('C1 – c_pi face dominante D, rapport 3','0,9·c_pe (éq. 7.2)',0.9*M.cpe.D,0.648,''); }
   if(typeof CH!=='undefined'){ const D=114.3,di=D-2*6.02,a=d=>Math.PI/4*d*d*1e-6,rs=(MATS.find(m=>m.id==='P265GH')||{rho:7850}).rho, qv=(a(D)-a(di))*rs*9.81/1000, qw=qv+a(di)*1000*9.81/1000;
     const r1=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:1000,ecal:0,rhoCal:0}), r2=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:0,ecal:0,rhoCal:0}), r3=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:840,ecal:50,rhoCal:100});
     ajout('G1 – DN100 sch 40 plein d\'eau : G en service','g·[π/4(D²−dᵢ²)ρ + π/4·dᵢ²·1000]',r1.qServ,qw,'kN/m'); ajout('Idem : surcharge d\'épreuve (ρ_f = ρ_eau)','0',r1.qEp,0,'kN/m');
@@ -306,6 +314,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.41"></script>
+<script src="../commun/replier.js?v=2.42"></script>
 </body>
 </html>

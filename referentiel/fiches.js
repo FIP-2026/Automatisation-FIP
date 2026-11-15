@@ -83,10 +83,11 @@ const FICHES = [
   corps: `<div class="form">Paroi : w = q<sub>p</sub>(z<sub>e</sub>)·(c<sub>pe</sub> − c<sub>pi</sub>) &nbsp;&nbsp; Objet, barre : F = c<sub>f</sub>·q<sub>p</sub>(z<sub>e</sub>)·A<sub>ref</sub></div>
   <ul><li><b>c<sub>pe</sub></b> (extérieur) : positif = pression (face au vent, zone D), négatif = dépression/aspiration (côtés, toiture, arrière). Les zones A, B, C, F, G… se mesurent avec e = min(b ; 2h).</li>
   <li><b>c<sub>pe,10</sub> / c<sub>pe,1</sub></b> : pour les surfaces ≥ 10 m² ou ≤ 1 m². En charpente on utilise c<sub>pe,10</sub> (CNC2M §7).</li>
-  <li><b>c<sub>pi</sub></b> (intérieur) : +0,2 et −0,3 si la perméabilité des façades n'est pas connue (AN).</li>
+  <li><b>c<sub>pi</sub></b> (intérieur) : +0,2 et −0,3 si la perméabilité des façades n'est pas connue (AN) ; avec une grande ouverture sur une face (« face dominante »), l'intérieur prend 75 à 90 % de la pression extérieure de cette face ; sinon c<sub>pi</sub> se lit sur la figure 7.13 selon la part d'ouvertures en dépression μ.</li>
+  <li><b>c<sub>p,net</sub></b> (net) : ce qui agit vraiment sur la paroi, extérieur moins intérieur : c<sub>p,net</sub> = c<sub>pe</sub> − c<sub>pi</sub>. On prend pour chaque zone le c<sub>pi</sub> le plus défavorable : une aspiration extérieure (−1,3) et une surpression intérieure (+0,2) s'additionnent (−1,5). Auvents et murs isolés : c<sub>p,net</sub> donné directement par les tableaux (pas d'intérieur).</li>
   <li><b>c<sub>f</sub></b> des profilés : l'AN donne des valeurs par forme (cornière, U, I, H, tubes) selon l'angle du vent ; un tube rond (tuyau) a c<sub>f</sub> ≤ 1,2.</li>
   <li><b>Toitures isolées</b> (auvents) : c<sub>f</sub> dépend de l'encombrement φ dessous (0 vide, 1 encombré).</li></ul>`,
-  refs: "NF EN 1991-1-4 §5.2, §7.2 (Tab. 7.1 à 7.4), §7.3 (Tab. 7.6, 7.7), §7.4 (Tab. 7.9), §7.7 + AN (fig. 7.39 à 7.50 NA) ; CNC2M N0380 §5 à §8.", calc: "C1, S1" },
+  refs: "NF EN 1991-1-4 §5.2, §7.2 (Tab. 7.1 à 7.4), §7.2.9 (c_pi, éq. 7.1 à 7.3, fig. 7.13), §7.3 (Tab. 7.6, 7.7), §7.4 (Tab. 7.9), §7.7 + AN (fig. 7.39 à 7.50 NA) ; CNC2M N0380 §5 à §8.", calc: "C1, S1" },
 { id: "zones-vent", theme: "Actions climatiques", titre: "Zones de vent des murs et des toitures (A à J)",
   bref: "Le vent aspire plus fort près des arêtes attaquées : la paroi est découpée en zones dont la taille dépend de e = min(b ; 2h). Plus la zone est près d'un angle au vent, plus le c_pe est négatif.",
   corps: `<table><tr><th>Zone</th><th>Où</th><th>Dimension</th></tr><tr><td><b>A, B, C</b></td><td>murs latéraux (parallèles au vent), depuis l'arête au vent</td><td>A : e/5 ; B : 4e/5 ; C : le reste</td></tr><tr><td><b>D</b> / <b>E</b></td><td>mur au vent (pression) / mur sous le vent (dépression)</td><td>toute la face</td></tr>
