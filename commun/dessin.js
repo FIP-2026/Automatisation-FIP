@@ -135,17 +135,22 @@ const DESSIN = (() => {
   function planche(spec) {
     const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
-    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
+    const A4 = spec.format === "A4", TH = A4 ? { hl: 4.8, f: 2.4, ft: 3, nt: 2.2, bd: 11, b1: 4, b2: 2.1 } : { hl: 6, f: 2.8, ft: 3.5, nt: 2.5, bd: 13, b1: 5, b2: 2.5 };   // tailles selon le format
+    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
     const coupeTxt = (t, n) => { const L = []; let l = ""; String(t).split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
-    const ncTab = Math.floor(wB / 1.38);
+    const ncTab = Math.floor(wB / (A4 ? 1.22 : 1.38));
     tabs.forEach((t) => { t._note = t.note ? coupeTxt(t.note, ncTab) : []; });
-    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 6 + 5.5 + 2.5 + t._note.length * 3.4, 0), hTp = 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
+    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * TH.hl + TH.ft + 2 + 2.5 + t._note.length * (TH.nt + 0.9), 0), hTp = spec.statut ? TH.bd + 2 : 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
     const bloc = { x0: zx1 - wB, y0: zy1 - hB, x1: zx1, y1: zy1 };
-    const tampon = null;                                                                       // (bandeau de phase supprimé : phase au cartouche + filigrane)
     const coupeR = (R, B) => B && R[0] < B.x1 && R[2] > B.x0 && R[1] < B.y1 && R[3] > B.y0;
     const lignesNotes = [], ncN = Math.max(30, Math.floor((bloc.x0 - zx0 - 6) / 1.35));      // notes coupées à la largeur disponible
     (spec.notes || []).forEach((n) => { let l = ""; String(n).split(" ").forEach((m) => { if ((l + " " + m).trim().length > ncN) { lignesNotes.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) lignesNotes.push(l.trim()); });
     const hNotes = lignesNotes.length ? lignesNotes.length * 3.4 + 4 : 0;
+    /* deux dispositions du bloc : « pile » (bandeau + tableaux au-dessus de la nomenclature) ou « côte » (bandeau + tableaux à gauche de la nomenclature, si la largeur le permet) */
+    const hPile = hTab + (tabs.length ? 1 : 0) + hTp, blocA = { x0: zx1 - wB, y0: zy1 - hCart - hNom, x1: zx1, y1: zy1 };
+    const DISPO = { pile: { obst: [bloc], zt: { x0: bloc.x0, y0: bloc.y0, w: wB } } };
+    if (hPile > 0 && zx1 - zx0 - 2 * wB - 4 >= 0) { const r = { x0: blocA.x0 - 4 - wB, x1: blocA.x0 - 4, y1: zy1 - hNotes - 1, y0: zy1 - hNotes - 1 - hPile }; DISPO.cote = { obst: [blocA, r], zt: { x0: r.x0, y0: r.y0, w: wB } }; }
+    let obst = DISPO.pile.obst;
     /* vues interrompues : intervalles [a, b] supprimés le long d'un axe du modèle, remplacés par une bande de 7 mm (lignes de rupture) */
     const mkMap = (ints, gm) => { const L = ints.slice().sort((p, q) => q[0] - p[0]); return (t) => L.reduce((t, [a, b]) => (t <= a ? t : t >= b ? t - (b - a) + gm : a + (t - a) / (b - a) * gm), t); };
     const intsVue = (V, axe) => (spec.interruptions || []).filter((I) => !I.vues || I.vues.includes(V.id)).flatMap((I) => { const c = dot(I.ax, V[axe]); return Math.abs(c) > 0.99 ? [c > 0 ? [I.a, I.b] : [-I.b, -I.a]] : []; });
@@ -176,7 +181,7 @@ const DESSIN = (() => {
         const gx = Math.min(12, (zx1 - zx0 - W) / Math.max(cols.length, 1)), x0 = {}, y0 = {}; let x = zx0 + gx / 2; cols.forEach((c) => { x0[c] = x; x += wc[c] + gx; });
         let y = zy0 + 2; ligs.forEach((r) => { y0[r] = y; y += hl[r] + 4; });
         const rects = vues.map((V) => ({ V, x: x0[V.col] + V.mg.g, y: y0[V.lig] + V.mg.h, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k }));
-        const chev = rects.some((r) => { const R = [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b]; return coupeR(R, bloc) || coupeR(R, tampon); });
+        const chev = rects.some((r) => { const R = [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b]; return obst.some((B) => coupeR(R, B)); });
         if (chev) continue;
         ech = e; place = rects; grille = { x0, y0, wc, hl, cols, ligs }; break;
       }
@@ -184,9 +189,13 @@ const DESSIN = (() => {
     };
     // choix : vues complètes ; interrompues si l'échelle y gagne ; vue de dessus abandonnée seulement si elle coûte plus d'un facteur 2
     const coupes = !!(spec.interruptions && spec.interruptions.length);
-    let best = essai(spec.vues, false);
-    if (coupes) { const r = essai(spec.vues, true); if (r.ech && (!best.ech || r.ech < best.ech)) best = r; }
-    if (spec.vues.some((v) => v.option)) { const L = spec.vues.filter((v) => !v.option); let r = essai(L, false); if (coupes) { const r2 = essai(L, true); if (r2.ech && (!r.ech || r2.ech < r.ech)) r = r2; } if (r.ech && (!best.ech || r.ech * 2 < best.ech)) best = r; }
+    const choisir = () => { let best = essai(spec.vues, false);
+      if (coupes) { const r = essai(spec.vues, true); if (r.ech && (!best.ech || r.ech < best.ech)) best = r; }
+      if (spec.vues.some((v) => v.option)) { const L = spec.vues.filter((v) => !v.option); let r = essai(L, false); if (coupes) { const r2 = essai(L, true); if (r2.ech && (!r.ech || r2.ech < r.ech)) r = r2; } if (r.ech && (!best.ech || r.ech * 2 < best.ech)) best = r; }
+      return best; };
+    let best = choisir(), dispo = "pile";
+    if (DISPO.cote) { obst = DISPO.cote.obst; const r = choisir(); if (r.ech && (!best.ech || r.ech < best.ech)) { best = r; dispo = "cote"; } else obst = DISPO.pile.obst; }
+    const ZT = DISPO[dispo].zt;
     let { ech, place, grille } = best;
     const vues = place ? place.map((r) => r.V) : spec.vues.map((v) => ({ ...VUES[v.id], ...v }));
     if (!ech) { ech = 100; const k = 10; vues.forEach((V) => { V.mg = V.mg || { g: 18, d: 18, h: 24, b: 18 }; if (V.u0 == null) { V.u0 = 0; V.u1 = 1; V.v0 = 0; V.v1 = 1; } V.mu = V.mu || ((t) => t); V.mv = V.mv || ((t) => t); V.iu = V.iu || []; V.iv = V.iv || []; }); place = vues.map((V, i) => ({ V, x: zx0 + 20 + i * 120, y: zy0 + 20, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k })); }
@@ -194,8 +203,10 @@ const DESSIN = (() => {
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
     s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
     [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; });   // repères de centrage
-    if (spec.statut) { const ph = spec.statut.phase || "APS/APD";   // filigrane (pas de bandeau : la phase figure au cartouche)
-      s += `<text data-c="FILIGRANE" x="${PW / 2}" y="${PH / 2}" font-family="${F}" font-size="${(PW * 0.034).toFixed(1)}" font-weight="700" fill="#000" fill-opacity="0.06" text-anchor="middle" transform="rotate(-25 ${PW / 2} ${PH / 2})">PHASE ${esc(ph)} – NON VALABLE POUR EXÉCUTION</text>`; }
+    if (spec.statut) { const T = { x0: ZT.x0, y0: ZT.y0, x1: ZT.x0 + ZT.w, y1: ZT.y0 + hTp - 2 }, ph = spec.statut.phase || "APS/APD";   // bandeau encadré (pas de filigrane)
+      s += `<g data-c="CARTOUCHE"><rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
+        txt((T.x0 + T.x1) / 2, T.y0 + 1.6 + TH.b1, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: TH.b1, b: 1 }) +
+        txt((T.x0 + T.x1) / 2, T.y1 - 2.4, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: TH.b2 }) + "</g>"; }
     place.forEach(({ V, x, y, w, h }) => {
       const X = (u) => x + (V.mu(u) - V.u0) * k, Y = (v) => y + (V.v1 - V.mv(v)) * k, P = (p) => [X(dot(p, V.u)), Y(dot(p, V.v))], dans = (o) => !o.vues || o.vues.includes(V.id);
       let g = "";
@@ -242,10 +253,9 @@ const DESSIN = (() => {
       const du = Math.max(...us) - Math.min(...us), dv = Math.max(...vs) - Math.min(...vs);
       const occ = place.map((r) => [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b + 6]);
       const gR = Math.max(...occ.map((o) => o[2])), gB = Math.max(...occ.map((o) => o[3]));
-      const cand = [[gR + 4, zy0 + 4, zx1 - 4, bloc.y0 - 4], [zx0 + 4, gB + 2, bloc.x0 - 4, zy1 - hNotes - 2]];
-      if (grille) grille.cols.forEach((c) => grille.ligs.forEach((r) => { if (!place.some((p) => p.V.col === c && p.V.lig === r)) cand.push([grille.x0[c] + 2, grille.y0[r] + 2, zx1 - 4, bloc.y0 - 4]); }));
-      if (tampon) cand.forEach((R) => { if (coupeR(R, tampon)) R[1] = Math.max(R[1], tampon.y1 + 3); });
-      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !coupeR(R, bloc) && !coupeR(R, tampon);
+      const hautO = Math.min(...obst.map((B) => B.y0)), cand = [[gR + 4, zy0 + 4, zx1 - 4, (dispo === "pile" ? bloc.y0 : blocA.y0) - 4], [gR + 4, zy0 + 4, zx1 - 4, hautO - 4], [zx0 + 4, gB + 2, bloc.x0 - 4, zy1 - hNotes - 2]];
+      if (grille) grille.cols.forEach((c) => grille.ligs.forEach((r) => { if (!place.some((p) => p.V.col === c && p.V.lig === r)) cand.push([grille.x0[c] + 2, grille.y0[r] + 2, zx1 - 4, hautO - 4]); }));
+      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !obst.some((B) => coupeR(R, B));
       let mieux = null;
       cand.forEach((R) => { if (R[2] - R[0] < 50 || R[3] - R[1] < 50 || !libre(R)) return; const ki = Math.min((R[2] - R[0] - 10) / du, (R[3] - R[1] - 16) / dv); if (!mieux || ki > mieux.ki) mieux = { R, ki }; });
       if (mieux) { const { R, ki } = mieux, kk = Math.min(ki, k * 1.5), cx = (R[0] + R[2]) / 2, cy = (R[1] + R[3] - 8) / 2, um = (Math.max(...us) + Math.min(...us)) / 2, vm = (Math.max(...vs) + Math.min(...vs)) / 2;
@@ -256,16 +266,16 @@ const DESSIN = (() => {
     }
     // tableau des configurations, nomenclature, cartouche : calque CARTOUCHE
     s += `<g data-c="CARTOUCHE">`;
-    let yb = bloc.y0 + hTp;
+    let yb = ZT.y0 + hTp;
     const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
     tabs.forEach((tab) => {
-      const hl = 6, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
-      s += txt(bloc.x0, yb + 4, tab.titre || "Tableau", { h: 3.5, b: 1 }); yb += 5.5;
-      s += `<rect x="${bloc.x0}" y="${yb}" width="${wB}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
-      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + 4.1, c, { a: "middle", h: 2.8, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
-      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + 4.1, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: 2.8, b: tab.gras && tab.gras(j, i) }); }); });
+      const hl = TH.hl, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = ZT.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * ZT.w; }); const wc = (i) => pw[i] / sw * ZT.w;
+      s += txt(ZT.x0, yb + TH.ft + 0.4, tab.titre || "Tableau", { h: TH.ft, b: 1 }); yb += TH.ft + 2;
+      s += `<rect x="${ZT.x0}" y="${yb}" width="${ZT.w}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
+      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + hl * 0.68, c, { a: "middle", h: TH.f, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
+      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(ZT.x0, yy, (ZT.x0 + ZT.w), yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + hl * 0.68, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: TH.f, b: tab.gras && tab.gras(j, i) }); }); });
       yb += hl * (tab.rows.length + 1) + 2.5;
-      tab._note.forEach((l) => { s += txt(bloc.x0, yb + 1.8, l, { h: 2.5 }); yb += 3.4; });
+      tab._note.forEach((l) => { s += txt(ZT.x0, yb + 1.8, l, { h: TH.nt }); yb += TH.nt + 0.9; });
     });
     // nomenclature (repères numérotés de bas en haut, en-tête en bas, au-dessus du cartouche)
     if (nom.length) {
@@ -274,8 +284,8 @@ const DESSIN = (() => {
       let xx = bloc.x0; const xs = C.map((c) => { const a = xx; xx += c[0] * kx; return a; });
       xs.slice(1).forEach((xv) => { s += ligne(xv, yN, xv, yN + hNom); });
       const rows = nom.slice().reverse();
-      rows.forEach((r, j) => { const yy = yN + lgN * j; if (j) s += ligne(bloc.x0, yy, bloc.x1, yy); r.forEach((c, i) => { s += txt(i === 2 ? xs[i] + 1.5 : xs[i] + C[i][0] * kx / 2, yy + 4.1, c, { a: i === 2 ? "start" : "middle", h: 2.5 }); }); });
-      const yh = yN + lgN * rows.length; s += ligne(bloc.x0, yh, bloc.x1, yh, TF); C.forEach((c, i) => { s += txt(xs[i] + c[0] * kx / 2, yh + 4.1, c[1], { a: "middle", h: 2.5, b: 1 }); });
+      rows.forEach((r, j) => { const yy = yN + lgN * j; if (j) s += ligne(bloc.x0, yy, bloc.x1, yy); r.forEach((c, i) => { s += txt(i === 2 ? xs[i] + 1.5 : xs[i] + C[i][0] * kx / 2, yy + lgN * 0.68, c, { a: i === 2 ? "start" : "middle", h: A4 ? 2.2 : 2.5 }); }); });
+      const yh = yN + lgN * rows.length; s += ligne(bloc.x0, yh, bloc.x1, yh, TF); C.forEach((c, i) => { s += txt(xs[i] + c[0] * kx / 2, yh + lgN * 0.68, c[1], { a: "middle", h: A4 ? 2.2 : 2.5, b: 1 }); });
     }
     // cartouche provisoire
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;

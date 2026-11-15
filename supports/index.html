@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.35"></script>
+<script src="../commun/auth.js?v=2.36"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.35">
+<link rel="stylesheet" href="../commun/calc.css?v=2.36">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.35"></script>
-<script src="../commun/data/tuyauterie.js?v=2.35"></script>
-<script src="../commun/acier.js?v=2.35"></script>
-<script src="../commun/barres3d.js?v=2.35"></script>
-<script src="../commun/dessin.js?v=2.35"></script>
-<script src="../commun/coefvent.js?v=2.35"></script>
-<script src="../commun/cahier.js?v=2.35"></script>
+<script src="../commun/data/profils.js?v=2.36"></script>
+<script src="../commun/data/tuyauterie.js?v=2.36"></script>
+<script src="../commun/acier.js?v=2.36"></script>
+<script src="../commun/barres3d.js?v=2.36"></script>
+<script src="../commun/dessin.js?v=2.36"></script>
+<script src="../commun/coefvent.js?v=2.36"></script>
+<script src="../commun/cahier.js?v=2.36"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -1175,7 +1175,7 @@ function specDessin(D,V,opt={}){
     notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''} : a = positionnement des tuyauteries (axe), autres cotes = géométrie du support. Platines et fixations représentées à titre indicatif : dimensions, épaisseurs, entraxes et chevilles selon la note de chevillage.`,`Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (profilés seuls, hors platines et visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`]};
 }
 function planIndus(D,V,opt){ return DESSIN.planche(specDessin(D,V,opt)); }
-function majIndus(){ if(!modeIndus||!dernier) return; try{ const P=planIndus(dernier.D,dernier.V,{format:formatIndus,ddc:$('ddcInd').checked}); $('vInd').innerHTML=P.svg; $('nInd').innerHTML=`Échelle 1:${P.echelle} sur ${P.format} paysage · projection européenne · faces cachées supprimées. Cartouche provisoire en attendant le cartouche FIP.`; dernier.planche=P; }
+function majIndus(){ if(!modeIndus||!dernier) return; try{ const P=planIndus(dernier.D,dernier.V,{format:formatIndus,ddc:$('ddcInd').checked}); $('vInd').innerHTML=P.svg; $('nInd').innerHTML=`Échelle 1:${P.echelle} sur ${P.format} paysage · projection européenne · faces cachées supprimées. Cartouche provisoire en attendant le cartouche FIP.`+(P.format==='A4'&&P.echelle>20?' <b style="color:#b26a00">⚠ Format A4 trop petit pour ce contenu (échelle réduite) : préférer l\'A3.</b>':''); dernier.planche=P; }
   catch(e){ $('vInd').innerHTML=`<div class="msg warn">Dessin indisponible : ${escH(e.message)}</div>`; } }
 function exporterDXF(){ if(!dernier) return; const P=DESSIN.planche({...specDessin(dernier.D,dernier.V,{format:formatIndus,ddc:$('ddcInd').checked}),vecteur:true}), o=DESSIN.dxf([{svg:P.svg}]);
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([o],{type:'application/dxf'})); a.download=`${($('repere').value||'support').replace(/[^\w-]+/g,'_')}_${formatIndus}.dxf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); }
@@ -1425,12 +1425,12 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.35"></script>
-<script src="../commun/aide.js?v=2.35"></script>
-<script src="ndc-s1.js?v=2.35"></script>
+<script src="../commun/replier.js?v=2.36"></script>
+<script src="../commun/aide.js?v=2.36"></script>
+<script src="ndc-s1.js?v=2.36"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.35"></script>
-<script src="../commun/export.js?v=2.35"></script>
+<script src="aide-s1.js?v=2.36"></script>
+<script src="../commun/export.js?v=2.36"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

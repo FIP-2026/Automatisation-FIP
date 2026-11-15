@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.35"></script>
+<script src="../commun/auth.js?v=2.36"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.35">
-<script src="../commun/apps.js?v=2.35"></script>
-<script src="../commun/barres3d.js?v=2.35"></script>
-<script src="../commun/acier.js?v=2.35"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.36">
+<script src="../commun/apps.js?v=2.36"></script>
+<script src="../commun/barres3d.js?v=2.36"></script>
+<script src="../commun/acier.js?v=2.36"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -211,8 +211,9 @@
 <li><b>Échelle</b> : la plus grande de la série NF EN ISO 5455 (1:1, 1:2, 1:5, 1:10, 1:20, 1:50, 1:100) tenant sur le format ; vue de dessus abandonnée seulement si elle coûte plus d'un facteur 2 ; <b>vues interrompues</b> (plus grande plage sans détail le long d'une barre droite, &gt; 450 mm, ±120 mm conservés) si l'échelle y gagne, cotes en vraie grandeur.</li>
 <li><b>Faces cachées</b> : profilés extrudés (sections réelles, coupes biaises aux assemblages), algorithme du peintre sur faces découpées tous les 40 mm, arêtes de silhouette et arêtes vives (&gt; 15°). DXF : parties visibles de chaque arête calculées par test d'occultation (échantillonnage 0,4 mm, raffinement par dichotomie).</li>
 <li><b>Traits</b> (ISO 128) : fort 0,5 mm, fin 0,25 mm, axes en trait mixte fin, pièces voisines (tuyauteries) en trait mixte fin à deux tirets ; cotation ISO 129 ; écritures 2,5 / 3,5 mm.</li>
+<li><b>Mention de phase</b> : bandeau « NON VALABLE POUR EXÉCUTION – PHASE APS/APD » en tête du bloc cartouche, phase rappelée au cartouche ; sur A3, bandeau et tableaux passent à gauche de la nomenclature si l'échelle y gagne.</li>
 <li><b>Cotes données</b> : géométrie du support et positionnement des tuyauteries ; platines, fixations et altimétrie hors planche (note de chevillage, plan d'implantation).</li>
-<li><b>DXF</b> : R12 ASCII, mm à l'échelle 1:1 de la feuille, code page ANSI 1252, calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE ; cotes non associatives.</li></ul>
+<li><b>DXF</b> : R12 ASCII, mm à l'échelle 1:1 de la feuille, code page ANSI 1252, calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE ; cotes non associatives.</li></ul>
 </article>
 
 <article class="card" id="ndc"><div class="theme">Sorties</div><h2>14. Notes de calcul</h2>
@@ -282,6 +283,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.35"></script>
+<script src="../commun/replier.js?v=2.36"></script>
 </body>
 </html>
