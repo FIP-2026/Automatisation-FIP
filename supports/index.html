@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.36"></script>
+<script src="../commun/auth.js?v=2.37"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.36">
+<link rel="stylesheet" href="../commun/calc.css?v=2.37">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.36"></script>
-<script src="../commun/data/tuyauterie.js?v=2.36"></script>
-<script src="../commun/acier.js?v=2.36"></script>
-<script src="../commun/barres3d.js?v=2.36"></script>
-<script src="../commun/dessin.js?v=2.36"></script>
-<script src="../commun/coefvent.js?v=2.36"></script>
-<script src="../commun/cahier.js?v=2.36"></script>
+<script src="../commun/data/profils.js?v=2.37"></script>
+<script src="../commun/data/tuyauterie.js?v=2.37"></script>
+<script src="../commun/acier.js?v=2.37"></script>
+<script src="../commun/barres3d.js?v=2.37"></script>
+<script src="../commun/dessin.js?v=2.37"></script>
+<script src="../commun/coefvent.js?v=2.37"></script>
+<script src="../commun/cahier.js?v=2.37"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -68,6 +68,7 @@
       <label><input type="radio" name="type" value="plafond"><svg viewBox="0 0 80 64"><line x1="8" y1="6" x2="72" y2="6" stroke="#171a1e" stroke-width="2"/><rect x="35" y="7" width="5" height="48" fill="#8a929c"/><circle cx="50" cy="42" r="9" fill="#0098db" opacity=".8"/></svg>Suspente au plafond</label>
       <label><input type="radio" name="type" value="T"><svg viewBox="0 0 80 64"><line x1="10" y1="60" x2="70" y2="60" stroke="#171a1e"/><rect x="37" y="22" width="5" height="38" fill="#8a929c"/><rect x="12" y="18" width="56" height="5" fill="#8a929c"/><circle cx="22" cy="11" r="7" fill="#0098db" opacity=".8"/><circle cx="57" cy="11" r="7" fill="#0098db" opacity=".8"/></svg>Support en T</label>
       <label><input type="radio" name="type" value="L"><svg viewBox="0 0 80 64"><line x1="10" y1="60" x2="70" y2="60" stroke="#171a1e"/><rect x="16" y="6" width="5" height="54" fill="#8a929c"/><rect x="21" y="18" width="44" height="4" fill="#8a929c"/><rect x="21" y="40" width="34" height="4" fill="#8a929c"/><circle cx="54" cy="11" r="7" fill="#0098db" opacity=".8"/><circle cx="44" cy="33" r="7" fill="#0098db" opacity=".8"/></svg>Support en L (consoles)</label>
+      <label><input type="radio" name="type" value="Lplaf"><svg viewBox="0 0 80 64"><line x1="10" y1="4" x2="70" y2="4" stroke="#171a1e" stroke-width="2"/><rect x="16" y="5" width="5" height="55" fill="#8a929c"/><rect x="21" y="55" width="44" height="4" fill="#8a929c"/><rect x="21" y="33" width="34" height="4" fill="#8a929c"/><circle cx="54" cy="48" r="7" fill="#0098db" opacity=".8"/><circle cx="44" cy="26" r="7" fill="#0098db" opacity=".8"/></svg>L plafonnier</label>
       <label><input type="radio" name="type" value="U"><svg viewBox="0 0 80 64"><line x1="6" y1="60" x2="74" y2="60" stroke="#171a1e"/><rect x="14" y="22" width="5" height="38" fill="#8a929c"/><rect x="61" y="22" width="5" height="38" fill="#8a929c"/><rect x="14" y="18" width="52" height="5" fill="#8a929c"/><circle cx="30" cy="11" r="7" fill="#0098db" opacity=".8"/><circle cx="50" cy="11" r="7" fill="#0098db" opacity=".8"/></svg>Support en U</label>
       <label><input type="radio" name="type" value="Lmur"><svg viewBox="0 0 80 64"><line x1="6" y1="60" x2="60" y2="60" stroke="#171a1e"/><line x1="70" y1="4" x2="70" y2="62" stroke="#171a1e" stroke-width="2"/><rect x="14" y="22" width="5" height="38" fill="#8a929c"/><rect x="14" y="18" width="56" height="5" fill="#8a929c"/><circle cx="32" cy="11" r="7" fill="#0098db" opacity=".8"/><circle cx="52" cy="11" r="7" fill="#0098db" opacity=".8"/></svg>Support en L mural</label>
     </div>
@@ -93,7 +94,7 @@
       <div><label id="labLt">Largeur de la traverse L<sub>b</sub> (m)</label><input id="Lt" type="number" step="0.05" value="0.8"></div>
       <div id="blocHj"><label>Pied de jambe sous la console h<sub>j</sub> (m)</label><input id="hj" type="number" step="0.05" value="0.5"></div>
       <div id="blocNc"><label>Consoles : nombre / espacement h<sub>c</sub> (m)</label><div class="row"><select id="nc"><option>1</option><option selected>2</option><option>3</option><option>4</option></select><input id="hc" type="number" step="0.05" value="0.5"></div>
-        <label title="Distance entre le sommet du montant et la première console (0 = console en tête)">Décalage de la 1<sup>re</sup> console sous le sommet o (m)</label><input id="off" type="number" step="0.05" min="0" value="0"></div>
+        <label id="labOff" title="Distance entre l'extrémité libre du montant ou de la suspente et la première console (0 = console à l'extrémité)">Décalage de la 1<sup>re</sup> console sous le sommet o (m)</label><input id="off" type="number" step="0.05" min="0" value="0"></div>
     </div>
     <div class="row">
       <div><label>Hauteur du support au-dessus du sol z (m)</label><input id="zsol" type="number" step="0.5" value="2"></div>
@@ -306,7 +307,7 @@ function cartesTuyaux(){
       <div><label>Calorifuge (mm)</label><input data-k="ecal" type="number" value="${t.ecal}"></div>
       ${t.mode==='base'?`<div><label>ρ calorifuge</label><input data-k="rhoCal" type="number" value="${t.rhoCal}"></div>`:''}
       <div><label>Portée tuyau (m)</label><input data-k="portee" type="number" step="0.1" value="${t.portee}"></div>
-      ${typ==='L'?`<div><label>Console n°</label><select data-k="cons">${opt([...Array(+$('nc').value)].map((_,k)=>[k+1,'Console '+(k+1)+(k?'':' (tête)')]),t.cons||1)}</select></div>`:''}
+      ${typ==='L'||typ==='Lplaf'?`<div><label>Console n°</label><select data-k="cons">${opt([...Array(+$('nc').value)].map((_,k)=>[k+1,'Console '+(k+1)+(k?'':typ==='Lplaf'?' (bas)':' (tête)')]),t.cons||1)}</select></div>`:''}
       <div><label>${pos}</label><input data-k="pos" type="number" step="0.05" value="${t.pos}"></div>
       <div><label>${['sol','plafond'].includes(typ)?'Excentr. e (m)':'Excentr. vert. (m)'}</label><input data-k="e" type="number" step="0.01" value="${t.e}" placeholder="auto"></div>
       <div><label>Fonction</label><select data-k="fonc">${opt([['glissant','Glissant'],['guide','Guidé'],['fixe','Point fixe']],t.fonc)}</select></div>
@@ -339,6 +340,7 @@ const TYPES={
  L:{n:'Support en L (consoles)',multi:true,note:'Montant encastré en pied et 1 à 4 consoles : console 1 en tête, les suivantes espacées de h<sub>c</sub> vers le bas. Position : distance au montant.'},
  U:{n:'Support en U',multi:true,note:'Deux montants encastrés en pied, traverse liée rigidement en tête (portique). Position : distance au montant gauche.'},
  murJ:{n:'Console murale avec jambe de force',multi:true,note:'Console encastrée au mur (platine) et jambe de force basse articulée aux deux extrémités (pied au mur à h<sub>j</sub> sous la console, tête sur la console à la distance b du mur). Position des tuyaux : distance au mur.'},
+ Lplaf:{n:'Support en L plafonnier (consoles)',multi:true,note:'Suspente encastrée au plafond (platine chevillée ou crapautée sur un profilé existant) et 1 à 4 consoles : console 1 en bas, les suivantes espacées de h<sub>c</sub> vers le haut. Position : distance à la suspente.'},
  Lmur:{n:'Support en L mural',multi:true,note:'Montant encastré en pied, traverse articulée sur le mur à l\'autre extrémité (translations et torsion bloquées). Position : distance au montant.'}};
 function sectionBarre(p){
   const L=/^LI?$/.test(p.f);
@@ -378,6 +380,9 @@ function modele(D){
     case 'L': barre('Montant','m',pm,[0,0,0],[0,0,H],vzM,2*H,H,true);
       for(let k=0;k<D.nc;k++){ const z=Math.max(H-D.off-k*D.hc,0.05); barre('Console '+(k+1),'t',pt,[0,0,z],[0,Lt,z],vzT,2*Lt,Lt,true); }
       appuis.push({pt:[0,0,0],c:ENC,lib:'Pied (platine au sol)',k:'sol'}); break;
+    case 'Lplaf': barre('Suspente','m',pm,[0,0,0],[0,0,-H],vzM,2*H,H,true);
+      for(let k=0;k<D.nc;k++){ const z=Math.min(-H+D.off+k*D.hc,-0.05); barre('Console '+(k+1),'t',pt,[0,0,z],[0,Lt,z],vzT,2*Lt,Lt,true); }
+      appuis.push({pt:[0,0,0],c:ENC,lib:'Platine au plafond',k:'plafond'}); break;
     case 'U': barre('Montant gauche','m',pm,[0,0,0],[0,0,H],vzM,2*H,H,true); barre('Montant droit','m',pm,[0,Lt,0],[0,Lt,H],vzM,2*H,H,true); barre('Traverse','t',pt,[0,0,H],[0,Lt,H],vzT,Lt,Lt,false);
       appuis.push({pt:[0,0,0],c:ENC,lib:'Pied gauche',k:'sol'}); appuis.push({pt:[0,Lt,0],c:ENC,lib:'Pied droit',k:'sol'}); break;
     case 'Lmur': barre('Montant','m',pm,[0,0,0],[0,0,H],vzM,2*H,H,true); barre('Traverse','t',pt,[0,0,H],[0,Lt,H],vzT,Lt,Lt,false);
@@ -390,7 +395,7 @@ function modele(D){
 }
 function barreDuTuyau(t,D){
   if(!TYPES[D.typ].multi) return 0;
-  if(D.typ==='L') return Math.min(Math.max(+t.cons||1,1),D.nc);       // barre 0 = montant, consoles 1…nc
+  if(D.typ==='L'||D.typ==='Lplaf') return Math.min(Math.max(+t.cons||1,1),D.nc);       // barre 0 = montant, consoles 1…nc
   if(D.typ==='murJ') return 0;                                       // tuyaux sur la console
   return D.typ==='U'?2:1;
 }
@@ -572,18 +577,18 @@ function donnees(){
 function majFormulaire(){
   const typ=typeSup(), multi=TYPES[typ].multi;
   $('noteType').innerHTML=TYPES[typ].note;
-  $('labL').textContent=typ==='murJ'?'Longueur de la console L (m)':typ==='mur'?'Longueur de la console L (m)':typ==='plafond'?'Longueur de la suspente H (m)':'Hauteur du montant H (m)';
-  $('labP1').textContent=typ==='murJ'?'Profilé de la console':multi?'Profilé des montants':typ==='mur'?'Profilé de la console':typ==='plafond'?'Profilé de la suspente':'Profilé du montant';
-  $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi?'':'none'; $('blocNc').style.display=typ==='L'?'':'none'; $('blocHj').style.display=typ==='murJ'?'':'none';
-  const fx=$('fix'), opts=[['chev','Chevilles (efforts transmis au fournisseur)']].concat(['mur','murJ'].includes(typ)?[['tige','Tiges filetées traversantes + contre-plaque']]:[]).concat(typ==='plafond'?[['crap','Crapautage sur profilé existant']]:[]);
+  $('labL').textContent=typ==='murJ'?'Longueur de la console L (m)':typ==='mur'?'Longueur de la console L (m)':typ==='plafond'||typ==='Lplaf'?'Longueur de la suspente H (m)':'Hauteur du montant H (m)';
+  $('labP1').textContent=typ==='murJ'?'Profilé de la console':typ==='Lplaf'?'Profilé de la suspente':multi?'Profilé des montants':typ==='mur'?'Profilé de la console':typ==='plafond'?'Profilé de la suspente':'Profilé du montant';
+  $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi?'':'none'; $('blocNc').style.display=typ==='L'||typ==='Lplaf'?'':'none'; $('labOff').innerHTML=typ==='Lplaf'?'Décalage de la 1<sup>re</sup> console au-dessus du bas o (m)':'Décalage de la 1<sup>re</sup> console sous le sommet o (m)'; $('blocHj').style.display=typ==='murJ'?'':'none';
+  const fx=$('fix'), opts=[['chev','Chevilles (efforts transmis au fournisseur)']].concat(['mur','murJ'].includes(typ)?[['tige','Tiges filetées traversantes + contre-plaque']]:[]).concat(['plafond','Lplaf'].includes(typ)?[['crap','Crapautage sur profilé existant']]:[]);
   if(fx.dataset.t!==typ||fx.options.length!==opts.length){ const v=fx.value; fx.innerHTML=opts.map(([k,l])=>`<option value="${k}">${l}</option>`).join(''); if(opts.some(o=>o[0]===v)) fx.value=v; fx.dataset.t=typ; }
   $('bFixT').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'?'':'none';
   $('bCrCat').style.display=$('crType').value==='cat'?'':'none'; $('bCrMa').style.display=$('crType').value==='maison'?'':'none';
   $('noteFix').innerHTML={chev:'Platine fixée par 4 chevilles : les efforts par cheville (traction, cisaillement) sont donnés pour le choix fournisseur (Hilti PROFIS, Fischer…).',tige:'Mur peu résistant ou mince : 4 tiges filetées traversantes, contre-plaque côté opposé. Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; mur (écrasement sous contre-plaque) non vérifié.',crap:'Platine pincée par 4 crapauds sur la semelle d\'un profilé existant (sans perçage). Traction et glissement à comparer aux valeurs du catalogue (Lindapter, Kee Klamp…) ; le glissement le long du profilé est le point sensible, aggravé par l\'inclinaison θ.'}[fx.value]||'';
-  $('labOr').textContent=['mur','murJ'].includes(typ)?'Orientation de la console (et de la jambe)':typ==='plafond'?'Orientation de la suspente':'Orientation du montant';
+  $('labOr').textContent=['mur','murJ'].includes(typ)?'Orientation de la console (et de la jambe)':['plafond','Lplaf'].includes(typ)?'Orientation de la suspente':'Orientation du montant';
   $('bloc2').querySelector('label').textContent=typ==='murJ'?'Profilé de la jambe de force':'Profilé de la traverse / des consoles';
   $('blocSj').style.display=$('platine').value==='saisie'?'':'none';
-  $('labLt').innerHTML={T:'Largeur de la traverse L<sub>b</sub> (m)',L:'Longueur des consoles L<sub>c</sub> (m)',U:'Largeur entre montants W (m)',Lmur:'Distance montant – mur W (m)',murJ:'Attache de la jambe sur la console b (m)'}[typ]||'';
+  $('labLt').innerHTML={T:'Largeur de la traverse L<sub>b</sub> (m)',L:'Longueur des consoles L<sub>c</sub> (m)',Lplaf:'Longueur des consoles L<sub>c</sub> (m)',U:'Largeur entre montants W (m)',Lmur:'Distance montant – mur W (m)',murJ:'Attache de la jambe sur la console b (m)'}[typ]||'';
 }
 let dernier=null;
 function calc(){
@@ -888,13 +893,13 @@ function alertes(D,V){
     } else {
       const extr=(cote)=>{ // nature de l'extrémité : mur, montant ou bout libre
         if(['mur','murJ'].includes(D.typ)&&cote==='A') return 'du mur'; if(D.typ==='Lmur'&&cote==='B') return 'du mur';
-        if((D.typ==='U')||((D.typ==='Lmur'||D.typ==='L')&&cote==='A')) return 'du montant'; return `du bout de ${D.typ==='T'?'traverse':'console'}`; };
+        if((D.typ==='U')||((D.typ==='Lmur'||D.typ==='L')&&cote==='A')) return 'du montant'; if(D.typ==='Lplaf'&&cote==='A') return 'de la suspente'; return `du bout de ${D.typ==='T'?'traverse':'console'}`; };
       const dA=(t.s-rc)*1000, dB=(b.L-t.s-rc)*1000;
       if(dA<bord) add('warn',`Tuyauterie trop près ${extr('A')} – ${nom}`,`Bord du tuyau (calorifuge compris) à ${f(dA,0)} mm (mini ${bord} mm).`);
       if(dB<bord) add('warn',`Tuyauterie trop près ${extr('B')} – ${nom}`,`Bord du tuyau (calorifuge compris) à ${f(dB,0)} mm (mini ${bord} mm).`);
     }
     if(t.fonc==='fixe'&&/^(LI?|U)/.test(p.f)) add('warn',`Point fixe sur profilé ouvert – ${nom}`,'Les efforts de point fixe génèrent flexion déviée et torsion : préférer un tube carré, un double profilé ou un support en U.');
-    if(b.vert&&t.fonc==='glissant') add('bloq',`Tuyauterie « glissante » sur ${D.typ==='plafond'?'une suspente verticale':'un montant vertical'} – ${nom}`,`Sur un profilé vertical, la tuyauterie est tenue latéralement par l'étrier : elle ne peut pas être simplement posée (elle tomberait). Choisir « Guidé » ou « Point fixe ».`,'Règle de l\'art supportage',b.role);
+    if(b.vert&&t.fonc==='glissant') add('bloq',`Tuyauterie « glissante » sur ${['plafond','Lplaf'].includes(D.typ)?'une suspente verticale':'un montant vertical'} – ${nom}`,`Sur un profilé vertical, la tuyauterie est tenue latéralement par l'étrier : elle ne peut pas être simplement posée (elle tomberait). Choisir « Guidé » ou « Point fixe ».`,'Règle de l\'art supportage',b.role);
     if(t.fonc==='fixe'&&t.est){ const o=ancrage(t,t.P);
       add(o.err?'warn':'info',`Point fixe – effort d'ancrage estimé – ${nom}`,`${txtAncrage(o)}. Estimation simplifiée (ligne droite, supports à frottement μ, console guidée pour le coude) : moments et efforts transversaux non estimés, à confirmer par l'étude de flexibilité.`,'Méthode de la console guidée (M.W. Kellogg) ; compensateurs : EJMA (poussée de pression sur points fixes principaux)'); }
     else if(t.fonc==='fixe'){ const nul=!(+t.Fx)&&!(+t.Fy)&&!(+t.Fz);
@@ -922,7 +927,7 @@ function alertes(D,V){
     const iMin=P.R.isL?p.iv:Math.min(p.iy,p.iz), el=P.St.Lcr*100/iMin;
     if(el>elanc) add('warn',`Élancement excessif – ${escH(b.lib)}`,`L<sub>cr</sub>/i = ${f(el,0)} &gt; ${elanc} : barre souple, sensible aux vibrations et chocs.`,'Limite usuelle des barres comprimées');
     if(!b.vert&&b.paf&&b.Lref>lCons) add('warn',`Porte-à-faux long – ${escH(b.lib)}`,`${f(b.Lref,2)} m &gt; ${f(lCons,2)} m : envisager une jambe de force, un support en L mural ou en U.`);
-    if(b.vert&&b.L>lMont) add('warn',`${D.typ==='plafond'?'Suspente longue':'Montant haut'} – ${escH(b.lib)}`,`${f(b.L,2)} m &gt; ${f(lMont,2)} m : envisager un contreventement, un support en U ou un renfort.`);
+    if(b.vert&&b.L>lMont) add('warn',`${['plafond','Lplaf'].includes(D.typ)?'Suspente longue':'Montant haut'} – ${escH(b.lib)}`,`${f(b.L,2)} m &gt; ${f(lMont,2)} m : envisager un contreventement, un support en U ou un renfort.`);
     if(P.rT>tors) add('warn',`Torsion importante – ${escH(b.lib)}`,`τ<sub>t</sub> = ${f(P.rT*100,0)} % de f<sub>y</sub>/√3 : profilé ouvert peu adapté, préférer un tube (section fermée) ou réduire l'excentricité.`,'NF EN 1993-1-1 §6.2.7');
   });
   entraxes(D,V).filter(x=>!x.ok).forEach(x=>add('bloq',`Entraxe insuffisant ${escH(x.a)} – ${escH(x.b)} (${escH(x.barre.toLowerCase())})`,`${f(x.reel,0)} mm &lt; ${f(x.E,0)} mm requis.`,'E = (D₁+D₂)/2 + e<sub>cal1</sub> + e<sub>cal2</sub> + J'));
@@ -952,10 +957,11 @@ const flc=`<marker id="fk2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.
 const hachures=(x1,y1,x2,y2,dx,dy)=>{let s=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#171a1e" stroke-width="1.6"/>`;const n=Math.max(2,Math.round(Math.hypot(x2-x1,y2-y1)/18));for(let i=0;i<=n;i++){const x=x1+(x2-x1)*i/n,y=y1+(y2-y1)*i/n;s+=`<line x1="${x}" y1="${y}" x2="${x+dx}" y2="${y+dy}" stroke="#8a929c"/>`;}return s;};
 /* Cotes principales nommées (plans types du cahier : lettre ; S1 : lettre = valeur) */
 function cotesDef(typ=typeSup()){
-  const L=[{id:'Lm',l:['mur','murJ'].includes(typ)?'L':'H',lib:['mur','murJ'].includes(typ)?'Longueur de la console':typ==='plafond'?'Longueur de la suspente':'Hauteur du montant'}];
-  if(TYPES[typ].multi) L.push({id:'Lt',l:'L',lib:typ==='L'?'Longueur des consoles':typ==='T'?'Largeur de la traverse':'Portée de la traverse'});
-  if(typ==='L'&&+$('nc').value>1) L.push({id:'hc',l:'h',lib:'Espacement des consoles'});
+  const L=[{id:'Lm',l:['mur','murJ'].includes(typ)?'L':'H',lib:['mur','murJ'].includes(typ)?'Longueur de la console':['plafond','Lplaf'].includes(typ)?'Longueur de la suspente':'Hauteur du montant'}];
+  if(TYPES[typ].multi) L.push({id:'Lt',l:'L',lib:typ==='L'||typ==='Lplaf'?'Longueur des consoles':typ==='T'?'Largeur de la traverse':'Portée de la traverse'});
+  if((typ==='L'||typ==='Lplaf')&&+$('nc').value>1) L.push({id:'hc',l:'h',lib:'Espacement des consoles'});
   if(typ==='L') L.push({id:'off',l:'o',lib:'Décalage de la 1re console sous le sommet'});
+  if(typ==='Lplaf') L.push({id:'off',l:'o',lib:'Décalage de la 1re console au-dessus du bas de la suspente'});
   if(typ==='murJ'){ L[1]={id:'Lt',l:'b',lib:'Attache de la jambe sur la console'}; L.push({id:'hj',l:'h',lib:'Pied de jambe sous la console'}); }
   tuyaux.forEach((t,i)=>L.push({id:'pos'+i,l:'a'+(i+1),lib:'Position de '+(t.nom||'L'+(i+1))}));
   L.push({id:'zsol',l:'Z',lib:'Hauteur de pose au-dessus du sol (vent)'});
@@ -1021,8 +1027,8 @@ function vueFace(D,V,opt={}){                               // plan Y–Z (regar
   if(hz){const y0=Math.min(hz.A[1],hz.B[1]),y1=Math.max(hz.A[1],hz.B[1]),yy=Math.min(Y(Math.min(...Gm.B.map(b=>Math.min(b.A[2],b.B[2])+(b.vert?0:b.bord([0,0,1]).lo))))+18+(D.typ==='murJ'?20:0),H-24);s+=cH(X(y0),X(y1),yy,lc('L',y1-y0));}
   if(D.typ==='murJ'){ const j=Gm.B[1], xx=X(0)-30, yb=Y(j.A[2]); s+=rap(X(0),yb,xx-4,yb)+rap(X(0),Y(0),xx-4,Y(0))+cV(xx,Y(0),yb,lc('h',-j.A[2]));
     const yy=Y(0)-(plan?18:22)-16*0; s+=rap(X(j.B[1]),Y(0),X(j.B[1]),yy-4)+cH(X(0),X(j.B[1]),Y(j.A[2])+18,lc('b',j.B[1]),false)+rap(X(j.B[1]),Y(0),X(j.B[1]),Y(j.A[2])+22); }
-  if(D.typ==='L'&&D.off>0){const b1=Gm.B[1],m=Gm.B[0],xx=X(m.A[1])-14;s+=rap(X(m.A[1]),Y(m.B[2]),xx-4,Y(m.B[2]))+cV(xx,Y(m.B[2]),Y(b1.A[2]),lc('o',D.off));}
-  if(D.typ==='L'&&D.nc>1){const b1=Gm.B[1],b2=Gm.B[2],xx=X(b1.B[1])+14;s+=rap(X(b1.B[1]),Y(b1.A[2]),xx+4,Y(b1.A[2]))+rap(X(b2.B[1]),Y(b2.A[2]),xx+4,Y(b2.A[2]))+cVd(xx,Y(b1.A[2]),Y(b2.A[2]),lc('h',b1.A[2]-b2.A[2]));}
+  if((D.typ==='L'||D.typ==='Lplaf')&&D.off>0){const b1=Gm.B[1],m=Gm.B[0],xx=X(m.A[1])-14;s+=rap(X(m.A[1]),Y(m.B[2]),xx-4,Y(m.B[2]))+cV(xx,Y(m.B[2]),Y(b1.A[2]),lc('o',D.off));}
+  if((D.typ==='L'||D.typ==='Lplaf')&&D.nc>1){const b1=Gm.B[1],b2=Gm.B[2],xx=X(b1.B[1])+14;s+=rap(X(b1.B[1]),Y(b1.A[2]),xx+4,Y(b1.A[2]))+rap(X(b2.B[1]),Y(b2.A[2]),xx+4,Y(b2.A[2]))+cVd(xx,Y(b1.A[2]),Y(b2.A[2]),lc('h',Math.abs(b1.A[2]-b2.A[2])));}
   let iv=0, ih={};
   T.forEach((t,i)=>{ const b=Gm.B[t.bi], lib=lc('a'+(i+1),Math.abs(+t.pos||0)), cx=X(t.c[1]), cy=Y(t.c[2]);
     if(b.vert){ const z0=D.typ==='plafond'?0:b.A[2], xx=X(yMax)+14+16*iv++; s+=rap(cx,cy,xx+4,cy)+rap(X(b.A[1]),Y(z0),xx+4,Y(z0))+cVd(xx,Y(z0),cy,lib); }
@@ -1067,7 +1073,7 @@ let modeIndus=false, formatIndus='A3';
 function specDessin(D,V,opt={}){
   const Gm=V.Gm, lettres=!!opt.lettres, mm=v=>f(v*1000,0), lc=(l,v)=>lettres?l:mm(v);
   const S=[], aides=[], cercles=[], sols=[], murs=[], cotes=[], reperes=[], etiq=[], nom=[];
-  const mural=['mur','murJ'].includes(D.typ), fixM=$('fix').value, tige=fixM==='tige'&&mural, crap=fixM==='crap'&&D.typ==='plafond';
+  const mural=['mur','murJ'].includes(D.typ), fixM=$('fix').value, tige=fixM==='tige'&&mural, crap=fixM==='crap'&&['plafond','Lplaf'].includes(D.typ);
   const vCote=mural?'droite':'gauche';
   const vues=mural?[{id:'droite',col:0,lig:0},{id:'face',col:1,lig:0},{id:'dessus',col:1,lig:1,option:true}]:[{id:'face',col:0,lig:0},{id:'gauche',col:1,lig:0},{id:'dessus',col:0,lig:1,option:true}];
   // --- barres, coupées sur les faces des barres voisines et sur les platines
@@ -1089,9 +1095,9 @@ function specDessin(D,V,opt={}){
   const pl=[], trou=()=>{};                                   // platines : ni trous, ni entraxes, ni dimensions (relèvent de la note de chevillage)
   Gm.appuis.forEach(a=>{ const P=a.pt;
     if(a.k==='sol'){ S.push(boiteAA(P[0]-cx/2,P[0]+cx/2,P[1]-cz/2,P[1]+cz/2,P[2]-ep,P[2])); pl.push({k:a.k,d:[cx,cz]}); [-1,1].forEach(i=>[-1,1].forEach(j=>trou([P[0]+i*a1/2,P[1]+j*a2/2,P[2]],[0,0,1])));
-      sols.push({a:[P[0]-0.3,P[1]-cz/2-0.12,P[2]-ep],b:[P[0]+0.3,P[1]+cz/2+0.12,P[2]-ep],mat:[P[0],P[1],P[2]-0.2],vues:['face','gauche','droite']}); }
+      sols.push({a:[P[0]-0.3,P[1]-cz/2-0.06,P[2]-ep],b:[P[0]+0.3,P[1]+cz/2+0.06,P[2]-ep],mat:[P[0],P[1],P[2]-0.2],vues:['face','gauche','droite']}); }
     if(a.k==='plafond'&&!crap){ S.push(boiteAA(P[0]-cx/2,P[0]+cx/2,P[1]-cz/2,P[1]+cz/2,P[2],P[2]+ep)); pl.push({k:a.k,d:[cx,cz]}); [-1,1].forEach(i=>[-1,1].forEach(j=>trou([P[0]+i*a1/2,P[1]+j*a2/2,P[2]+ep],[0,0,1])));
-      sols.push({a:[P[0]-0.3,P[1]-cz/2-0.12,P[2]+ep],b:[P[0]+0.3,P[1]+cz/2+0.12,P[2]+ep],mat:[P[0],P[1],P[2]+0.2],vues:['face','gauche','droite']}); }
+      sols.push({a:[P[0]-0.3,P[1]-cz/2-0.06,P[2]+ep],b:[P[0]+0.3,P[1]+cz/2+0.06,P[2]+ep],mat:[P[0],P[1],P[2]+0.2],vues:['face','gauche','droite']}); }
     if(a.k==='mur'){ S.push(boiteAA(-cx/2,cx/2,-ep,0,P[2]-cz/2,P[2]+cz/2)); pl.push({k:a.k,d:[cx,cz]}); [-1,1].forEach(i=>[-1,1].forEach(j=>trou([i*a1/2,0,P[2]+j*a2/2],[0,1,0])));
       if(tige){ const e=Math.max(num('eMur',200),20)/1000, zA=Math.min(z0,P[2]-cz/2)-0.15, zB=Math.max(z1,P[2]+cz/2)+0.1;
         murs.push({rect:[[0,-ep-e,zA],[0,-ep,zA],[0,-ep,zB],[0,-ep-e,zB]],vues:['face']},{rect:[[-0.3,-ep-e,0],[0.3,-ep-e,0],[0.3,-ep,0],[-0.3,-ep,0]],vues:['dessus']});
@@ -1124,8 +1130,8 @@ function specDessin(D,V,opt={}){
   if(v){ const zz=[v.A[2],v.B[2]].sort((a,b)=>a-b); cotes.push({vue:'face',a:[0,v.A[1],zz[0]],b:[0,v.A[1],zz[1]],cote:'gauche',niv:0,txt:lc('H',zz[1]-zz[0])}); }
   if(hz){ const yy=[hz.A[1],hz.B[1]].sort((a,b)=>a-b); cotes.push({vue:'face',a:[0,yy[0],hz.A[2]],b:[0,yy[1],hz.A[2]],cote:'bas',niv:0,txt:lc('L',yy[1]-yy[0])}); }
   if(D.typ==='murJ'){ const j=Gm.B[1]; cotes.push({vue:'face',a:[0,0,j.A[2]],b:[0,0,0],cote:'gauche',niv:0,txt:lc('h',-j.A[2])},{vue:'face',a:[0,0,0],b:[0,j.B[1],0],cote:'bas',niv:1,txt:lc('b',j.B[1])}); }
-  if(D.typ==='L'&&D.off>0){ const b1=Gm.B[1],m=Gm.B[0]; cotes.push({vue:'face',a:[0,0,m.B[2]],b:[0,0,b1.A[2]],cote:'gauche',niv:1,txt:lc('o',D.off)}); }
-  if(D.typ==='L'&&D.nc>1){ const b1=Gm.B[1],b2=Gm.B[2]; cotes.push({vue:'face',a:[0,b1.B[1],b2.A[2]],b:[0,b1.B[1],b1.A[2]],cote:'droite',niv:0,txt:lc('h',b1.A[2]-b2.A[2])}); }
+  if((D.typ==='L'||D.typ==='Lplaf')&&D.off>0){ const b1=Gm.B[1],m=Gm.B[0]; cotes.push({vue:'face',a:[0,0,m.B[2]],b:[0,0,b1.A[2]],cote:'gauche',niv:1,txt:lc('o',D.off)}); }
+  if((D.typ==='L'||D.typ==='Lplaf')&&D.nc>1){ const b1=Gm.B[1],b2=Gm.B[2]; cotes.push({vue:'face',a:[0,b1.B[1],b2.A[2]],b:[0,b1.B[1],b1.A[2]],cote:'droite',niv:0,txt:lc('h',Math.abs(b1.A[2]-b2.A[2]))}); }
   const nh={}, nv={};
   Gm.T.forEach((t,i)=>{ const b=Gm.B[t.bi], lib=lc('a'+(i+1),Math.abs(+t.pos||0));
     if(b.vert){ const zr=D.typ==='plafond'?0:b.A[2], n=nv[t.bi]=(nv[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,t.c[1],zr],b:[0,t.c[1],t.c[2]],cote:'droite',niv:n+(D.typ==='L'&&D.nc>1?1:0),txt:lib}); }
@@ -1156,7 +1162,7 @@ function specDessin(D,V,opt={}){
   const K=opt.cartouche||{affaire:$('affaire').value,client:'',titre:`Support ${$('repere').value||''} – ${TYPES[D.typ].n}`,dessine:$('auteur').value,plan:$('repere').value};
   // --- vues interrompues : plus grande plage sans détail le long d'une barre droite (pas de barre inclinée qui la traverse)
   const interruptions=[]; [[2,[0,0,1]],[1,[0,1,0]]].forEach(([i,ax])=>{
-    const F=[...Gm.B.flatMap(b=>[b.A[i],b.B[i]]),...Gm.T.flatMap(t=>{ const r=t.P.Dc/2000+diamEtrier(t)/1000+0.03; return [t.c[i]-r,t.c[i]+r]; }),...Gm.appuis.flatMap(a=>[a.pt[i]-Math.max(cx,cz)/2-0.02,a.pt[i]+Math.max(cx,cz)/2+0.02])].sort((a,b)=>a-b);
+    const F=[...Gm.B.flatMap(b=>[b.A[i],b.B[i]]),...Gm.T.flatMap(t=>{ const r=t.P.Dc/2000+diamEtrier(t)/1000+0.03; return [t.c[i]-r,t.c[i]+r]; }),...Gm.appuis.flatMap(a=>{ const e=['sol','plafond'].includes(a.k)?(i===2?0.03:cz/2+0.02):a.k==='mur'?(i===2?cz/2+0.02:0.03):0.1; return [a.pt[i]-e,a.pt[i]+e]; })].sort((a,b)=>a-b);
     let best=null; for(let k=0;k<F.length-1;k++){ const lo=F[k], hi=F[k+1]; if(hi-lo<0.45) continue;
       const porte=Gm.B.some(b=>Math.abs(b.dir[i])>0.99&&Math.min(b.A[i],b.B[i])<=lo+1e-6&&Math.max(b.A[i],b.B[i])>=hi-1e-6), incl=Gm.B.some(b=>Math.abs(b.dir[i])>0.05&&Math.abs(b.dir[i])<0.99&&Math.min(b.A[i],b.B[i])<hi&&Math.max(b.A[i],b.B[i])>lo);
       if(porte&&!incl&&(!best||hi-lo>best[1]-best[0])) best=[lo,hi]; }
@@ -1320,11 +1326,12 @@ function remplirCr(sel){const fa=$('crFam').value;$('crProf').innerHTML=PROFILS.
 function remplirProfils(sel,i=''){const fa=$('fam'+i).value;$('prof'+i).innerHTML=PROFILS.filter(p=>p.f===fa).sort((a,b)=>a.m-b.m).map(p=>`<option ${p.n===sel?'selected':''}>${p.n}</option>`).join('');}
 /* valeurs par défaut de chaque type : vérifiées (taux ≤ taux cible, sans alerte) avec la tuyauterie d'exemple DN100 eau */
 const DEFAUTS={sol:{Lm:1.0,pos:[0.8,0.45],p:['UPN','UPN 100']},plafond:{Lm:1.0,pos:[0.8,0.45],p:['UPN','UPN 100']},mur:{Lm:0.6,pos:[0.15,0.45],p:['UPN','UPN 100']},
-  T:{Lm:1.5,Lt:0.8,pos:[-0.2,0.2],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']},L:{Lm:1.5,Lt:0.5,nc:2,hc:0.5,pos:[0.3,0.3],cons:[1,2],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']},
+  T:{Lm:1.5,Lt:0.8,pos:[-0.2,0.2],fa:[200,200],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']},L:{Lm:1.5,Lt:0.5,nc:2,hc:0.5,pos:[0.3,0.3],cons:[1,2],fa:[200,200],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']},
   U:{Lm:1.2,Lt:1.0,pos:[0.3,0.7],p:['UPN','UPN 100'],p2:['UPN','UPN 100']},murJ:{Lm:0.8,Lt:0.6,hj:0.6,pos:[0.3,0.6],p:['UPN','UPN 100'],p2:['UPN','UPN 80']},
-  Lmur:{Lm:1.2,Lt:1.0,pos:[0.3,0.7],p:['UPN','UPN 100'],p2:['UPN','UPN 100']}};
+  Lmur:{Lm:1.2,Lt:1.0,pos:[0.3,0.7],p:['UPN','UPN 100'],p2:['UPN','UPN 100']},
+  Lplaf:{Lm:1.2,Lt:0.5,nc:2,hc:0.4,pos:[0.3,0.3],cons:[1,2],fa:[200,200],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']}};
 function appliquerDefauts(typ){
-  const d=DEFAUTS[typ]; $('Lm').value=d.Lm; if(d.Lt) $('Lt').value=d.Lt; if(d.hj) $('hj').value=d.hj; if(d.nc){$('nc').value=d.nc;$('hc').value=d.hc;}
+  const d=DEFAUTS[typ]; $('Lm').value=d.Lm; if(d.Lt) $('Lt').value=d.Lt; $('fa1').value=(d.fa||[120,120])[0]; $('fa2').value=(d.fa||[120,120])[1];   // entraxes : fixations hors de l'emprise du profilé if(d.hj) $('hj').value=d.hj; if(d.nc){$('nc').value=d.nc;$('hc').value=d.hc;}
   tuyaux.forEach((t,i)=>{ if(['sol','plafond'].includes(typ)&&t.fonc==='glissant') t.fonc='guide'; t.pos=i<d.pos.length?d.pos[i]:+(d.pos[d.pos.length-1]+0.25*(i-d.pos.length+1)).toFixed(2); t.cons=d.cons?(d.cons[i]||1):1; });
   if(d.p){ $('fam').value=d.p[0]; remplirProfils(d.p[1]); } if(d.p2){ $('fam2').value=d.p2[0]; remplirProfils(d.p2[1],'2'); }
   $('orient').value='0'; if($('off')) $('off').value=0;
@@ -1425,12 +1432,12 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.36"></script>
-<script src="../commun/aide.js?v=2.36"></script>
-<script src="ndc-s1.js?v=2.36"></script>
+<script src="../commun/replier.js?v=2.37"></script>
+<script src="../commun/aide.js?v=2.37"></script>
+<script src="ndc-s1.js?v=2.37"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.36"></script>
-<script src="../commun/export.js?v=2.36"></script>
+<script src="aide-s1.js?v=2.37"></script>
+<script src="../commun/export.js?v=2.37"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

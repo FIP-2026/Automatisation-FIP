@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.36"></script>
+<script src="../commun/auth.js?v=2.37"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.36">
-<script src="../commun/apps.js?v=2.36"></script>
-<script src="../commun/barres3d.js?v=2.36"></script>
-<script src="../commun/acier.js?v=2.36"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.37">
+<script src="../commun/apps.js?v=2.37"></script>
+<script src="../commun/barres3d.js?v=2.37"></script>
+<script src="../commun/acier.js?v=2.37"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -240,6 +240,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.37</td><td>S1</td><td>Nouveau type « Support en L plafonnier » ; entraxes de fixation par défaut 200 mm pour les montants / suspentes en tube (T, L, L plafonnier).</td><td>Nouveaux types et valeurs par défaut (pas de changement des formules).</td></tr>
 <tr><td>2.31</td><td>S1</td><td>Correction du facteur d'imperfection α des tubes (courbe c) et cornières (courbe b) : lu dans une mauvaise table depuis la v2.6, χ non numérique → taux de stabilité nul.</td><td class="ko">Stabilité des montants tubes et cornières non vérifiée entre v2.6 et v2.30 : recalculer les supports concernés.</td></tr>
 <tr><td>2.25</td><td>S1</td><td>Alerte « fixations sous le profilé ».</td><td>Avertissement de conception (pas de changement de taux).</td></tr>
 <tr><td>2.22</td><td>C1</td><td>Spectre sismique vertical (a<sub>vg</sub>/a<sub>g</sub> = 0,8 / 0,9, arrêté modifié 2021).</td><td>Information complémentaire.</td></tr>
@@ -283,6 +284,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.36"></script>
+<script src="../commun/replier.js?v=2.37"></script>
 </body>
 </html>
