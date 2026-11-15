@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.45"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — A1 Toiture isolée (auvent)</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.45">
+<script src="../commun/apps.js?v=2.45"></script>
+<script src="../commun/cahier.js?v=2.45"></script>
+<script src="../commun/data/profils.js?v=2.45"></script>
+<script src="../commun/data/tuyauterie.js?v=2.45"></script>
+<script src="../commun/acier.js?v=2.45"></script>
+<script src="../commun/coefvent.js?v=2.45"></script>
+<script src="../commun/barres3d.js?v=2.45"></script>
+<script src="../commun/charges.js?v=2.45"></script>
+<script src="../commun/notes.js?v=2.45"></script>
+<script src="../commun/portique.js?v=2.45"></script>
+<style>
+  .prs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .fig svg{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:6px 0}
+  .kpi{border:1px solid var(--line);border-radius:6px;padding:8px 10px}.kpi .l{font-size:11.5px;color:var(--muted)}.kpi .v{font-size:18px;font-weight:800;color:#114088}
+  table.ddc td,table.ddc th{font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">A1</span>Toiture isolée (auvent) – portique</h1>
+    <div class="sub">Prédimensionnement APS/APD · NF EN 1990 + AN · NF EN 1991-1-3 / 1-4 + AN (§7.3, CNC2M) · NF EN 1993-1-1 + AN (§5.2, §5.3, §6.2, §6.3, Annexe B, §7.2)</div>
+  </div>
+  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+</header>
+<main>
+<section id="form">
+  <div class="card"><div class="msg warn" style="margin:0"><b>Prédimensionnement (phase APS/APD)</b> : portique courant d'une toiture isolée à pieds articulés. Résultats et descentes de charges <b>non valables pour exécution</b>.</div><div id="aff" class="note" style="margin-top:6px"></div></div>
+
+  <div class="card" id="cGeo"><h2>Géométrie</h2>
+    <div class="row3"><div><label>Toiture</label><select id="type"><option value="bi">2 versants</option><option value="mono">1 versant</option></select></div>
+      <div><label>Portée L (m)</label><input id="L" type="number" step="0.5" value="15"></div><div><label>Hauteur des poteaux H (m)</label><input id="H" type="number" step="0.1" value="5"></div></div>
+    <div class="row3"><div><label>Pente (%)</label><input id="p" type="number" step="0.5" value="10"></div><div><label>Entraxe des portiques (m)</label><input id="e" type="number" step="0.5" value="6"></div><div><label>Nombre de portiques</label><input id="nP" type="number" step="1" min="2" value="5"></div></div>
+    <div class="note">Mono-pente : H = hauteur du poteau bas (rive basse à gauche). Domaine : L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %, pieds articulés.</div><div id="dom"></div></div>
+
+  <div class="card" id="cProf"><h2>Profilés (S235 à S355)</h2>
+    <div class="row"><div><label>Nuance</label><select id="nuance"><option>S235</option><option>S275</option><option selected>S355</option></select></div><div></div></div>
+    <div id="sCol"></div><div id="sTra"></div>
+    <label class="chk" style="margin-top:6px"><input type="checkbox" id="jarret" checked> Jarrets aux nœuds de tête (longueur 10 % de la portée)</label>
+    <div class="row"><div><label>Hauteur ajoutée par le jarret au nu du poteau (mm)</label><input id="hj" type="number" step="10" placeholder="= h traverse"></div><div><label>Longueur L<sub>j</sub> (m)</label><input id="Lj" disabled></div></div></div>
+
+  <div class="card" id="cMaint"><h2>Maintiens latéraux</h2>
+    <div class="row"><div><label>Poteaux : maintiens intermédiaires hors plan</label><select id="maintCol"><option value="0">aucun (L<sub>cr,z</sub> = H)</option><option value="1">1 (à mi-hauteur)</option><option value="2">2 (aux tiers)</option></select></div>
+      <div><label>Traverse : espacement des bracons (m)</label><input id="lBas" type="number" step="0.1" value="0" title="0 = pas de bracon"></div></div>
+    <div class="note">La semelle supérieure de la traverse est tenue par les pannes (reliées au contreventement). Sans bracon (0), la semelle inférieure comprimée est vérifiée au déversement sur toute la zone comprimée (du nœud au point d'inflexion).</div></div>
+
+  <div class="card" id="cPan"><h2>Pannes</h2>
+    <div class="row"><div><label>Type</label><select id="pType"><option value="lam">Profilé laminé (vérifié)</option><option value="sadef">Profil mince SADEF (charge admissible du catalogue)</option></select></div>
+      <div><label>Espacement le long du rampant (m)</label><input id="aPanne" type="number" step="0.1" value="1.6"></div></div>
+    <div id="pLam" class="row"><div><label>Famille</label><select id="pFam"></select></div><div><label>Profilé</label><select id="pProf"></select></div></div>
+    <div id="pSad" hidden><div class="row"><div><label>Désignation SADEF</label><input id="sNom" placeholder="ex. Z 200 × 2,0 (catalogue)"></div><div><label>Masse (kg/m)</label><input id="sM" type="number" step="0.1" value="5"></div></div>
+      <div class="row3"><div><label>q<sub>adm</sub> descendante ELU (kN/m)</label><input id="sqD" type="number" step="0.05"></div><div><label>q<sub>adm</sub> ascendante ELU (kN/m)</label><input id="sqU" type="number" step="0.05"></div><div><label>q<sub>adm</sub> flèche ELS (kN/m)</label><input id="sqS" type="number" step="0.05"></div></div>
+      <div class="note">Lire dans les tableaux SADEF les charges admissibles pour la portée (entraxe), la continuité et les liernes retenues.</div></div>
+    <div class="row"><div><label>Liernes</label><select id="liernes"><option value="0">aucune</option><option value="1" selected>à mi-portée</option><option value="2">aux tiers</option></select></div><div><label>Continuité</label><input id="cont" disabled></div></div></div>
+
+  <div class="card" id="cCh"><h2>Charges</h2>
+    <div class="actions noprint"><button type="button" id="repC1" class="sec">↺ Reprendre C1 et G1</button></div>
+    <div class="row"><div><label>Couverture g (kN/m²)</label><select id="gSel"></select></div><div><label>Valeur (kN/m²)</label><input id="gCouv" type="number" step="0.01" value="0.12"></div></div>
+    <div class="row"><div><label>Divers suspendus (kN/m²)</label><input id="gDiv" type="number" step="0.01" value="0.05" title="éclairage, réseaux, sprinkler"></div><div><label>Charge d'entretien (Tab. 6.10(NF))</label><select id="qH"><option value="0">H autre toiture : q<sub>k</sub> = 0</option><option value="0.8">H étanchée, pente &lt; 15 % : 0,8 kN/m² sur 10 m²</option></select></div></div>
+    <h3>Neige</h3>
+    <div class="row3"><div><label>s<sub>k</sub> (kN/m²)</label><input id="sk" type="number" step="0.05" value="0.45"></div><div><label>C<sub>e</sub></label><input id="Ce" type="number" step="0.05" value="1"></div><div><label>C<sub>t</sub></label><input id="Ct" type="number" step="0.05" value="1"></div></div>
+    <div class="row3"><div><label>Majoration faible pente (kN/m²)</label><input id="maj" type="number" step="0.05" value="0"></div><div><label>s<sub>Ad</sub> accidentelle (kN/m²)</label><input id="sAd" type="number" step="0.05" value="0"></div><div><label>Altitude &gt; 1000 m</label><select id="alt"><option value="0">non</option><option value="1">oui</option></select></div></div>
+    <h3>Vent</h3>
+    <div class="row3"><div><label>q<sub>p</sub>(z<sub>e</sub>) (kN/m²)</label><input id="qp" type="number" step="0.01" value="0.6"></div><div><label>Obstruction φ (0 vide – 1 encombré)</label><input id="phi" type="number" step="0.1" min="0" max="1" value="0"></div><div><label>c<sub>f</sub> des poteaux</label><input id="cfCol" type="number" step="0.1" value="2"></div></div>
+    <div id="srcC" class="note"></div></div>
+
+  <div class="card" id="cEls"><h2>Limites de service (à adapter au projet)</h2>
+    <div class="row3"><div><label>Traverse : L / …</label><input id="wL" type="number" value="200"></div><div><label>Tête de poteau : H / …</label><input id="hH" type="number" value="150"></div><div><label>Pannes : L / …</label><input id="wPanne" type="number" value="200"></div></div>
+    <div class="note">NF EN 1993-1-1/NA §7.2 : valeurs recommandées « toitures en général » L/200 et déplacement horizontal H/150 ; à fixer avec le maître d'ouvrage.</div></div>
+</section>
+
+<section id="res">
+  <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong>A1 – Toiture isolée (auvent) – prédimensionnement</strong><br><span id="phInfo"></span></div>
+  <div class="card" id="rSyn"></div>
+  <div class="card"><h2>Modèle et chargement</h2><div class="row noprint"><div><label>Cas affiché</label><select id="casAff"></select></div><div></div></div><div id="rMod" class="fig"></div><div id="rCas"></div></div>
+  <div class="card"><h2>Enveloppe ELU des moments et déformée ELS</h2><div id="rDiag" class="fig"></div></div>
+  <div class="card"><h2>Stabilité globale du portique (NF EN 1993-1-1 §5.2, §5.3)</h2><div id="rStab"></div></div>
+  <div class="card"><h2>Vérifications des barres</h2><div id="rVer"></div></div>
+  <div class="card"><h2>Pannes</h2><div id="rPan"></div></div>
+  <div class="card"><h2>Descente de charges aux pieds de poteaux</h2><div id="rDdc"></div></div>
+  <div class="card"><h2>Hypothèses, références et limites</h2><div id="rHyp"></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id), f=fmtN, h=escH, num=(id,d=0)=>{const v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:d;};
+const CLE='fip.a1', FAM=['IPE','HEA','HEB','PRS'];
+/* ---------- sélecteurs de profilés ---------- */
+function blocProf(id,titre,def){ $(id).innerHTML=`<h3>${titre}</h3><div class="row"><div><label>Famille</label><select data-r="${id}" data-k="fam">${FAM.map(x=>`<option>${x}</option>`).join('')}</select></div><div data-r="${id}" data-z="lam"><label>Profilé</label><select data-r="${id}" data-k="prof"></select></div></div>
+  <div data-r="${id}" data-z="prs" class="prs" hidden><div><label>h (mm)</label><input data-r="${id}" data-k="h" type="number" value="500"></div><div><label>b (mm)</label><input data-r="${id}" data-k="b" type="number" value="200"></div><div><label>t<sub>w</sub> (mm)</label><input data-r="${id}" data-k="tw" type="number" value="8"></div><div><label>t<sub>f</sub> (mm)</label><input data-r="${id}" data-k="tf" type="number" value="12"></div></div>`;
+  const q=k=>document.querySelector(`[data-r="${id}"][data-k="${k}"]`);
+  const remplir=()=>{ const fa=q('fam').value; q('prof').innerHTML=PROFILS.filter(p=>p.f===fa).map(p=>`<option>${p.n}</option>`).join(''); document.querySelector(`[data-r="${id}"][data-z="lam"]`).hidden=fa==='PRS'; document.querySelector(`[data-r="${id}"][data-z="prs"]`).hidden=fa!=='PRS'; };
+  q('fam').value=def[0]; remplir(); if(def[1]) q('prof').value=def[1]; q('fam').addEventListener('change',()=>{remplir();calc();});
+  return { lire:()=>{ const fa=q('fam').value; return fa==='PRS'?PORTIQUE.sectionI(+q('h').value,+q('b').value,+q('tw').value,+q('tf').value):profil(q('prof').value); },
+    etat:()=>({fam:q('fam').value,prof:q('prof').value,h:q('h').value,b:q('b').value,tw:q('tw').value,tf:q('tf').value}),
+    charger:o=>{ if(!o) return; q('fam').value=o.fam; remplir(); ['prof','h','b','tw','tf'].forEach(k=>{ if(o[k]!=null) q(k).value=o[k]; }); } };
+}
+const SC=blocProf('sCol','Poteaux',['IPE','IPE 360']), ST=blocProf('sTra','Traverse',['IPE','IPE 330']);
+$('pFam').innerHTML=['IPE','UPE','UPN','HEA'].map(x=>`<option>${x}</option>`).join('');
+const remplirP=()=>{ $('pProf').innerHTML=PROFILS.filter(p=>p.f===$('pFam').value).map(p=>`<option>${p.n}</option>`).join(''); };
+remplirP(); $('pProf').value='IPE 140'; $('pFam').addEventListener('change',()=>{remplirP();calc();});
+/* ---------- affaire, C1, G1 ---------- */
+(()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:null; $('aff').innerHTML=K&&(K.num||K.intitule)?`Affaire : <b>${h(CAHIER.libAffaire(K))}</b> – ${h(K.client||'')} – phase ${h(K.phase||'')}`:'Affaire : renseigner l\'identification dans le <a href="../cahier/">cahier de supportage</a>.'; })();
+function remplirG(){ const G=CH.lire('G'), L=(G&&G.complexes||[]).filter(c=>c.type==='couv');
+  $('gSel').innerHTML=`<option value="">Saisie manuelle</option>`+L.map((c,i)=>`<option value="${i}">${h(c.nom||'Couverture')} (G1) – ${f(CH.poidsComplexe(c).tot,3)} kN/m²</option>`).join(''); return L; }
+let CPX=remplirG();
+$('gSel').addEventListener('change',()=>{ const c=CPX[+$('gSel').value]; if(c) $('gCouv').value=+CH.poidsComplexe(c).tot.toFixed(3); calc(); });
+function repC1(){ const C=CH.lire('C'), r=C&&C.res; let t=[];
+  if(r&&r.vent){ $('qp').value=+r.vent.qp.toFixed(3); t.push(`q<sub>p</sub> = ${f(r.vent.qp,3)} kN/m² (C1, z<sub>e</sub> = ${f(r.vent.ze,1)} m)`); }
+  if(r&&r.neige){ $('sk').value=+r.neige.sk.toFixed(3); $('Ce').value=r.neige.Ce; $('Ct').value=r.neige.Ct; $('maj').value=+(r.neige.maj||0).toFixed(3); $('sAd').value=+(r.neige.sAd||0).toFixed(3); $('alt').value=r.neige.A>1000?'1':'0'; t.push(`neige : s<sub>k</sub> = ${f(r.neige.sk,2)} kN/m², région ${h(r.neige.zone)}`); }
+  if(CPX.length&&$('gSel').value===''){ $('gSel').value='0'; $('gCouv').value=+CH.poidsComplexe(CPX[0]).tot.toFixed(3); t.push('couverture : 1<sup>er</sup> complexe de G1'); }
+  $('srcC').innerHTML=t.length?'Repris : '+t.join(' ; ')+(C?` (C1 du ${new Date(C.date).toLocaleDateString('fr-FR')}). Vérifier que z<sub>e</sub> correspond à la hauteur de l'auvent.`:''):'C1 / G1 non renseignés dans ce navigateur : valeurs saisies.'; }
+$('repC1').onclick=()=>{ CPX=remplirG(); repC1(); calc(); };
+/* ---------- état ---------- */
+const CH_IDS=['type','L','H','p','e','nP','nuance','hj','maintCol','lBas','pType','aPanne','pFam','pProf','sNom','sM','sqD','sqU','sqS','liernes','gSel','gCouv','gDiv','qH','sk','Ce','Ct','maj','sAd','alt','qp','phi','cfCol','wL','hH','wPanne'];
+function sauver(){ try{ localStorage.setItem(CLE,JSON.stringify({v:Object.fromEntries(CH_IDS.map(k=>[k,$(k).value])),jar:$('jarret').checked,col:SC.etat(),tra:ST.etat()})); }catch(e){} }
+function charger(){ try{ const o=JSON.parse(localStorage.getItem(CLE)); if(!o) return false; SC.charger(o.col); ST.charger(o.tra); if(o.v.pFam){ $('pFam').value=o.v.pFam; remplirP(); }
+  CH_IDS.forEach(k=>{ if(o.v[k]!=null) $(k).value=o.v[k]; }); $('jarret').checked=!!o.jar; return true; }catch(e){ return false; } }
+/* ---------- données ---------- */
+function donnees(){
+  const L=num('L',15), pType=$('pType').value, pr=pType==='lam'?profil($('pProf').value):null, a=num('aPanne',1.6), tra=ST.lire();
+  const D={type:$('type').value,L,H:num('H',5),p:num('p',10),e:num('e',6),nP:Math.max(2,Math.round(num('nP',5))),nuance:$('nuance').value,col:SC.lire(),tra,
+    jarret:$('jarret').checked,Lj:0.1*L,hj:$('hj').value===''?tra.h:num('hj',tra.h),maintCol:+$('maintCol').value,lBas:num('lBas',0),aPanne:a,
+    gCouv:num('gCouv',0),gDiv:num('gDiv',0),qH:+$('qH').value,neige:{sk:num('sk',0),Ce:num('Ce',1),Ct:num('Ct',1),maj:num('maj',0),sAd:num('sAd',0),alt1000:$('alt').value==='1'},
+    vent:{qp:num('qp',0),phi:Math.min(1,Math.max(0,num('phi',0)))},cfCol:num('cfCol',2),wL:num('wL',200),hH:num('hH',150),wPanne:num('wPanne',200),liernes:+$('liernes').value,
+    panne:pType==='lam'?{type:'lam',prof:pr}:{type:'sadef',nom:$('sNom').value,m:num('sM',0),qD:num('sqD',0),qU:num('sqU',0),qS:num('sqS',0)}};
+  D.gPannes=(pType==='lam'?pr.m:D.panne.m)*9.81/1000/a;
+  return D;
+}
+/* coefficients de pression nette pour les pannes (enveloppe de la répartition / des zones) */
+function cPannes(D){ const a=Math.atan(D.p/100)*180/Math.PI;
+  if(D.type==='mono'){ const T=CV.toitIsolee1(a,D.vent.phi); return {max:Math.max(...T.max.slice(1)),min:Math.min(...T.min.slice(1)),src:'CNC2M Tab. 2 (c<sub>1</sub>, c<sub>2</sub>, c<sub>3</sub> : valeur extrême)'}; }
+  const T=CV.toitIsolee2(a,D.vent.phi); return {max:Math.max(...T.max.slice(1)),min:Math.min(...T.min.slice(1)),src:'Tab. 7.7, c<sub>p,net</sub> zones A à D : valeur extrême'}; }
+/* ---------- dessins ---------- */
+function dessin(A,opt){ const Gm=A.Gm, W=700, Hs=340, m=95, sc=Math.min((W-2*m)/Gm.L,(Hs-110)/Math.max(Gm.Hd,Gm.hD)), X=x=>m+x*sc, Y=z=>Hs-50-z*sc;
+  let s=`<svg viewBox="0 0 ${W} ${Hs}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif" font-size="11">`;
+  s+=`<line x1="${X(-1)}" y1="${Y(0)}" x2="${X(Gm.L+1)}" y2="${Y(0)}" stroke="#8a929c"/>`;
+  Gm.B.forEach((b,k)=>{ const a=Gm.N[b.i],c=Gm.N[b.j]; s+=`<line x1="${X(a.x)}" y1="${Y(a.z)}" x2="${X(c.x)}" y2="${Y(c.z)}" stroke="${b.sec==='jar'?'#5f6670':'#171a1e'}" stroke-width="${b.sec==='col'?3:b.sec==='jar'?3+b.hj/150:2.6}"/>`; });
+  Gm.pieds.forEach(n=>{ const p=Gm.N[n]; s+=`<path d="M${X(p.x)},${Y(0)} l-8,13 h16z" fill="#fff" stroke="#171a1e" stroke-width="1.4"/>`; });
+  if(opt&&opt.svg) s+=opt.svg(X,Y,sc);
+  // cotes
+  const yc=Y(0)+30; s+=`<line x1="${X(0)}" y1="${yc}" x2="${X(Gm.L)}" y2="${yc}" stroke="#5f6670"/><text x="${X(Gm.L/2)}" y="${yc-4}" text-anchor="middle" fill="#5f6670">L = ${f(Gm.L,2)} m</text>`;
+  s+=`<text x="${X(0)-8}" y="${Y(Gm.H/2)}" text-anchor="end" fill="#5f6670">H = ${f(Gm.H,2)} m</text>`;
+  if(Gm.Lj) s+=`<text x="${X(Gm.Lj/2)}" y="${Y(Gm.zT(Gm.Lj/2))-14}" text-anchor="middle" fill="#5f6670" font-size="9">jarret ${f(Gm.Lj,2)} m</text>`;
+  return s+'</svg>'; }
+function svgCas(A,id){ const c=A.C[id]; if(!c) return ()=>''; return (X,Y,sc)=>{ let s=''; const all=c.V.map(o=>({b:o.b,q:[0,0,o.q[2]]})).concat(c.Hz.map(o=>({b:o.b,q:[o.q[0],0,0]})));
+  const tot={}; all.forEach(o=>{ const t=tot[o.b]||(tot[o.b]=[0,0]); t[0]+=o.q[0]; t[1]+=o.q[2]; });
+  const mx=Math.max(...Object.values(tot).map(t=>Math.hypot(t[0],t[1])),1e-9), Lf=40/mx;
+  Object.entries(tot).forEach(([k,t])=>{ const b=A.Gm.B[k],a=A.Gm.N[b.i],d=A.Gm.N[b.j],xm=(a.x+d.x)/2,zm=(a.z+d.z)/2, x1=X(xm),y1=Y(zm), dx=t[0]*Lf, dy=-t[1]*Lf; if(Math.hypot(dx,dy)<2) return;
+    const col=c.type==='W'?'#0098db':c.type==='S'||c.type==='A'?'#7a5af8':'#e30009';
+    s+=`<line x1="${x1-dx}" y1="${y1-dy}" x2="${x1}" y2="${y1}" stroke="${col}" stroke-width="1.3"/><circle cx="${x1}" cy="${y1}" r="1.8" fill="${col}"/>`; });
+  return s+`<text x="10" y="16" font-size="11" font-weight="700" fill="#114088">${c.nom.replace(/<[^>]+>/g,'')}</text>`; }; }
+function svgDiag(A,V){ const Gm=A.Gm, K=V.comb, env=Gm.B.map((b,k)=>{ const L=Barres3D.repere(Gm.N,{i:b.i,j:b.j}).L; return [0,L/2,L].map(s=>{ let mx=0,mn=0; K.ELU.forEach(c=>{ const M=PORTIQUE.efforts(A,c,k,s)[2]; if(M>mx)mx=M; if(M<mn)mn=M; }); return {s,mx,mn}; }); });
+  const Mabs=Math.max(...env.flat().map(o=>Math.max(o.mx,-o.mn)),1e-6);
+  // déformée ELS (combinaison de flèche maximale)
+  const cD=V.lignes.find(l=>/flèche verticale/.test(l.n)), cc=K.CAR.find(c=>cD&&c.nom===cD.comb)||K.CAR[0];
+  const U=Gm.N.map((_,n)=>PORTIQUE.deplacement(A,cc,n)), umax=Math.max(...U.map(u=>Math.hypot(u[0],u[1])),1e-9);
+  return dessin(A,{svg:(X,Y,sc)=>{ let s=''; const k=45/Mabs, W0=700;
+    Gm.B.forEach((b,i)=>{ const R=Barres3D.repere(Gm.N,{i:b.i,j:b.j,vz:b.sec==='col'?[1,0,0]:[0,0,1]}), ez=R.R[2], a=Gm.N[b.i];
+      const pt=(o,v)=>{ const x=a.x+R.R[0][0]*o.s, z=a.z+R.R[0][2]*o.s; return [X(x)+v*k*ez[0], Y(z)-v*k*ez[2]]; };
+      const base=env[i].map(o=>pt(o,0)), P=env[i].map(o=>pt(o,o.mx)), Nn=env[i].map(o=>pt(o,o.mn));
+      s+=`<polygon points="${base.concat(P.slice().reverse()).map(p=>p.join(',')).join(' ')}" fill="rgba(227,0,9,.18)" stroke="#e30009" stroke-width=".7"/>`;
+      s+=`<polygon points="${base.concat(Nn.slice().reverse()).map(p=>p.join(',')).join(' ')}" fill="rgba(17,64,136,.18)" stroke="#114088" stroke-width=".7"/>`; });
+    const ks=30/umax/sc, P=n=>{const p=Gm.N[n],u=U[n];return X(p.x+u[0]*ks)+','+Y(p.z+u[1]*ks);}; s+=`<path d="${Gm.B.map(b=>`M${P(b.i)} L${P(b.j)}`).join(' ')}" fill="none" stroke="#1d7a36" stroke-dasharray="5 3" stroke-width="1.3"/>`;
+// valeurs extrêmes
+    let best=[]; env.forEach((E,i)=>E.forEach(o=>{ best.push({i,o,v:o.mx}); best.push({i,o,v:o.mn}); })); best.sort((x,y)=>Math.abs(y.v)-Math.abs(x.v));
+    const vus=[]; best.slice(0,30).forEach(({i,o,v})=>{ if(vus.length>=4||Math.abs(v)<0.05*Mabs) return; const b=Gm.B[i],R=Barres3D.repere(Gm.N,{i:b.i,j:b.j,vz:b.sec==='col'?[1,0,0]:[0,0,1]}),a=Gm.N[b.i],x=a.x+R.R[0][0]*o.s,z=a.z+R.R[0][2]*o.s;
+      if(vus.some(w=>Math.hypot(w[0]-x,w[1]-z)<Gm.L/6&&Math.sign(w[2])===Math.sign(v))) return; vus.push([x,z,v]);
+      s+=`<text x="${Math.min(W0-40,Math.max(40,X(x)+v*k*R.R[2][0]))}" y="${Y(z)-v*k*R.R[2][2]+(v>0?-4:12)}" font-size="10" text-anchor="middle" font-weight="700" fill="${v>0?'#c0141c':'#114088'}">${f(v,1)} kNm</text>`; });
+    return s+`<text x="10" y="16" font-size="11" font-weight="700" fill="#114088">Enveloppe ELU de M<tspan font-size="8" dy="2">y</tspan><tspan dy="-2"> (côté fibre tendue) · déformée ELS (vert, amplifiée)</tspan></text><text x="10" y="30" font-size="9.5" fill="#5f6670">déformée : ${cc.nom.replace(/<[^>]+>/g,'')}</text>`; }}); }
+/* ---------- calcul ---------- */
+let A=null, V=null, PP=null;
+function calc(){
+  sauver(); $('Lj').value=f(0.1*num('L',15),2); $('pLam').hidden=$('pType').value!=='lam'; $('pSad').hidden=$('pType').value!=='sadef';
+  const D=donnees(), nP=D.nP; $('cont').value=nP>=4?`continues sur ${nP-1} travées (≥ 4 portiques)`:'sur deux appuis (≤ 3 portiques)';
+  const dom=[]; if(D.L>20) dom.push('portée > 20 m'); if(D.e>12) dom.push('entraxe > 12 m'); if(D.p>15) dom.push('pente > 15 %'); if(D.p<0) dom.push('pente négative');
+  $('dom').innerHTML=dom.length?`<div class="msg warn" style="margin-top:6px">Hors domaine de l'outil : ${dom.join(', ')}.</div>`:'';
+  $('phInfo').textContent=`${D.type==='bi'?'2 versants':'1 versant'} · L = ${f(D.L,1)} m · H = ${f(D.H,1)} m · pente ${f(D.p,1)} % · entraxe ${f(D.e,1)} m · ${new Date().toLocaleDateString('fr-FR')}`;
+  try{
+    const Cp=cPannes(D); PP=PORTIQUE.pannes(D,Cp); D.kc=PP.kR;
+    A=PORTIQUE.analyser(D); V=PORTIQUE.verifier(A);
+    const L=V.lignes.concat(PP.lignes); const gov=L.reduce((a,l)=>l.r>a.r?l:a,{r:0}); L.forEach(l=>l.gov=l===gov);
+    const masse=A.Gm.B.reduce((s,b,k)=>s+A.S[k].m*Barres3D.repere(A.Gm.N,{i:b.i,j:b.j}).L,0);
+    const cm=V.global.cMin;
+    $('rSyn').innerHTML=`<h2>Synthèse</h2><div style="font-size:18px;font-weight:800;color:${gov.r<=1&&!cm?.horsDomaine?'#1d7a36':'#c0141c'}">${gov.r<=1?'✔ PORTIQUE VÉRIFIÉ':'✘ PORTIQUE NON VÉRIFIÉ'} – taux maxi ${f(gov.r*100,0)} %</div>
+      <div class="note">Critère dimensionnant : ${gov.n.replace(/<[^>]+>/g,'')} (${(gov.comb||'').replace(/<[^>]+>/g,'')})</div>
+      <div class="kpis"><div class="kpi"><div class="l">Poteaux / traverse</div><div class="v" style="font-size:14px">${h(D.col.n)} / ${h(D.tra.n)}</div></div><div class="kpi"><div class="l">Masse du portique (hors pannes)</div><div class="v">${f(masse,0)} kg</div></div>
+      <div class="kpi"><div class="l">α<sub>cr</sub> minimal</div><div class="v">${cm?f(cm.acr,1):'—'}</div></div><div class="kpi"><div class="l">Coefficient de continuité des pannes</div><div class="v">${f(PP.kR,3)}</div></div></div>
+      ${cm&&cm.horsDomaine?'<div class="msg bad">α<sub>cr</sub> &lt; 3 : analyse au second ordre rigoureuse nécessaire (§5.2.2(5)B non applicable) – hors domaine de l\'outil.</div>':''}${!V.global.valide?'<div class="msg warn">Effort normal de traverse significatif (§5.2.1(4)B NOTE 2B) : la formule simplifiée de α<sub>cr</sub> n\'est pas applicable ; valeur indicative.</div>':''}
+      ${L.some(l=>/classe 4/.test(l.lim||''))?'<div class="msg bad">Section de classe 4 (âme ou semelle trop élancée, souvent au droit du jarret) : hors domaine de l\'outil. Augmenter t<sub>w</sub> / t<sub>f</sub> ou réduire la hauteur du jarret.</div>':''}
+      ${D.lBas<=0&&(V.stab.tra||{}).comprime==='inférieure'?'<div class="msg warn">Déversement gouverné par la semelle inférieure sans bracon : prévoir des bracons (saisir leur espacement).</div>':''}`;
+    $('casAff').innerHTML=Object.values(A.C).map(c=>`<option value="${c.id}">${c.nom.replace(/<[^>]+>/g,'')}</option>`).join(''); afficherCas();
+    $('rCas').innerHTML=`<table><tr><th>Cas</th><th>Nature</th><th>Charges sur la traverse (kN/m, par m de rampant)</th></tr>`+Object.values(A.C).map(c=>{ const v=c.V.concat(c.Hz).map(o=>Math.hypot(...o.q)); return `<tr><td>${c.id}</td><td>${c.nom}</td><td>${v.length?`${f(Math.min(...v),2)} à ${f(Math.max(...v),2)}`:'—'}</td></tr>`; }).join('')+`</table><div class="note">Charges appliquées au portique courant, majorées du coefficient de continuité des pannes ${f(PP.kR,3)} (réaction d'appui intermédiaire maximale / q·e). Vent : ${D.type==='mono'?'répartition CNC2M (c<sub>1</sub> sur 0,1·d, puis c<sub>2</sub> → c<sub>3</sub>)':'c<sub>f</sub> par versant, Tab. 7.7, fig. 7.17'} ; poteaux : c<sub>f</sub> = ${f(D.cfCol,1)} × hauteur de section.</div>`;
+    $('rDiag').innerHTML=svgDiag(A,V);
+    const K=V.comb, nAmp=K.ELU.filter(c=>c.amp>1).length;
+    $('rStab').innerHTML=`<table><tr><td>Raideur latérale K (1 kN en tête)</td><td class="n">${f(A.K,1)} kN/m</td><td class="ref">analyse élastique au 1<sup>er</sup> ordre</td></tr>
+      <tr><td>α<sub>cr</sub> minimal = K·h / V<sub>Ed</sub></td><td class="n"><b>${cm?f(cm.acr,2):'—'}</b></td><td class="ref">§5.2.1(4)B, éq. (5.2) ; combinaison ${cm?cm.nom.replace(/<[^>]+>/g,''):''}</td></tr>
+      <tr><td>Effets du second ordre</td><td class="n">${!cm||cm.acr>=10?'négligés (α<sub>cr</sub> ≥ 10)':`amplification 1/(1 − 1/α<sub>cr</sub>) = ${f(cm.amp,3)}`}</td><td class="ref">§5.2.1(3) ; §5.2.2(5)B (charges horizontales et imperfections amplifiées), ${nAmp} combinaison(s) concernée(s)</td></tr>
+      <tr><td>Imperfection globale φ = φ<sub>0</sub>·α<sub>h</sub>·α<sub>m</sub></td><td class="n">1/${f(1/K.phi,0)}</td><td class="ref">§5.3.2(3) : φ<sub>0</sub> = 1/200, α<sub>h</sub> = ${f(K.ah,3)}, α<sub>m</sub> = ${f(K.am,3)} (m = 2) ; forces φ·N en tête, dans les deux sens ; négligée si H<sub>Ed</sub> ≥ 0,15·V<sub>Ed</sub> (§5.3.2(4)B)</td></tr>
+      <tr><td>Validité de la formule de α<sub>cr</sub></td><td class="n">${V.global.valide?'oui':'<b style="color:#c0141c">non</b>'}</td><td class="ref">§5.2.1(4)B NOTE 2B : λ̄<sub>traverse</sub> = ${V.validAcr?f(V.validAcr.lam,3):'—'} &lt; 0,3·√(A·f<sub>y</sub>/N<sub>Ed</sub>) ; pente ≤ 26°</td></tr></table>
+      <div class="note">${K.ELU.length} combinaisons ELU (6.10, γ<sub>G</sub> = 1,35 / 1,00, γ<sub>Q</sub> = 1,5${A.C.SA?' ; accidentelle 6.11b avec s<sub>Ad</sub>':''}), ${K.CAR.length} combinaisons ELS caractéristiques. Flambement dans le plan avec la longueur d'épure (L<sub>cr,y</sub> = H ou longueur du rampant), les effets de déplacement latéral étant intégrés à l'analyse globale amplifiée.</div>`;
+    $('rVer').innerHTML=barresRatios(V.lignes)+alerteTaux(V.lignes);
+    $('rPan').innerHTML=barresRatios(PP.lignes)+`<div class="note">${D.panne.type==='lam'?h(D.panne.prof.n):'SADEF '+h(D.panne.nom||'')} – entraxe ${f(D.e,2)} m, ${PP.cont?`continues sur ${PP.n} travées : M<sub>appui</sub> = ${f(PP.coef.mApp,3)}·q·L², M<sub>travée</sub> = ${f(PP.coef.mTrav,3)}·q·L²`:'sur deux appuis : M = q·L²/8'} ; charges par panne (espacement ${f(D.aPanne,2)} m) : G = ${f(PP.gp,3)}, S = ${f(PP.s,3)}, W↓ = ${f(PP.wD,3)}, W↑ = ${f(PP.wU,3)} kN/m ; vent : ${Cp.src}. Couverture fixée sur la semelle supérieure (maintien latéral sous charge descendante).</div>`;
+    const E=V.ddc;
+    $('rDdc').innerHTML=`<div class="msg warn">Prédimensionnement (phase APS/APD) – valeurs non valables pour exécution. Réactions du portique courant sur ses appuis (H > 0 vers la droite, V > 0 vers le bas sur l'appui = compression).</div>
+      <table class="ddc"><tr><th>Cas (caractéristique)</th><th class="n">H gauche (kN)</th><th class="n">V gauche (kN)</th><th class="n">H droit (kN)</th><th class="n">V droit (kN)</th></tr>${E.cas.map(c=>`<tr><td>${c.nom}</td>${c.R.map(r=>`<td class="n">${f(-r[0],2)}</td><td class="n">${f(r[1],2)}</td>`).join('')}</tr>`).join('')}</table>
+      <table class="ddc" style="margin-top:6px"><tr><th>Enveloppe ELU</th><th class="n">Pied gauche</th><th class="n">Pied droit</th></tr>
+      <tr><td>V maxi (compression)</td>${E.env.map(e=>`<td class="n"><b>${f(e.Vmax,1)}</b></td>`).join('')}</tr><tr><td>V mini (soulèvement si &lt; 0)</td>${E.env.map(e=>`<td class="n"><b>${f(e.Vmin,1)}</b></td>`).join('')}</tr>
+      <tr><td>|H| maxi</td>${E.env.map(e=>`<td class="n"><b>${f(Math.max(e.Hmax,-e.Hmin),1)}</b></td>`).join('')}</tr></table>
+      <div class="note">Les efforts longitudinaux (vent longitudinal, imperfections, stabilité des traverses) sont repris par le contreventement, non traité dans cette version.</div>`;
+    $('rHyp').innerHTML=`<ul><li><b>Modèle</b> : portique plan à une travée, barres élastiques (Barres3D), poteaux articulés en pied, nœuds de tête rigides ; jarrets modélisés par des tronçons de section variable (PRS équivalent : semelles de la traverse, hauteur ${f(D.tra.h,0)} → ${f(D.tra.h+(D.jarret?D.hj:0),0)} mm, L<sub>j</sub> = 0,1·L) ; poids propre automatique (7 850 kg/m³).</li>
+      <li><b>Neige</b> (NF EN 1991-1-3 + AN) : μ<sub>1</sub> = 0,8 (α ≤ 30°), s = μ<sub>1</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> ${D.type==='bi'?'; cas (i), (ii), (iii) de la fig. 5.3':''} ; majoration faible pente AN ; s<sub>Ad</sub> en situation accidentelle. Accumulations contre un bâtiment voisin non traitées.</li>
+      <li><b>Vent</b> (NF EN 1991-1-4 §7.3 + AN, CNC2M) : toiture isolée, obstruction φ = ${f(D.vent.phi,2)} ; ${D.type==='mono'?'répartition c<sub>1</sub>, c<sub>2</sub>, c<sub>3</sub> et vent sur la rive latérale':'c<sub>f</sub> par versant (fig. 7.17)'} ; q<sub>p</sub> = ${f(D.vent.qp,3)} kN/m².</li>
+      <li><b>Combinaisons</b> NF EN 1990 + AN : 6.10, γ<sub>G</sub> = 1,35 / 1,00, γ<sub>Q</sub> = 1,5, ψ<sub>0</sub> neige ${D.neige.alt1000?'0,7':'0,5'}, vent 0,6 ; entretien H seule (non cumulée avec neige et vent).</li>
+      <li><b>Acier</b> ${D.nuance}, γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0 (AN) ; classes de section (Tab. 5.2), classe 4 hors domaine ; courbes de flambement Tab. 6.2 (laminés / soudés), déversement §6.3.2.2 cas général (Tab. 6.4), M<sub>cr</sub> NCCI SN003 ; interaction Annexe B (C<sub>my</sub> = 0,9, C<sub>mLT</sub> = 0,6 poteaux / 0,95 traverse).</li>
+      <li><b>Non traités</b> : contreventement et stabilité longitudinale, assemblages (jarret, faîtage, pied de poteau, ancrages), séisme, accumulations de neige, actions de montage. ${typeof NOTES!=='undefined'&&NOTES.liste().length?'':''}</li></ul>
+      ${typeof NOTES!=='undefined'?`<h3>Unités</h3>${NOTES.unites('s1')}`:''}`;
+  }catch(err){ $('rSyn').innerHTML=`<div class="msg bad">Calcul impossible : ${h(err.message)}</div>`; console.error(err); }
+}
+function afficherCas(){ if(!A) return; $('rMod').innerHTML=dessin(A,{svg:svgCas(A,$('casAff').value)}); }
+$('casAff').addEventListener('change',afficherCas);
+const ok=charger(); if(!ok){ repC1(); } else { $('srcC').innerHTML='Valeurs enregistrées dans ce navigateur ; « Reprendre C1 et G1 » pour actualiser.'; }
+document.querySelectorAll('#form input, #form select').forEach(el=>el.addEventListener('change',()=>{ if(el.id==='casAff') return; calc(); }));
+calc();
+</script>
+<script src="../commun/replier.js?v=2.45"></script>
+<script src="../commun/export.js?v=2.45"></script>
+<script>EXPORT.init({code:'A1',titre:'Toiture isolée (auvent) – prédimensionnement',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],nom:()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:{}; return K.doc||K.num||'auvent'; }});</script>
+<script src="../commun/aide.js?v=2.45"></script>
+<script>AIDE.init({titre:"Aide – A1 Toiture isolée (auvent)",manuel:"a1",intro:"A1 prédimensionne le portique courant d'une toiture isolée (auvent, préau, abri) à une travée, mono ou bi-pente, à pieds articulés, avec jarrets : charges de G1 et C1, combinaisons NF EN 1990, analyse élastique avec α<sub>cr</sub>, imperfections et amplification (§5.2, §5.3), vérifications NF EN 1993-1-1, pannes, flèches et descente de charges (phase APS/APD).",
+  etapes:[{t:"Géométrie",html:"Mono ou bi-pente, portée (≤ 20 m), hauteur des poteaux, pente (≤ 15 %), entraxe (≤ 12 m) et nombre de portiques (≥ 4 : pannes continues).",cible:"#cGeo"},
+    {t:"Profilés",html:"Familles IPE, HEA, HEB ou PRS (h, b, t<sub>w</sub>, t<sub>f</sub>) pour les poteaux et la traverse, nuance, jarrets (longueur 0,1·L, hauteur ajoutée au nu du poteau).",cible:"#cProf"},
+    {t:"Maintiens",html:"Maintiens hors plan des poteaux, espacement des bracons de la semelle inférieure de la traverse (0 = aucun).",cible:"#cMaint"},
+    {t:"Pannes",html:"Profilé laminé (vérifié : flexion déviée, déversement au soulèvement, flèche) ou profil mince SADEF (charges admissibles du catalogue à saisir) ; espacement, liernes.",cible:"#cPan"},
+    {t:"Charges",html:"« Reprendre C1 et G1 » : q<sub>p</sub>, neige et couverture. Obstruction φ sous l'auvent (0 = vide, 1 = stockage contre une rive).",cible:"#cCh"}],
+  faq:[{q:"Pourquoi un coefficient de continuité sur le portique ?",r:"Avec des pannes continues (≥ 4 portiques), le portique courant le plus chargé reçoit plus que q·e : la réaction d'appui intermédiaire maximale (≈ 1,10 à 1,14·q·e) est calculée sur la poutre continue et appliquée au portique."},
+    {q:"Comment sont traités les effets du second ordre ?",r:"α<sub>cr</sub> = K·h/V<sub>Ed</sub> (§5.2.1(4)B, K raideur latérale du portique) par combinaison ; α<sub>cr</sub> ≥ 10 : 1<sup>er</sup> ordre ; 3 ≤ α<sub>cr</sub> &lt; 10 : charges horizontales et imperfections amplifiées par 1/(1 − 1/α<sub>cr</sub>) (§5.2.2(5)B) ; α<sub>cr</sub> &lt; 3 : hors domaine. Imperfection φ (§5.3.2) appliquée dans les deux sens."},
+    {q:"Pourquoi la traverse déverse-t-elle sous le vent ?",r:"Sous soulèvement, c'est la semelle inférieure, libre, qui est comprimée au milieu de la traverse ; près des nœuds, sous charges descendantes, également. Des bracons (pannes → semelle inférieure) réduisent la longueur de déversement."},
+    {q:"Pannes SADEF ?",r:"Les profils minces relèvent de la NF EN 1993-1-3 : l'outil compare les charges de calcul aux charges admissibles lues dans le catalogue SADEF pour la portée, la continuité et les liernes retenues."},
+    {q:"Que manque-t-il pour l'exécution ?",r:"Contreventement, assemblages (jarret, faîtage, pieds, ancrages), séisme, accumulations de neige, vérifications locales (âme au droit des nœuds), plans : à traiter en exécution."}]});</script>
+</body>
+</html>

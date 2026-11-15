@@ -4,19 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.44"></script>
+<script src="../commun/auth.js?v=2.45"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.44">
-<script src="../commun/apps.js?v=2.44"></script>
-<script src="../commun/barres3d.js?v=2.44"></script>
-<script src="../commun/acier.js?v=2.44"></script>
-<script src="../commun/data/tuyauterie.js?v=2.44"></script>
-<script src="../commun/charges.js?v=2.44"></script>
-<script src="../commun/coefvent.js?v=2.44"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.45">
+<script src="../commun/apps.js?v=2.45"></script>
+<script src="../commun/data/profils.js?v=2.45"></script>
+<script src="../commun/barres3d.js?v=2.45"></script>
+<script src="../commun/acier.js?v=2.45"></script>
+<script src="../commun/data/tuyauterie.js?v=2.45"></script>
+<script src="../commun/charges.js?v=2.45"></script>
+<script src="../commun/coefvent.js?v=2.45"></script>
+<script src="../commun/portique.js?v=2.45"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -200,6 +202,19 @@
 <div class="lim">Non traités : voilement par cisaillement (h<sub>w</sub>/t<sub>w</sub> &gt; 72ε), charges concentrées sur l'âme (EN 1993-1-5 §6), classe 4, torsion des U chargés hors centre de cisaillement, assemblages.</div>
 </article>
 
+<article class="card" id="a1"><div class="theme">A1 – Toiture isolée</div><h2>10 bis. A1 – Portique de toiture isolée (auvent)</h2>
+<p><b>Domaine</b> : portique courant à une travée, mono ou bi-pente, L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %, pieds articulés, nœuds de tête rigides, jarrets de longueur 0,1·L ; profilés laminés en I ou PRS S235 à S355 (classe 4 exclue) ; phase APS/APD.</p>
+<div class="form">Modèle : Barres3D plan (ddl hors plan bloqués), 8 éléments par poteau, 14 à 24 par traverse, jarret en 4 tronçons PRS équivalents (semelles de la traverse, h = h<sub>tr</sub> + h<sub>j</sub>·(1 − d/L<sub>j</sub>))<br>
+PRS : A = 2·b·t<sub>f</sub> + h<sub>w</sub>·t<sub>w</sub> ; I<sub>y</sub> = [b·h³ − (b − t<sub>w</sub>)·h<sub>w</sub>³]/12 ; W<sub>pl,y</sub> = b·t<sub>f</sub>·(h − t<sub>f</sub>) + t<sub>w</sub>·h<sub>w</sub>²/4 ; I<sub>t</sub> ≈ [2·b·t<sub>f</sub>³ + (h − t<sub>f</sub>)·t<sub>w</sub>³]/3 ; I<sub>w</sub> = t<sub>f</sub>·b³·(h − t<sub>f</sub>)²/24<br>
+Charges par m de rampant (portique courant) : G = (g<sub>couv</sub> + g<sub>div</sub> + g<sub>pannes</sub>)·e·k<sub>c</sub> + poids propre ; S = (0,8·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> + Δs)·e·k<sub>c</sub>·cos α (cas i, ii, iii en bi-pente) ; W = c·q<sub>p</sub>·e·k<sub>c</sub> normal au rampant (mono : CNC2M c<sub>1</sub> sur 0,1·d puis c<sub>2</sub> → c<sub>3</sub>, rive latérale ; bi : c<sub>f</sub> par versant, fig. 7.17) + traînée des poteaux c<sub>f</sub>·q<sub>p</sub>·h<sub>section</sub> ; k<sub>c</sub> = réaction d'appui intermédiaire maximale de la panne continue / (q·e)<br>
+Stabilité : K = 1/δ (1 kN réparti en tête) ; α<sub>cr</sub> = K·h<sub>moy</sub>/V<sub>Ed</sub> (§5.2.1(4)B, éq. 5.2) ; validité : λ̄<sub>traverse</sub> &lt; 0,3·√(A·f<sub>y</sub>/N<sub>Ed</sub>) ; α<sub>cr</sub> ≥ 10 : 1<sup>er</sup> ordre ; 3 ≤ α<sub>cr</sub> &lt; 10 : charges horizontales et imperfections × 1/(1 − 1/α<sub>cr</sub>) (§5.2.2(5)B) ; α<sub>cr</sub> &lt; 3 : hors domaine<br>
+Imperfection : φ = φ<sub>0</sub>·α<sub>h</sub>·α<sub>m</sub>, φ<sub>0</sub> = 1/200, α<sub>h</sub> = 2/√h ∈ [2/3 ; 1], α<sub>m</sub> = √(0,5·(1 + 1/m)), m = 2 ; forces φ·V<sub>i</sub> en tête, deux sens ; négligée si H<sub>Ed</sub> ≥ 0,15·V<sub>Ed</sub> (§5.3.2(3), (4)B)<br>
+Barres : section (6.2.6, 6.2.8, 6.2.9 classes 1-2 ; 6.42 classe 3) ; stabilité (6.61), (6.62), Annexe B, L<sub>cr,y</sub> = H (poteaux) ou longueur du rampant (traverse), L<sub>cr,z</sub> = H/(n + 1) ou espacement des pannes ; déversement : semelle sup. comprimée → L = espacement des pannes ; semelle inf. → espacement des bracons, sinon longueur de la zone comprimée (C<sub>1</sub> = 1,77 si elle part d'un nœud, 1,13 sinon) ; poteaux C<sub>1</sub> = 1,77<br>
+Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</sub>/M<sub>pl,y</sub>)² + M<sub>z</sub>/M<sub>pl,z</sub> ≤ 1 (6.41), M<sub>z</sub> = q<sub>t</sub>·(L/(n<sub>l</sub> + 1))²/8 ; soulèvement : M<sub>y</sub>/(χ<sub>LT</sub>·M<sub>pl,y</sub>) + M<sub>z</sub>/M<sub>pl,z</sub> ≤ 1, L<sub>LT</sub> = espacement des liernes ; SADEF : q<sub>Ed</sub> / q<sub>adm</sub> du catalogue</div>
+<p><b>Exemples de contrôle</b> (tests en direct, chapitre 16) : portique rectangulaire bi-articulé, charge uniforme q : poussée H = q·L²/(4·h·(2k + 3)), k = (I<sub>traverse</sub>/I<sub>poteau</sub>)·(h/L) (Kleinlogel) ; panne continue sur 5 travées égales : M<sub>appui</sub> = 0,105·q·L², réaction intermédiaire maximale 1,132·q·L.</p>
+<div class="lim">Non traités : contreventement et stabilité longitudinale, assemblages (jarret, faîtage, pieds, ancrages), séisme, accumulations de neige, classe 4, voilement par cisaillement, résistance locale de l'âme aux nœuds, actions de montage. C<sub>my</sub> = 0,9 et C<sub>mLT</sub> forfaitaires ; pannes en vent : coefficient extrême de la toiture (prudent pour les pannes courantes).</div>
+</article>
+
 <article class="card" id="p2"><div class="theme">P2 – Poteau</div><h2>10. P2 – Poteau comprimé et fléchi</h2>
 <div class="form">L<sub>cr</sub> = k·H : articulé-articulé 1,0 ; encastré-articulé 0,7 ; encastré-encastré 0,5 ; encastré-libre 2,0<br>N<sub>Ed</sub> = ΣN ; M<sub>Ed</sub> : console q<sub>w</sub>H²/2 + N·e ; sinon max(q<sub>w</sub>H²/8 + N·e/2 ; N·e)<br>Flambement : N<sub>Ed</sub> ≤ χ<sub>y</sub>N<sub>Rk</sub>/γ<sub>M1</sub> et χ<sub>z</sub>N<sub>Rk</sub>/γ<sub>M1</sub><br>Interaction (6.61) : N<sub>Ed</sub>/(χ<sub>y</sub>N<sub>Rk</sub>/γ<sub>M1</sub>) + k<sub>yy</sub>·M<sub>y,Ed</sub>/(χ<sub>LT</sub>M<sub>y,Rk</sub>/γ<sub>M1</sub>) ≤ 1 ; (6.62) : N<sub>Ed</sub>/(χ<sub>z</sub>N<sub>Rk</sub>/γ<sub>M1</sub>) + k<sub>zy</sub>·M<sub>y,Ed</sub>/(χ<sub>LT</sub>M<sub>y,Rk</sub>/γ<sub>M1</sub>) ≤ 1<br>Annexe B (méthode 2, barres sensibles à la torsion) : classes 1–2 k<sub>yy</sub> = C<sub>my</sub>[1 + min(λ̄<sub>y</sub> − 0,2 ; 0,8)·n<sub>y</sub>] ; k<sub>zy</sub> = max(1 − 0,1·min(λ̄<sub>z</sub>, 1)·n<sub>z</sub>/(C<sub>mLT</sub> − 0,25) ; …) ; classe 3 k<sub>yy</sub> = C<sub>my</sub>(1 + 0,6·min(λ̄<sub>y</sub>, 1)·n<sub>y</sub>)<br>C<sub>m</sub> (Tab. B.3) : 0,95 (charge répartie), 0,6 (N·e seul), 1,0 (combiné) ; ≥ 0,4<br>ELS (§7.2.2 + AN) : console u = qH⁴/(8EI) ≤ H/150 (industriel) ou H/250 ; tenu en tête f = 5qH<sub>i</sub>⁴/(384EI) ≤ H<sub>i</sub>/150</div>
 <div class="lim">Non traités : imperfections globales et 2<sup>nd</sup> ordre du portique, flambement par torsion / flexion-torsion (UPN, UPE), pied de poteau, classe 4.</div>
@@ -244,7 +259,7 @@
 </article>
 
 <article class="card" id="valid"><div class="theme">Qualification</div><h2>16. Tests de validation (exécutés en direct)</h2>
-<p>Les tests ci-dessous exécutent le <b>moteur de calcul de la version en cours</b> (fichiers <code>commun/barres3d.js</code> et <code>commun/acier.js</code>, utilisés par S1, P1, P2) et le comparent à des solutions analytiques ou tabulées indépendantes. Tolérance : 0,1 %.</p>
+<p>Les tests ci-dessous exécutent le <b>moteur de calcul de la version en cours</b> (fichiers <code>commun/barres3d.js</code>, <code>commun/acier.js</code>, <code>commun/portique.js</code>, <code>commun/charges.js</code>, <code>commun/coefvent.js</code>, utilisés par S1, P1, P2, A1, G1, Q1, C1) et le comparent à des solutions analytiques ou tabulées indépendantes. Tolérance : 0,1 %.</p>
 <div id="tests"><div class="msg info">⏳ Exécution des tests…</div></div>
 <h3>Cas de recoupement S1 (calcul manuel, version 2.32)</h3>
 <table><tr><th>Cas</th><th>Calcul manuel</th><th>S1</th></tr>
@@ -256,6 +271,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.45</td><td>A1 (nouvel outil), accueil</td><td>A1 Toiture isolée (auvent) – portique : prédimensionnement APS/APD (moteur commun <code>commun/portique.js</code>) ; famille « Structure acier – éléments et ossatures ».</td><td>Nouvel outil (tests de validation A1 au chapitre 16).</td></tr>
 <tr><td>2.44</td><td>Accueil</td><td>Familles renommées : « Hypothèses de charges » (C1, G1, Q1, NH, présentée en premier), « Tuyauterie et fluides » (H1, T1, S1, CS), « Aide et ressources » ; résumés mis à jour ; encart « 4 · Comprendre » (tutoriels « ? », référentiel, manuel).</td><td>Aucun.</td></tr>
 <tr><td>2.43</td><td>Base de données, Q1, NH, S1, cahier</td><td>Base : propriétés des fluides à 20 °C (ρ, μ, ν, P<sub>v</sub>, corrélations de H1) et tableau des charges d'exploitation surfaciques q<sub>k</sub>, ponctuelles Q<sub>k</sub> et garde-corps (repris dans Q1) ; NH et notes de calcul : documents de référence et tableau des unités ; NH : un seul bouton Word (en-tête).</td><td>Aucun (présentation et documentation).</td></tr>
 <tr><td>2.42</td><td>C1, NH</td><td>Bâtiment fermé : choix de c<sub>pi</sub> (forfaitaire +0,2 / −0,3, face dominante §7.2.9(5), selon les ouvertures μ et fig. 7.13) et tableau des c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> avec w = q<sub>p</sub>·c<sub>p,net</sub> ; reprise de c<sub>pi</sub>, c<sub>p,net</sub> et des éléments à pression nette (toiture isolée, mur isolé) dans la note d'hypothèses.</td><td>Aucun pour le mode forfaitaire (valeurs déjà retenues) ; nouveaux résultats pour les deux autres modes.</td></tr>
@@ -301,6 +317,13 @@ function tests(){
   [['a',0.6656],['b',0.5970],['c',0.5399],['d',0.4671]].forEach(([c,v])=>ajout(`Coefficient de flambement χ, λ̄ = 1,0, courbe ${c}`,'courbes EN 1993-1-1 fig. 6.4 – valeur tabulée usuelle',chi(1,ALPHA[c]).chi,v,''));
   ajout('χ, λ̄ = 0,5, courbe b','valeur tabulée 0,8842',chi(0.5,ALPHA.b).chi,0.8842,''); ajout('χ, λ̄ = 2,0, courbe c','valeur tabulée 0,1962',chi(2,ALPHA.c).chi,0.1962,'');
   ajout('χ, λ̄ = 0,2 (palier)','1',chi(0.2,ALPHA.c).chi,1,'');
+  if(typeof PORTIQUE!=='undefined'&&typeof PROFILS!=='undefined'){ const P=n=>PROFILS.find(p=>p.n===n), col=P('HEA 300'), tra=P('IPE 400'), L=20, H=6, e=6;
+    const A=PORTIQUE.analyser({type:'mono',L,H,p:0,e,nP:5,col,tra,nuance:'S355',jarret:false,gCouv:0.3,gDiv:0,gPannes:0,kc:1,neige:null,vent:null,aPanne:1.5,lBas:0});
+    const q=0.3*e+tra.m*9.81/1000, k=(tra.Iy/col.Iy)*(H/L);
+    ajout('A1 – portique bi-articulé rectangulaire L = 20 m, h = 6 m : poussée H','q·L²/(4h(2k+3)) (Kleinlogel)',Math.abs(A.R.G.V.reactions[A.Gm.pieds[0]][0]),q*L*L/(4*H*(2*k+3)),'kN');
+    const pp=PORTIQUE.pannes({type:'bi',p:10,e:6,nP:6,aPanne:1.5,gCouv:0.1,gDiv:0,liernes:1,nuance:'S355',neige:null,vent:null,panne:{type:'lam',prof:P('IPE 140')}},{max:0,min:0});
+    ajout('A1 – panne continue 5 travées : moment sur appui','0,105·q·L² (tables)',pp.coef.mApp,0.1053,''); ajout('A1 – panne continue 5 travées : réaction maxi','1,132·q·L (tables)',pp.kR,1.1316,'');
+    const S=PORTIQUE.sectionI(500,200,8,12); ajout('A1 – PRS 500×200×8×12 : I_y','[b·h³ − (b − t_w)·h_w³]/12',S.Iy,(200*500**3-192*476**3)/12/1e4,'cm⁴'); }
   if(typeof CV!=='undefined'){ const M=CV.murs(30,20,8);
     ajout('C1 – c_pe,10 zone D, h/d = 0,40','Tab. 7.1, interpolation 0,70 → 0,80',M.cpe.D,0.72,''); ajout('C1 – c_p,net,max zone D, c_pi forfaitaire −0,3','c_pe − min(c_pi)',M.cpe.D-Math.min(...CV.CPI),1.02,'');
     ajout('C1 – c_pi face dominante D, rapport 3','0,9·c_pe (éq. 7.2)',0.9*M.cpe.D,0.648,''); }
@@ -317,6 +340,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.44"></script>
+<script src="../commun/replier.js?v=2.45"></script>
 </body>
 </html>

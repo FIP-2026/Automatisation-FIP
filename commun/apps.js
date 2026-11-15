@@ -10,12 +10,12 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.44";
+const CALC_VERSION = "v2.45";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes, d'exploitation et note d'hypothèses de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
   { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
-  { id: "acier", nom: "Structure acier", sousTitre: "Poutres et poteaux laminés : prédimensionnement et vérification · NF EN 1990 + AN (combinaisons), NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
+  { id: "acier", nom: "Structure acier – éléments et ossatures", sousTitre: "Poutres et poteaux, portiques de toitures isolées (auvents) : prédimensionnement APS/APD · NF EN 1990, NF EN 1991-1-3 / 1-4, NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
   { id: "ress", nom: "Aide et ressources", sousTitre: "Pour comprendre et contrôler : manuel technique (mode d'emploi, formules, tests de validation), référentiel des normes vulgarisé, bases de données", couleur: "#e30009", marqueur: "◇" },
   { id: "avenir", nom: "À venir", sousTitre: "Emplacements réservés pour les prochaines calculettes", couleur: "#e30009", marqueur: "■" },
 ];
@@ -178,6 +178,26 @@ const CALC_APPS = [
   <g font-size="9"><rect x="50" y="152" width="200" height="7" fill="#eef0f3"/><rect x="50" y="152" width="150" height="7" fill="#1d8a3a"/><text x="256" y="159">Flexion 75 %</text>
   <rect x="50" y="166" width="200" height="7" fill="#eef0f3"/><rect x="50" y="166" width="182" height="7" fill="#b26a00"/><text x="256" y="173">Déversement 91 %</text>
   <rect x="50" y="180" width="200" height="7" fill="#eef0f3"/><rect x="50" y="180" width="120" height="7" fill="#1d8a3a"/><text x="256" y="187">Flèche 60 %</text></g>
+</svg>`,
+  },
+  {
+    code: "A1",
+    titre: "Toiture isolée (auvent) – portique",
+    description: "Portique courant mono ou bi-pente à pieds articulés et jarrets (L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %) : charges de C1 et G1, vent de toiture isolée, α_cr, imperfections et amplification, vérifications EN 1993-1-1, pannes (laminées ou SADEF), flèches, descente de charges.",
+    url: "auvent/",
+    categorie: "acier",
+    normes: ["NF EN 1993-1-1 + AN", "NF EN 1991-1-4 §7.3", "APS/APD"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <line x1="40" y1="170" x2="360" y2="170" stroke="#8a929c"/>
+  <path d="M70,170 L70,80 L200,45 L330,80 L330,170" fill="none" stroke="#171a1e" stroke-width="4"/>
+  <path d="M70,80 L70,96 L100,80z M330,80 L330,96 L300,80z" fill="#5f6670"/>
+  <path d="M70,170 l-8,13 h16z M330,170 l-8,13 h16z" fill="#fff" stroke="#171a1e" stroke-width="1.5"/>
+  ${[0,1,2,3,4,5].map(i=>`<line x1="${88+i*45}" y1="${i<3?14+i*-0:14}" x2="${88+i*45}" y2="${i<3?73-i*12:37+(i-3)*12}" stroke="#0098db" stroke-width="1.6"/><path d="M${84+i*45},${i<3?68-i*12:32+(i-3)*12} l4,7 l4,-7z" fill="#0098db"/>`).join("")}
+  <path d="M70,80 Q60,60 50,80" fill="none" stroke="#e30009" stroke-width="1.4"/><text x="32" y="60" font-size="10" fill="#e30009" font-weight="700">M</text>
+  <text x="200" y="120" font-size="12" text-anchor="middle" fill="#114088" font-weight="800">α<tspan font-size="9" dy="3">cr</tspan><tspan dy="-3"> · φ · 1/(1−1/α</tspan><tspan font-size="9" dy="3">cr</tspan><tspan dy="-3">)</tspan></text>
+  <text x="200" y="140" font-size="10" text-anchor="middle" fill="#5f6670">toiture isolée · CNC2M / Tab. 7.7</text>
 </svg>`,
   },
   {

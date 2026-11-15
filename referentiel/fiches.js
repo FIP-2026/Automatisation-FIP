@@ -147,6 +147,15 @@ const FICHES = [
   <div class="form">Rotation d'une console tordue par un couple T : φ = T·L / (G·I<sub>t</sub>) ; avec gauchissement bloqué en pied : φ = T/(G·I<sub>t</sub>)·[L − a·tanh(L/a)], a = √(E·I<sub>w</sub>/G·I<sub>t</sub>)</div>
   <p>Conséquence pratique : un point fixe ou un frottement sur un tuyau décalé tord le support. Préférer un tube, un U ou réduire l'excentricité.</p>`,
   refs: "NF EN 1993-1-1 §6.2.7 ; théorie de Vlassov.", calc: "S1" },
+{ id: "portiques", theme: "Calcul acier", titre: "Portiques : second ordre, α_cr et imperfections",
+  bref: "Un portique à pieds articulés est souple latéralement : les charges verticales amplifient son déplacement (effet P-Δ). L'Eurocode mesure cette sensibilité par α_cr et ajoute un petit défaut d'aplomb φ.",
+  corps: `<div class="form">α<sub>cr</sub> = (H<sub>Ed</sub>/V<sub>Ed</sub>)·(h/δ<sub>H,Ed</sub>) &nbsp;·&nbsp; α<sub>cr</sub> ≥ 10 : 1<sup>er</sup> ordre suffisant &nbsp;·&nbsp; 3 ≤ α<sub>cr</sub> &lt; 10 : amplifier par 1/(1 − 1/α<sub>cr</sub>) &nbsp;·&nbsp; φ = 1/200 × α<sub>h</sub> × α<sub>m</sub></div>
+  <ul><li><b>α<sub>cr</sub></b> : combien de fois il faudrait multiplier les charges verticales pour que le portique flambe latéralement. Plus il est petit, plus le second ordre compte.</li>
+  <li><b>Imperfection φ</b> : les poteaux ne sont jamais parfaitement verticaux ; on l'introduit par des forces horizontales φ·N en tête (environ 1/250 à 1/300).</li>
+  <li><b>Jarrets</b> : renforts près des nœuds, là où le moment est maximal ; ils raidissent le portique et soulagent la traverse.</li>
+  <li><b>Bracons</b> : sous soulèvement ou près des nœuds, la semelle inférieure de la traverse est comprimée et libre : des bracons la relient aux pannes pour éviter le déversement.</li>
+  <li><b>Toiture isolée</b> : pas de pression intérieure ; le vent agit sur les deux faces (c<sub>f</sub>, c<sub>p,net</sub>), avec un soulèvement souvent dimensionnant pour les pannes, la traverse et les ancrages.</li></ul>`,
+  refs: "NF EN 1993-1-1 §5.2.1, §5.2.2, §5.3.2, §6.3.2 ; NF EN 1991-1-4 §7.3 ; CNC2M N0380.", calc: "A1" },
 { id: "deplacements", theme: "Calcul acier", titre: "Flèches et déplacements (ELS)",
   bref: "Même résistant, un élément trop souple pose problème : tuyau qui fait des points bas, bardage qui fissure, vibrations. On limite donc les déformations.",
   corps: `<div class="form">Poutre sur 2 appuis, charge répartie : f = 5·q·L⁴ / (384·E·I) &nbsp; Console : f = q·L⁴ / (8·E·I)</div>
