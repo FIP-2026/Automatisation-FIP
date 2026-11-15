@@ -110,7 +110,9 @@ const PORTIQUE = (() => {
   /* ---------- analyse ---------- */
   function analyser(D) {
     const Gm = geometrie(D), fy0 = NUANCES[D.nuance || "S355"][0];
-    const S = Gm.B.map((b) => b.sec === "col" ? D.col : b.sec === "tra" ? D.tra : sectionI(D.tra.h + b.hj, D.tra.b, D.tra.tw, D.tra.tf, `jarret h = ${Math.round(D.tra.h + b.hj)} mm`));
+    const colSec = (b) => { const V = D.colVar; if (!V) return D.col; const a = Gm.N[b.i], c = Gm.N[b.j], hc = a.x < Gm.L / 2 ? Gm.H : Gm.hD, t = ((a.z + c.z) / 2) / hc, hh = V.h0 + (V.h1 - V.h0) * t;
+      return sectionI(Math.round(hh), V.b, V.tw, V.tf, `PRS variable h = ${Math.round(hh)} mm`); };
+    const S = Gm.B.map((b) => b.sec === "col" ? colSec(b) : b.sec === "tra" ? D.tra : sectionI(D.tra.h + b.hj, D.tra.b, D.tra.tw, D.tra.tf, `jarret h = ${Math.round(D.tra.h + b.hj)} mm`));
     const barres = Gm.B.map((b, k) => ({ i: b.i, j: b.j, ...bar(S[k]), vz: b.sec === "col" ? [1, 0, 0] : [0, 0, 1] }));
     const app = {}; Gm.N.forEach((n, k) => { app[k] = [0, 1, 0, 1, 0, 1]; }); Gm.pieds.forEach((k) => { app[k] = [1, 1, 1, 1, 0, 1]; });
     const res = (ch, rep) => Barres3D.resoudre({ noeuds: Gm.N, barres, appuis: app, charges: ch || [], reparties: rep || [] });
@@ -209,9 +211,10 @@ const PORTIQUE = (() => {
           let Lcy, Lcz, Llt, C1 = 1, Cmy = 0.9, CmLT = 0.95, comprime;
           if (m === "col") { const h = Gm.N[Gm.B[k].j].x < Gm.L / 2 ? Gm.H : Gm.hD; Lcy = h; Lcz = h / ((D.maintCol || 0) + 1); Llt = Lcz; C1 = 1.77; Cmy = 0.9; CmLT = 0.6; comprime = "—"; }
           else { Lcy = Gm.Lr; const top = My < 0, z = ZL[k] || { L: Gm.Lr, bout: false }; comprime = top ? "supérieure" : "inférieure";
-            Lcz = D.aPanne || 1.5;
-            if (top) { Llt = D.aPanne || 1.5; C1 = 1.0; }                                  // semelle sup. tenue par les pannes
-            else if (D.lBas > 0) { Llt = Math.min(D.lBas, z.L); C1 = 1.0; }                // bracons
+            const aM = D.maintEff === false ? (D.aPav || Gm.Lr) : (D.aPanne || 1.5);           // maintiens efficaces : pannes reliées à la poutre au vent ; sinon nœuds de la poutre au vent
+            Lcz = aM;
+            if (top) { Llt = aM; C1 = 1.0; }                                                // semelle sup. tenue par les pannes
+            else if (D.lBas > 0 && D.maintEff !== false) { Llt = Math.min(D.lBas, z.L); C1 = 1.0; }   // bracons
             else { Llt = z.L; C1 = z.bout ? 1.77 : 1.13; } }                                // zone comprimée entre nœud et point d'inflexion
           const lamy = Lcy * 100 / p.iy / l1, lamz = Lcz * 100 / p.iz / l1, chiy = chi(lamy, cb.y).chi, chiz = chi(lamz, cb.z).chi;
           const MRk = (cl.cl <= 2 ? p.Wply : p.Wely) * fy / 1000, mcr = Mcr(p, Llt, C1, 0, 0), lamLT = Math.sqrt(MRk / mcr);
@@ -261,7 +264,7 @@ const PORTIQUE = (() => {
     const P = D.panne, e = D.e, n = D.nP >= 4 ? D.nP - 1 : 1, cont = D.nP >= 4, a = D.aPanne || 1.5, al = Math.atan((D.p || 0) / 100), ca = Math.cos(al), sa = Math.sin(al);
     // poutre continue de n travées (Barres3D, axe X, flexion verticale) : moments et réactions pour q = 1 kN/m
     const nE = 8, N = [], B = []; for (let i = 0; i <= n * nE; i++) N.push({ x: i * e / nE, y: 0, z: 0 });
-    const sec = P.type === "lam" ? P.prof : { A: 10, Iy: 500, Iz: 50, It: 1 };
+    const sec = P.prof || { A: 10, Iy: 500, Iz: 50, It: 1 };
     for (let i = 0; i < n * nE; i++) B.push({ i, j: i + 1, ...bar(sec) });
     const app = {}; N.forEach((_, k) => { app[k] = [0, 1, 0, 1, 0, 1]; }); for (let t = 0; t <= n; t++) app[t * nE] = [t === 0 ? 1 : 0, 1, 1, 1, 0, 1];
     const r = Barres3D.resoudre({ noeuds: N, barres: B, appuis: app, reparties: B.map((_, b) => ({ b, q: [0, 0, -1] })) });
@@ -269,7 +272,7 @@ const PORTIQUE = (() => {
     const Rmax = Math.max(...Array.from({ length: n + 1 }, (_, t) => r.reactions[t * nE][2])) / e, wMax = Math.max(...N.map((_, k) => -r.depl(k)[2]));
     const coef = { mTrav: -Mt / (e * e), mApp: Ma / (e * e), kR: cont ? Rmax : 1, w: wMax * Ek * (sec.Iy * 1e-8) / e ** 4 };
     // charges sur la panne (kN/m) : normale (flexion forte) et tangentielle (flexion faible, reprise par les liernes)
-    const gp = (D.gCouv + (D.gDiv || 0)) * a + (P.type === "lam" ? P.prof.m : P.m || 0) * g0 / 1000, s = D.neige && D.neige.sk ? 0.8 * D.neige.Ce * D.neige.Ct * D.neige.sk * a * ca + (D.neige.maj || 0) * a * ca : 0;
+    const gp = (D.gCouv + (D.gDiv || 0)) * a + (P.prof ? P.prof.m : P.m || 0) * g0 / 1000, s = D.neige && D.neige.sk ? 0.8 * D.neige.Ce * D.neige.Ct * D.neige.sk * a * ca + (D.neige.maj || 0) * a * ca : 0;
     const cw = Ccl || { max: 0, min: 0 }, qp = D.vent ? D.vent.qp || 0 : 0, wD = cw.max * qp * a, wU = cw.min * qp * a;
     const combos = [{ nom: "1,35·G + 1,5·S", n: 1.35 * gp * ca + 1.5 * s * ca, t: 1.35 * gp * sa + 1.5 * s * sa },
       { nom: "1,35·G + 1,5·W↓ + 0,75·S", n: 1.35 * gp * ca + 1.5 * wD + 0.75 * s * ca, t: (1.35 * gp + 0.75 * s) * sa },
@@ -277,10 +280,19 @@ const PORTIQUE = (() => {
     const carS = Math.max(gp * ca + s * ca, gp * ca + wD + 0.5 * s * ca), carU = gp * ca + wU;
     const out = { n, cont, coef, gp, s, wD, wU, combos, lignes: [], kR: coef.kR };
     if (P.type === "sadef") {
-      const qd = Math.max(...combos.map((c) => c.n)), qu = Math.min(...combos.map((c) => c.n));
-      out.lignes.push({ n: "Pannes – charge descendante ELU", ref: "Catalogue SADEF (charge admissible)", val: `${fmtN(qd, 2)} kN/m`, lim: `${fmtN(P.qD || 0, 2)} kN/m`, r: P.qD ? qd / P.qD : 9.99, comb: combos.find((c) => c.n === qd).nom });
-      if (qu < 0) out.lignes.push({ n: "Pannes – charge ascendante ELU", ref: "Catalogue SADEF (charge admissible)", val: `${fmtN(-qu, 2)} kN/m`, lim: `${fmtN(P.qU || 0, 2)} kN/m`, r: P.qU ? -qu / P.qU : 9.99, comb: "1,0·G + 1,5·W↑" });
-      out.lignes.push({ n: "Pannes – flèche (charge de service)", ref: "Catalogue SADEF (charge admissible ELS)", val: `${fmtN(Math.max(carS, -carU), 2)} kN/m`, lim: `${fmtN(P.qS || 0, 2)} kN/m`, r: P.qS ? Math.max(carS, -carU) / P.qS : 9.99, comb: "caractéristique" });
+      const qd = Math.max(...combos.map((c) => c.n)), qu = Math.min(...combos.map((c) => c.n)), km = Math.max(coef.mTrav, coef.mApp), fyb = (typeof SADEF !== "undefined" ? SADEF.fyb : 390);
+      const MD = km * qd * e * e, MU = km * Math.max(0, -qu) * e * e, pn = P.prof ? P.prof.n : (P.nom || "SADEF");
+      if (P.qD) out.lignes.push({ n: "Pannes SADEF – charge descendante ELU", ref: "Catalogue SADEF (charge admissible)", val: `${fmtN(qd, 2)} kN/m`, lim: `q<sub>adm</sub> = ${fmtN(P.qD, 2)} kN/m`, r: qd / P.qD, comb: combos.find((c) => c.n === qd).nom });
+      else if (P.Weff) out.lignes.push({ n: "Pannes SADEF – flexion descendante ELU", ref: "NF EN 1993-1-3 §6.1.4.1 : M<sub>c,Rd</sub> = W<sub>eff</sub>·f<sub>yb</sub>/γ<sub>M0</sub>", val: `M<sub>Ed</sub> = ${fmtN(MD, 2)} kNm`, lim: `W<sub>eff</sub> = ${fmtN(P.Weff, 1)} cm³ ; f<sub>yb</sub> = ${fyb} MPa → ${fmtN(P.Weff * fyb / 1000, 2)} kNm`, r: MD / (P.Weff * fyb / 1000), comb: combos.find((c) => c.n === qd).nom });
+      else out.lignes.push({ n: "Pannes SADEF – flexion descendante ELU", ref: "données efficaces à saisir", val: `M<sub>Ed</sub> = ${fmtN(MD, 2)} kNm (${escH(pn)})`, lim: "W<sub>eff</sub> ou q<sub>adm</sub> SADEF à saisir", r: 9.99, comb: "" });
+      if (qu < 0) {
+        if (P.qU) out.lignes.push({ n: "Pannes SADEF – charge ascendante ELU", ref: "Catalogue SADEF (charge admissible)", val: `${fmtN(-qu, 2)} kN/m`, lim: `q<sub>adm</sub> = ${fmtN(P.qU, 2)} kN/m`, r: -qu / P.qU, comb: "1,0·G + 1,5·W↑" });
+        else if (P.Weff && P.chiU) out.lignes.push({ n: "Pannes SADEF – flexion ascendante ELU (semelle libre)", ref: "NF EN 1993-1-3 §10.1.4.2 : M/(χ<sub>LT</sub>·W<sub>eff</sub>·f<sub>yb</sub>) ≤ 1", val: `M<sub>Ed</sub> = ${fmtN(MU, 2)} kNm`, lim: `χ<sub>LT</sub> = ${fmtN(P.chiU, 2)} (saisi)`, r: MU / (P.chiU * P.Weff * fyb / 1000), comb: "1,0·G + 1,5·W↑" });
+        else out.lignes.push({ n: "Pannes SADEF – flexion ascendante ELU (semelle libre)", ref: "données à saisir", val: `M<sub>Ed</sub> = ${fmtN(MU, 2)} kNm`, lim: "q<sub>adm</sub> ascendante ou χ<sub>LT</sub> (§10.1.4) à saisir", r: 9.99, comb: "1,0·G + 1,5·W↑" });
+      }
+      if (P.prof) { const w = coef.w * Math.max(carS, -carU) * e ** 4 / (Ek * P.prof.Iy * 1e-8) * 1000, lim = e * 1000 / (D.wPanne || 200);
+        out.lignes.push({ n: "Pannes SADEF – flèche (ELS caractéristique)", ref: "I<sub>y</sub> brut du catalogue (approché, NF EN 1993-1-3 §7.1)", val: `${fmtN(w, 1)} mm`, lim: `L/${D.wPanne || 200} = ${fmtN(lim, 1)} mm`, r: w / lim, comb: "caractéristique" }); }
+      else if (P.qS) out.lignes.push({ n: "Pannes SADEF – flèche (charge de service)", ref: "Catalogue SADEF (charge admissible ELS)", val: `${fmtN(Math.max(carS, -carU), 2)} kN/m`, lim: `${fmtN(P.qS, 2)} kN/m`, r: Math.max(carS, -carU) / P.qS, comb: "caractéristique" });
       return out;
     }
     const p = P.prof, fy = fyDe(D.nuance || "S355", p), cb = courbesS(p), lt = (D.liernes || 0) + 1, et = e / lt;

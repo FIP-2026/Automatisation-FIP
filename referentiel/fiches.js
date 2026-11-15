@@ -154,6 +154,8 @@ const FICHES = [
   <li><b>Imperfection φ</b> : les poteaux ne sont jamais parfaitement verticaux ; on l'introduit par des forces horizontales φ·N en tête (environ 1/250 à 1/300).</li>
   <li><b>Jarrets</b> : renforts près des nœuds, là où le moment est maximal ; ils raidissent le portique et soulagent la traverse.</li>
   <li><b>Bracons</b> : sous soulèvement ou près des nœuds, la semelle inférieure de la traverse est comprimée et libre : des bracons la relient aux pannes pour éviter le déversement.</li>
+  <li><b>Un maintien doit être tenu</b> : une panne ne retient la traverse que si sa ligne aboutit à un point fixe (poutre au vent), directement ou de panne en panne jusqu'à la travée contreventée ; un bracon n'est utile que si sa panne est elle-même tenue. Sinon, seuls les nœuds de la poutre au vent comptent.</li>
+  <li><b>Profils minces</b> (pannes Z, Σ) : leurs parois fines voilent localement ; on calcule avec des caractéristiques « efficaces » (W<sub>eff</sub>) plus faibles que les brutes (NF EN 1993-1-3), fournies par le fabricant.</li>
   <li><b>Toiture isolée</b> : pas de pression intérieure ; le vent agit sur les deux faces (c<sub>f</sub>, c<sub>p,net</sub>), avec un soulèvement souvent dimensionnant pour les pannes, la traverse et les ancrages.</li></ul>`,
   refs: "NF EN 1993-1-1 §5.2.1, §5.2.2, §5.3.2, §6.3.2 ; NF EN 1991-1-4 §7.3 ; CNC2M N0380.", calc: "A1" },
 { id: "deplacements", theme: "Calcul acier", titre: "Flèches et déplacements (ELS)",

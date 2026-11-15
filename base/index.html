@@ -4,20 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.45"></script>
+<script src="../commun/auth.js?v=2.46"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — BD Base de données</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.45">
-<script src="../commun/acier.js?v=2.45"></script>
-<script src="../commun/data/profils.js?v=2.45"></script>
-<script src="../commun/data/tuyauterie.js?v=2.45"></script>
-<script src="../commun/coefvent.js?v=2.45"></script>
-<script src="../commun/sections.js?v=2.45"></script>
-<script src="../commun/fluides.js?v=2.45"></script>
-<script src="../commun/charges.js?v=2.45"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.46">
+<script src="../commun/acier.js?v=2.46"></script>
+<script src="../commun/data/profils.js?v=2.46"></script>
+<script src="../commun/data/tuyauterie.js?v=2.46"></script>
+<script src="../commun/coefvent.js?v=2.46"></script>
+<script src="../commun/sections.js?v=2.46"></script>
+<script src="../commun/fluides.js?v=2.46"></script>
+<script src="../commun/data/sadef.js?v=2.46"></script>
+<script src="../commun/charges.js?v=2.46"></script>
 <style>
   main{display:block;max-width:1400px}
   .onglets{display:flex;gap:2px;border-bottom:2px solid var(--fip-bleu);margin:0 0 14px;flex-wrap:wrap}
@@ -75,7 +76,7 @@ const COLS_PROF={
 const colsProf=fam=>/^LI?$/.test(fam)?COLS_PROF.L:/HS$/.test(fam)?COLS_PROF.T:COLS_PROF.I;
 const SRC_PROF='IPE, HEA, HEB, HEM, tubes : eurocodepy (LGPL-3.0) ; IPN, UPN, UPE : catalogues (classeur poutre-poteau) et dimensions fib structuralcodes ; cornières : dimensions structuralcodes, caractéristiques calculées (axes principaux u, v). Unités : mm, kg/m, cm², cm³, cm⁴, cm⁶. Valeurs à recouper avec le catalogue du fournisseur.';
 const ONGLETS=[
-  {id:'prof',lib:'Profilés acier'},{id:'tubes',lib:'Tubes de tuyauterie'},{id:'mat',lib:'Matériaux tuyauterie'},{id:'fluides',lib:'Fluides'},
+  {id:'prof',lib:'Profilés acier'},{id:'tubes',lib:'Tubes de tuyauterie'},{id:'mat',lib:'Matériaux tuyauterie'},{id:'fluides',lib:'Fluides'},{id:'sadef',lib:'Profils minces SADEF'},
   {id:'acier',lib:'Aciers de construction'},{id:'charges',lib:'Charges d\'exploitation et ψ'},{id:'fleches',lib:'Limites de flèche'},{id:'cf',lib:'Vent : c_f des profilés'}];
 function tableHTML(cols,rows,cle){
   if(tri.col){ const c=tri.col; rows=rows.slice().sort((a,b)=>{const x=a[c],y=b[c];return (typeof x==='number'&&typeof y==='number'?x-y:String(x).localeCompare(String(y),'fr',{numeric:true}))*tri.dir;}); }
@@ -111,6 +112,7 @@ function rendre(){
     out=`<h3>Propriétés à 20 °C (corrélations de H1)</h3>`+tableHTML([['n','Fluide'],['t','T (°C)',0],['rho','ρ (kg/m³)',1],['mu','Viscosité dynamique μ (mPa·s)',3],['nu','Viscosité cinématique ν (mm²/s = cSt)',3],['pv','Pression de vapeur P_v (kPa abs)',3],['pl','Domaine de validité']],P20,'n')+
       `<h3>Masses volumiques des fluides de tuyauterie (T1, S1, G1)</h3>`+tableHTML([['n','Fluide'],['t','T (°C)'],['r','ρ (kg/m³)',0]],FLUIDS.map(x=>({n:x.n,t:(x.n.match(/(\d+) °C/)||[,'≈ 20'])[1],r:x.r})),'n');
     src='Propriétés à 20 °C : corrélations de <a href="../fluides/">H1 Propriétés des fluides</a> (IAPWS pour l\'eau ; API MPMS 11.1 / ASTM D1250 pour les produits pétroliers ; ASTM D341 pour la viscosité ; Antoine / RVP pour P<sub>v</sub>), avec les valeurs typiques des produits : remplacer par la fiche produit pour un projet. Fioul lourd : viscosité à 20 °C (limite basse du domaine) très sensible à la qualité du produit, réchauffé en exploitation : valeur indicative. Acides, soude, eau glycolée : viscosité et pression de vapeur selon la fiche de données de sécurité (non tabulées). « saisie » : masse volumique à renseigner dans la calculette.'; }
+  if(ong==='sadef'){ out=tableHTML([['n','Profil'],['f','Famille'],['h','h (mm)',0],['b','b (mm)',0],['t','t (mm)',2],['m','G (kg/m)',2],['A','A (cm²)',2],['Iy','I_y (cm⁴)',1],['Wy','W_y (cm³)',1],['Iz','I_z (cm⁴)',1],['Wz','W_z (cm³)',2]],SADEF.LISTE,'n'); src=SADEF.SRC+' Utilisés par A1 (pannes).'; }
   if(ong==='acier'){
     out=tableHTML([['n','Nuance'],['a','f_y t ≤ 40 mm (MPa)',0],['b','f_y 40 < t ≤ 80 mm (MPa)',0],['c','f_u (MPa)',0]],Object.entries(NUANCES).map(([n,v])=>({n,a:v[0],b:v[1],c:v[2]})),'n')+
       `<h3>Constantes</h3>`+tableHTML([['n','Grandeur'],['v','Valeur'],['r','Référence']],[{n:'Module d\'élasticité E',v:'210 000 MPa',r:'NF EN 1993-1-1 §3.2.6'},{n:'Module de cisaillement G',v:'81 000 MPa',r:'§3.2.6'},{n:'Poids volumique',v:'≈ 78,5 kN/m³ (7 850 kg/m³)',r:'NF EN 1991-1-1 annexe A'},{n:'γ_M0 / γ_M1 (AN France)',v:'1,00 / 1,00',r:'NF EN 1993-1-1/NA §6.1'},{n:'γ_M2 (boulons, assemblages)',v:'1,25',r:'NF EN 1993-1-8/NA Tab. 2.1'},{n:'Coefficient de dilatation thermique',v:'12·10⁻⁶ /K',r:'§3.2.6'}],'n');
@@ -135,6 +137,6 @@ function rendre(){
 if(location.hash&&ONGLETS.some(o=>o.id===location.hash.slice(1))) ong=location.hash.slice(1);
 rendre();
 </script>
-<script src="../commun/replier.js?v=2.45"></script>
+<script src="../commun/replier.js?v=2.46"></script>
 </body>
 </html>
