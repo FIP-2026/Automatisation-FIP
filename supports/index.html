@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.30"></script>
+<script src="../commun/auth.js?v=2.31"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.30">
+<link rel="stylesheet" href="../commun/calc.css?v=2.31">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.30"></script>
-<script src="../commun/data/tuyauterie.js?v=2.30"></script>
-<script src="../commun/acier.js?v=2.30"></script>
-<script src="../commun/barres3d.js?v=2.30"></script>
-<script src="../commun/dessin.js?v=2.30"></script>
-<script src="../commun/coefvent.js?v=2.30"></script>
-<script src="../commun/cahier.js?v=2.30"></script>
+<script src="../commun/data/profils.js?v=2.31"></script>
+<script src="../commun/data/tuyauterie.js?v=2.31"></script>
+<script src="../commun/acier.js?v=2.31"></script>
+<script src="../commun/barres3d.js?v=2.31"></script>
+<script src="../commun/dessin.js?v=2.31"></script>
+<script src="../commun/coefvent.js?v=2.31"></script>
+<script src="../commun/cahier.js?v=2.31"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -473,8 +473,8 @@ function resistances(p){
 }
 function stabilite(p,R,Lcr){
   const l1=93.9*epsilon(R.fy); let lam,alpha,courbe;
-  if(R.isL){lam=Lcr/(p.iv/100)/l1;alpha=ALPHA_DIL.b;courbe='b (axe v)';}
-  else if(R.tube){lam=Lcr/(Math.min(p.iy,p.iz)/100)/l1;alpha=ALPHA_DIL.c;courbe='c (tube formé à froid, prudent)';}
+  if(R.isL){lam=Lcr/(p.iv/100)/l1;alpha=ALPHA.b;courbe='b (axe v)';}
+  else if(R.tube){lam=Lcr/(Math.min(p.iy,p.iz)/100)/l1;alpha=ALPHA.c;courbe='c (tube formé à froid, prudent)';}
   else{const cb=courbes(p),ly=Lcr/(p.iy/100)/l1,lz=Lcr/(p.iz/100)/l1,cy=chi(ly,cb.y).chi,cz=chi(lz,cb.z).chi;lam=cz<cy?lz:ly;alpha=cz<cy?cb.z:cb.y;courbe=cz<cy?cb.cz+' (axe z)':cb.cy+' (axe y)';}
   const chiN=chi(lam,alpha).chi; let chiLT=1,mcr=Infinity,lamLT=0;
   if(!R.isL&&!R.tube&&p.Iw){mcr=Mcr(p,Lcr,1,0,0);lamLT=Math.sqrt(R.MyRk/mcr);chiLT=lamLT<=0.2?1:chi(lamLT,courbes(p).lt).chi;}
@@ -541,6 +541,8 @@ function verifier(D){
     {k:'V',n:`Cisaillement + torsion – ${escH(pV.b.lib)}`,ref:'§6.2.6, §6.2.7 – τ<sub>t</sub> = T/W<sub>t</sub> (Saint-Venant)',val:`${f(pV.rV*100,0)} %`,lim:'100 %',r:pV.rV,comb:nom(pV.cV)},
     {k:'B',n:`Stabilité (flambement${!pB.R.isL&&!pB.R.tube?', déversement':''}) – ${escH(pB.b.lib)}`,ref:`§6.3.1–6.3.3 simplifié – L<sub>cr</sub> = ${f(pB.St.Lcr,2)} m, λ̄ = ${f(pB.St.lam,2)}, χ = ${f(pB.St.chiN,3)}${pB.St.chiLT<1?', χ<sub>LT</sub> = '+f(pB.St.chiLT,3):''}`,val:`${f(pB.rB*100,0)} %`,lim:'100 %',r:pB.rB,comb:nom(pB.cB)},
     {k:'D',n:`Déplacement ≤ min(L/${D.dlim} ; ${D.dmax} mm) – ${escH(eD.lib)}`,ref:'ELS caractéristique – points d\'appui des tuyaux et extrémités libres',val:f(eD.d,2)+' mm',lim:f(eD.lim,2)+' mm',r:eD.r,comb:nom(eD.c)}];
+  lignes.forEach(l=>{ if(!isFinite(l.r)){ l.r=9.99; l.val='non calculable'; } });          // garde-fou : un taux non numérique est traité comme non vérifié
+  PB.forEach(P=>['rS','rV','rB','rD'].forEach(k=>{ if(!isFinite(P[k])) P[k]=9.99; }));
   const gov=lignes.reduce((a,b)=>b.r>a.r?b:a); gov.gov=true;
   PB.forEach(P=>P.max=Math.max(P.rS,P.rV,P.rB,P.rD));
   return {Gm,CC,R,ELU,CAR,res,lignes,gov,PB,eD,cl4:PB.some(P=>P.R.cl===4)};
@@ -1411,10 +1413,10 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.30"></script>
-<script src="../commun/aide.js?v=2.30"></script>
-<script src="aide-s1.js?v=2.30"></script>
-<script src="../commun/export.js?v=2.30"></script>
+<script src="../commun/replier.js?v=2.31"></script>
+<script src="../commun/aide.js?v=2.31"></script>
+<script src="aide-s1.js?v=2.31"></script>
+<script src="../commun/export.js?v=2.31"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
