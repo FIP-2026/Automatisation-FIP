@@ -14,6 +14,7 @@ AIDE.init({
   ],
   liens: [["#secRecap", "combinaisons", "Combinaisons et enveloppes"], ["#secBom", "assemblages", "Fixations"]],
   faq: [
+    { q: "Documents de référence et unités dans les notes ?", r: "Les notes du cahier commencent par un préambule unique : documents de référence (saisis dans NH Note d'hypothèses) et tableau des unités et conventions ; ils ne sont pas répétés dans chaque note." },
     { q: "Type ou configuration ?", r: "Un <b>type</b> = un dessin de support (profilés, tuyaux, actions). Une <b>configuration</b> = le même support avec une ou plusieurs cotes différentes (hauteur, longueur, position des tuyaux). Changer de profilé ou de DN = nouveau type." },
     { q: "Pourquoi « à recalculer » ?", r: "Une cote ou un paramètre commun a changé : cliquer « ⟳ Recalculer tout »." },
     { q: "Plans schématiques ou dessin industriel ?", r: "Schématiques : vues cotées en lettres et perspective, pratiques pour un cahier de consultation. Dessin industriel : une planche par type, vues orthogonales à l'échelle (projection européenne), perspective, tableau des configurations, nomenclature, cartouche ; la phase (APS/APD) figure au cartouche et dans le bandeau « non valable pour exécution », les platines et fixations renvoient à la note de chevillage." },

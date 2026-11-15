@@ -261,8 +261,8 @@ const EXPORT = (() => {
     cfg = c;
     const imp = [...document.querySelectorAll("header button")].find((b) => /Imprimer/.test(b.textContent));
     const mk = (txt, coul, type) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = txt; b.style.background = coul; b.style.borderColor = coul; b.style.marginRight = "6px"; b.title = "Télécharger la note au format " + (type === "word" ? "Word (.docx)" : "Excel (.xlsx)"); b.onclick = () => lancer(type, b); return b; };
-    const bW = mk("📄 Word", "#2b579a", "word"), bX = mk("📊 Excel", "#217346", "excel");
-    if (imp) { imp.before(bW, bX); } else document.body.prepend(bW, bX);
+    const bW = mk("📄 Word", "#2b579a", "word"), B = c.excel === false ? [bW] : [bW, mk("📊 Excel", "#217346", "excel")];   // excel:false : Word seul
+    if (imp) { imp.before(...B); } else document.body.prepend(...B);
   }
   /* export Word d'un élément donné (note de calcul…) */
   async function wordDe(el, o = {}) { await charger("lib/docx/docx.iife.js"); await word({ zones: () => [el], titre: o.titre, fichier: o.fichier }); }

@@ -206,6 +206,15 @@ const CH = (() => {
       T(["Garde-corps / paroi", "Catégorie", "q<sub>k</sub> (kN/m)", "Référence"], gc.map((x) => `<tr><td>${esc(x.nom)}</td><td>${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")}</td><td class="n"><b>${fx(+x.q, 2)}</b></td><td class="pied">${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).ref || "")}${(GARDE_CORPS.find((k) => k.c === x.cat) || {}).verif ? " – valeur à confirmer sur la norme" : ""}</td></tr>`))); }
     return h;
   }
+  /* tableau de référence : valeurs surfaciques q_k (kN/m²), ponctuelles Q_k (kN) et linéiques des garde-corps (kN/m) */
+  function tableRefQ() {
+    const v = (x, d) => (x == null ? "projet" : fx(x, d));
+    return `<table class="bd"><tr><th>Catégorie</th><th class="n">q<sub>k</sub> surfacique (kN/m²)</th><th class="n">Q<sub>k</sub> ponctuelle (kN)</th><th>Surface d'application de Q<sub>k</sub></th><th class="n">ψ<sub>0</sub> / ψ<sub>1</sub> / ψ<sub>2</sub></th><th>Référence</th></tr>` +
+      CAT_Q.filter((c) => c.c !== "perso").map((c) => `<tr><td>${esc(c.n)}</td><td class="n"><b>${v(c.qk, 1)}</b></td><td class="n"><b>${v(c.Qk, 1)}</b></td><td>${esc(c.aire)}</td><td class="n">${c.psi.map((p) => fx(p, 1)).join(" / ")}</td><td class="pied">${esc(c.ref)}</td></tr>`).join("") + `</table>
+      <p class="pied">q<sub>k</sub> et Q<sub>k</sub> ne sont pas simultanés (§6.3.1.2(5)) : q<sub>k</sub> pour les effets d'ensemble (poutres, poteaux, fondations), Q<sub>k</sub> pour les effets locaux (platelage, caillebotis, solives), à la position la plus défavorable. Cloisons mobiles (§6.3.1.2(8)) : + 0,5 / 0,8 / 1,2 kN/m² (poids propre ≤ 1 / 2 / 3 kN/m). Réduction α<sub>A</sub> = 0,77 + 3,5/A ≤ 1 (A, B, C3, D1, F ; AN §6.3.1.2(10)).</p>
+      <h3>Charges linéiques horizontales sur garde-corps et parois</h3><table class="bd"><tr><th>Usage</th><th class="n">q<sub>k</sub> (kN/m)</th><th>Référence</th></tr>` +
+      GARDE_CORPS.filter((c) => c.c !== "perso").map((c) => `<tr><td>${esc(c.n)}</td><td class="n"><b>${c.q == null ? "norme" : fx(c.q, 2)}</b></td><td class="pied">${esc(c.ref)}${c.verif ? " – à confirmer sur le texte" : ""}</td></tr>`).join("") + `</table><p class="pied">Appliquée à la hauteur de la main courante, sans dépasser 1,20 m (§6.4).</p>`;
+  }
   function schemaQ() {
     let s = `<svg viewBox="0 0 640 140" style="width:100%;max-width:640px" font-family="Inter,Arial,sans-serif" font-size="12"><path d="M30,100 L250,100 L300,60 L80,60z" fill="#eef1f5" stroke="#4a525c"/>`;
     for (let i = 0; i < 7; i++) for (let j = 0; j < 2; j++) s += flecheV(70 + i * 28 + j * 22, 12, 72 + j * 18 - j * 0, "#0098db", 1.1);
@@ -214,5 +223,5 @@ const CH = (() => {
     s += `<text x="498" y="30" fill="#e30009" font-weight="700">Q<tspan font-size="9" dy="3">k</tspan></text><text x="485" y="125" text-anchor="middle" font-weight="700">Q<tspan font-size="9" dy="3">k</tspan><tspan dy="-3"> concentrée, position la plus défavorable (non cumulée)</tspan></text></svg>`;
     return s;
   }
-  return { lire, ecrire, catalogue, DEFAUTS_CPX, poidsComplexe, ANNEXE_A, valA, medA, CAT_Q, alphaA, alphaN, ALPHA_A, GARDE_CORPS, CLOISONS, symboles, coupeComplexe, schemaQ, qTuyau, noteG, noteQ, fx, esc, g, PLANCHERS };
+  return { lire, ecrire, catalogue, DEFAUTS_CPX, poidsComplexe, ANNEXE_A, valA, medA, CAT_Q, tableRefQ, alphaA, alphaN, ALPHA_A, GARDE_CORPS, CLOISONS, symboles, coupeComplexe, schemaQ, qTuyau, noteG, noteQ, fx, esc, g, PLANCHERS };
 })();

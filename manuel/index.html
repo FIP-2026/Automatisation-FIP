@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.42"></script>
+<script src="../commun/auth.js?v=2.43"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.42">
-<script src="../commun/apps.js?v=2.42"></script>
-<script src="../commun/barres3d.js?v=2.42"></script>
-<script src="../commun/acier.js?v=2.42"></script>
-<script src="../commun/data/tuyauterie.js?v=2.42"></script>
-<script src="../commun/charges.js?v=2.42"></script>
-<script src="../commun/coefvent.js?v=2.42"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.43">
+<script src="../commun/apps.js?v=2.43"></script>
+<script src="../commun/barres3d.js?v=2.43"></script>
+<script src="../commun/acier.js?v=2.43"></script>
+<script src="../commun/data/tuyauterie.js?v=2.43"></script>
+<script src="../commun/charges.js?v=2.43"></script>
+<script src="../commun/coefvent.js?v=2.43"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -142,6 +142,7 @@
 <table><tr><th>Catégorie</th><th>q<sub>k</sub> (kN/m²)</th><th>Q<sub>k</sub> (kN)</th><th>Référence</th></tr><tr><td>A planchers / escaliers / balcons</td><td>1,5 / 2,5 / 3,5</td><td>2,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>B bureaux</td><td>2,5</td><td>4,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>C1 à C5</td><td>2,5 / 4,0 / 4,0 / 5,0 / 5,0</td><td>3,0 / 4,0 / 4,0 / 7,0 / 4,5</td><td>Tab. 6.2(NF)</td></tr><tr><td>D1 / D2 commerces</td><td>5,0 / 5,0</td><td>5,0 / 7,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>E1 stockage</td><td>7,5</td><td>7,0</td><td>Tab. 6.4 (normatif selon l'AN)</td></tr><tr><td>F / G véhicules (≤ 30 kN / 30 à 160 kN)</td><td>2,3 / 5,0</td><td>15 / 90</td><td>Tab. 6.8(NF)</td></tr><tr><td>Catégorie non spécifiée</td><td colspan="2">valeurs de D1</td><td>AN §6.3.1.2(1)</td></tr><tr><td>I – toiture avec aménagement paysager</td><td>≥ 3,0</td><td>—</td><td>AN §6.3.4.1</td></tr><tr><td>H toiture inaccessible (pente &lt; 15 %, étanchée / autres)</td><td>0,8 / 0</td><td>1,5</td><td>Tab. 6.10(NF)</td></tr><tr><td>Passerelle / plate-forme d'accès aux machines</td><td>2,0</td><td>1,5 (200 × 200 mm)</td><td>NF EN ISO 14122-2</td></tr></table>
 <p>q<sub>k</sub> et Q<sub>k</sub> ne se cumulent pas (§6.3.1.2(5)) ; cloisons mobiles (§6.3.1.2(8)) : 0,5 / 0,8 / 1,2 kN/m² selon le poids propre linéique (≤ 1 / ≤ 2 / ≤ 3 kN/m). Réduction (AN, non simultanées) : α<sub>A</sub> = 0,77 + 3,5/A ≤ 1 (A, B, C3, D1, F ; AN §6.3.1.2(10)) appliqué si l'aire est saisie ; α<sub>n</sub> = 0,5 + 1,36/n (A) ou 0,7 + 0,8/n (B, F) (AN §6.3.1.2(11)) non appliqué. <b>Exemple</b> : B, A = 20 m² → α<sub>A</sub> = 0,945 → q<sub>k</sub> = 2,36 kN/m². Garde-corps : Tab. 6.12(NF) = 0,6 (A, B, C1) ; 1,0 (C2 à C4, D) ; 3,0 (C5) ; 2,0 minimum (E) kN/m. Garde-corps industriels et accès aux machines : 0,3 kN/m (30 daN/m), NF E 85-015 renvoyant à la NF EN ISO 14122-3 (valeur usuelle confirmée par l'utilisateur, <b>non contrôlée sur le texte</b> : à vérifier). Garde-corps de bâtiment (NF P 01-012) : valeur à saisir selon la norme en vigueur (non intégrée). Toutes les valeurs de l'AN ci-dessus ont été contrôlées sur la NF P 06-111-2 (juin 2004).</p>
 <h3 id="nh">6.7 NH – Note d'hypothèses</h3>
+<p>Sections communes ajoutées en 2.43 : <b>documents de référence</b> (plans, CCTP, notes, rapports, fiches fabricants, mails ; type, référence, désignation, indice, date, émetteur), saisis dans NH et repris dans les notes de calcul S1 et du cahier (préambule unique pour le cahier) ; <b>tableau des unités et conventions</b> (m, mm, kN, kN·m, kN/m, kN/m², kN/m³, kg/m³, MPa, m/s², °, °C ; 1 kN = 100 daN ; 1 kN/m² = 100 daN/m² = 1 kPa ; g = 9,81 m/s² ; repère et signes des efforts pour S1). Module commun : <code>commun/notes.js</code>.</p>
 <p>NH n'effectue pas de calcul : il assemble les données enregistrées par C1 (résultats vent, neige, séisme et synthèse), G1 et Q1, les hypothèses générales (durée d'utilisation NF EN 1990 Tab. 2.1(NF), classe de conséquences Annexe B, matériaux, γ<sub>M</sub>) et les combinaisons de la NF EN 1990 (éq. 6.10, 6.11b, 6.12b, 6.14b à 6.16b ; ψ Tab. A1.1 + AN). Trois modèles : simplifiée (rédigée), classique (tableaux et schémas), complète (plus le détail des calculs C1 et des formules G1 / Q1). Contrôle : vérifier la date des sources affichée et que le site de C1 est celui de l'affaire.</p>
 <p class="ref">Références : NF EN 1990/NA, NF EN 1991-1-1/NA (Tab. 6.2(NF), 6.4, 6.10(NF), 6.12(NF), Annexe A), NF EN ISO 14122-2 et -3.</p>
 </article>
@@ -255,6 +256,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.43</td><td>Base de données, Q1, NH, S1, cahier</td><td>Base : propriétés des fluides à 20 °C (ρ, μ, ν, P<sub>v</sub>, corrélations de H1) et tableau des charges d'exploitation surfaciques q<sub>k</sub>, ponctuelles Q<sub>k</sub> et garde-corps (repris dans Q1) ; NH et notes de calcul : documents de référence et tableau des unités ; NH : un seul bouton Word (en-tête).</td><td>Aucun (présentation et documentation).</td></tr>
 <tr><td>2.42</td><td>C1, NH</td><td>Bâtiment fermé : choix de c<sub>pi</sub> (forfaitaire +0,2 / −0,3, face dominante §7.2.9(5), selon les ouvertures μ et fig. 7.13) et tableau des c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> avec w = q<sub>p</sub>·c<sub>p,net</sub> ; reprise de c<sub>pi</sub>, c<sub>p,net</sub> et des éléments à pression nette (toiture isolée, mur isolé) dans la note d'hypothèses.</td><td>Aucun pour le mode forfaitaire (valeurs déjà retenues) ; nouveaux résultats pour les deux autres modes.</td></tr>
 <tr><td>2.41</td><td>Q1</td><td>Garde-corps industriels : NF E 85-015 et NF EN ISO 14122-3 regroupées en une seule catégorie, 0,3 kN/m (30 daN/m) par défaut.</td><td>Valeur par défaut seulement (inchangée pour la catégorie ISO) ; lignes NF E 85-015 existantes basculées sur cette catégorie.</td></tr>
 <tr><td>2.40</td><td>S1, G1, Q1, cahier</td><td>Épreuve hydraulique : appliquée aux seules lignes à fluide moins dense que l'eau ; l'eau d'épreuve (contenu complet) est classée Q et remplace le fluide de service : γ<sub>G</sub>·(G − G<sub>fl</sub>) + 1,5·E<sub>P</sub> (avant : E<sub>P</sub> = q<sub>eau</sub> − q<sub>service</sub> ajouté à G complet, et pour toutes les lignes). Nouveau cas simple G<sub>fl</sub> dans les DDC. Q1 et G1 contrôlés sur l'AN NF P 06-111-2 : F, G (Tab. 6.8(NF)) et garde-corps (Tab. 6.12(NF)) confirmés, α<sub>A</sub> AN ajouté, catégorie non spécifiée (D1) et I paysager ; Annexe A : valeur médiane (AN 2) au lieu de la valeur haute ; garde-corps NF P 01-012 / NF E 85-015 à saisir.</td><td><b>Résultats S1 modifiés</b> pour les supports avec épreuve cochée : légère hausse pour les lignes à gaz (1,35·q<sub>vide</sub> + 1,5·eau), suppression du cas d'épreuve pour les lignes à fluide ≥ 1 000 kg/m³. Relancer les supports concernés du cahier.</td></tr>
@@ -314,6 +316,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.42"></script>
+<script src="../commun/replier.js?v=2.43"></script>
 </body>
 </html>
