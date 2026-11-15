@@ -1,5 +1,6 @@
 /* Aide de C1 — hypothèses climatiques, sismiques et complexes (contenu ; moteur : commun/aide.js) */
 AIDE.init({
+  manuel: "c1",
   titre: "Aide – C1 Hypothèses de charges",
   intro: "C1 détermine les hypothèses de charges du projet : vent, neige, séisme, coefficients aérodynamiques et complexes de couverture et de bardage. L'onglet <b>Synthèse</b> constitue la note d'hypothèses (impression, Word, Excel). Le bouton « ➜ Supports S1 » transmet les hypothèses aux supports et au cahier.",
   etapes: [
@@ -13,6 +14,7 @@ AIDE.init({
   ],
   liens: [["#ventRes", "vent", "Le vent : de la carte à q_p"], ["#neigeRes", "neige", "La neige"], ["#seismeRes", "seisme", "Séisme"], ["#cvProf", "coef-vent", "Coefficients de pression et de force"], ["#cvBat", "coef-vent", "Coefficients de pression et de force"], ["#neigeToit", "neige", "La neige"]],
   faq: [
+    { q: "Faut-il prendre en compte le séisme vertical ?", r: "Le spectre vertical est toujours affiché (a<sub>vg</sub>/a<sub>g</sub> = 0,8 en zones 1 à 4, 0,9 en zone 5 : arrêté du 22/10/2010 modifié le 08/09/2021). La composante verticale est requise pour le calcul de structure si a<sub>vg</sub> &gt; 0,25·g (zone 5) et pour les éléments listés au §4.3.3.5.2(1) de l'EN 1998-1 (portées ≥ 20 m, consoles &gt; 5 m, précontraint, poutres portant des poteaux, isolation à la base). Elle n'est pas utile pour les supports de tuyauterie courants." },
     { q: "Quelle catégorie de terrain choisir ?", r: "Celle de la rugosité la plus défavorable (la plus lisse) dans le rayon indiqué autour du site : 0 mer ou lac, II rase campagne, IIIa bocage ou zone industrielle peu dense, IIIb zone urbaine ou industrielle dense, IV ville dense. En cas de doute, prendre la plus lisse (prudent)." },
     { q: "Que mettre en hauteur de référence z_e ?", r: "En général la hauteur du bâtiment (ou du point étudié). Pour un support de tuyauterie, S1 recalcule q<sub>p</sub> à la hauteur réelle du support." },
     { q: "Quand utiliser l'orographie ?", r: "Si le site est sur une butte, un plateau ou en haut d'une pente. La procédure 1 de l'AN est automatique (altitudes IGN autour du site). Au-delà de c₀ = 1,15, ou pour une colline ou une falaise isolée, une étude spécifique est nécessaire (Orom, soufflerie)." },

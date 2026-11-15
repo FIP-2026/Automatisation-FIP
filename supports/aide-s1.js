@@ -1,6 +1,7 @@
 /* Aide de S1 — supports de tuyauterie (contenu ; moteur : commun/aide.js) */
 AIDE.init({
   titre: "Aide – S1 Supports de tuyauterie",
+  manuel: "s1",
   intro: `S1 prédimensionne un support standard (montant, console, suspente, T, L, U…) qui porte une ou plusieurs tuyauteries. Remplir les cartes de gauche <b>de haut en bas</b> : les résultats à droite se mettent à jour à chaque saisie. Vert = vérifié, jaune = au-dessus du taux cible (à surveiller), rouge = non vérifié.`,
   etapes: [
     { t: "Identifier le support", html: "Repère du support type (ex. ST-01), quantité, repères concernés et ligne / isométrique. Le nom de l'affaire se remplit tout seul si un cahier de supportage existe.", cible: "#repere" },
@@ -10,7 +11,10 @@ AIDE.init({
     { t: "Décrire les tuyauteries", html: "Pour chaque tuyau : DN, schedule, matière, fluide, calorifuge, <b>portée</b> (distance jusqu'aux supports voisins), position sur le support et fonction (glissant, guidé, point fixe). « + Ajouter une tuyauterie » pour plusieurs lignes.", cible: "#tuyaux" },
     { t: "Cocher les actions", html: "Température (frottement), vent, neige (support extérieur), séisme, épreuve hydraulique. Le bouton « Importer les hypothèses de C1 » reprend automatiquement le vent, la neige et le séisme du site.", cible: "#cT" },
     { t: "Lire les résultats", html: "En haut : verdict et taux maximal. Puis les alertes de conception (⛔ bloquant, ⚠ à vérifier, ℹ information), les vues cotées, les taux par critère et la descente de charges à transmettre au génie civil ou au charpentier.", cible: "#rHero" },
-    { t: "Enregistrer et sortir la note", html: "« ➕ Ajouter au cahier » range le support dans le cahier de supportage de l'affaire. Les boutons Word, Excel et Imprimer produisent la note de calcul.", cible: "#versCahier" },
+    { t: "Diagrammes et déformée", html: "Carte « Diagrammes » : N, V, M dans le plan ou hors plan, torsion, sur la combinaison ELU dimensionnante (★) ou une autre ; déformée ELS en vue de face ou oblique.", cible: "#vDiag" },
+    { t: "Plan du support (dessin industriel)", html: "Dans « Vues du support », « 📐 Dessin industriel » affiche la planche A3/A4 : vues orthogonales à l'échelle, perspective, cotes (positionnement des tuyaux et géométrie), nomenclature, cartouche. « DDC + SCU » ajoute le repère et le tableau des descentes de charges. « 🖨 Planche à l'échelle » ou « ⬇ DXF » pour AutoCAD.", cible: "#bInd" },
+    { t: "Sortir la note de calcul", html: "Carte « Note de calcul » : simplifiée (1 page), complète ou personnalisée (sections au choix), DDC en cas simples / ELU / les deux, formules détaillées ou résumé. « 👁 Aperçu », « 📄 Word » ou « 🖨 Imprimer / PDF ».", cible: "#ndcOpts" },
+    { t: "Enregistrer dans le cahier", html: "« ➕ Ajouter au cahier » range le support dans le cahier de supportage de l'affaire (plans, notes et DXF de tous les supports depuis le cahier).", cible: "#versCahier" },
   ],
   liens: [["#rRatios", "taux", "Taux de travail et couleurs"], ["#rRatios", "resistance", "Résistance des sections"], ["#rBarres", "flambement", "Flambement"], ["#rBarres", "torsion", "Torsion et gauchissement"],
     ["#rDDC", "combinaisons", "Combinaisons d'actions"], ["#rFix", "assemblages", "Boulons, tiges, chevilles"], ["#tuyaux", "supportage", "Glissant, guidé, point fixe"], ["#rEntraxes", "entraxes", "Entraxes"],
@@ -66,6 +70,11 @@ AIDE.init({
     dmax: "Déplacement admissible maximal en mm, quelle que soit la longueur.",
     rCible: "Taux au-delà duquel le résultat passe en jaune et que l'optimisation ne dépasse pas (90 % par défaut : marge d'APS/APD).",
     platine: "Rigidité des platines : semi-rigide par défaut (prudent pour les déplacements).",
+    fmtInd: "Format de la planche : A3 ou A4 paysage. L'échelle normalisée (1:5, 1:10, 1:20…) est choisie automatiquement ; les barres longues sont interrompues si cela permet une échelle plus grande.",
+    ddcInd: "Ajoute sur la planche le repère SCU (vues et perspective), le repérage des appuis A1, A2… et le tableau des descentes de charges (enveloppes ELU et sismique).",
+    ndcNiv: "Simplifiée : une page (vue, taux, profilés, actions, DDC ELU). Complète : toutes les sections. Personnalisée : cocher les sections voulues.",
+    ndcDdc: "Descente de charges de la note : cas simples (valeurs caractéristiques par cas), enveloppes ELU, ou les deux.",
+    ndcForm: "Formules détaillées : chaque critère avec ses formules, valeurs numériques et paragraphe de la norme (contrôle). Résumé : tableau des taux seulement.",
   },
   bullesK: {
     portee: "Longueur de tuyauterie reprise par ce support : distance entre supports (moyenne des deux portées voisines).",
