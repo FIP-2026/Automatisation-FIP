@@ -158,6 +158,13 @@ const FICHES = [
   <li><b>Profils minces</b> (pannes Z, Σ) : leurs parois fines voilent localement ; on calcule avec des caractéristiques « efficaces » (W<sub>eff</sub>) plus faibles que les brutes (NF EN 1993-1-3), fournies par le fabricant.</li>
   <li><b>Toiture isolée</b> : pas de pression intérieure ; le vent agit sur les deux faces (c<sub>f</sub>, c<sub>p,net</sub>), avec un soulèvement souvent dimensionnant pour les pannes, la traverse et les ancrages.</li></ul>`,
   refs: "NF EN 1993-1-1 §5.2.1, §5.2.2, §5.3.2, §6.3.2 ; NF EN 1991-1-4 §7.3 ; CNC2M N0380.", calc: "A1" },
+{ id: "contreventement", theme: "Calcul acier", titre: "Contreventement : poutre au vent et palées",
+  bref: "Les portiques ne tiennent que dans leur plan. Dans l'autre direction (vent sur le pignon, séisme longitudinal, maintien des traverses), il faut un contreventement : une poutre au vent en toiture et des palées dans les long-pans.",
+  corps: `<ul><li><b>Poutre au vent</b> : treillis horizontal dans une travée (souvent aux deux extrémités) ; les traverses en sont les membrures, les pannes les montants, des croix (ronds ou cornières) les diagonales, idéalement entre 30° et 60°.</li>
+  <li><b>Palée de stabilité</b> : descend l'effort de la poutre au vent au sol, dans le long-pan. En croix (tirants tendus ; deux croix superposées si le panneau est trop haut) ou en cadre (poteaux encastrés sur une sablière, plus souple).</li>
+  <li><b>Forces de stabilisation</b> : en plus du vent, la poutre au vent retient les traverses qui tendent à déverser ; l'Eurocode fixe cet effort à partir d'un défaut de rectitude e<sub>0</sub> = α<sub>m</sub>·L/500.</li>
+  <li><b>Séisme longitudinal</b> : toute la masse du bâtiment est ramenée aux travées contreventées.</li></ul>`,
+  refs: "NF EN 1993-1-1 §5.3.3 ; NF EN 1991-1-4 §7.5 (frottement) ; NF EN 1998-1 §4.3.3.2 ; NF EN 1993-1-8 §3.10.3 (cornières).", calc: "A1" },
 { id: "deplacements", theme: "Calcul acier", titre: "Flèches et déplacements (ELS)",
   bref: "Même résistant, un élément trop souple pose problème : tuyau qui fait des points bas, bardage qui fissure, vibrations. On limite donc les déformations.",
   corps: `<div class="form">Poutre sur 2 appuis, charge répartie : f = 5·q·L⁴ / (384·E·I) &nbsp; Console : f = q·L⁴ / (8·E·I)</div>

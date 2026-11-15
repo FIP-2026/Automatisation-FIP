@@ -122,7 +122,16 @@ const PORTIQUE = (() => {
     const ru = res(Gm.tetes.map((n) => ({ n, F: [0.5, 0, 0, 0, 0, 0] })));
     const dU = (Gm.tetes.reduce((s, n) => s + ru.depl(n)[0], 0)) / 2, K = 1 / dU, hm = (Gm.H + Gm.hD) / 2;
     const imp = Gm.tetes.map((n) => res([{ n, F: [1, 0, 0, 0, 0, 0] }]));       // forces unitaires en tête (imperfection)
-    return { D, Gm, S, C, R, K, hm, imp, fy0, ru };
+    // séisme transversal (NF EN 1998-1 §4.3.3.2, force latérale ; DCL) : masse G + ψ2·S ramenée en tête, T = 2π·√(m/K)
+    let sis = null;
+    if (D.seisme && D.seisme.on && D.seisme.ag > 0) {
+      const sumV = (r) => Gm.pieds.reduce((s, nd) => s + (r ? r.V.reactions[nd][2] : 0), 0), p2 = PSI_NEIGE(!!(D.neige && D.neige.alt1000))[2];
+      const m = (sumV(R.G) + p2 * sumV(R.S1)) / g0, T = 2 * Math.PI * Math.sqrt(m / K), Sd = spectreSd(D.seisme, T), F = Sd * m;
+      C.E = { id: "E", nom: `E – séisme transversal (F<sub>b</sub> = ${fmtN(F, 2)} kN)`, type: "E", V: [], Hz: [] };
+      R.E = { V: res([], []), H: res(Gm.tetes.map((n) => ({ n, F: [F / 2, 0, 0, 0, 0, 0] }))) };
+      sis = { m, T, Sd, F, p2 };
+    }
+    return { D, Gm, S, C, R, K, hm, imp, fy0, ru, sis };
   }
 
   /* efforts [N, Vz, My] d'une combinaison à l'élément k, abscisse s : Σ f·(V + amp·H) + amp·Σ φ·N_i·u_i */
@@ -168,6 +177,10 @@ const PORTIQUE = (() => {
       if (sansImp) out.push({ ...base, imp: [] });
       else for (const sg of [1, -1]) out.push({ ...base, nom: c.nom + (sg > 0 ? " + φ→" : " + φ←"), imp: R0.map((r) => sg * phi * r[1]) });
     }
+    if (C.E) { const p2 = A.sis.p2, qs = (D.seisme && D.seisme.q) || 1.5;
+      for (const sg of [1, -1]) { const f = { G: 1, E: sg }; if (p2 && C.S1) f.S1 = p2;
+        const R0 = A.Gm.pieds.map((nd) => reactions(A, { f: { G: 1, ...(f.S1 ? { S1: f.S1 } : {}) } }, nd)), V = R0.reduce((s, r) => s + r[1], 0), acr = V > 0 ? A.K * A.hm / V : Infinity, th = qs / acr;
+        out.push({ f, nom: `1·G${f.S1 ? ` + ${fmtN(p2, 1)}·S1` : ""} ${sg > 0 ? "+" : "−"} 1·E`, type: "ELU", situation: "Sismique (6.12b)", acr, theta: th, amp: th <= 0.1 ? 1 : 1 / (1 - Math.min(th, 0.3)), V, imp: [], horsDomaine: th > 0.3 }); } }
     return { ELU: out, CAR: cb.CAR, phi, ah, am, vars };
   }
 
@@ -214,6 +227,9 @@ const PORTIQUE = (() => {
             const aM = D.maintEff === false ? (D.aPav || Gm.Lr) : (D.aPanne || 1.5);           // maintiens efficaces : pannes reliées à la poutre au vent ; sinon nœuds de la poutre au vent
             Lcz = aM;
             if (top) { Llt = aM; C1 = 1.0; }                                                // semelle sup. tenue par les pannes
+            else if (D.bracX && D.bracX.length && D.maintEff !== false) {                    // bracons aux abscisses données : intervalle entre maintiens (nœuds de tête, bracons)
+              const xm = Gm.B[k].xm, R = [0, Gm.L].concat(D.bracX).sort((u, v) => u - v), a0 = Math.max(...R.filter((r) => r <= xm + 1e-9)), b0 = Math.min(...R.filter((r) => r >= xm - 1e-9));
+              const Li = (b0 - a0) / Math.cos(Gm.alpha); if (Li < z.L) { Llt = Li; C1 = 1.0; } else { Llt = z.L; C1 = z.bout ? 1.77 : 1.13; } }
             else if (D.lBas > 0 && D.maintEff !== false) { Llt = Math.min(D.lBas, z.L); C1 = 1.0; }   // bracons
             else { Llt = z.L; C1 = z.bout ? 1.77 : 1.13; } }                                // zone comprimée entre nœud et point d'inflexion
           const lamy = Lcy * 100 / p.iy / l1, lamz = Lcz * 100 / p.iz / l1, chiy = chi(lamy, cb.y).chi, chiz = chi(lamz, cb.z).chi;
@@ -311,5 +327,63 @@ const PORTIQUE = (() => {
     return out;
   }
 
-  return { sectionI, courbesS, geometrie, analyser, combinaisons, verifier, efforts, reactions, deplacement, pannes };
+  /* spectre de calcul horizontal S_d(T) (NF EN 1998-1 §3.2.2.5, β = 0,2) ; o = {ag, S, TB, TC, TD, q} */
+  function spectreSd(o, T) { const { ag, S, TB, TC, TD } = o, q = o.q || 1.5, b = 0.2 * ag;
+    if (T <= TB) return ag * S * (2 / 3 + T / TB * (2.5 / q - 2 / 3));
+    if (T <= TC) return ag * S * 2.5 / q;
+    if (T <= TD) return Math.max(ag * S * 2.5 / q * TC / T, b);
+    return Math.max(ag * S * 2.5 / q * TC * TD / (T * T), b); }
+
+  /* ---------- contreventement longitudinal : poutre au vent (PAV) et palées de stabilité ----------
+     cv = { nPav (1 | 2 travées contreventées), cfr, diag:{type:'rond'|'L', d (mm) | prof}, palee:'croix'|'cadre', nuanceDiag } */
+  const AS_TIGE = { 12: 84.3, 14: 115, 16: 157, 18: 192, 20: 245, 22: 303, 24: 353, 27: 459, 30: 561, 33: 694, 36: 817 };   // section résistante filetée (mm², ISO 898)
+  function resDiag(dg, nu) {
+    if (dg.type === "rond") { const d = dg.d, A = Math.PI * d * d / 4, As = AS_TIGE[d] || 0.78 * A, fy = 235, fu = 360;
+      return { n: `rond Ø${d} S235 fileté`, A, NRd: Math.min(A * fy / 1000, 0.9 * As * fu / 1.25 / 1000), txt: `min(A·f<sub>y</sub> ; 0,9·A<sub>s</sub>·f<sub>u</sub>/γ<sub>M2</sub>), A<sub>s</sub> = ${fmtN(As, 0)} mm²` }; }
+    const p = dg.prof, fy = fyDe(nu, p), fu = NUANCES[nu][2], t = p.t || p.tf || 6, Anet = p.A * 100 - 18 * t, beta = 0.5;
+    return { n: `${p.n} ${nu}`, A: p.A * 100, NRd: Math.min(p.A * fy / 10, beta * Anet * fu / 1.25 / 1000), txt: `min(A·f<sub>y</sub> ; β<sub>2</sub>·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub>), β<sub>2</sub> = 0,5 (2 boulons M16, NF EN 1993-1-8 §3.10.3), A<sub>net</sub> = ${fmtN(Anet, 0)} mm²` };
+  }
+  function contreventement(A, V, PP) {
+    const { D, Gm, S } = A, cv = D.cv || {}, nP = D.nP, e = D.e, Lt = (nP - 1) * e, L = Gm.L, qp = D.vent ? D.vent.qp || 0 : 0, nPav = Math.max(1, cv.nPav || 1);
+    const kc = S.findIndex((s, k) => Gm.B[k].sec === "col"), kt = S.findIndex((s, k) => Gm.B[k].sec === "tra"), pc = S[kc], pt = S[kt], lignes = [];
+    // 1. actions longitudinales (vent parallèle au faîtage)
+    const Lroof = Gm.bi ? 2 * Gm.Lr : Gm.Lr, hm = (Gm.H + Gm.Hd) / 2;
+    const Fpig = qp * 2.0 * (Gm.H * pc.h / 1000 + Gm.hD * pc.h / 1000 + Lroof * pt.h / 1000);        // traînée du portique de pignon, c_f = 2,0
+    const lfr = Math.max(0, Lt - Math.min(2 * L, 4 * hm)), Ffr = (cv.cfr || 0.04) * qp * 2 * Lroof * lfr;  // frottement deux faces (§7.5, Tab. 7.10)
+    const FW = (Fpig + Ffr) / nPav;
+    // 2. stabilisation des traverses (§5.3.3) : m traverses par PAV, effort de semelle comprimée
+    const m = Math.ceil(nP / nPav), am = Math.sqrt(0.5 * (1 + 1 / m)), e0 = am * L / 500, st = V.stab.tra || {};
+    const Nf = (Math.abs(st.My || 0) / ((pt.h - pt.tf) / 1000)) + (st.Ned || 0) / 2;
+    // 3. séisme longitudinal : masse totale / nPav, plateau du spectre (prudent)
+    let FE = 0; if (A.sis) { FE = A.sis.Sd > 0 ? spectreSd(D.seisme, (D.seisme.TB + D.seisme.TC) / 2) * A.sis.m * nP / nPav : 0; }
+    // 4. géométrie de la PAV : panneaux sur les cours de pannes, angle des diagonales 30° à 60° (au plus près de 45°)
+    const ap = (D.aPanne || 1.5) * Math.cos(Gm.alpha), nb = Math.max(1, Math.round(Gm.Lr / (D.aPanne || 1.5))), apR = Gm.Lr * Math.cos(Gm.alpha) / nb;
+    const Lh = Gm.bi ? L / 2 : L; let best = null;                     // nœuds sur les cours de pannes : nombre de panneaux par rampant diviseur du nombre d'intervalles
+    for (let nr = 1; nr <= nb; nr++) { if (nb % nr) continue; const ax = Lh / nr, th = Math.atan(e / ax) * 180 / Math.PI, sc = Math.abs(th - 45) + (th < 30 || th > 60 ? 100 : 0); if (!best || sc < best.sc) best = { nr, j: nb / nr, ax, th, sc }; }
+    const nPan = best.nr * (Gm.bi ? 2 : 1), d = Math.hypot(best.ax, e);
+    const dg = resDiag(cv.diag || { type: "rond", d: 20 }, cv.nuanceDiag || "S235"), pv = cv.palee || "croix";
+    // 5. efforts dans la PAV (poutre sur 2 appuis de portée L, charge répartie), δq par itération (flexion des membrures + cisaillement des diagonales)
+    const qW = 1.5 * FW / L;
+    let dq = 0, qd = 0; for (let it = 0; it < 4; it++) { qd = nP / nPav * Nf * 8 * (e0 + dq) / (L * L); const q = qW + qd, EI = Ek * (pt.A * 1e-4) * e * e / 2, Sv = Ek * (dg.A * 1e-6) * best.ax * e * e / d ** 3; dq = 5 * q * L ** 4 / (384 * EI) + q * L * L / (8 * Sv); }
+    const qELU = qW + qd, VW = qELU * L / 2, VE = FE / 2, Vmax = Math.max(VW, VE), Nd = Vmax * d / e, Nch = Math.max(qELU * L * L / 8, FE * L / 8) / e;
+    lignes.push({ n: "Poutre au vent – diagonale tendue", ref: "§6.2.3 ; NF EN 1993-1-8 §3.6, §3.10.3", val: `N<sub>Ed</sub> = ${fmtN(Nd, 1)} kN (${VE > VW ? "séisme" : "vent + stabilisation"})`, lim: `${dg.n} : N<sub>Rd</sub> = ${fmtN(dg.NRd, 1)} kN`, r: Nd / dg.NRd, comb: VE > VW ? "1·G + 1·E longitudinal" : "1,5·W<sub>long</sub> + q<sub>d</sub> (§5.3.3)" });
+    // montant de rive (panne montante / sablière) : compression V + flexion de panne
+    let rMont = 0, txtM = "";
+    if (D.panne && D.panne.type === "lam") { const p = D.panne.prof, fy = fyDe(D.nuance || "S355", p), cb = courbesS(p), l1 = Math.PI * Math.sqrt(ACIER.E / fy), Lz = e / ((D.liernes || 0) + 1);
+      const chz = chi(Lz * 100 / p.iz / l1, cb.z).chi, chy = chi(e * 100 / p.iy / l1, cb.y).chi, Nb = Math.min(chz, chy) * p.A * fy / 10, rM = PP && PP.lignes[0] ? Math.sqrt(Math.max(0, PP.lignes[0].r)) : 0;
+      rMont = Vmax / Nb + 0.6 * rM; txtM = `${escH(p.n)} : N<sub>b,Rd</sub> = ${fmtN(Nb, 1)} kN ; + 0,6 × taux de flexion de la panne (ψ<sub>0</sub> vent)`; }
+    else txtM = "panne SADEF : vérifier la panne montante (compression + flexion) avec SADEF";
+    lignes.push({ n: "Poutre au vent – montant (panne de rive)", ref: "§6.3.1 + interaction simplifiée", val: `N<sub>Ed</sub> = ${fmtN(Vmax, 1)} kN`, lim: txtM, r: rMont || 0, comb: "" });
+    // palée de stabilité (long-pans, travées contreventées) : effort en tête H = V (réaction de la PAV)
+    const Hp = Vmax, out = { FW, Fpig, Ffr, lfr, FE, qd, dq, e0, m, Nf, best, nPan, d, dg, Nd, Nch, Vmax, nPav, pv };
+    if (pv === "croix") { let nc = 1; while (Math.atan(Gm.H / nc / e) * 180 / Math.PI > 60 && nc < 4) nc++; const th = Math.atan(Gm.H / nc / e), Ndp = Hp / Math.cos(th);
+      out.nc = nc; out.thP = th * 180 / Math.PI; out.Ndp = Ndp; out.Ncol = Hp * Gm.H / e;
+      lignes.push({ n: `Palée en croix (${nc} niveau${nc > 1 ? "x" : ""}) – diagonale tendue`, ref: "§6.2.3 ; angle " + fmtN(out.thP, 0) + "°", val: `N<sub>Ed</sub> = ${fmtN(Ndp, 1)} kN`, lim: `${dg.n} : N<sub>Rd</sub> = ${fmtN(dg.NRd, 1)} kN`, r: Ndp / dg.NRd, comb: "" });
+    } else { const fy = fyDe(D.nuance || "S355", pc), Mz = Hp / 2 * Gm.H, Mplz = pc.Wplz * fy / 1000, Hs = FW / 2, dz = (Hs / 2) * Gm.H ** 3 / (3 * Ek * pc.Iz * 1e-8) * 1000;   // ELS : vent longitudinal caractéristique
+      out.Mz = Mz; out.dz = dz;
+      lignes.push({ n: "Palée en cadre – poteaux en flexion d'axe faible", ref: "§6.2.5 (cadre à pieds articulés, traverse rigide)", val: `M<sub>z,Ed</sub> = ${fmtN(Mz, 2)} kNm par poteau`, lim: `M<sub>pl,z,Rd</sub> = ${fmtN(Mplz, 2)} kNm (${escH(pc.n)})`, r: Mz / Mplz, comb: "" });
+      lignes.push({ n: "Palée en cadre – déplacement en tête (ELS)", ref: "NF EN 1993-1-1/NA §7.2.2", val: `${fmtN(dz, 1)} mm`, lim: `H/${D.hH || 150} = ${fmtN(Gm.H * 1000 / (D.hH || 150), 1)} mm`, r: dz / (Gm.H * 1000 / (D.hH || 150)), comb: "vent longitudinal caractéristique" }); }
+    out.lignes = lignes; return out;
+  }
+  return { spectreSd, contreventement, sectionI, courbesS, geometrie, analyser, combinaisons, verifier, efforts, reactions, deplacement, pannes };
 })();

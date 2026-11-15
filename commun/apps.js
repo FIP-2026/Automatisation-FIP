@@ -10,7 +10,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.46";
+const CALC_VERSION = "v2.47";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes, d'exploitation et note d'hypothèses de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
@@ -183,7 +183,7 @@ const CALC_APPS = [
   {
     code: "A1",
     titre: "Toiture isolée (auvent) – portique",
-    description: "Portique courant mono ou bi-pente à pieds articulés et jarrets (L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %) : charges de C1 et G1, vent de toiture isolée, α_cr, imperfections et amplification, vérifications EN 1993-1-1, pannes (laminées ou SADEF), flèches, descente de charges.",
+    description: "Portique courant mono ou bi-pente à pieds articulés et jarrets (L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %), poteaux laminés ou PRS variables : charges de C1 et G1, vent de toiture isolée, séisme, α_cr et second ordre, vérifications EN 1993-1-1, pannes (laminées ou SADEF), bracons, poutre au vent et palées, flèches, descente de charges, vue 3D.",
     url: "auvent/",
     categorie: "acier",
     normes: ["NF EN 1993-1-1 + AN", "NF EN 1991-1-4 §7.3", "APS/APD"],
