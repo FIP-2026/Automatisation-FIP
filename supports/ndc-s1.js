@@ -3,6 +3,8 @@
    Principe : sections choisies → document HTML autonome (repris par l'export Word).
    ===================================================================== */
 const NDC_SECTIONS = [
+  ["docs", "Documents de référence (saisis dans NH)"],
+  ["unites", "Unités et conventions"],
   ["hyp", "Hypothèses de charges (G, T, climatiques, sismiques, épreuve)"],
   ["ref", "Références normatives"],
   ["mat", "Matériaux et sections"],
@@ -163,10 +165,15 @@ async function ndcRendre(horsEcran) {
     const env = enveloppe(V), sis = V.res.some((r) => r.c.type === "Sismique");
     h += `<h3>Descente de charges sur l'ouvrage (enveloppes, par support, repère SCU)</h3><table><tr><th>Appui</th><th>Valeur</th>${COMP.map((c) => `<th class="n">${c}</th>`).join("")}</tr>` +
       env.map((E, i) => `<tr><td>A${i + 1} – ${escH(E.a.lib)}</td><td>ELU</td>${E.ELU.map((e) => `<td class="n">${f(z0(e.v), 2)}</td>`).join("")}</tr>` + (sis ? `<tr><td></td><td>Sismique</td>${E.SIS.map((e) => `<td class="n">${f(z0(e.v), 2)}</td>`).join("")}</tr>` : "")).join("") + "</table>";
+    if (!NDC.sansCommun && typeof NOTES !== "undefined") { const dl = NOTES.liste();
+      if (dl.length) h += `<div class="pied"><b>Documents de référence</b> : ${dl.map((d) => escH([d.ref, d.ind && "ind. " + d.ind].filter(Boolean).join(" ") + (d.titre ? " – " + d.titre : ""))).join(" ; ")}.</div>`;
+      h += `<div class="pied"><b>Unités</b> : longueurs m (sections et cotes en mm), forces kN, moments kN·m, charges kN/m et kN/m², contraintes MPa, déplacements mm, taux en % ; repère X axe des tuyaux, Y transversal, Z vertical ascendant.</div>`; }
     h += `<div class="pied">Références : NF EN 1990, 1991-1-1/-3/-4, 1993-1-1, 1993-1-8, 1998-1 et leurs annexes nationales françaises. Outil FIP Études S1 ${typeof CALC_VERSION !== "undefined" ? CALC_VERSION : ""} – résultats à vérifier par un ingénieur qualifié.</div></div>`;
   } else {
     let n = 0; const T2 = (t) => `<h2>${++n}. ${t}</h2>`;
     h += T2("Synthèse") + synth + tabVerif;
+    if (S("docs") && !NDC.sansCommun && typeof NOTES !== "undefined" && NOTES.liste().length) h += T2("Documents de référence") + NOTES.docs();
+    if (S("unites") && !NDC.sansCommun && typeof NOTES !== "undefined") h += T2("Unités et conventions") + NOTES.unites("s1");
     if (S("ref")) h += T2("Références normatives") + `<table>${NDC_REF.map((r) => `<tr><td style="width:30%"><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join("")}</table>`;
     if (S("hyp")) h += T2("Hypothèses de charges") + ndcHyp(D, V);
     if (S("mat")) h += T2("Matériaux et sections") + $("rData").innerHTML;

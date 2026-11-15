@@ -58,7 +58,7 @@ const FICHES = [
   refs: "NF EN 1991-1-1 §6.3, §6.4 + AN (NF P 06-111-2) Tab. 6.2(NF), 6.8(NF), 6.10(NF), 6.12(NF), §6.3.1.2(10)-(11) ; NF P 01-012 ; NF E 85-015 ; NF EN ISO 14122-2 et -3.", calc: "Q1, NH" },
 { id: "note-hyp", theme: "Bases de calcul", titre: "La note d'hypothèses",
   bref: "Document de début d'affaire qui fixe, avant tout calcul, les règles, les matériaux, les charges et les combinaisons : tout le monde calcule ensuite avec les mêmes données.",
-  corps: `<p>Contenu type : objet, références normatives, hypothèses générales (durée d'utilisation, classe de conséquences, matériaux), charges permanentes, d'exploitation, climatiques et sismiques, combinaisons et coefficients ψ. Dans FIP Études : C1 + G1 + Q1 → <b>NH</b>, en version simplifiée, classique (tableaux et schémas) ou complète (détail des calculs).</p>`,
+  corps: `<p>Contenu type : objet, références normatives, hypothèses générales (durée d'utilisation, classe de conséquences, matériaux), charges permanentes, d'exploitation, climatiques et sismiques, combinaisons et coefficients ψ. Dans FIP Études : C1 + G1 + Q1 → <b>NH</b>, en version simplifiée, classique (tableaux et schémas) ou complète (détail des calculs).</p><p>Elle cite les <b>documents de référence</b> (plans, CCTP, mails, comptes rendus avec leur indice et leur date : ce sont eux qui justifient une hypothèse en cas de litige ou de modification) et récapitule les <b>unités</b> employées (kN, kN/m², MPa… ; 1 kN = 100 daN). Ces deux tableaux sont repris dans les notes de calcul.</p>`,
   refs: "NF EN 1990 §2 (durée d'utilisation Tab. 2.1(NF)), Annexe B (classes de conséquences), §6.4, §6.5.", calc: "NH" },
 { id: "taux", theme: "Bases de calcul", titre: "Taux de travail, taux cible et couleurs",
   bref: "Le taux de travail = sollicitation / résistance. Vert ≤ taux cible, jaune entre le taux cible et 100 %, rouge au-delà de 100 %.",
@@ -147,6 +147,24 @@ const FICHES = [
   <div class="form">Rotation d'une console tordue par un couple T : φ = T·L / (G·I<sub>t</sub>) ; avec gauchissement bloqué en pied : φ = T/(G·I<sub>t</sub>)·[L − a·tanh(L/a)], a = √(E·I<sub>w</sub>/G·I<sub>t</sub>)</div>
   <p>Conséquence pratique : un point fixe ou un frottement sur un tuyau décalé tord le support. Préférer un tube, un U ou réduire l'excentricité.</p>`,
   refs: "NF EN 1993-1-1 §6.2.7 ; théorie de Vlassov.", calc: "S1" },
+{ id: "portiques", theme: "Calcul acier", titre: "Portiques : second ordre, α_cr et imperfections",
+  bref: "Un portique à pieds articulés est souple latéralement : les charges verticales amplifient son déplacement (effet P-Δ). L'Eurocode mesure cette sensibilité par α_cr et ajoute un petit défaut d'aplomb φ.",
+  corps: `<div class="form">α<sub>cr</sub> = (H<sub>Ed</sub>/V<sub>Ed</sub>)·(h/δ<sub>H,Ed</sub>) &nbsp;·&nbsp; α<sub>cr</sub> ≥ 10 : 1<sup>er</sup> ordre suffisant &nbsp;·&nbsp; 3 ≤ α<sub>cr</sub> &lt; 10 : amplifier par 1/(1 − 1/α<sub>cr</sub>) &nbsp;·&nbsp; φ = 1/200 × α<sub>h</sub> × α<sub>m</sub></div>
+  <ul><li><b>α<sub>cr</sub></b> : combien de fois il faudrait multiplier les charges verticales pour que le portique flambe latéralement. Plus il est petit, plus le second ordre compte.</li>
+  <li><b>Imperfection φ</b> : les poteaux ne sont jamais parfaitement verticaux ; on l'introduit par des forces horizontales φ·N en tête (environ 1/250 à 1/300).</li>
+  <li><b>Jarrets</b> : renforts près des nœuds, là où le moment est maximal ; ils raidissent le portique et soulagent la traverse.</li>
+  <li><b>Bracons</b> : sous soulèvement ou près des nœuds, la semelle inférieure de la traverse est comprimée et libre : des bracons la relient aux pannes pour éviter le déversement.</li>
+  <li><b>Un maintien doit être tenu</b> : une panne ne retient la traverse que si sa ligne aboutit à un point fixe (poutre au vent), directement ou de panne en panne jusqu'à la travée contreventée ; un bracon n'est utile que si sa panne est elle-même tenue. Sinon, seuls les nœuds de la poutre au vent comptent.</li>
+  <li><b>Profils minces</b> (pannes Z, Σ) : leurs parois fines voilent localement ; on calcule avec des caractéristiques « efficaces » (W<sub>eff</sub>) plus faibles que les brutes (NF EN 1993-1-3), fournies par le fabricant.</li>
+  <li><b>Toiture isolée</b> : pas de pression intérieure ; le vent agit sur les deux faces (c<sub>f</sub>, c<sub>p,net</sub>), avec un soulèvement souvent dimensionnant pour les pannes, la traverse et les ancrages.</li></ul>`,
+  refs: "NF EN 1993-1-1 §5.2.1, §5.2.2, §5.3.2, §6.3.2 ; NF EN 1991-1-4 §7.3 ; CNC2M N0380.", calc: "A1" },
+{ id: "contreventement", theme: "Calcul acier", titre: "Contreventement : poutre au vent et palées",
+  bref: "Les portiques ne tiennent que dans leur plan. Dans l'autre direction (vent sur le pignon, séisme longitudinal, maintien des traverses), il faut un contreventement : une poutre au vent en toiture et des palées dans les long-pans.",
+  corps: `<ul><li><b>Poutre au vent</b> : treillis horizontal dans une travée (souvent aux deux extrémités) ; les traverses en sont les membrures, les pannes les montants, des croix (ronds ou cornières) les diagonales, idéalement entre 30° et 60°.</li>
+  <li><b>Palée de stabilité</b> : descend l'effort de la poutre au vent au sol, dans le long-pan. En croix (tirants tendus ; deux croix superposées si le panneau est trop haut) ou en cadre (poteaux encastrés sur une sablière, plus souple).</li>
+  <li><b>Forces de stabilisation</b> : en plus du vent, la poutre au vent retient les traverses qui tendent à déverser ; l'Eurocode fixe cet effort à partir d'un défaut de rectitude e<sub>0</sub> = α<sub>m</sub>·L/500.</li>
+  <li><b>Séisme longitudinal</b> : toute la masse du bâtiment est ramenée aux travées contreventées.</li></ul>`,
+  refs: "NF EN 1993-1-1 §5.3.3 ; NF EN 1991-1-4 §7.5 (frottement) ; NF EN 1998-1 §4.3.3.2 ; NF EN 1993-1-8 §3.10.3 (cornières).", calc: "A1" },
 { id: "deplacements", theme: "Calcul acier", titre: "Flèches et déplacements (ELS)",
   bref: "Même résistant, un élément trop souple pose problème : tuyau qui fait des points bas, bardage qui fissure, vibrations. On limite donc les déformations.",
   corps: `<div class="form">Poutre sur 2 appuis, charge répartie : f = 5·q·L⁴ / (384·E·I) &nbsp; Console : f = q·L⁴ / (8·E·I)</div>
