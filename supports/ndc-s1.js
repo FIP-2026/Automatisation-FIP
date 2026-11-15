@@ -159,7 +159,9 @@ async function ndcRendre(horsEcran) {
       <tr><th>Tuyauteries</th><td>${V.Gm.T.map((t, i) => `${escH(t.nom)} : ${escH(t.P.desc)}, portée ${f(+t.portee || 0, 2)} m, G = ${f(V.CC.detail[i].G, 2)} kN`).join("<br>")}</td></tr>
       <tr><th>Actions</th><td>${ndcHyp(D, V, true)}${D.cW ? ` (q<sub>p</sub> = ${f(D.qp, 2)} kN/m²)` : ""}${D.cE ? ` (S<sub>a</sub> = ${f(V.CC.Sa, 2)})` : ""} — combinaisons NF EN 1990 6.10${D.cE ? " et 6.12b" : ""} (${V.res.length} ELU, ${V.CAR.length} ELS)</td></tr>
       <tr><th>Modèle</th><td>Barres 3D élastique 1<sup>er</sup> ordre ; platines ${D.platine === "rigide" ? "encastrées" : "semi-rigides"} ; NF EN 1993-1-1 + AN (γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0)</td></tr></table>`;
-    h += `<h3>Descente de charges ELU (enveloppe, par support)</h3>` + ndcDDC(D, V, "elu").replace(/<div class="pied">.*?<\/div>/, "").replace(/<h3>/g, "<h4 style='margin:4px 0'>").replace(/<\/h3>/g, "</h4>");
+    const env = enveloppe(V), sis = V.res.some((r) => r.c.type === "Sismique");
+    h += `<h3>Descente de charges sur l'ouvrage (enveloppes, par support, repère SCU)</h3><table><tr><th>Appui</th><th>Valeur</th>${COMP.map((c) => `<th class="n">${c}</th>`).join("")}</tr>` +
+      env.map((E, i) => `<tr><td>A${i + 1} – ${escH(E.a.lib)}</td><td>ELU</td>${E.ELU.map((e) => `<td class="n">${f(z0(e.v), 2)}</td>`).join("")}</tr>` + (sis ? `<tr><td></td><td>Sismique</td>${E.SIS.map((e) => `<td class="n">${f(z0(e.v), 2)}</td>`).join("")}</tr>` : "")).join("") + "</table>";
     h += `<div class="pied">Références : NF EN 1990, 1991-1-1/-3/-4, 1993-1-1, 1993-1-8, 1998-1 et leurs annexes nationales françaises. Outil FIP Études S1 ${typeof CALC_VERSION !== "undefined" ? CALC_VERSION : ""} – résultats à vérifier par un ingénieur qualifié.</div></div>`;
   } else {
     let n = 0; const T2 = (t) => `<h2>${++n}. ${t}</h2>`;
