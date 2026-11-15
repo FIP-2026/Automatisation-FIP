@@ -4,16 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.38"></script>
+<script src="../commun/auth.js?v=2.39"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.38">
-<script src="../commun/apps.js?v=2.38"></script>
-<script src="../commun/barres3d.js?v=2.38"></script>
-<script src="../commun/acier.js?v=2.38"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.39">
+<script src="../commun/apps.js?v=2.39"></script>
+<script src="../commun/barres3d.js?v=2.39"></script>
+<script src="../commun/acier.js?v=2.39"></script>
+<script src="../commun/data/tuyauterie.js?v=2.39"></script>
+<script src="../commun/charges.js?v=2.39"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -130,8 +132,8 @@
 <p>Classe de sol inconnue : enveloppe des spectres D et E. <b>Exemple</b> : zone 3, catégorie II, sol C (S = 1,5) → plateau S<sub>e</sub> = 1,1 × 1,5 × 2,5 = <b>4,125 m/s²</b> ; S<sub>d</sub> (q = 1,5) = 2,75 m/s².</p>
 <p class="ref">Références : NF EN 1991-1-4/NA, 1991-1-3/NA, 1998-1/NA ; arrêté du 22/10/2010 art. 4 (modifié le 08/09/2021) ; CNC2M (toitures isolées).</p>
 <h3 id="g1">6.5 G1 – Charges permanentes (NF EN 1991-1-1 + AN)</h3>
-<div class="form">Complexe (couverture, bardage, plancher) : g = (1 + m)·Σ g<sub>i</sub> ; couche définie par une épaisseur : g<sub>i</sub> = γ<sub>i</sub>·e<sub>i</sub> (γ en kN/m³, e en m) ; couche catalogue : g<sub>i</sub> surfacique (kN/m²) ; m = majoration (fixations, recouvrements)<br>Tuyauterie (linéique) : q = g·[π/4·(D² − d<sub>i</sub>²)·ρ<sub>acier</sub> + π/4·d<sub>i</sub>²·ρ<sub>fluide</sub> + π/4·((D + 2t<sub>c</sub>)² − D²)·ρ<sub>calo</sub>] (même base que T1)<br>Équipement : G = m<sub>vide</sub>·g (permanent) ; (m<sub>service</sub> − m<sub>vide</sub>)·g à classer par l'ingénieur (G ou Q selon la NF EN 1991-1-1 §2.1) ; charge par appui = G / n</div>
-<p>Poids volumiques : Annexe A de la NF EN 1991-1-1 (Tab. A.1 à A.12, valeurs moyennes ; pour les matériaux à plage, la valeur haute est retenue par défaut). <b>Le poids propre des éléments calculés n'est pas saisi dans G1</b> : il est ajouté automatiquement par chaque outil de calcul (S1 : profilés du support ; P1 : poids linéique de la poutre ; P2 : poids du poteau ajouté à N<sub>G</sub> ; T1 : tube). <b>Exemple</b> : DN100 (114,3 × 6,02) plein d'eau, sans calorifuge → 16,1 + 7,9 kg/m → <b>0,238 kN/m</b>.</p>
+<div class="form">Complexe (couverture, bardage, plancher) : g = (1 + m)·Σ g<sub>i</sub> ; couche définie par une épaisseur : g<sub>i</sub> = γ<sub>i</sub>·e<sub>i</sub> (γ en kN/m³, e en m) ; couche catalogue : g<sub>i</sub> surfacique (kN/m²) ; m = majoration (fixations, recouvrements)<br>Tuyauterie (linéique) : q<sub>vide</sub> = g·[π/4·(D² − d<sub>i</sub>²)·ρ<sub>acier</sub> + π/4·((D + 2t<sub>c</sub>)² − D²)·ρ<sub>calo</sub>] ; q<sub>service</sub> = q<sub>vide</sub> + g·π/4·d<sub>i</sub>²·ρ<sub>f</sub> ; q<sub>eau</sub> = q<sub>vide</sub> + g·π/4·d<sub>i</sub>²·1000 (même base que T1 et S1)<br>Classement : G = q<sub>service</sub> ; si ρ<sub>f</sub> &lt; 1000 kg/m³ : Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>service</sub> (action variable, situation transitoire d'épreuve, identique au cas E<sub>P</sub> de S1), sinon Q<sub>ép</sub> = 0<br>Équipement : G = m<sub>vide</sub>·g (permanent) ; (m<sub>service</sub> − m<sub>vide</sub>)·g à classer par l'ingénieur (G ou Q selon la NF EN 1991-1-1 §2.1) ; charge par appui = G / n</div>
+<p>Poids volumiques : Annexe A de la NF EN 1991-1-1 (Tab. A.1 à A.12, valeurs moyennes ; pour les matériaux à plage, la valeur haute est retenue par défaut). <b>Le poids propre des éléments calculés n'est pas saisi dans G1</b> : il est ajouté automatiquement par chaque outil de calcul (S1 : profilés du support ; P1 : poids linéique de la poutre ; P2 : poids du poteau ajouté à N<sub>G</sub> ; T1 : tube). <b>Exemple</b> : DN100 (114,3 × 6,02) P265GH, sans calorifuge : q<sub>vide</sub> = 0,158 kN/m ; plein d'eau <b>0,238 kN/m</b> (G, Q<sub>ép</sub> = 0) ; au gaz G = 0,158 kN/m et <b>Q<sub>ép</sub> = 0,081 kN/m</b>. Les lignes peuvent être importées des supports S1 du cahier (doublons DN / schedule / matériau / ρ / calorifuge ignorés).</p>
 <h3 id="q1">6.6 Q1 – Charges d'exploitation</h3>
 <table><tr><th>Catégorie</th><th>q<sub>k</sub> (kN/m²)</th><th>Q<sub>k</sub> (kN)</th><th>Référence</th></tr><tr><td>A planchers / escaliers / balcons</td><td>1,5 / 2,5 / 3,5</td><td>2,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>B bureaux</td><td>2,5</td><td>4,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>C1 à C5</td><td>2,5 / 4,0 / 4,0 / 5,0 / 5,0</td><td>3,0 / 4,0 / 4,0 / 7,0 / 4,5</td><td>Tab. 6.2(NF)</td></tr><tr><td>D1 / D2 commerces</td><td>5,0 / 5,0</td><td>5,0 / 7,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>E1 stockage</td><td>7,5</td><td>7,0</td><td>Tab. 6.4</td></tr><tr><td>H toiture inaccessible (pente &lt; 15 %, étanchée / autres)</td><td>0,8 / 0</td><td>1,5</td><td>Tab. 6.10(NF)</td></tr><tr><td>Passerelle / plate-forme d'accès aux machines</td><td>2,0</td><td>1,5 (200 × 200 mm)</td><td>NF EN ISO 14122-2</td></tr></table>
 <p>q<sub>k</sub> et Q<sub>k</sub> ne se cumulent pas (§6.3.1.2(5)) ; cloisons mobiles (§6.3.1.2(8)) : 0,5 / 0,8 / 1,2 kN/m² selon le poids propre linéique (≤ 1 / ≤ 2 / ≤ 3 kN/m). Garde-corps : charge linéique horizontale à la main courante (Tab. 6.12(NF)) ; accès industriels : 0,3 kN/m minimum (NF EN ISO 14122-3). <b>Valeurs marquées « à vérifier » dans l'outil</b> (catégories F, G, garde-corps Tab. 6.12(NF)) : reprises de sources secondaires, à confronter au texte de l'AN avant qualification.</p>
@@ -249,6 +251,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.39</td><td>G1, C1</td><td>G1 : lignes de tuyauterie (q vide, G en service, q eau, Q<sub>ép</sub> automatique si ρ<sub>f</sub> &lt; ρ<sub>eau</sub>), import depuis le cahier ; C1 : schémas des zones de vent (lettres toujours lisibles, cotes e/10, e/4, e/2, légende des c<sub>pe</sub>).</td><td>Nouveau classement G / Q des tuyauteries dans la note d'hypothèses ; dessins seulement pour C1 (valeurs inchangées).</td></tr>
 <tr><td>2.38</td><td>C1, G1, Q1, NH</td><td>C1 limité au climat et au séisme ; complexes déplacés dans le nouvel outil G1 (même catalogue, Fa sismique de C1 lu dans G1) ; nouveaux outils Q1 et NH.</td><td>Aucun changement de formule ; vérifier les complexes saisis avant 2.38 (à ressaisir dans G1).</td></tr>
 <tr><td>2.37</td><td>S1</td><td>Nouveau type « Support en L plafonnier » ; entraxes de fixation par défaut 200 mm pour les montants / suspentes en tube (T, L, L plafonnier).</td><td>Nouveaux types et valeurs par défaut (pas de changement des formules).</td></tr>
 <tr><td>2.31</td><td>S1</td><td>Correction du facteur d'imperfection α des tubes (courbe c) et cornières (courbe b) : lu dans une mauvaise table depuis la v2.6, χ non numérique → taux de stabilité nul.</td><td class="ko">Stabilité des montants tubes et cornières non vérifiée entre v2.6 et v2.30 : recalculer les supports concernés.</td></tr>
@@ -288,12 +291,18 @@ function tests(){
   [['a',0.6656],['b',0.5970],['c',0.5399],['d',0.4671]].forEach(([c,v])=>ajout(`Coefficient de flambement χ, λ̄ = 1,0, courbe ${c}`,'courbes EN 1993-1-1 fig. 6.4 – valeur tabulée usuelle',chi(1,ALPHA[c]).chi,v,''));
   ajout('χ, λ̄ = 0,5, courbe b','valeur tabulée 0,8842',chi(0.5,ALPHA.b).chi,0.8842,''); ajout('χ, λ̄ = 2,0, courbe c','valeur tabulée 0,1962',chi(2,ALPHA.c).chi,0.1962,'');
   ajout('χ, λ̄ = 0,2 (palier)','1',chi(0.2,ALPHA.c).chi,1,'');
+  if(typeof CH!=='undefined'){ const D=114.3,di=D-2*6.02,a=d=>Math.PI/4*d*d*1e-6,rs=(MATS.find(m=>m.id==='P265GH')||{rho:7850}).rho, qv=(a(D)-a(di))*rs*9.81/1000, qw=qv+a(di)*1000*9.81/1000;
+    const r1=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:1000,ecal:0,rhoCal:0}), r2=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:0,ecal:0,rhoCal:0}), r3=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:840,ecal:50,rhoCal:100});
+    ajout('G1 – DN100 sch 40 plein d\'eau : G en service','g·[π/4(D²−dᵢ²)ρ + π/4·dᵢ²·1000]',r1.qServ,qw,'kN/m'); ajout('Idem : surcharge d\'épreuve (ρ_f = ρ_eau)','0',r1.qEp,0,'kN/m');
+    ajout('G1 – DN100 sch 40 au gaz : Q_ép','q_eau − q_vide',r2.qEp,qw-qv,'kN/m');
+    ajout('G1 – DN100 gazole 840 kg/m³ + calo 50 mm à 100 kg/m³ : Q_ép','π/4·dᵢ²·(1000 − 840)·g',r3.qEp,a(di)*160*9.81/1000,'kN/m');
+    ajout('Idem : calorifuge compris dans q vide','q_vide(tube) + π/4((D+100)²−D²)·100·g',r3.qVide,qv+(a(D+100)-a(D))*100*9.81/1000,'kN/m'); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
     T.map(t=>`<tr><td>${t.n}</td><td>${t.ref}</td><td class="n">${f(t.v,4)} ${t.unit}</td><td class="n">${f(t.vr,4)} ${t.unit}</td><td class="n">${f(Math.abs(t.v-t.vr)/Math.max(Math.abs(t.vr),1e-12)*100,3)} %</td><td class="${t.ok?'ok':'ko'}">${t.ok?'✔':'✘'}</td></tr>`).join('')+'</table>';
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.38"></script>
+<script src="../commun/replier.js?v=2.39"></script>
 </body>
 </html>
