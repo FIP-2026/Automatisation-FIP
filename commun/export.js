@@ -60,7 +60,7 @@ const EXPORT = (() => {
   /* =====================================================================
      WORD
      ===================================================================== */
-  async function word() {
+  async function word(o = {}) {                                // o : { zones, titre, fichier } pour exporter un document précis (ex. note de calcul)
     const D = window.docx;
     const { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ImageRun, ShadingType, AlignmentType, Header, Footer, PageNumber, BorderStyle } = D;
     const ENCRE = "171A1E";
@@ -136,7 +136,8 @@ const EXPORT = (() => {
     // ---- contenu
     const enfants = [];
     let logo = null; try { logo = new Uint8Array(await (await fetch(BASE + "img/logo-fip.png")).arrayBuffer()); } catch (e) { }
-    enfants.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: cfg.titre, bold: true, size: 32, color: "114088" })] }));
+    const titre = o.titre || cfg.titre;
+    if (!o.zones) enfants.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }));
     // cartouche d'affaire (cahier de supportage) — provisoire, en attendant la trame Word FIP
     let aff = null; try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }
     let logoClient = null, dimLogo = { width: 64, height: 32 };
@@ -150,8 +151,8 @@ const EXPORT = (() => {
       enfants.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: L.map((r) => new TableRow({ cantSplit: true, children: [cel(r[0], 0, 16), cel(r[1], 1, 34), cel(r[2], 0, 16), cel(r[3], 1, 34)] })) }));
       enfants.push(new Paragraph({ text: "", spacing: { after: 120 } }));
     }
-    const info = document.getElementById("phInfo"); if (info) enfants.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: net(info.textContent), size: 18, color: "5F6670" })] }));
-    const donnees = tableDonnees();
+    const info = document.getElementById("phInfo"); if (info && !o.zones) enfants.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: net(info.textContent), size: 18, color: "5F6670" })] }));
+    const donnees = o.zones ? [] : tableDonnees();
     if (donnees.length) {
       enfants.push(new Paragraph({ spacing: { before: 120, after: 80 }, border: { left: { style: BorderStyle.SINGLE, size: 18, color: "E30009", space: 6 } }, children: [new TextRun({ text: "DONNÉES D'ENTRÉE", bold: true, color: "114088", size: 22 })] }));
       enfants.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: donnees.map(([g, v]) => new TableRow({ cantSplit: true, children: [
@@ -159,18 +160,18 @@ const EXPORT = (() => {
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: v, size: 17, bold: true, color: "1F6FD1" })] })] })] })) }));
       enfants.push(new Paragraph({ text: "", spacing: { after: 120 } }));
     }
-    for (const z of cfg.zones()) { if (z) enfants.push(...await blocs(z.tagName === "TABLE" ? wrap(z) : z)); }
+    for (const z of (o.zones || cfg.zones)()) { if (z) enfants.push(...await blocs(z.tagName === "TABLE" ? wrap(z) : z)); }
     function wrap(t) { const d = document.createElement("div"); d.appendChild(t.cloneNode(true)); return d; }
 
     const doc = new D.Document({
-      creator: "FIP Études", title: cfg.titre, description: "Note de calcul générée par FIP Études",
+      creator: "FIP Études", title: titre, description: "Note de calcul générée par FIP Études",
       styles: { default: { document: { run: { font: "Calibri", size: 20, color: ENCRE } } } },
       sections: [{
         properties: { page: { margin: { top: 1000, bottom: 900, left: 900, right: 900 } } },
         headers: { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: "114088", space: 4 } }, children: [
           ...(logoClient ? [new ImageRun({ type: "png", data: logoClient, transformation: dimLogo }), new TextRun({ text: "   " })] : []),
           ...(logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 92, height: 32 } })] : []),
-          new TextRun({ text: "   " + cfg.code + " – " + cfg.titre, size: 16, color: "5F6670" })] })] }) },
+          new TextRun({ text: "   " + cfg.code + " – " + titre, size: 16, color: "5F6670" })] })] }) },
         footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [
           new TextRun({ text: "FIP Études – outil d'aide, résultats à vérifier par un ingénieur qualifié – page ", size: 14, color: "5F6670" }),
           new TextRun({ children: [PageNumber.CURRENT], size: 14, color: "5F6670" }), new TextRun({ text: " / ", size: 14, color: "5F6670" }),
@@ -178,7 +179,7 @@ const EXPORT = (() => {
         children: enfants,
       }],
     });
-    telecharger(await D.Packer.toBlob(doc), nomFichier("docx"));
+    telecharger(await D.Packer.toBlob(doc), o.fichier ? propre(o.fichier) + "_" + new Date().toISOString().slice(0, 10) + ".docx" : nomFichier("docx"));
   }
 
   /* ---------- données d'entrée (libellé → valeur) ---------- */
@@ -262,5 +263,7 @@ const EXPORT = (() => {
     const bW = mk("📄 Word", "#2b579a", "word"), bX = mk("📊 Excel", "#217346", "excel");
     if (imp) { imp.before(bW, bX); } else document.body.prepend(bW, bX);
   }
-  return { init, _cellule: cellule };
+  /* export Word d'un élément donné (note de calcul…) */
+  async function wordDe(el, o = {}) { await charger("lib/docx/docx.iife.js"); await word({ zones: () => [el], titre: o.titre, fichier: o.fichier }); }
+  return { init, wordDe, _cellule: cellule };
 })();

@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.31"></script>
+<script src="../commun/auth.js?v=2.32"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.31">
+<link rel="stylesheet" href="../commun/calc.css?v=2.32">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.31"></script>
-<script src="../commun/data/tuyauterie.js?v=2.31"></script>
-<script src="../commun/acier.js?v=2.31"></script>
-<script src="../commun/barres3d.js?v=2.31"></script>
-<script src="../commun/dessin.js?v=2.31"></script>
-<script src="../commun/coefvent.js?v=2.31"></script>
-<script src="../commun/cahier.js?v=2.31"></script>
+<script src="../commun/data/profils.js?v=2.32"></script>
+<script src="../commun/data/tuyauterie.js?v=2.32"></script>
+<script src="../commun/acier.js?v=2.32"></script>
+<script src="../commun/barres3d.js?v=2.32"></script>
+<script src="../commun/dessin.js?v=2.32"></script>
+<script src="../commun/coefvent.js?v=2.32"></script>
+<script src="../commun/cahier.js?v=2.32"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -221,8 +221,17 @@
   <div class="card"><h2>Données de calcul</h2><div id="rData"></div></div>
   <div class="card"><details><summary>Combinaisons d'actions générées</summary><div id="rComb"></div></details></div>
   <div class="card"><h2>Hypothèses et limites</h2><div id="rNotes"></div></div>
+  <div class="card noprint"><h2>Note de calcul</h2><div id="ndcOpts"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" id="ndcVoir">👁 Aperçu</button><button type="button" id="ndcWord" style="background:#2b579a;border-color:#2b579a">📄 Word</button><button type="button" id="ndcImp" class="sec">🖨 Imprimer / PDF</button></div>
+    <div class="note">Note simplifiée : une page (vue, synthèse des taux, profilés, actions, DDC ELU). Note complète ou personnalisée : sections au choix. Export Word sur trame générique, en attendant la trame FIP.</div></div>
 </section>
 </main>
+<div id="ndcModal" class="noprint" hidden style="position:fixed;inset:0;background:rgba(10,20,40,.5);z-index:60;overflow:auto">
+  <div style="background:#fff;max-width:880px;margin:18px auto;padding:14px 18px;border-radius:8px">
+    <div style="display:flex;gap:6px;justify-content:flex-end;position:sticky;top:0;background:#fff;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:8px">
+      <button type="button" onclick="$('ndcWord').click()" style="background:#2b579a;border-color:#2b579a">📄 Word</button><button type="button" class="sec" onclick="$('ndcImp').click()">🖨 Imprimer</button><button type="button" class="sec" onclick="$('ndcModal').hidden=true">✕ Fermer</button></div>
+    <div id="ndcCorps"></div></div></div>
+<div id="ndcHors" aria-hidden="true" style="position:absolute;left:-12000px;top:0;width:760px;background:#fff"></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -478,7 +487,7 @@ function stabilite(p,R,Lcr){
   else{const cb=courbes(p),ly=Lcr/(p.iy/100)/l1,lz=Lcr/(p.iz/100)/l1,cy=chi(ly,cb.y).chi,cz=chi(lz,cb.z).chi;lam=cz<cy?lz:ly;alpha=cz<cy?cb.z:cb.y;courbe=cz<cy?cb.cz+' (axe z)':cb.cy+' (axe y)';}
   const chiN=chi(lam,alpha).chi; let chiLT=1,mcr=Infinity,lamLT=0;
   if(!R.isL&&!R.tube&&p.Iw){mcr=Mcr(p,Lcr,1,0,0);lamLT=Math.sqrt(R.MyRk/mcr);chiLT=lamLT<=0.2?1:chi(lamLT,courbes(p).lt).chi;}
-  return {lam,chiN,courbe,chiLT,mcr,lamLT,Lcr};
+  return {lam,chiN,courbe,chiLT,mcr,lamLT,Lcr,alpha,l1};
 }
 
 /* =====================================================================
@@ -1413,10 +1422,12 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.31"></script>
-<script src="../commun/aide.js?v=2.31"></script>
-<script src="aide-s1.js?v=2.31"></script>
-<script src="../commun/export.js?v=2.31"></script>
+<script src="../commun/replier.js?v=2.32"></script>
+<script src="../commun/aide.js?v=2.32"></script>
+<script src="aide-s1.js?v=2.32"></script>
+<script src="ndc-s1.js?v=2.32"></script>
+<script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
+<script src="../commun/export.js?v=2.32"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
