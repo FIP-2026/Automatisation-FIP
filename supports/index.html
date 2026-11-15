@@ -1167,7 +1167,7 @@ function specDessin(D,V,opt={}){
   if(opt.ddc){ const env=Array.isArray(opt.ddc)?opt.ddc:enveloppe(V).map(E=>({lib:E.a.lib,ELU:E.ELU.map(e=>e.v),SIS:V.res.some(r=>r.c.type==='Sismique')?E.SIS.map(e=>e.v):null}));
     appuisL=Gm.appuis.map((a,i)=>({p:a.pt,n:'A'+(i+1),vues:['face']}));
     const fv=v=>f(v,2), rows=[]; env.forEach((E,i)=>{ rows.push(['A'+(i+1),'ELU',...E.ELU.map(fv)]); if(E.SIS) rows.push(['','Sism.',...E.SIS.map(fv)]); });
-    tableaux.push({titre:'Descente de charges sur l\'ouvrage – repère SCU (par support) – prédimensionnement, non valable pour exécution',cols:['Appui','Comb.','Fx (kN)','Fy (kN)','Fz (kN)','Mx (kN·m)','My (kN·m)','Mz (kN·m)'],larg:[0.9,0.9,1,1,1,1.1,1.1,1.1],rows,
+    tableaux.push({titre:'Descente de charges sur l\'ouvrage – repère SCU, par support (prédimensionnement)',cols:['Appui','Comb.','Fx (kN)','Fy (kN)','Fz (kN)','Mx (kN·m)','My (kN·m)','Mz (kN·m)'],larg:[0.9,0.9,1,1,1,1.1,1.1,1.1],rows,
       note:`${env.map((E,i)=>'A'+(i+1)+' : '+E.lib).join(' ; ')}. Efforts du support sur l'ouvrage, enveloppes non concomitantes ; Fz < 0 : descendant.`}); }
   if(opt.tableau) tableaux.push(opt.tableau);
   const phase=opt.phase||(CAHIER.existe()?(CAHIER.lire().affaire.phase||'APS'):'APS/APD');

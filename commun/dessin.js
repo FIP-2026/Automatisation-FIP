@@ -136,9 +136,12 @@ const DESSIN = (() => {
     const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
     const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
-    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 5 + 4.5 + 2.5 + (t.note ? 3.2 : 0), 0), hTp = spec.statut ? 15 : 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
+    const coupeTxt = (t, n) => { const L = []; let l = ""; String(t).split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
+    const ncTab = Math.floor(wB / 1.38);
+    tabs.forEach((t) => { t._note = t.note ? coupeTxt(t.note, ncTab) : []; });
+    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 6 + 5.5 + 2.5 + t._note.length * 3.4, 0), hTp = 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
     const bloc = { x0: zx1 - wB, y0: zy1 - hB, x1: zx1, y1: zy1 };
-    const tampon = spec.statut ? { x0: bloc.x0, y0: bloc.y0, x1: bloc.x1, y1: bloc.y0 + hTp - 2 } : null;   // « non valable pour exécution » : en tête du bloc cartouche
+    const tampon = null;                                                                       // (bandeau de phase supprimé : phase au cartouche + filigrane)
     const coupeR = (R, B) => B && R[0] < B.x1 && R[2] > B.x0 && R[1] < B.y1 && R[3] > B.y0;
     const lignesNotes = [], ncN = Math.max(30, Math.floor((bloc.x0 - zx0 - 6) / 1.35));      // notes coupées à la largeur disponible
     (spec.notes || []).forEach((n) => { let l = ""; String(n).split(" ").forEach((m) => { if ((l + " " + m).trim().length > ncN) { lignesNotes.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) lignesNotes.push(l.trim()); });
@@ -191,11 +194,8 @@ const DESSIN = (() => {
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
     s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
     [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; });   // repères de centrage
-    if (spec.statut) { const T = tampon, ph = spec.statut.phase || "APS/APD";
-      s += `<text data-c="FILIGRANE" x="${PW / 2}" y="${PH / 2}" font-family="${F}" font-size="${(PW * 0.034).toFixed(1)}" font-weight="700" fill="#000" fill-opacity="0.06" text-anchor="middle" transform="rotate(-25 ${PW / 2} ${PH / 2})">PHASE ${esc(ph)} – NON VALABLE POUR EXÉCUTION</text>`;
-      s += `<rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
-        txt((T.x0 + T.x1) / 2, T.y0 + 6.2, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: 4.2, b: 1 }) +
-        txt((T.x0 + T.x1) / 2, T.y0 + 10.6, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: 2.2 }); }
+    if (spec.statut) { const ph = spec.statut.phase || "APS/APD";   // filigrane (pas de bandeau : la phase figure au cartouche)
+      s += `<text data-c="FILIGRANE" x="${PW / 2}" y="${PH / 2}" font-family="${F}" font-size="${(PW * 0.034).toFixed(1)}" font-weight="700" fill="#000" fill-opacity="0.06" text-anchor="middle" transform="rotate(-25 ${PW / 2} ${PH / 2})">PHASE ${esc(ph)} – NON VALABLE POUR EXÉCUTION</text>`; }
     place.forEach(({ V, x, y, w, h }) => {
       const X = (u) => x + (V.mu(u) - V.u0) * k, Y = (v) => y + (V.v1 - V.mv(v)) * k, P = (p) => [X(dot(p, V.u)), Y(dot(p, V.v))], dans = (o) => !o.vues || o.vues.includes(V.id);
       let g = "";
@@ -259,13 +259,13 @@ const DESSIN = (() => {
     let yb = bloc.y0 + hTp;
     const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
     tabs.forEach((tab) => {
-      const hl = 5, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
-      s += txt(bloc.x0, yb + 3.5, tab.titre || "Tableau", { h: 3, b: 1 }); yb += 4.5;
+      const hl = 6, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
+      s += txt(bloc.x0, yb + 4, tab.titre || "Tableau", { h: 3.5, b: 1 }); yb += 5.5;
       s += `<rect x="${bloc.x0}" y="${yb}" width="${wB}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
-      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + 3.5, c, { a: "middle", h: 2.3, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
-      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + 3.5, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: 2.3, b: tab.gras && tab.gras(j, i) }); }); });
+      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + 4.1, c, { a: "middle", h: 2.8, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
+      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + 4.1, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: 2.8, b: tab.gras && tab.gras(j, i) }); }); });
       yb += hl * (tab.rows.length + 1) + 2.5;
-      if (tab.note) { s += txt(bloc.x0, yb + 1.2, tab.note, { h: 2 }); yb += 3.2; }
+      tab._note.forEach((l) => { s += txt(bloc.x0, yb + 1.8, l, { h: 2.5 }); yb += 3.4; });
     });
     // nomenclature (repères numérotés de bas en haut, en-tête en bas, au-dessus du cartouche)
     if (nom.length) {
