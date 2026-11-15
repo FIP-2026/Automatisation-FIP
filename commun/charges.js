@@ -102,8 +102,7 @@ const CH = (() => {
   /* charges horizontales sur garde-corps et parois : Tab. 6.12(NF) (valeurs à vérifier sur l'AN), industrie NF EN ISO 14122-3 */
   const GARDE_CORPS = [
     ["A", "Catégorie A (habitation)", 0.6, "Tab. 6.12(NF)"], ["B", "Catégories B et C1", 0.6, "Tab. 6.12(NF)"], ["C", "Catégories C2 à C4 et D", 1.0, "Tab. 6.12(NF)"], ["C5", "Catégorie C5 (foules)", 3.0, "Tab. 6.12(NF)"], ["E", "Catégorie E (stockage) – minimum", 2.0, "Tab. 6.12(NF) NOTE 1 : valeur minimale selon la destination"],
-    ["P01", "Garde-corps de bâtiment – NF P 01-012 (valeur de la norme à saisir)", null, "NF P 01-012", true], ["E85", "Garde-corps industriel – NF E 85-015 (valeur de la norme à saisir)", null, "NF E 85-015", true],
-    ["ISO", "Accès aux machines – NF EN ISO 14122-3", 0.3, "NF EN ISO 14122-3", true], ["perso", "Valeur du projet", null, "Cahier des charges"],
+    ["P01", "Garde-corps de bâtiment – NF P 01-012 (valeur de la norme à saisir)", null, "NF P 01-012", true], ["ISO", "Garde-corps industriel / accès aux machines – NF E 85-015 et NF EN ISO 14122-3 (30 daN/m)", 0.3, "NF E 85-015 (renvoi NF EN ISO 14122-3) : 30 daN/m", true], ["perso", "Valeur du projet", null, "Cahier des charges"],
   ].map(([c, n, q, ref, verif]) => ({ c, n, q, ref, verif: !!verif }));
   /* AN §6.3.1.2(10) et (11) : coefficients de réduction (non simultanés, AN §6.2) */
   const ALPHA_A = ["A", "A-esc", "A-bal", "B", "C3", "D1", "F"], ALPHA_N = { A: [0.5, 1.36], "A-esc": [0.5, 1.36], "A-bal": [0.5, 1.36], B: [0.7, 0.8], F: [0.7, 0.8] };
@@ -195,7 +194,7 @@ const CH = (() => {
   }
   function noteQ(Q, niv) {
     if (!Q) return "<p><i>Charges d'exploitation non renseignées (outil Q1).</i></p>";
-    const z = (Q.zones || []).filter((c) => c.note !== false), gc = (Q.gardecorps || []).filter((c) => c.note !== false);
+    const z = (Q.zones || []).filter((c) => c.note !== false), gc = (Q.gardecorps || []).filter((c) => c.note !== false).map((g) => (g.cat === "E85" ? { ...g, cat: "ISO", q: g.q ?? 0.3 } : g));   // E85 : fusionnée avec ISO en 2.41
     let h = `<p>Charges d'exploitation selon la NF EN 1991-1-1 et son annexe nationale (NF EN 1991-1-1/NA)${z.some((x) => x.cat === "PASS") ? " et la NF EN ISO 14122 pour les accès industriels" : ""}. Les charges concentrées Q<sub>k</sub> ne se cumulent pas avec les charges réparties q<sub>k</sub> (§6.3.1.2(5)) ; elles servent aux vérifications locales.</p>`;
     if (z.length) { h += `<h3>Charges réparties et concentrées</h3>`;
       if (niv === "simple") h += `<ul>${z.map((x) => { const c = CAT_Q.find((k) => k.c === x.cat) || {}; const aA = alphaA(x.cat, +x.A); return `<li><b>${esc(x.nom)}</b> (${esc(c.n || x.cat)}) : q<sub>k</sub> = <b>${fx(+x.qk + (+x.cl || 0), 2)} kN/m²</b>${+x.cl ? ` dont cloisons ${fx(+x.cl, 1)}` : ""}${aA < 1 ? ` (α<sub>A</sub> = ${fx(aA, 3)} pour A = ${fx(+x.A, 1)} m² : ${fx(aA * x.qk, 2)} kN/m²)` : ""} ; Q<sub>k</sub> = ${fx(+x.Qk, 1)} kN (${esc(c.aire || "")}) ; ψ<sub>0</sub>/ψ<sub>1</sub>/ψ<sub>2</sub> = ${(c.psi || []).map((v) => fx(v, 1)).join(" / ")}.</li>`; }).join("")}</ul>`;
