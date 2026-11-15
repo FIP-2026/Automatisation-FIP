@@ -4,15 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.33"></script>
+<script src="../commun/auth.js?v=2.34"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.33">
-<script src="../commun/acier.js?v=2.33"></script>
-<script src="../commun/cahier.js?v=2.33"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.34">
+<script src="../commun/acier.js?v=2.34"></script>
+<script src="../commun/cahier.js?v=2.34"></script>
+<script src="../commun/dessin.js?v=2.34"></script>
 <style>
   .logoAff{max-height:48px;max-width:160px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff}
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:5px 10px;font-size:12px}
@@ -100,7 +101,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.33"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.34"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -109,6 +110,14 @@
     <div id="etat"></div>
     <div id="rGestion"></div>
   </div>
+  <div class="card noprint" id="cSorties"><h2>Notes de calcul et plans DXF</h2>
+    <div class="row"><div><label>Note de calcul</label><select id="ndcNivCS"><option value="simple">Simplifiée (1 page par support)</option><option value="complet">Complète</option></select></div>
+      <div><label>Configurations</label><select id="ndcConfCS"><option value="pire">La plus sollicitée de chaque type</option><option value="toutes">Toutes les configurations</option></select></div></div>
+    <div class="row"><div><label>Descente de charges</label><select id="ndcDdcCS"><option value="les2">Cas simples + ELU</option><option value="elu">ELU (enveloppes)</option><option value="cas">Cas simples</option></select></div>
+      <div><label>Critères</label><select id="ndcFormCS"><option value="detail">Formules détaillées</option><option value="resume">Résumé des taux</option></select></div></div>
+    <div class="actions"><button type="button" id="ndcWordCS" style="background:#2b579a;border-color:#2b579a">📄 Notes de calcul (Word)</button><button type="button" class="sec" id="ndcPdfCS">🖨 Notes de calcul (PDF)</button><button type="button" class="sec" id="dxfCS" title="Une planche par support type, côte à côte dans un seul fichier (DXF R12, mm, calques ISO)">⬇ Plans DXF</button></div>
+    <div class="note">Une note par support type (configuration la plus sollicitée) ou par configuration ; plans DXF au format choisi dans « Présentation des plans types » (A3 par défaut), avec tableau des configurations et DDC si une section DDC est cochée.</div></div>
+  <div id="ndcHorsCS" aria-hidden="true" style="position:absolute;left:-12000px;top:0;width:760px;background:#fff"></div>
   <div class="card" id="secCart"><h2>Identification</h2><div id="rCartouche"></div></div>
   <div class="card" id="secListing"><h2>Listing des repères</h2><div id="rListing"></div></div>
   <div class="card" id="secBom"><h2>Nomenclature générale (BOM)</h2><div id="rBom"></div></div>
@@ -121,7 +130,7 @@
 <script>
 const $=id=>document.getElementById(id), h=escH, f=(x,d=2)=>fmtN(typeof x==="number"&&Math.abs(x)<0.5*10**-d?0:x,d);
 let K=CAHIER.lire(), IMG={};
-const enr=()=>CAHIER.ecrire(K);
+const enr=()=>CAHIER.ecrire({...K,types:K.types.map(T=>T.vues&&T.vues.planche?{...T,vues:{...T.vues,planche:null}}:T)});   // planches non stockées (taille) : régénérées à la demande
 const BADGE={ok:'<span class="badge b-ok">✅ conforme</span>',jaune:'<span class="badge b-jaune">⚠ à surveiller</span>',ko:'<span class="badge b-bad">⛔ non vérifié</span>',nc:'<span class="badge b-nc">○ non calculé</span>',spe:'<span class="badge b-spe">spécial</span>'};
 const COMP=['F<sub>x</sub>','F<sub>y</sub>','F<sub>z</sub>','M<sub>x</sub>','M<sub>y</sub>','M<sub>z</sub>'], thC=COMP.map((c,i)=>`<th class="n">${c} (${i<3?'kN':'kNm'})</th>`).join('');
 const CAS={G:'G (poids propre + tuyaux)',T:'T (frottement / dilatation)',S:'S (neige)',WY:'W<sub>Y</sub> (vent ⊥ tuyaux)',WX:'W<sub>X</sub> (vent ∥ tuyaux)',EP:'E<sub>P</sub> (épreuve)',EX:'E<sub>X</sub> (séisme)',EY:'E<sub>Y</sub> (séisme)'};
@@ -192,7 +201,7 @@ let api=null;
 function moteur(){
   if(api) return Promise.resolve(api);
   return new Promise((ok,ko)=>{ const fr=$('iframeS1'), t0=Date.now();
-    fr.src='../supports/?moteur=1&v=2.33';
+    fr.src='../supports/?moteur=1&v=2.34';
     const att=()=>{ try{ const w=fr.contentWindow; if(w&&w.S1API&&w.document.readyState==='complete'){ api=w.S1API; return ok(api);} }catch(e){ return ko(e); }
       if(Date.now()-t0>20000) return ko(new Error('S1 ne répond pas')); setTimeout(att,150); };
     setTimeout(att,300); });
@@ -210,12 +219,38 @@ async function recalculer(avecImages){
     T.resume=T.configs[0].resume;
     if(md!=='schema'){ A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})});                     // planche dessinée sur la 1re configuration, DDC = enveloppe des configurations
     const a=K.affaire, defs=A.cotes().filter(d=>d.id!=='zsol'), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
-    T.vues=A.vues(md==='schema'?{}:{indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
-      ddc:avecDDC?envType(T):null,phase:a.phase||'APS',tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}});
+    T.vues=A.vues(md==='schema'?{}:argsPlanche(T,A,md));
     }
   }
   K.aRecalc=false; enr(); $('etat').innerHTML=''; tout();
 }
+function argsPlanche(T,A,md){
+    const a=K.affaire, defs=A.cotes().filter(d=>d.id!=='zsol'), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
+    return {indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
+      ddc:avecDDC?envType(T):null,phase:a.phase||'APS',tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}};
+}
+/* ---------- sorties : notes de calcul et plans DXF ---------- */
+const typesS1=()=>K.types.filter(T=>T.kind==='s1'&&T.etat);
+async function notesCS(){
+  const L=typesS1(); if(!L.length) throw new Error('aucun support type calculé');
+  if(K.aRecalc||L.some(T=>T.configs.some(c=>!c.resume))) await recalculer(false);
+  const A=await moteur(), o={niveau:$('ndcNivCS').value,ddc:$('ndcDdcCS').value,formules:$('ndcFormCS').value}, P=[]; let i=0;
+  for(const T of L){ A.charger(T.etat);
+    const confs=$('ndcConfCS').value==='toutes'?T.configs:[T.configs.reduce((a,c)=>(c.resume?.taux||0)>(a.resume?.taux||0)?c:a,T.configs[0])];
+    for(const c of confs){ $('etat').innerHTML=`<div class="msg info">⏳ Note ${++i} : ${h(repere(T,c))}…</div>`; A.appliquerCotes({...T.cotes0,...(c.cotes||{})});
+      P.push(await A.ndc({...o,ident:{repere:repere(T,c),qte:+c.qte||0,lignes:c.lignes||''}})); } }
+  $('etat').innerHTML=''; return {html:P.map((x,k)=>(k?'<div class="saut" style="break-before:page"></div>':'')+x).join(''),css:A.ndcCSS()};
+}
+$('ndcWordCS').onclick=()=>occupe($('ndcWordCS'),async()=>{ const N=await notesCS(), z=$('ndcHorsCS'); z.innerHTML=`<style>${N.css}</style><div>${N.html}</div>`;
+  try{ await EXPORT.wordDe(z.lastElementChild,{titre:'Notes de calcul – '+(CAHIER.libAffaire(K.affaire)||'cahier de supportage'),fichier:'NDC_'+(K.affaire.doc||K.affaire.num||'cahier')}); } finally{ z.innerHTML=''; } });
+$('ndcPdfCS').onclick=()=>occupe($('ndcPdfCS'),async()=>{ const N=await notesCS(), w=window.open('','_blank'); if(!w) return;
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Notes de calcul</title><link rel="stylesheet" href="../commun/calc.css"><style>${N.css}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body>${N.html}</body></html>`); w.document.close(); setTimeout(()=>w.print(),600); });
+$('dxfCS').onclick=()=>occupe($('dxfCS'),async()=>{ const L=typesS1(); if(!L.length) throw new Error('aucun support type calculé');
+  if(K.aRecalc||L.some(T=>T.configs.some(c=>!c.resume))) await recalculer(false);
+  const A=await moteur(), md=(K.rapport.plans&&K.rapport.plans!=='schema')?K.rapport.plans:'A3', pages=[];
+  for(const T of L){ $('etat').innerHTML=`<div class="msg info">⏳ Plan ${h(T.nom)}…</div>`; A.charger(T.etat); A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})}); pages.push({svg:A.plancheVec(argsPlanche(T,A,md))}); }
+  $('etat').innerHTML=''; const o=DESSIN.dxf(pages), a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([o],{type:'application/dxf'}));
+  a.download=`Plans_${String(K.affaire.doc||K.affaire.num||'cahier').replace(/[^\w-]+/g,'_')}_${md}.dxf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); });
 const occupe=async(b,fn)=>{ b.disabled=true; try{ await fn(); }catch(e){ alert('Calcul impossible : '+e.message); } finally{ b.disabled=false; } };
 $('recalc').onclick=()=>occupe($('recalc'),()=>recalculer(false));
 $('genFiches').onclick=()=>occupe($('genFiches'),()=>recalculer(true));
@@ -230,7 +265,7 @@ function nouveauType(kind){
   K.types.push(T); enr(); tout();
 }
 $('addNC').onclick=()=>nouveauType('s1'); $('addSPE').onclick=()=>nouveauType('spe');
-const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.33`;
+const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.34`;
 function gestion(){
   if(!K.types.length){ $('rGestion').innerHTML='<div class="msg info">Cahier vide. « ➕ Type calculé (S1) » : créer le support dans S1 puis « Ajouter au cahier ». « ➕ Type à calculer » : réserver un type et ses quantités, à calculer plus tard. « ➕ Support spécial » : support dessiné à part, compté dans la BOM.</div>'; etatRecalc(); return; }
   $('rGestion').innerHTML=K.types.map((T,ti)=>{
@@ -397,10 +432,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 demarrer();
 </script>
-<script src="../commun/replier.js?v=2.33"></script>
-<script src="../commun/aide.js?v=2.33"></script>
-<script src="aide-cs.js?v=2.33"></script>
-<script src="../commun/export.js?v=2.33"></script>
+<script src="../commun/replier.js?v=2.34"></script>
+<script src="../commun/aide.js?v=2.34"></script>
+<script src="aide-cs.js?v=2.34"></script>
+<script src="../commun/export.js?v=2.34"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>

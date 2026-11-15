@@ -45,7 +45,7 @@ function ndcUI() {
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escH(ndcTitre())}</title><link rel="stylesheet" href="../commun/calc.css"><style>${NDC_CSS}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body>${el.outerHTML}</body></html>`);
     w.document.close(); $("ndcHors").innerHTML = ""; setTimeout(() => w.print(), 500); };
 }
-const ndcTitre = () => (NDC.niveau === "simple" ? "Note de calcul simplifiée" : "Note de calcul") + " – support " + ($("repere").value || "");
+const ndcTitre = () => (NDC.niveau === "simple" ? "Note de calcul simplifiée" : "Note de calcul") + " – support " + ((NDC.ident && NDC.ident.repere) || $("repere").value || "");
 const NDC_CSS = `.ndc{font-size:12.5px;line-height:1.45;color:#171a1e;max-width:190mm;margin:auto}.ndc h1{font-size:19px;color:#114088;margin:0 0 6px}.ndc h2{font-size:15px;color:#114088;border-left:4px solid #e30009;padding-left:8px;margin:16px 0 6px}
   .ndc h3{font-size:13px;margin:10px 0 4px}.ndc table{width:100%;border-collapse:collapse;margin:4px 0 8px}.ndc td,.ndc th{border:1px solid #d5dae1;padding:3px 6px;vertical-align:top;font-size:12px}.ndc th{background:#eef1f5;text-align:left}
   .ndc .n{text-align:right;white-space:nowrap}.ndc .ok{color:#1d7a36;font-weight:700}.ndc .ko{color:#c0141c;font-weight:700}.ndc .lay,.ndc .lay>tbody>tr>td{border:0;padding:0 4px}.ndc svg{max-width:100%;height:auto}
@@ -57,8 +57,9 @@ const z0 = (v) => (Math.abs(v) < 0.005 ? 0 : v);
 const ok = (r) => r <= 1 ? `<span class="ok">✔ ${f(r * 100, 0)} %</span>` : `<span class="ko">✘ ${f(r * 100, 0)} %</span>`;
 function ndcIdent(D, V) {
   const K = CAHIER.existe() ? CAHIER.lire().affaire : {}, ph = K.phase || "APS/APD";
-  const L = [["Affaire", CAHIER.libAffaire ? (CAHIER.libAffaire(K) || $("affaire").value || "—") : ($("affaire").value || "—"), "Support", `${$("repere").value || "—"} – ${TYPES[D.typ].n}`],
-    ["Client / site", [K.client, K.site].filter(Boolean).join(" – ") || "—", "Quantité", $("qte").value || "1"], ["Lignes / isométrique", $("zone").value || "—", "Phase", ph],
+  const I = NDC.ident || {};
+  const L = [["Affaire", CAHIER.libAffaire ? (CAHIER.libAffaire(K) || $("affaire").value || "—") : ($("affaire").value || "—"), "Support", `${I.repere || $("repere").value || "—"} – ${TYPES[D.typ].n}`],
+    ["Client / site", [K.client, K.site].filter(Boolean).join(" – ") || "—", "Quantité", String(I.qte ?? ($("qte").value || "1"))], ["Lignes / isométrique", I.lignes || $("zone").value || "—", "Phase", ph],
     ["Rédacteur", $("auteur").value || K.realise || "—", "Date", new Date().toLocaleDateString("fr-FR")]];
   return `<table>${L.map((r) => `<tr><th style="width:18%">${r[0]}</th><td>${escH(r[1])}</td><th style="width:16%">${r[2]}</th><td>${escH(r[3])}</td></tr>`).join("")}</table>`;
 }

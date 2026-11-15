@@ -87,6 +87,7 @@ const EXPORT = (() => {
       const vider = () => { if (enCours.some((r) => r)) out.push(new Paragraph({ children: enCours, spacing: { after: 60 }, ...(opt.para || {}) })); enCours = []; };
       for (const n of el.childNodes) {
         if (n.nodeType === 1 && ignorer(n)) continue;
+        if (n.nodeType === 1 && n.classList.contains("saut")) { vider(); out.push(new Paragraph({ pageBreakBefore: true, children: [] })); continue; }   // saut de page (notes successives)
         if (!estBloc(n)) { enCours.push(...runs(n, opt.fmt || {})); continue; }
         vider();
         const tag = n.tagName.toUpperCase();
@@ -139,7 +140,7 @@ const EXPORT = (() => {
     const titre = o.titre || cfg.titre;
     if (!o.zones) enfants.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }));
     // cartouche d'affaire (cahier de supportage) — provisoire, en attendant la trame Word FIP
-    let aff = null; try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }
+    let aff = null; if (!o.zones) try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }
     let logoClient = null, dimLogo = { width: 64, height: 32 };
     if (aff) {
       if (aff.logo) await new Promise((ok) => { const im = new Image(); im.onload = () => { dimLogo = { width: Math.min(140, Math.round(32 * im.naturalWidth / im.naturalHeight)), height: 32 }; ok(); }; im.onerror = ok; im.src = aff.logo; });
