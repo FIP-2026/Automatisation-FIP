@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.37"></script>
+<script src="../commun/auth.js?v=2.38"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.37">
-<script src="../commun/apps.js?v=2.37"></script>
-<script src="../commun/barres3d.js?v=2.37"></script>
-<script src="../commun/acier.js?v=2.37"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.38">
+<script src="../commun/apps.js?v=2.38"></script>
+<script src="../commun/barres3d.js?v=2.38"></script>
+<script src="../commun/acier.js?v=2.38"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -114,7 +114,7 @@
 <p class="ref">Références : NF EN 1993-1-1 §5.5, §6.2, §6.3.1, §6.3.2 + AN ; NCCI SN003.</p>
 </article>
 
-<article class="card" id="c1"><div class="theme">C1 – Climat et charges</div><h2>6. C1 – Vent, neige, séisme, coefficients</h2>
+<article class="card" id="c1"><div class="theme">C1 · G1 · Q1 · NH – Charges et hypothèses</div><h2>6. Charges : C1 climat et séisme, G1, Q1, note d'hypothèses</h2>
 <h3 id="c1-vent">6.1 Vent (NF EN 1991-1-4 + AN)</h3>
 <div class="form">v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> (4.1) ; v<sub>b,0</sub> = 22 / 24 / 26 / 28 m/s (zones 1 à 4, AN fig. 4.3(NA)) ; q<sub>b</sub> = ½·ρ·v<sub>b</sub>², ρ = 1,225 kg/m³<br>k<sub>r</sub> = 0,19·(z<sub>0</sub>/0,05)<sup>0,07</sup> ; c<sub>r</sub>(z) = k<sub>r</sub>·ln(max(z, z<sub>min</sub>)/z<sub>0</sub>) (4.4, 4.5)<br>v<sub>m</sub>(z) = c<sub>r</sub>(z)·c<sub>o</sub>(z)·v<sub>b</sub> (4.3) ; I<sub>v</sub>(z) = k<sub>I</sub>/ln(max(z, z<sub>min</sub>)/z<sub>0</sub>) (4.7 + AN 4.20-NA)<br>q<sub>p</sub>(z) = [1 + 7·I<sub>v</sub>(z)]·½·ρ·v<sub>m</sub>²(z) (4.8)</div>
 <table><tr><th>Catégorie</th><th>z<sub>0</sub> (m)</th><th>z<sub>min</sub> (m)</th><th>k<sub>I</sub></th></tr><tr><td>0</td><td>0,005</td><td>1</td><td>1,000</td></tr><tr><td>II</td><td>0,05</td><td>2</td><td>0,995</td></tr><tr><td>IIIa</td><td>0,20</td><td>5</td><td>0,970</td></tr><tr><td>IIIb</td><td>0,50</td><td>9</td><td>0,923</td></tr><tr><td>IV</td><td>1,0</td><td>15</td><td>0,854</td></tr></table>
@@ -129,6 +129,15 @@
 <div class="form">a<sub>g</sub> = γ<sub>I</sub>·a<sub>gr</sub> ; a<sub>gr</sub> = 0,4 / 0,7 / 1,1 / 1,6 / 3,0 m/s² (zones 1 à 5) ; γ<sub>I</sub> = 0,8 / 1,0 / 1,2 / 1,4 (cat. I à IV)<br>S<sub>e</sub>(T) : 0 ≤ T ≤ T<sub>B</sub> : a<sub>g</sub>S[1 + T/T<sub>B</sub>(2,5η − 1)] ; T<sub>B</sub>–T<sub>C</sub> : 2,5a<sub>g</sub>Sη ; T<sub>C</sub>–T<sub>D</sub> : ×T<sub>C</sub>/T ; &gt; T<sub>D</sub> : ×T<sub>C</sub>T<sub>D</sub>/T² (3.2–3.5), η = 1<br>S<sub>d</sub>(T) : idem avec 2,5/q, minoré par β·a<sub>g</sub>, β = 0,2 (3.13–3.16)<br>Vertical : a<sub>vg</sub>/a<sub>g</sub> = 0,8 (zones 1–4) / 0,9 (zone 5) ; T<sub>B</sub>, T<sub>C</sub>, T<sub>D</sub> = 0,03 / 0,20 / 2,5 s ou 0,15 / 0,40 / 2,0 s ; S<sub>ve</sub> : plateau 3,0·a<sub>vg</sub> (3.8–3.11) ; q<sub>v</sub> ≤ 1,5<br>T<sub>1</sub> = C<sub>t</sub>·H<sup>3/4</sup> (4.6) ; F<sub>b</sub> = S<sub>d</sub>(T<sub>1</sub>)·m·λ (4.5)<br>Éléments non structuraux : S<sub>a</sub> = α·S·[3(1 + z/H)/(1 + (1 − T<sub>a</sub>/T<sub>1</sub>)²) − 0,5] ≥ α·S (4.25) ; F<sub>a</sub> = S<sub>a</sub>·W<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub> (4.24)</div>
 <p>Classe de sol inconnue : enveloppe des spectres D et E. <b>Exemple</b> : zone 3, catégorie II, sol C (S = 1,5) → plateau S<sub>e</sub> = 1,1 × 1,5 × 2,5 = <b>4,125 m/s²</b> ; S<sub>d</sub> (q = 1,5) = 2,75 m/s².</p>
 <p class="ref">Références : NF EN 1991-1-4/NA, 1991-1-3/NA, 1998-1/NA ; arrêté du 22/10/2010 art. 4 (modifié le 08/09/2021) ; CNC2M (toitures isolées).</p>
+<h3 id="g1">6.5 G1 – Charges permanentes (NF EN 1991-1-1 + AN)</h3>
+<div class="form">Complexe (couverture, bardage, plancher) : g = (1 + m)·Σ g<sub>i</sub> ; couche définie par une épaisseur : g<sub>i</sub> = γ<sub>i</sub>·e<sub>i</sub> (γ en kN/m³, e en m) ; couche catalogue : g<sub>i</sub> surfacique (kN/m²) ; m = majoration (fixations, recouvrements)<br>Tuyauterie (linéique) : q = g·[π/4·(D² − d<sub>i</sub>²)·ρ<sub>acier</sub> + π/4·d<sub>i</sub>²·ρ<sub>fluide</sub> + π/4·((D + 2t<sub>c</sub>)² − D²)·ρ<sub>calo</sub>] (même base que T1)<br>Équipement : G = m<sub>vide</sub>·g (permanent) ; (m<sub>service</sub> − m<sub>vide</sub>)·g à classer par l'ingénieur (G ou Q selon la NF EN 1991-1-1 §2.1) ; charge par appui = G / n</div>
+<p>Poids volumiques : Annexe A de la NF EN 1991-1-1 (Tab. A.1 à A.12, valeurs moyennes ; pour les matériaux à plage, la valeur haute est retenue par défaut). <b>Le poids propre des éléments calculés n'est pas saisi dans G1</b> : il est ajouté automatiquement par chaque outil de calcul (S1 : profilés du support ; P1 : poids linéique de la poutre ; P2 : poids du poteau ajouté à N<sub>G</sub> ; T1 : tube). <b>Exemple</b> : DN100 (114,3 × 6,02) plein d'eau, sans calorifuge → 16,1 + 7,9 kg/m → <b>0,238 kN/m</b>.</p>
+<h3 id="q1">6.6 Q1 – Charges d'exploitation</h3>
+<table><tr><th>Catégorie</th><th>q<sub>k</sub> (kN/m²)</th><th>Q<sub>k</sub> (kN)</th><th>Référence</th></tr><tr><td>A planchers / escaliers / balcons</td><td>1,5 / 2,5 / 3,5</td><td>2,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>B bureaux</td><td>2,5</td><td>4,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>C1 à C5</td><td>2,5 / 4,0 / 4,0 / 5,0 / 5,0</td><td>3,0 / 4,0 / 4,0 / 7,0 / 4,5</td><td>Tab. 6.2(NF)</td></tr><tr><td>D1 / D2 commerces</td><td>5,0 / 5,0</td><td>5,0 / 7,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>E1 stockage</td><td>7,5</td><td>7,0</td><td>Tab. 6.4</td></tr><tr><td>H toiture inaccessible (pente &lt; 15 %, étanchée / autres)</td><td>0,8 / 0</td><td>1,5</td><td>Tab. 6.10(NF)</td></tr><tr><td>Passerelle / plate-forme d'accès aux machines</td><td>2,0</td><td>1,5 (200 × 200 mm)</td><td>NF EN ISO 14122-2</td></tr></table>
+<p>q<sub>k</sub> et Q<sub>k</sub> ne se cumulent pas (§6.3.1.2(5)) ; cloisons mobiles (§6.3.1.2(8)) : 0,5 / 0,8 / 1,2 kN/m² selon le poids propre linéique (≤ 1 / ≤ 2 / ≤ 3 kN/m). Garde-corps : charge linéique horizontale à la main courante (Tab. 6.12(NF)) ; accès industriels : 0,3 kN/m minimum (NF EN ISO 14122-3). <b>Valeurs marquées « à vérifier » dans l'outil</b> (catégories F, G, garde-corps Tab. 6.12(NF)) : reprises de sources secondaires, à confronter au texte de l'AN avant qualification.</p>
+<h3 id="nh">6.7 NH – Note d'hypothèses</h3>
+<p>NH n'effectue pas de calcul : il assemble les données enregistrées par C1 (résultats vent, neige, séisme et synthèse), G1 et Q1, les hypothèses générales (durée d'utilisation NF EN 1990 Tab. 2.1(NF), classe de conséquences Annexe B, matériaux, γ<sub>M</sub>) et les combinaisons de la NF EN 1990 (éq. 6.10, 6.11b, 6.12b, 6.14b à 6.16b ; ψ Tab. A1.1 + AN). Trois modèles : simplifiée (rédigée), classique (tableaux et schémas), complète (plus le détail des calculs C1 et des formules G1 / Q1). Contrôle : vérifier la date des sources affichée et que le site de C1 est celui de l'affaire.</p>
+<p class="ref">Références : NF EN 1990/NA, NF EN 1991-1-1/NA (Tab. 6.2(NF), 6.4, 6.10(NF), 6.12(NF), Annexe A), NF EN ISO 14122-2 et -3.</p>
 </article>
 
 <article class="card" id="t1"><div class="theme">T1 – Tuyauterie</div><h2>7. T1 – Portée admissible des tuyauteries</h2>
@@ -240,6 +249,7 @@
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.38</td><td>C1, G1, Q1, NH</td><td>C1 limité au climat et au séisme ; complexes déplacés dans le nouvel outil G1 (même catalogue, Fa sismique de C1 lu dans G1) ; nouveaux outils Q1 et NH.</td><td>Aucun changement de formule ; vérifier les complexes saisis avant 2.38 (à ressaisir dans G1).</td></tr>
 <tr><td>2.37</td><td>S1</td><td>Nouveau type « Support en L plafonnier » ; entraxes de fixation par défaut 200 mm pour les montants / suspentes en tube (T, L, L plafonnier).</td><td>Nouveaux types et valeurs par défaut (pas de changement des formules).</td></tr>
 <tr><td>2.31</td><td>S1</td><td>Correction du facteur d'imperfection α des tubes (courbe c) et cornières (courbe b) : lu dans une mauvaise table depuis la v2.6, χ non numérique → taux de stabilité nul.</td><td class="ko">Stabilité des montants tubes et cornières non vérifiée entre v2.6 et v2.30 : recalculer les supports concernés.</td></tr>
 <tr><td>2.25</td><td>S1</td><td>Alerte « fixations sous le profilé ».</td><td>Avertissement de conception (pas de changement de taux).</td></tr>
@@ -284,6 +294,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.37"></script>
+<script src="../commun/replier.js?v=2.38"></script>
 </body>
 </html>

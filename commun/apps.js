@@ -9,7 +9,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.37";
+const CALC_VERSION = "v2.38";
 
 const CALC_CATEGORIES = [
   { id: "tuy", nom: "Tuyauterie", sousTitre: "Supportage, portées et descentes de charges · CODETI / EN 13480-3, ASME B31.3", couleur: "#e30009", marqueur: "●" },
@@ -204,8 +204,8 @@ const CALC_APPS = [
   },
   {
     code: "C1",
-    titre: "Hypothèses climatiques, sismiques et complexes",
-    description: "Localisation sur carte (adresse, altitude IGN), zones de vent / neige / sismicité, qp(z), sk et toiture, spectres et Fb, poids des complexes, synthèse pour la note de calcul.",
+    titre: "Charges climatiques et sismiques",
+    description: "Localisation sur carte (adresse, altitude IGN), zones de vent / neige / sismicité, qp(z), sk et toiture, spectres horizontal et vertical, Fb, synthèse pour la note d'hypothèses.",
     url: "climat/",
     categorie: "clim",
     normes: ["NF EN 1991-1-3", "NF EN 1991-1-4", "NF EN 1998-1", "Arrêté 22/10/2010"],
@@ -226,6 +226,60 @@ const CALC_APPS = [
   <path d="M236,168 L268,160 L300,172 L300,120 L262,130 L222,110 L214,140 Z" fill="#62b86a" stroke="#8a929c"/>
   <path d="M287,141 c0,-9 6,-14 6,-14 c0,0 6,5 6,14 a6,6 0 0 1 -12,0z" fill="#e30009"/><circle cx="293" cy="141" r="2.4" fill="#fff"/>
   <g font-size="9" font-weight="700"><rect x="176" y="18" width="20" height="13" fill="#f4f19a"/><text x="186" y="28" text-anchor="middle">A1</text><rect x="196" y="18" width="20" height="13" fill="#a7e3a3"/><text x="206" y="28" text-anchor="middle">B1</text><rect x="216" y="18" width="20" height="13" fill="#62b86a"/><text x="226" y="28" text-anchor="middle">B2</text></g>
+</svg>`,
+  },
+  {
+    code: "G1",
+    titre: "Charges permanentes",
+    description: "Complexes de couverture, bardage et plancher (coupe), réseaux et divers, garde-corps, tuyauteries pleines et calorifugées, équipements ponctuels, poids volumiques (Annexe A).",
+    url: "charges-permanentes/",
+    categorie: "clim",
+    normes: ["NF EN 1991-1-1", "Annexe A"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="40" y="60" width="320" height="10" fill="#9aa3ad"/><rect x="40" y="70" width="320" height="22" fill="#f4e7a1" stroke="#8a929c"/><rect x="40" y="92" width="320" height="6" fill="#5f6670"/>
+  <path d="M40,98 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6 l20,-6 l20,6" fill="none" stroke="#171a1e"/>
+  <text x="370" y="68" font-size="9">étanchéité</text><text x="370" y="85" font-size="9">isolant</text><text x="370" y="100" font-size="9">bac</text>
+  ${[...Array(9)].map((_, i) => `<line x1="${60 + i * 35}" y1="20" x2="${60 + i * 35}" y2="54" stroke="#114088" stroke-width="1.6"/><path d="M${55 + i * 35},48 l5,8 l5,-8z" fill="#114088"/>`).join("")}
+  <line x1="60" y1="20" x2="340" y2="20" stroke="#114088" stroke-width="1.6"/><text x="200" y="14" font-size="11" text-anchor="middle" fill="#114088" font-weight="700">g = Σ γ·e  (kN/m²)</text>
+  <circle cx="120" cy="150" r="18" fill="#cfd8e3" stroke="#171a1e"/><circle cx="120" cy="150" r="12" fill="#55a9e2"/><text x="150" y="154" font-size="10">tuyauterie pleine + calorifuge (kN/m)</text>
+  <rect x="270" y="132" width="40" height="30" fill="#e3e7ec" stroke="#171a1e"/><line x1="290" y1="112" x2="290" y2="130" stroke="#e30009" stroke-width="2"/><path d="M285,124 l5,8 l5,-8z" fill="#e30009"/><text x="318" y="152" font-size="10">CTA</text>
+</svg>`,
+  },
+  {
+    code: "Q1",
+    titre: "Charges d'exploitation",
+    description: "Catégories A à E, H, passerelles industrielles (ISO 14122), charges concentrées, cloisons mobiles, garde-corps, coefficients ψ.",
+    url: "charges-exploitation/",
+    categorie: "clim",
+    normes: ["NF EN 1991-1-1 + AN", "NF EN ISO 14122"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="40" y="110" width="320" height="12" fill="#cfd8e3" stroke="#171a1e"/>
+  ${[...Array(9)].map((_, i) => `<line x1="${60 + i * 35}" y1="66" x2="${60 + i * 35}" y2="104" stroke="#0098db" stroke-width="1.6"/><path d="M${55 + i * 35},98 l5,8 l5,-8z" fill="#0098db"/>`).join("")}
+  <line x1="60" y1="66" x2="340" y2="66" stroke="#0098db" stroke-width="1.6"/><text x="120" y="58" font-size="11" fill="#0098db" font-weight="700">q_k (kN/m²)</text>
+  <line x1="260" y1="20" x2="260" y2="104" stroke="#e30009" stroke-width="2.6"/><path d="M253,96 l7,10 l7,-10z" fill="#e30009"/><text x="270" y="34" font-size="11" fill="#e30009" font-weight="700">Q_k (kN)</text>
+  <line x1="340" y1="110" x2="340" y2="70" stroke="#171a1e" stroke-width="2"/><line x1="300" y1="80" x2="336" y2="80" stroke="#e30009" stroke-width="2"/><path d="M330,75 l8,5 l-8,5z" fill="#e30009"/>
+  <text x="40" y="150" font-size="10">A · B · C · D · E · H · passerelle ISO 14122 · garde-corps</text><text x="40" y="168" font-size="10" fill="#5f6670">ψ0 / ψ1 / ψ2 — NF EN 1990 Tab. A1.1 + AN</text>
+</svg>`,
+  },
+  {
+    code: "NH",
+    titre: "Note d'hypothèses",
+    description: "Rassemble C1, G1, Q1 et les hypothèses générales (durée d'utilisation, classe de conséquences, matériaux) ; combinaisons ; note simplifiée, classique ou complète, Word ou PDF.",
+    url: "note-hypotheses/",
+    categorie: "clim",
+    normes: ["NF EN 1990 + AN"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="130" y="10" width="140" height="178" fill="#fff" stroke="#8a929c"/><rect x="130" y="10" width="140" height="22" fill="#114088"/><text x="200" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">NOTE D'HYPOTHÈSES</text>
+  ${["1. Références","2. Générales","3. G – permanentes","4. Q – exploitation","5. Vent · neige · séisme","6. Combinaisons"].map((t, i) => `<rect x="140" y="${42 + i * 24}" width="4" height="12" fill="#e30009"/><text x="150" y="${52 + i * 24}" font-size="9" fill="#171a1e">${t}</text>`).join("")}
+  <g font-size="11" font-weight="700"><rect x="20" y="40" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="58" text-anchor="middle" fill="#114088">C1</text><rect x="20" y="84" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="102" text-anchor="middle" fill="#114088">G1</text><rect x="20" y="128" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="146" text-anchor="middle" fill="#114088">Q1</text></g>
+  <path d="M80,53 L128,80 M80,97 L128,97 M80,141 L128,114" stroke="#e30009" stroke-width="1.6" fill="none"/>
+  <g font-size="10" font-weight="700" fill="#fff"><rect x="300" y="60" width="70" height="24" rx="3" fill="#2b579a"/><text x="335" y="76" text-anchor="middle">Word</text><rect x="300" y="100" width="70" height="24" rx="3" fill="#e30009"/><text x="335" y="116" text-anchor="middle">PDF</text></g>
 </svg>`,
   },
   {

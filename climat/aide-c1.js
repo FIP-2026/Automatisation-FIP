@@ -1,8 +1,8 @@
-/* Aide de C1 — hypothèses climatiques, sismiques et complexes (contenu ; moteur : commun/aide.js) */
+/* Aide de C1 — charges climatiques et sismiques (contenu ; moteur : commun/aide.js) */
 AIDE.init({
   manuel: "c1",
-  titre: "Aide – C1 Hypothèses de charges",
-  intro: "C1 détermine les hypothèses de charges du projet : vent, neige, séisme, coefficients aérodynamiques et complexes de couverture et de bardage. L'onglet <b>Synthèse</b> constitue la note d'hypothèses (impression, Word, Excel). Le bouton « ➜ Supports S1 » transmet les hypothèses aux supports et au cahier.",
+  titre: "Aide – C1 Charges climatiques et sismiques",
+  intro: "C1 détermine les hypothèses de charges du projet : vent, neige, séisme et coefficients aérodynamiques. Les complexes de couverture, de bardage et de plancher sont désormais saisis dans <b>G1 Charges permanentes</b> (C1 en reprend le poids pour l'effort sismique), les charges d'exploitation dans <b>Q1</b>. L'onglet <b>Synthèse</b> alimente la <b>NH Note d'hypothèses</b>, qui rassemble C1, G1 et Q1 (impression, Word). Le bouton « ➜ Supports S1 » transmet les hypothèses aux supports et au cahier.",
   etapes: [
     { t: "Localiser le site", html: "Taper l'adresse ou la commune, ou cliquer sur la carte. Les zones de vent, de neige et de sismicité ainsi que l'altitude (IGN) se remplissent automatiquement.", cible: "#q" },
     { t: "Renseigner le projet", html: "Affaire, phase, date et rédacteur : ils apparaissent dans l'en-tête de la note.", cible: "#affaire" },
