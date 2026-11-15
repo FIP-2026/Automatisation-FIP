@@ -1,6 +1,7 @@
 /* Aide de S1 — supports de tuyauterie (contenu ; moteur : commun/aide.js) */
 AIDE.init({
   titre: "Aide – S1 Supports de tuyauterie",
+  manuel: "s1",
   intro: `S1 prédimensionne un support standard (montant, console, suspente, T, L, U…) qui porte une ou plusieurs tuyauteries. Remplir les cartes de gauche <b>de haut en bas</b> : les résultats à droite se mettent à jour à chaque saisie. Vert = vérifié, jaune = au-dessus du taux cible (à surveiller), rouge = non vérifié.`,
   etapes: [
     { t: "Identifier le support", html: "Repère du support type (ex. ST-01), quantité, repères concernés et ligne / isométrique. Le nom de l'affaire se remplit tout seul si un cahier de supportage existe.", cible: "#repere" },
@@ -10,7 +11,10 @@ AIDE.init({
     { t: "Décrire les tuyauteries", html: "Pour chaque tuyau : DN, schedule, matière, fluide, calorifuge, <b>portée</b> (distance jusqu'aux supports voisins), position sur le support et fonction (glissant, guidé, point fixe). « + Ajouter une tuyauterie » pour plusieurs lignes.", cible: "#tuyaux" },
     { t: "Cocher les actions", html: "Température (frottement), vent, neige (support extérieur), séisme, épreuve hydraulique. Le bouton « Importer les hypothèses de C1 » reprend automatiquement le vent, la neige et le séisme du site.", cible: "#cT" },
     { t: "Lire les résultats", html: "En haut : verdict et taux maximal. Puis les alertes de conception (⛔ bloquant, ⚠ à vérifier, ℹ information), les vues cotées, les taux par critère et la descente de charges à transmettre au génie civil ou au charpentier.", cible: "#rHero" },
-    { t: "Enregistrer et sortir la note", html: "« ➕ Ajouter au cahier » range le support dans le cahier de supportage de l'affaire. Les boutons Word, Excel et Imprimer produisent la note de calcul.", cible: "#versCahier" },
+    { t: "Diagrammes et déformée", html: "Carte « Diagrammes » : N, V, M dans le plan ou hors plan, torsion, sur la combinaison ELU dimensionnante (★) ou une autre ; déformée ELS en vue de face ou oblique.", cible: "#vDiag" },
+    { t: "Plan du support (dessin industriel)", html: "Dans « Vues du support », « 📐 Dessin industriel » affiche la planche A3/A4 : vues orthogonales à l'échelle, perspective, cotes (positionnement des tuyaux et géométrie), nomenclature, cartouche. « DDC + SCU » ajoute le repère et le tableau des descentes de charges. « 🖨 Planche à l'échelle » ou « ⬇ DXF » pour AutoCAD.", cible: "#bInd" },
+    { t: "Sortir la note de calcul", html: "Carte « Note de calcul » : simplifiée (1 page), complète ou personnalisée (sections au choix), DDC en cas simples / ELU / les deux, formules détaillées ou résumé. « 👁 Aperçu », « 📄 Word » ou « 🖨 Imprimer / PDF ».", cible: "#ndcOpts" },
+    { t: "Enregistrer dans le cahier", html: "« ➕ Ajouter au cahier » range le support dans le cahier de supportage de l'affaire (plans, notes et DXF de tous les supports depuis le cahier).", cible: "#versCahier" },
   ],
   liens: [["#rRatios", "taux", "Taux de travail et couleurs"], ["#rRatios", "resistance", "Résistance des sections"], ["#rBarres", "flambement", "Flambement"], ["#rBarres", "torsion", "Torsion et gauchissement"],
     ["#rDDC", "combinaisons", "Combinaisons d'actions"], ["#rFix", "assemblages", "Boulons, tiges, chevilles"], ["#tuyaux", "supportage", "Glissant, guidé, point fixe"], ["#rEntraxes", "entraxes", "Entraxes"],
@@ -28,6 +32,9 @@ AIDE.init({
     { q: "Pourquoi les platines semi-rigides ?", r: "Une platine chevillée n'est jamais parfaitement encastrée. S1 la modélise par un ressort (S<sub>j</sub> = 10·EI/L) : les déplacements sont plus grands que pour un encastrement parfait, ce qui est prudent." },
     { q: "Comment lire les diagrammes N, V, M et la déformée ?", r: "Carte « Diagrammes » : choisir l'effort (N, V, M dans le plan de la vue de face ; V<sub>x</sub>, M<sub>h</sub> hors plan, c'est-à-dire dus aux efforts le long des tuyaux ; T torsion). Par défaut, la combinaison ELU affichée (★) est celle qui donne le taux maximal, et la combinaison ELS est celle du déplacement maximal ; les menus permettent d'en choisir une autre. Les valeurs sont données aux extrémités et au maximum de chaque barre ; le tableau donne les maxima dans les axes du profilé, pour comparaison avec Robot. La déformée passe automatiquement en vue oblique quand le déplacement le long des tuyaux (X) domine." },
     { q: "À quoi sert le bouton « 📐 Dessin industriel » ?", r: "Il remplace les vues schématiques par une planche de plan (A3 ou A4 paysage) : vues de face, de côté et de dessus en projection européenne, à une échelle normalisée (1:5, 1:10, 1:20…), faces cachées supprimées, cotation ISO, repères, nomenclature, cartouche et perspective isométrique (sans échelle) dans la zone libre. Les barres longues sont représentées en vues interrompues (lignes de rupture) quand cela permet une échelle plus grande ; les cotes restent en vraie grandeur. Les tuyauteries sont des pièces voisines (trait mixte fin à deux tirets). « 🖨 Planche à l'échelle » imprime la planche seule au bon format, à l'échelle réelle. Les longueurs de la nomenclature sont prises entre axes du modèle : longueurs de débit à confirmer en fabrication. Le cartouche est provisoire en attendant le cartouche FIP." },
+    { q: "Comment sortir la note de calcul ?", r: "Carte « Note de calcul » en bas des résultats : note simplifiée (une page : vue, taux, profilés, actions, DDC ELU), complète (hypothèses de charges, références, modèle 2D/3D, liaisons, chargement, combinaisons, DDC au choix cas simples / ELU / les deux, diagrammes N V M, ELS, critères avec formules détaillées ou résumées, fixations, alertes) ou personnalisée (sections cochées). « 👁 Aperçu », « 📄 Word » ou « 🖨 Imprimer / PDF ». La trame Word FIP remplacera la mise en page générique dès qu'elle sera fournie." },
+    { q: "À quoi sert le bouton « ⬇ DXF » ?", r: "En mode « 📐 Dessin industriel », il exporte la planche en DXF (AutoCAD R12, mm, échelle 1:1 de la feuille) : arêtes visibles, calques ISO (CONTOUR, AXES, PIECES_VOISINES, COTES, REPERES, CARTOUCHE…). Les cotes sont des lignes et des textes (non associatives). Ouvrir dans AutoCAD puis « Enregistrer sous » DWG si besoin." },
+    { q: "Support en L plafonnier : quel profilé pour la suspente ?", r: "Une suspente porte des consoles d'un seul côté : le frottement des tuyaux (μ·G le long de X) et le vent longitudinal la mettent en <b>torsion</b>. Un profilé ouvert (UPN, IPE) est très souple en torsion (ex. UPN 100 de 1,2 m : rotation ≈ 0,05 rad, soit ≈ 25 mm en bout de console de 0,5 m). Préférer un tube carré ou rectangulaire (SHS, RHS) : c'est le choix par défaut. Fixation au plafond par chevilles ou par crapauds sur un profilé existant." },
     { q: "Que faire des efforts de la descente de charges ?", r: "Les transmettre au génie civil (chevilles, platines, massifs) ou au charpentier (poutre existante). Les enveloppes donnent la valeur la plus défavorable de chaque composante (sécuritaire). Pour le choix des chevilles, utiliser les efforts par fixation de la carte « Fixations »." },
   ],
   bulles: {
@@ -55,7 +62,7 @@ AIDE.init({
     cW: "Vent sur les tuyaux et sur le profilé (supports extérieurs).",
     cS: "Neige sur les tuyaux (supports extérieurs uniquement).",
     cE: "Séisme : à cocher si le bâtiment est en zone sismique et que les tuyauteries le demandent.",
-    cEP: "Épreuve hydraulique : tuyauteries remplies d'eau (cas de charge temporaire).",
+    cEP: "Épreuve hydraulique : pour les lignes dont le fluide est moins dense que l'eau (gaz, vapeur, hydrocarbures légers), cas où l'eau d'épreuve, classée Q, remplace le fluide : γG·(G − fluide) + 1,5·eau, sans autre action variable. Lignes à fluide ≥ 1 000 kg/m³ : épreuve couverte par G.",
     qp: "Pression dynamique de pointe du vent en kN/m², à prendre dans C1 (bouton Importer).",
     cft: "Coefficient de force du vent sur un tuyau rond (1,2 : valeur maximale de la norme, prudente).",
     cfp: "Coefficient de force du vent sur le profilé. Laisser vide : valeur de l'Annexe nationale selon la famille (UPN 2,0 ; cornière 2,4 ; tube carré 2,1…).",
@@ -64,6 +71,11 @@ AIDE.init({
     dmax: "Déplacement admissible maximal en mm, quelle que soit la longueur.",
     rCible: "Taux au-delà duquel le résultat passe en jaune et que l'optimisation ne dépasse pas (90 % par défaut : marge d'APS/APD).",
     platine: "Rigidité des platines : semi-rigide par défaut (prudent pour les déplacements).",
+    fmtInd: "Format de la planche : A3 ou A4 paysage. L'échelle normalisée (1:5, 1:10, 1:20…) est choisie automatiquement ; les barres longues sont interrompues si cela permet une échelle plus grande.",
+    ddcInd: "Ajoute sur la planche le repère SCU (vues et perspective), le repérage des appuis A1, A2… et le tableau des descentes de charges (enveloppes ELU et sismique).",
+    ndcNiv: "Simplifiée : une page (vue, taux, profilés, actions, DDC ELU). Complète : toutes les sections. Personnalisée : cocher les sections voulues.",
+    ndcDdc: "Descente de charges de la note : cas simples (valeurs caractéristiques par cas), enveloppes ELU, ou les deux.",
+    ndcForm: "Formules détaillées : chaque critère avec ses formules, valeurs numériques et paragraphe de la norme (contrôle). Résumé : tableau des taux seulement.",
   },
   bullesK: {
     portee: "Longueur de tuyauterie reprise par ce support : distance entre supports (moyenne des deux portées voisines).",

@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.30"></script>
+<script src="../commun/auth.js?v=2.42"></script>
 <script>calcProteger("../");</script>
-<title>FIP Études — C1 Hypothèses climatiques et sismiques</title>
+<title>FIP Études — C1 Charges climatiques et sismiques</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../commun/lib/leaflet/leaflet.css">
 <script src="../commun/lib/leaflet/leaflet.js"></script>
-<script src="data/zonage.js?v=2.30"></script>
-<script src="data/communes.js?v=2.30"></script>
-<script src="data/departements.js?v=2.30"></script>
-<script src="../commun/coefvent.js?v=2.30"></script>
+<script src="data/zonage.js?v=2.42"></script>
+<script src="data/communes.js?v=2.42"></script>
+<script src="data/departements.js?v=2.42"></script>
+<script src="../commun/coefvent.js?v=2.42"></script>
+<script src="../commun/charges.js?v=2.42"></script>
 <style>
 :root{
   --fip-bleu:#114088; --fip-bleu-fonce:#0b2d63; --fip-rouge:#e30009; --fip-ciel:#0098db;
@@ -146,7 +147,7 @@ svg text{font-family:inherit}
   <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
   <a href="../accueil.html" class="back">← Accueil</a>
   <div style="flex:1 1 auto">
-    <h1><span class="code">C1</span>Hypothèses climatiques, sismiques et complexes</h1>
+    <h1><span class="code">C1</span>Charges climatiques et sismiques</h1>
     <div class="sub">NF EN 1991-1-3 / 1-4 + AN · arrêté du 22/10/2010 + NF EN 1998-1 + AN · NF EN 1991-1-1</div>
   </div>
   <button class="sec" id="versS1" title="Transmettre vent, neige et séisme à la calculette supports S1">➜ Supports S1</button>
@@ -208,7 +209,7 @@ svg text{font-family:inherit}
   </div>
 
   <div class="tabs noprint" id="tabs">
-    <button data-p="p-vent" class="on">Vent</button><button data-p="p-neige">Neige</button><button data-p="p-seisme">Séisme</button><button data-p="p-cv">Coefficients vent</button><button data-p="p-cpx">Complexes</button><button data-p="p-syn">Synthèse</button>
+    <button data-p="p-vent" class="on">Vent</button><button data-p="p-neige">Neige</button><button data-p="p-seisme">Séisme</button><button data-p="p-cv">Coefficients vent</button><button data-p="p-cpx">Complexes (G1)</button><button data-p="p-syn">Synthèse</button>
   </div>
 
   <!-- ======== VENT ======== -->
@@ -301,6 +302,15 @@ svg text{font-family:inherit}
         <div><label>Hauteur au faîtage h (m)</label><input id="bfh" type="number" step="0.5" value="8"></div>
         <div><label>Pente α (°)</label><input id="bfa" type="number" step="1" value="10"></div>
         <label class="chk"><input type="checkbox" id="bfkdc"> k<sub>dc</sub> (défaut de corrélation)</label>
+      </div>
+      <div class="noprint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:6px;align-items:end">
+        <div style="grid-column:span 2"><label>Pression intérieure c<sub>pi</sub></label><select id="bfCpi"><option value="forf">Forfaitaire +0,2 / −0,3 (perméabilité non connue)</option><option value="dom">Face dominante (ouverture ≥ 2 × les autres)</option><option value="mu">Selon les ouvertures μ (fig. 7.13)</option></select></div>
+        <div data-cpi="dom"><label>Face dominante : vent</label><select id="bfDomT"><option value="0">θ = 0° (vent ⊥ à L)</option><option value="90">θ = 90° (vent ∥ à L)</option></select></div>
+        <div data-cpi="dom"><label>Zone de l'ouverture</label><select id="bfDomZ"><option>D</option><option>A</option><option>B</option><option>C</option><option>E</option></select></div>
+        <div data-cpi="dom"><label>Aire ouverture / autres faces</label><input id="bfDomR" type="number" step="0.5" min="2" value="3"></div>
+        <div data-cpi="mu"><label>Σ ouvertures c<sub>pe</sub> ≤ 0 (m²)</label><input id="bfAneg" type="number" step="0.5" value="4"></div>
+        <div data-cpi="mu"><label>Σ toutes ouvertures (m²)</label><input id="bfAtot" type="number" step="0.5" value="10"></div>
+        <div data-cpi="mu"><label>c<sub>pi</sub> lu sur fig. 7.13</label><input id="bfCpiV" type="number" step="0.05" value="0"></div>
       </div><div id="cvBat"></div></div>
     <div class="card"><h2>C. Toiture isolée (auvent, abri, préau) — c<sub>f</sub> et c<sub>p</sub></h2>
       <div class="noprint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">
@@ -323,18 +333,9 @@ svg text{font-family:inherit}
 
   <!-- ======== COMPLEXES ======== -->
   <section class="panel" id="p-cpx">
-    <div class="card"><h2>A. Complexe de couverture</h2><label class="chk noprint"><input type="checkbox" id="nCouv" checked> note (inclure dans la note d'hypothèses)</label><div id="cpxCouv"></div></div>
-    <div class="card"><h2>B. Complexe de bardage</h2><label class="chk noprint"><input type="checkbox" id="nBard" checked> note (inclure dans la note d'hypothèses)</label><div id="cpxBard"></div></div>
-    <div class="card"><h2>C. Plancher (plateforme, passerelle, dalle)</h2><label class="chk noprint"><input type="checkbox" id="nPlan"> note (inclure dans la note d'hypothèses)</label>
-      <div class="noprint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:6px 0">
-        <div><label>Désignation du plancher</label><input id="plNom" value="Plateforme de maintenance"></div>
-        <div><label>Charge d'exploitation (catégorie)</label><select id="plCat"></select></div>
-        <div><label>q<sub>k</sub> répartie (kN/m²)</label><input id="plq" type="number" step="0.5"></div>
-        <div><label>Q<sub>k</sub> concentrée (kN, sur 50 × 50 mm)</label><input id="plQ" type="number" step="0.5"></div>
-        <div><label>Cloisons mobiles (poids propre par ml)</label><select id="plCl"><option value="0">aucune</option><option value="0.5">≤ 1,0 kN/m → +0,5 kN/m²</option><option value="0.8">≤ 2,0 kN/m → +0,8 kN/m²</option><option value="1.2">≤ 3,0 kN/m → +1,2 kN/m²</option></select></div>
-      </div>
-      <div id="cpxPlan"></div><div id="plRes"></div></div>
-    <div class="note">Planchers : bac acier collaborant, caillebotis, tôles larmées, dalles et finitions dans les familles « Planchers » du catalogue ; charges d'exploitation selon NF EN 1991-1-1 §6.3 + AN (valeurs à confirmer avec l'AN en vigueur). Mode « vol » : masse volumique (kg/m³) × épaisseur ; « surf » : masse surfacique (kg/m²) ; « libre » : saisie directe en daN/m². 1 kg = 9,81 N. Valeurs du catalogue INDICATIVES (fabricants, DTU) : à remplacer par les données du projet. Charges permanentes G (EN 1991-1-1 §5.2), hors ossature principale.</div>
+    <div class="card"><h2>Complexes de couverture, bardage et planchers → G1 Charges permanentes</h2>
+      <div class="msg info">Les complexes (couverture, bardage, planchers, divers) sont désormais saisis dans l'outil <a href="../charges-permanentes/"><b>G1 Charges permanentes</b></a> ; les charges d'exploitation des planchers dans <a href="../charges-exploitation/"><b>Q1</b></a> ; la note d'hypothèses complète se génère dans <a href="../note-hypotheses/"><b>NH</b></a>.</div>
+      <div id="cpxG1"></div></div>
   </section>
 
   <!-- ======== SYNTHÈSE ======== -->
@@ -366,32 +367,6 @@ const EXIG={1:['Aucune exigence','Aucune exigence','Aucune exigence','Aucune exi
  4:['Aucune exigence',"Eurocode 8, ou CPMI-EC8 zones 3-4 si domaine d'application respecté",'Eurocode 8 (NF EN 1998-1 + AN)','Eurocode 8 (NF EN 1998-1 + AN)'],
  5:['Aucune exigence',"Eurocode 8, ou CPMI Antilles si domaine d'application respecté",'Eurocode 8 (NF EN 1998-1 + AN)','Eurocode 8 (NF EN 1998-1 + AN)']};
 const OSSATURES=[['Portiques spatiaux acier en flexion',.085],['Portiques spatiaux béton ou acier à contreventement excentré',.075],['Autres structures',.05]];
-/* Catalogue planchers (indicatif : catalogues fabricants, NF EN 1991-1-1 annexe A) — ajouté au catalogue des complexes */
-const PLANCHERS=[
- {ref:'PL01',fam:'Planchers – structure',nom:'Dalle béton armé pleine (e)',mode:'vol',val:2500,e:150,obs:'Béton armé 25 kN/m³ (NF EN 1991-1-1 Tab. A.1)'},
- {ref:'PL02',fam:'Planchers – structure',nom:'Plancher collaborant – bac acier 0,75 mm (forfait)',mode:'surf',val:10,e:null,obs:'Bac de hauteur 60 à 80 mm : 9 à 11 kg/m² – fiche fabricant'},
- {ref:'PL03',fam:'Planchers – structure',nom:'Plancher collaborant – béton, épaisseur moyenne équivalente (e)',mode:'vol',val:2500,e:100,obs:'e moyenne = volume de béton / surface (fiche du bac, ex. dalle de 12 cm sur bac de 60 mm ≈ 9 cm)'},
- {ref:'PL04',fam:'Planchers – structure',nom:'Caillebotis pressé galvanisé 30×30, porteur 30×2',mode:'surf',val:22,e:null,obs:'≈ 22 kg/m² (porteurs + entretoises + galvanisation) – catalogue fabricant'},
- {ref:'PL05',fam:'Planchers – structure',nom:'Caillebotis pressé galvanisé 30×30, porteur 40×3',mode:'surf',val:38,e:null,obs:'≈ 38 kg/m² – catalogue fabricant'},
- {ref:'PL06',fam:'Planchers – structure',nom:'Caillebotis électroforgé galvanisé 34×38, porteur 30×3',mode:'surf',val:28,e:null,obs:'≈ 28 kg/m² – catalogue fabricant'},
- {ref:'PL07',fam:'Planchers – structure',nom:'Tôle larmée 4/6',mode:'surf',val:34,e:null,obs:'≈ 7,85·e + larmes ≈ 34 kg/m²'},
- {ref:'PL08',fam:'Planchers – structure',nom:'Tôle larmée 5/7',mode:'surf',val:42,e:null,obs:'≈ 42 kg/m²'},
- {ref:'PL09',fam:'Planchers – structure',nom:'Tôle larmée 6/8',mode:'surf',val:50,e:null,obs:'≈ 50 kg/m²'},
- {ref:'PL10',fam:'Planchers – structure',nom:'Tôle larmée 8/10',mode:'surf',val:66,e:null,obs:'≈ 66 kg/m²'},
- {ref:'PL11',fam:'Planchers – structure',nom:'Platelage bois massif résineux (e)',mode:'vol',val:500,e:40,obs:'Résineux ≈ 5 kN/m³ (NF EN 1991-1-1 Tab. A.3)'},
- {ref:'PL12',fam:'Planchers – structure',nom:'Panneau OSB / contreplaqué de plancher (e)',mode:'vol',val:650,e:22,obs:'≈ 6 à 7 kN/m³ – fiche fabricant'},
- {ref:'PL13',fam:'Planchers – structure',nom:'Ossature secondaire de plancher (solives, chevêtres) – forfait',mode:'surf',val:15,e:null,obs:'À remplacer par le poids réel de l\'ossature si elle est calculée à part'},
- {ref:'PL20',fam:'Planchers – finitions et équipements',nom:'Chape ciment (e)',mode:'vol',val:2100,e:50,obs:'Mortier de ciment 19 à 23 kN/m³ (NF EN 1991-1-1 Tab. A.1)'},
- {ref:'PL21',fam:'Planchers – finitions et équipements',nom:'Carrelage scellé ou collé (forfait)',mode:'surf',val:50,e:null,obs:'≈ 0,5 kN/m² colle comprise – indicatif'},
- {ref:'PL22',fam:'Planchers – finitions et équipements',nom:'Revêtement de sol résine ou souple (forfait)',mode:'surf',val:5,e:null,obs:'Indicatif'},
- {ref:'PL23',fam:'Planchers – finitions et équipements',nom:'Étanchéité de plancher extérieur (forfait)',mode:'surf',val:10,e:null,obs:'Indicatif – fiche fabricant'},
- {ref:'PL24',fam:'Planchers – finitions et équipements',nom:'Faux plafond suspendu (forfait)',mode:'surf',val:20,e:null,obs:'0,15 à 0,25 kN/m² – indicatif'},
- {ref:'PL25',fam:'Planchers – finitions et équipements',nom:'Réseaux suspendus légers – gaines, chemins de câbles (forfait)',mode:'surf',val:25,e:null,obs:'Provision 0,25 kN/m² à adapter ; tuyauteries lourdes et équipements à compter à part'}];
-ZONAGE.catalogue.push(...PLANCHERS);
-/* charges d'exploitation des planchers — valeurs usuelles à confirmer avec NF EN 1991-1-1/NA Tab. 6.2 */
-const CAT_PL=[['A','A – habitation (planchers)',1.5,2.0],['B','B – bureaux',2.5,4.0],['C3','C3 – locaux sans obstacle à la circulation',4.0,4.0],['E1','E1 – stockage',7.5,7.0],['M','Plateforme / passerelle de maintenance (cahier des charges du projet)',2.5,2.0],['P','Personnalisée',null,null]];
-const CPX_DEFAUT={plan:[['Plancher collaborant – bac acier 0,75 mm (forfait)'],['Plancher collaborant – béton, épaisseur moyenne équivalente (e)',100],['Chape ciment (e)',50]],couv:[["Tôle acier nervurée (e = épaisseur d'acier)",.75],['Pare-vapeur / écran (forfait)'],["Laine de roche haute densité – support d'étanchéité (≈ 150 kg/m³)",100],['Membrane synthétique monocouche (PVC / TPO / EPDM 1,5 mm)'],['Ossature secondaire acier légère – pannes / lisses (forfait)']],
- bard:[["Tôle acier nervurée (e = épaisseur d'acier)",.75],['Laine de roche semi-rigide (≈ 45 kg/m³)',100],['Ossature secondaire acier légère – pannes / lisses (forfait)'],["Tôle acier nervurée (e = épaisseur d'acier)",.63]]};
 
 /* Couleurs de carte (palette proche des cartes de zonage usuelles) */
 const COUL={
@@ -528,18 +503,10 @@ function calcSeisme(zs,Wcouv,Wbard){
   return{zs,agR,cat,gI,ag,alpha,sol,S:S_,TB,TC,TD,env:sp.env,avg,rv,TBv,TCv,TDv,qv,Sve,Sdv,q,beta,Se,Sd,Sepal:ag*S_*2.5,Sdpal:ag*S_*2.5/q,Ct,H,T1,lam,m,Fb,domaine,fa,
     exig:EXIG[zs][['I','II','III','IV'].indexOf(cat)]};
 }
-function calcComplexe(k){
-  const lignes=[...document.querySelectorAll('#cpx_'+k+' tr[data-i]')].map(tr=>{
-    const nom=tr.querySelector('select').value; if(!nom) return null;
-    const m=ZONAGE.catalogue.find(x=>x.nom===nom), es=parseFloat(tr.querySelector('.e').value), lib=parseFloat(tr.querySelector('.l').value);
-    let e='',kN=0;
-    if(m.mode==='vol'){e=isFinite(es)?es:m.e;kN=m.val*e/1000*.00981;}
-    else if(m.mode==='surf') kN=m.val*.00981;
-    else kN=(isFinite(lib)?lib:0)/100;
-    return{tr,m,e,kN};
-  }).filter(Boolean);
-  const st=lignes.reduce((a,b)=>a+b.kN,0), maj=num('maj_'+k,3)/100;
-  return{lignes,st,maj,majv:st*maj,tot:st*(1+maj)};
+function calcComplexe(k){                                   // complexes saisis dans G1 (1er complexe du type) : utilisés pour les forces sismiques des éléments non structuraux
+  const G=CH.lire('G'), c=G&&(G.complexes||[]).find(x=>x.type===k);
+  if(!c) return {lignes:[],st:0,maj:0,majv:0,tot:0,nom:null};
+  return {...CH.poidsComplexe(c),nom:c.nom};
 }
 
 /* =====================================================================
@@ -554,7 +521,17 @@ function render(){
   const cc=calcComplexe('couv'), cb=calcComplexe('bard'), cp=calcComplexe('plan');
   const V=Z.zv?calcVent(Z.zv):null, N=Z.zn?calcNeige(Z.zn):null, E=Z.zs?calcSeisme(Z.zs,cc.tot,cb.tot):null;
   window.__R={Z,V,N,E,cc,cb};
-  renderPanneau(Z,V,N,E); renderVent(Z,V); renderNeige(Z,N); renderSeisme(Z,E); renderCpx(cc,cb,cp); const CVH=renderCV(V); renderSyn(Z,V,N,E,cc,cb,CVH,cp); colorerCarte(Z);
+  renderPanneau(Z,V,N,E); renderVent(Z,V); renderNeige(Z,N); renderSeisme(Z,E); renderCpxG1(cc,cb); const CVH=renderCV(V); renderSyn(Z,V,N,E,cc,cb,CVH,cp); colorerCarte(Z);
+  sauverNH(Z,V,N,E);
+}
+/* enregistrement pour la note d'hypothèses (NH) : résumé + synthèse + détails */
+function sauverNH(Z,V,N,E){
+  const c=S.commune, carte=id=>{ const el=$(id); const cd=el&&el.closest('.card'); return cd?cd.outerHTML:''; };
+  const res={lieu:c?`${c.n} (${c.d}) – INSEE ${c.i}`:'', alt:num('alt'), adr:S.adr||'',
+    vent:V?{zone:Z.zv,vb0:V.vb0,vb:V.vb,cat:V.t.id,z0:V.t.z0,ze:V.ze,co:V.co,qp:V.p.qp/1000,ce:V.p.ce,H:V.H,bat:$('bfOn').checked?CPI_NH:null,ti:$('tiOn').checked,mi:$('miOn').checked}:null,
+    neige:N?{zone:Z.zn,A:N.A,sk:N.sk,sAd:N.sAd,Ce:N.Ce,Ct:N.Ct,m1:N.m1,m2:N.m2,maj:N.maj}:null,
+    seisme:E?{zone:E.zs,cat:E.cat,gI:E.gI,agr:E.agR,ag:E.ag,sol:E.sol,S:E.S,TB:E.TB,TC:E.TC,TD:E.TD,q:E.q,Sepal:E.Sepal,Sdpal:E.Sdpal,avg:E.avg,exig:E.exig}:null};
+  CH.ecrire('C',{res,syn:$('syn').innerHTML,det:['ventRes','neigeRes','neigeToit','seismeRes','seismeFa'].map(carte).join('')});
 }
 
 function renderPanneau(Z,V,N,E){
@@ -739,46 +716,23 @@ function graphSpectre(E){
   return s;
 }
 
-/* ---------- complexes ---------- */
-function initCpx(){
-  const fams=[...new Set(ZONAGE.catalogue.map(m=>m.fam))];
-  const opts='<option value="">—</option>'+fams.map(fa=>`<optgroup label="${esc(fa)}">${ZONAGE.catalogue.filter(m=>m.fam===fa).map(m=>`<option>${esc(m.nom)}</option>`).join('')}</optgroup>`).join('');
-  ['couv','bard','plan'].forEach(k=>{
-    let h=`<table class="cpx" id="cpx_${k}"><tr><th>N°</th><th>Matériau (catalogue)</th><th>e saisie (mm)</th><th>Libre (daN/m²)</th><th>Mode</th><th class="n">e utilisée</th><th class="n">kN/m²</th><th class="n">daN/m²</th><th>Observation</th></tr>`;
-    for(let i=0;i<10;i++) h+=`<tr data-i="${i}"><td>${i+1}</td><td><select>${opts}</select></td><td><input class="e" type="number" step="any"></td><td><input class="l" type="number" step="any"></td><td class="mo"></td><td class="n eu"></td><td class="n kn"></td><td class="n dan"></td><td class="note ob"></td></tr>`;
-    h+=`<tr><td></td><td>Sous-total des couches</td><td colspan="4"></td><td class="n" id="st_${k}"></td><td class="n" id="std_${k}"></td><td></td></tr>
-      <tr><td></td><td>Majoration forfaitaire (recouvrements, fixations…) en %</td><td><input id="maj_${k}" type="number" step="0.5" value="3"></td><td colspan="3"></td><td class="n" id="mj_${k}"></td><td class="n" id="mjd_${k}"></td><td></td></tr>
-      <tr class="key"><td></td><td>POIDS PROPRE DU COMPLEXE – ${k==='couv'?'COUVERTURE':k==='bard'?'BARDAGE':'PLANCHER'}</td><td colspan="4"></td><td class="n" id="tot_${k}"></td><td class="n" id="totd_${k}"></td><td></td></tr></table>`;
-    $({couv:'cpxCouv',bard:'cpxBard',plan:'cpxPlan'}[k]).innerHTML=h;
-    CPX_DEFAUT[k].forEach((d,i)=>{const tr=document.querySelector(`#cpx_${k} tr[data-i="${i}"]`);tr.querySelector('select').value=d[0];if(d[1]!=null)tr.querySelector('.e').value=d[1];});
-  });
-  $('plCat').innerHTML=CAT_PL.map(c=>`<option value="${c[0]}" ${c[0]==='M'?'selected':''}>${esc(c[1])}</option>`).join('');
-  const majQ=()=>{const c=CAT_PL.find(x=>x[0]===$('plCat').value); if(c&&c[2]!=null){$('plq').value=c[2];$('plQ').value=c[3];}};
-  $('plCat').addEventListener('change',majQ); majQ();
-  document.querySelectorAll('#p-cpx input,#p-cpx select').forEach(el=>el.addEventListener('input',render));
-}
-function renderCpx(cc,cb,cp){
-  [['couv',cc],['bard',cb],['plan',cp]].forEach(([k,c])=>{
-    document.querySelectorAll(`#cpx_${k} tr[data-i]`).forEach(tr=>{const l=c.lignes.find(x=>x.tr===tr);
-      tr.querySelector('.mo').textContent=l?l.m.mode:''; tr.querySelector('.eu').textContent=l&&l.e!==''?f(l.e,2):'';
-      tr.querySelector('.kn').textContent=l?f(l.kN,4):''; tr.querySelector('.dan').textContent=l?f(l.kN*100,2):''; tr.querySelector('.ob').textContent=l?l.m.obs:'';
-      tr.querySelector('.e').disabled=!(l&&l.m.mode==='vol'); tr.querySelector('.l').disabled=!(l&&l.m.mode==='libre');
-      if(l&&l.m.mode==='vol') tr.querySelector('.e').placeholder=l.m.e;});
-    $('st_'+k).textContent=f(c.st,4);$('std_'+k).textContent=f(c.st*100,2);$('mj_'+k).textContent=f(c.majv,4);$('mjd_'+k).textContent=f(c.majv*100,2);
-    $('tot_'+k).textContent=f(c.tot,4);$('totd_'+k).textContent=f(c.tot*100,2);
-  });
-  const q=num('plq',0),Q=num('plQ',0),cl=+$('plCl').value, c=CAT_PL.find(x=>x[0]===$('plCat').value)||CAT_PL[0];
-  $('plRes').innerHTML=`<table style="margin-top:8px"><tr><th>Plancher : ${esc($('plNom').value)}</th><th class="n">Valeur</th><th>Référence</th></tr>
-    <tr class="key"><td>Charges permanentes G<sub>k</sub> (complexe ci-dessus)</td><td class="n">${f(cp.tot,3)} kN/m²</td><td class="ref">NF EN 1991-1-1 §5.2</td></tr>
-    <tr class="key"><td>Charge d'exploitation q<sub>k</sub> – ${esc(c[1])}${cl?' + cloisons mobiles':''}</td><td class="n">${f(q+cl,2)} kN/m²</td><td class="ref">NF EN 1991-1-1 §6.3.1.2, Tab. 6.2 + AN${cl?' ; cloisons §6.3.1.2(8)':''}</td></tr>
-    <tr><td>Charge concentrée Q<sub>k</sub> (vérifications locales, non cumulée avec q<sub>k</sub>)</td><td class="n">${f(Q,1)} kN</td><td class="ref">§6.3.1.2(4)</td></tr>
-    <tr><td>ELU courant 1,35·G<sub>k</sub> + 1,5·q<sub>k</sub></td><td class="n">${f(1.35*cp.tot+1.5*(q+cl),2)} kN/m²</td><td class="ref">NF EN 1990 éq. (6.10) + AN</td></tr>
-    <tr><td>ELS caractéristique G<sub>k</sub> + q<sub>k</sub></td><td class="n">${f(cp.tot+q+cl,2)} kN/m²</td><td class="ref">NF EN 1990 §6.5.3</td></tr></table>
-    <div class="note">Valeurs de q<sub>k</sub> et Q<sub>k</sub> proposées à confirmer avec le tableau 6.2 de l'AN en vigueur et le cahier des charges du client (plateformes industrielles : souvent 2,5 à 5 kN/m²). Les poids d'équipements, de tuyauteries pleines ou de stockage sont à ajouter comme charges spécifiques.</div>`;
+function renderCpxG1(cc,cb){
+  $('cpxG1').innerHTML=`<table><tr><th>Complexe repris de G1 (forces sismiques F<sub>a</sub>, onglet Séisme)</th><th class="n">g (kN/m²)</th></tr><tr><td>Couverture : ${cc.nom?esc(cc.nom):'<i>aucun complexe de couverture dans G1</i>'}</td><td class="n">${f(cc.tot,3)}</td></tr><tr><td>Bardage : ${cb.nom?esc(cb.nom):'<i>aucun complexe de bardage dans G1</i>'}</td><td class="n">${f(cb.tot,3)}</td></tr></table>`;
 }
 
 /* ---------- synthèse ---------- */
 /* ---------- coefficients aérodynamiques (onglet « Coefficients vent ») ---------- */
+let CPI_NH=null;
+/* c_p,net = c_pe − c_pi : extrêmes par zone (pression > 0 vers l'intérieur de la paroi, dépression < 0) ; w = q_p·c_p,net */
+const w3=v=>(v>0?'+':v<0?'−':'')+f(Math.abs(v),3);
+function tabNet(M0,M90,R,CP,qp,kd){ const fx=CV.fx, cmax=Math.max(...CP.v), cmin=Math.min(...CP.v), L=[];
+  [[M0,'θ = 0°'],[M90,'θ = 90°']].forEach(([M,t])=>['A','B','C','D','E'].forEach(z=>{ if(!(M.zones.some(x=>x[0]===z)||'DE'.includes(z))) return; const c=M.cpe[z]*(kd&&'DE'.includes(z)?kd(M):1); L.push([`Mur ${z} (${t})`,c]); }));
+  R.cas.forEach(cs=>cs.zones.forEach((z,i)=>{ [cs.v[i],cs.v2&&cs.v2[i]].forEach(c=>{ if(c!=null) L.push([`Toiture ${z.replace('_up',' haut').replace('_low',' bas')} – ${cs.nom}`,c]); }); }));
+  const rows=L.map(([n,c])=>{ const p=c-cmin, d=c-cmax; return `<tr><td>${n}</td><td class="n">${fx(c)}</td><td class="n">${fx(+p.toFixed(2))}</td><td class="n">${fx(+d.toFixed(2))}</td>${qp?`<td class="n">${w3(qp*p)}</td><td class="n">${w3(qp*d)}</td>`:''}</tr>`; });
+  const ex=L.reduce((o,[n,c])=>{ const p=c-cmin,d=c-cmax; if(p>o.p[1]) o.p=[n,p]; if(d<o.d[1]) o.d=[n,d]; return o; },{p:['',-9],d:['',9]});
+  CPI_NH&&(CPI_NH.net={pmax:[ex.p[0],+ex.p[1].toFixed(2)],dmin:[ex.d[0],+ex.d[1].toFixed(2)],qp});
+  return `<table><tr><th>Paroi / zone</th><th class="n">c<sub>pe,10</sub></th><th class="n">c<sub>p,net</sub> max (c<sub>pi</sub> = ${fx(cmin)})</th><th class="n">c<sub>p,net</sub> min (c<sub>pi</sub> = ${fx(cmax)})</th>${qp?'<th class="n">w max (kN/m²)</th><th class="n">w min (kN/m²)</th>':''}</tr>${rows.join('')}</table>
+  <div class="note">Convention : c<sub>p,net</sub> &gt; 0 pression vers l'intérieur (paroi poussée), &lt; 0 dépression (arrachement). Pour chaque zone, la valeur de c<sub>pi</sub> la plus défavorable est retenue (§7.2.9(6) + AN ; c<sub>pe</sub> et c<sub>pi</sub> agissent simultanément, §7.2.9(1)). Extrêmes : pression ${fx(+ex.p[1].toFixed(2))} (${ex.p[0]}), dépression ${fx(+ex.d[1].toFixed(2))} (${ex.d[0]}).${qp?` w = q<sub>p</sub>(z<sub>e</sub>)·c<sub>p,net</sub> avec q<sub>p</sub> = ${f(qp,3)} kN/m².`:''}</div>`; }
 function renderCV(V){
   const fx=CV.fx, qp=V?V.p.qp/1000:null, cells=a=>a.map(v=>`<td class="n">${fx(v)}</td>`).join(''), out={};
   // A. profilés
@@ -794,17 +748,26 @@ function renderCV(V){
   const R=CV.toiture(ty,L,W,hb,a), M0=CV.murs(L,W,hb), M90=CV.murs(W,L,hb);
   const kd=M=>{const hd=M.hd;return hd>=5?1:hd<=1?0.85:0.85+0.15*(hd-1)/4;};
   const tm=(M,t)=>`<tr><td>${t}</td>${['A','B','C','D','E'].map(z=>`<td class="n">${M.zones.some(x=>x[0]===z)||'DE'.includes(z)?fx(M.cpe[z]*(kdc&&'DE'.includes(z)?kd(M):1)):'—'}</td>`).join('')}<td class="n">${f(M.e,2)}</td><td class="n">${f(M.hd,2)}</td>${kdc?`<td class="n">${f(kd(M),3)}</td>`:''}</tr>`;
+  // pression intérieure (NF EN 1991-1-4 §7.2.9 + AN)
+  const cm=$('bfCpi').value; document.querySelectorAll('[data-cpi]').forEach(el=>el.hidden=el.dataset.cpi!==cm); let CP;
+  if(cm==='dom'){ const th=$('bfDomT').value, z=$('bfDomZ').value, Mz=th==='90'?M90:M0, ce=Mz.cpe[z], k=Math.max(2,num('bfDomR',3)), fa=k>=3?0.9:0.75+(k-2)*0.15;
+    CP={mode:'dom',v:[+(fa*ce).toFixed(2)],txt:`face dominante : ouverture en zone ${z} (θ = ${th}°), aire = ${f(k,1)} × celle des autres faces → c<sub>pi</sub> = ${f(fa,2)} × c<sub>pe</sub>(${z}) = ${f(fa,2)} × ${fx(ce)}`,ref:'§7.2.9(5), éq. (7.1) / (7.2) ; §7.2.9(3) : situation accidentelle si l\'ouverture n\'est pas permanente (porte ouverte par tempête)'}; }
+  else if(cm==='mu'){ const An=num('bfAneg',0), At=num('bfAtot',0), mu=At>0?Math.min(An/At,1):null, hd0=hb/W, hd90=hb/L;
+    CP={mode:'mu',v:[num('bfCpiV',0)],txt:`selon les ouvertures : μ = ΣA(c<sub>pe</sub> ≤ 0) / ΣA = ${f(An,1)} / ${f(At,1)} = ${mu==null?'—':f(mu,2)} ; h/d = ${f(hd0,2)} (θ = 0°) / ${f(hd90,2)} (θ = 90°) ; valeur lue sur la figure 7.13 (interpolation linéaire entre h/d = 0,25 et 1)`,ref:'§7.2.9(6), éq. (7.3), fig. 7.13'}; }
+  else CP={mode:'forf',v:CV.CPI.slice(),txt:'perméabilité des façades non connue avec certitude : valeurs forfaitaires, la plus défavorable retenue',ref:'§7.2.9(6) + AN NOTE 2'};
+  CPI_NH=CP;
   let b=`<h3>Murs verticaux (Tab. 7.1, c<sub>pe,10</sub>)</h3><table><tr><th>Direction</th><th class="n">A</th><th class="n">B</th><th class="n">C</th><th class="n">D</th><th class="n">E</th><th class="n">e (m)</th><th class="n">h/d</th>${kdc?'<th class="n">k<sub>dc</sub></th>':''}</tr>${tm(M0,'θ = 0° (vent ⊥ à L)')}${tm(M90,'θ = 90° (vent ∥ à L)')}</table>`;
   b+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">${CV.svgMurs(M0,L,W)}${CV.svgMurs(M90,W,L)}</div>`;
   b+=`<h3>Toiture ${R.terrasse?'terrasse':ty==='bi'?'à deux versants':'à un versant'} (α = ${f(a,1)}°)</h3><table><tr><th>Cas</th><th>Zones : c<sub>pe,10</sub></th><th>Référence</th></tr>`+
     R.cas.map(c=>`<tr><td>${c.nom}</td><td>${c.zones.map((z,i)=>`<b>${z.replace('_','<sub>')+(z.includes('_')?'</sub>':'')}</b> ${fx(c.v[i])}${c.v2&&c.v2[i]!=null?' / '+fx(c.v2[i]):''}`).join(' · ')}</td><td class="ref">${c.ref}</td></tr>`).join('')+'</table>'+(R.note?`<div class="note">${R.note}</div>`:'');
   b+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">${R.cas.filter(c=>!/– pression$/.test(c.nom)).map(c=>`<div><div class="note"><b>${c.nom}</b></div>${CV.svgToiture(R,c,L,W)}</div>`).join('')}</div>`;
   b+=`<h3>Pression intérieure et compléments</h3><table>
-    <tr><td>c<sub>pi</sub> (perméabilité non connue avec certitude)</td><td class="n"><b>+0,2 / −0,3</b></td><td class="ref">§7.2.9(6) + AN NOTE 2</td></tr>
+    <tr><td>c<sub>pi</sub> – ${CP.txt}</td><td class="n"><b>${CP.v.map(fx).join(' / ')}</b></td><td class="ref">${CP.ref}</td></tr>
     <tr><td>Coefficients retenus pour l'ossature</td><td class="n">c<sub>pe,10</sub></td><td class="ref">CNC2M N0380 §7 (surfaces &gt; 10 m²)</td></tr>
     <tr><td>c<sub>s</sub>c<sub>d</sub> des éléments secondaires (pannes, lisses)</td><td class="n">1,0 (ou valeur de l'ossature si &gt; 1)</td><td class="ref">CNC2M N0380 §6</td></tr>
     ${kdc?`<tr><td>Défaut de corrélation k<sub>dc</sub> appliqué aux murs D et E (actions d'ensemble seulement)</td><td class="n">0,85 (h/d ≤ 1) à 1 (h/d ≥ 5)</td><td class="ref">§7.2.2(3) NOTE ; AN clause 5.3(5) ; CNC2M §8</td></tr>`:''}
     <tr><td>Pression sur une paroi</td><td class="n">w = q<sub>p</sub>(z<sub>e</sub>)·(c<sub>pe</sub> − c<sub>pi</sub>)</td><td class="ref">§5.2, éq. (5.1) et (5.2)</td></tr></table>
+    <h3>Coefficients nets c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> (parois du bâtiment fermé)</h3>${tabNet(M0,M90,R,CP,qp,kdc?kd:null)}
     <div class="note">Zones selon les figures 7.5 (murs), 7.6 à 7.8 (toitures) : e = min(b ; 2h), b étant la dimension perpendiculaire au vent. Interpolation linéaire en h/d et en α entre valeurs de même signe ; pour θ = 0°, les deux cas (dépression et pression) sont à étudier séparément, sans mélange sur un même versant.${qp?` q<sub>p</sub>(z<sub>e</sub>) = ${f(qp,3)} kN/m² (onglet Vent).`:''}</div>`;
   $('cvBat').innerHTML=b; if($('bfOn').checked) out.bat=`<div class="card"><h2>Vent – bâtiment fermé (L = ${f(L,1)} m, W = ${f(W,1)} m, h = ${f(hb,1)} m, α = ${f(a,1)}°)</h2>${b}</div>`;
   // C. toiture isolée à un versant
@@ -862,11 +825,6 @@ function renderSyn(Z,V,N,E,cc,cb,CVH={},cp={tot:0}){
     +r('Spectre vertical : a<sub>vg</sub> / T<sub>Bv</sub>–T<sub>Cv</sub>–T<sub>Dv</sub>',`${f(E.avg,3)} m/s² / ${f(E.TBv,2)}–${f(E.TCv,2)}–${f(E.TDv,2)} s`,'','Arrêté 22/10/2010 mod. 08/09/2021 ; EN 1998-1 §3.2.2.3',E.avg>0.25*9.81?'requis (structure)':'non requis §4.3.3.5.2')+r(`Palier vertical de calcul S<sub>vd</sub> (q<sub>v</sub> = ${f(E.qv,1)})`,f(2.5*E.avg/E.qv,3),'m/s²','§3.2.2.5(5)','')+r('Période fondamentale estimée T<sub>1</sub>',f(E.T1,3),'s','§4.3.3.2.2',E.domaine)
     +r('Effort tranchant à la base F<sub>b</sub> (indicatif)',f(E.Fb,1),'kN','§4.3.3.2.2, éq. (4.5)')+r('Force sismique sur le bardage F<sub>a</sub>',f(E.fa[0].Fa,4),'kN/m²','§4.3.5.2, éq. (4.24)')
     +r('Force sismique sur la couverture F<sub>a</sub>',f(E.fa[1].Fa,4),'kN/m²','§4.3.5.2, éq. (4.24)')+r('Exigence réglementaire',E.exig,'','Arrêté art. 3-4','',1));
-  if($('nCouv').checked||$('nBard').checked||$('nPlan').checked) h+=T('Complexes et planchers – charges (EN 1991-1-1)',
-    ($('nCouv').checked?r('Poids propre du complexe de couverture',`${f(cc.tot,3)} kN/m² = ${f(cc.tot*100,1)}`,'daN/m²','EN 1991-1-1 §5.2','',1):'')
-    +($('nBard').checked?r('Poids propre du complexe de bardage',`${f(cb.tot,3)} kN/m² = ${f(cb.tot*100,1)}`,'daN/m²','EN 1991-1-1 §5.2','',1):'')
-    +($('nPlan').checked?r(`Plancher « ${esc($('plNom').value)} » – charges permanentes G<sub>k</sub>`,`${f(cp.tot,3)} kN/m² = ${f(cp.tot*100,1)}`,'daN/m²','EN 1991-1-1 §5.2','',1)
-      +r('Plancher – charge d\'exploitation q<sub>k</sub> / Q<sub>k</sub>',`${f(num('plq',0)+(+$('plCl').value),2)} kN/m² / ${f(num('plQ',0),1)} kN`,'','EN 1991-1-1 §6.3.1.2 + AN','',1):''));
   h+=(CVH.prof||'')+(CVH.bat||'')+(CVH.ti||'')+(CVH.mi||'');
   if(V&&E) h+=`<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><h2>Profil q<sub>p</sub>(z)</h2>${graphVent(V)}</div><div><h2>Spectres de réponse (H et V)</h2>${graphSpectre(E)}</div></div>`;
   h+=`<div class="note">Zones issues de la base de zonage du classeur « ${esc(ZONAGE.source)} » (vent/neige : par canton ; séisme : par commune), à confirmer sur les textes en vigueur. Outil d'aide : les résultats doivent être vérifiés par l'ingénieur ; il ne dispense pas de la lecture des textes. Non traités : accumulations de neige (obstacles, noues, acrotères), procédure 2 d'orographie (obstacle isolé : valeur à saisir), cas cycloniques des DROM.</div>`;
@@ -972,7 +930,7 @@ function init(){
   $('fVent').innerHTML='<option value="">— base de zonage —</option>'+Object.keys(VB0).map(k=>`<option>${k}</option>`).join('');
   $('fNeige').innerHTML='<option value="">— base de zonage —</option>'+Object.keys(NEIGE).map(k=>`<option>${k}</option>`).join('');
   $('date').valueAsDate=new Date();
-  initCpx(); initManu();
+  initManu();
   document.querySelectorAll('.act').forEach(b=>b.onclick=()=>{document.querySelectorAll('.act').forEach(x=>x.classList.toggle('on',x===b));S.couche=b.dataset.l;render();});
   document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p));});
   document.querySelectorAll('main .card input, main .card select, #alt').forEach(el=>{ if(!el.closest('#p-cpx')) el.addEventListener('input',render); });
@@ -1001,14 +959,14 @@ $('versS1').onclick=()=>{
   catch(e){alert('Stockage indisponible sur ce navigateur.');}
 };
 </script>
-<script src="../commun/cahier.js?v=2.30"></script>
+<script src="../commun/cahier.js?v=2.42"></script>
 <script>CAHIER.remplir({affaire:'affaire',auteur:'realise'});</script>
-<script src="../commun/replier.js?v=2.30"></script>
-<script src="../commun/aide.js?v=2.30"></script>
-<script src="aide-c1.js?v=2.30"></script>
-<script src="../commun/export.js?v=2.30"></script>
-<script>EXPORT.init({code:'C1',titre:'Hypothèses climatiques, sismiques et complexes',
-  zones:()=>[...document.querySelectorAll('#syn > .card')].concat(['ventRes','neigeRes','neigeToit','seismeRes','seismeGraph','seismeFa'].concat([['cpxCouv','nCouv'],['cpxBard','nBard'],['cpxPlan','nPlan']].filter(([,c])=>document.getElementById(c).checked).map(([z])=>z)).map(id=>document.getElementById(id).closest('.card'))),
+<script src="../commun/replier.js?v=2.42"></script>
+<script src="../commun/aide.js?v=2.42"></script>
+<script src="aide-c1.js?v=2.42"></script>
+<script src="../commun/export.js?v=2.42"></script>
+<script>EXPORT.init({code:'C1',titre:'Charges climatiques et sismiques',
+  zones:()=>[...document.querySelectorAll('#syn > .card')].concat(['ventRes','neigeRes','neigeToit','seismeRes','seismeGraph','seismeFa'].map(id=>document.getElementById(id).closest('.card'))),
   donnees:()=>[document.querySelector('.panneau'),...document.querySelectorAll('main .card')],
   avant:()=>render(), nom:()=>document.getElementById('affaire').value||(S.commune&&S.commune.n)});</script>
 </body>

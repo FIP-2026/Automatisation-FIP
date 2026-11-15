@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.42"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — G1 Charges permanentes</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.42">
+<script src="../commun/apps.js?v=2.42"></script>
+<script src="../commun/cahier.js?v=2.42"></script>
+<script src="../climat/data/zonage.js?v=2.42"></script>
+<script src="../commun/data/tuyauterie.js?v=2.42"></script>
+<script src="../commun/charges.js?v=2.42"></script>
+<style>
+  main{display:block;max-width:1400px}
+  table.ed td,table.ed th{font-size:12.5px;vertical-align:middle}
+  table.ed input,table.ed select{padding:4px 6px;font-size:12.5px}
+  .inl select,.inl input{width:auto;display:inline-block}
+  .cx{border:1px solid var(--line);border-radius:8px;padding:10px;margin:10px 0;background:#fff}
+  .cx .tete{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+  .cx .tete>div{flex:1 1 180px}
+  .tot{font-size:15px;font-weight:800;color:var(--fip-bleu)}
+  .lay{display:grid;grid-template-columns:1.15fr 1fr;gap:12px;align-items:start}
+  @media (max-width:1000px){.lay{grid-template-columns:1fr}}
+  button.mini{padding:2px 8px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">G1</span>Charges permanentes</h1>
+    <div class="sub">Complexes de couverture, bardage et plancher, garde-corps, tuyauteries, équipements, poids volumiques — NF EN 1991-1-1 + AN</div>
+  </div>
+  <a href="../note-hypotheses/" class="noprint"><button class="sec" type="button">📑 Note d'hypothèses</button></a>
+  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+</header>
+<main>
+  <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong>Charges permanentes</strong><br><span id="phInfo"></span></div>
+  <div class="card"><div class="msg info" style="margin:0">Le <b>poids propre des éléments calculés</b> (profilés, tubes) est ajouté automatiquement par les calculettes de dimensionnement (S1, P1, P2, T1). Cet outil recense les <b>autres charges permanentes</b> de l'affaire. La case « note » d'un élément le reprend dans la note d'hypothèses (NH). Données enregistrées dans ce navigateur pour l'affaire en cours.</div><div id="aff" class="note" style="margin-top:6px"></div></div>
+
+  <div class="card" id="cCpx"><h2>Charges surfaciques – complexes de couverture, bardage, plancher</h2>
+    <div class="noprint" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-add="couv">➕ Couverture</button><button type="button" data-add="bard" class="sec">➕ Bardage</button><button type="button" data-add="plan" class="sec">➕ Plancher</button><button type="button" data-add="autre" class="sec">➕ Autre charge surfacique</button></div>
+    <div id="cpx"></div>
+    <div class="note">Catalogue indicatif (fiches fabricants, NF EN 1991-1-1 Annexe A) : mode « vol » = masse volumique × épaisseur, « surf » = masse surfacique, « libre » = saisie en daN/m². Les « Divers » (réseaux, éclairage, sprinkler) sont des provisions à confirmer par les lots concernés.</div></div>
+
+  <div class="card" id="cLin"><h2>Charges linéiques – garde-corps, autres</h2>
+    <div class="noprint" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-lin="gc">➕ Garde-corps</button><button type="button" data-lin="autre" class="sec">➕ Autre</button></div>
+    <div id="lin"></div></div>
+
+  <div class="card" id="cTuy"><h2>Lignes de tuyauterie – poids linéiques</h2>
+    <div class="noprint" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="addTuy">➕ Ligne</button><button type="button" id="impTuy" class="sec" title="Reprendre les tuyauteries des supports enregistrés dans le cahier de supportage (S1)">📥 Importer les lignes du cahier (S1)</button></div>
+    <div id="tuy"></div>
+    <div class="note">Même base que T1 et S1 (ASME B36.10M / B36.19M). <b>G</b> = tube + calorifuge + fluide en service. Si le fluide est moins dense que l'eau (gaz, vapeur, hydrocarbures légers…), une situation d'épreuve hydraulique est prévue : l'eau remplace le fluide et est classée en action variable <b>Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>vide</sub></b> (cas E<sub>P</sub> de S1), avec G = q<sub>vide</sub> ; sinon elle est couverte par G.</div></div>
+
+  <div class="card" id="cPon"><h2>Charges ponctuelles – équipements</h2>
+    <div class="noprint"><button type="button" id="addPon">➕ Équipement</button></div>
+    <div id="pon"></div>
+    <div class="note">Exemples : débitmètre Coriolis, vanne motorisée, CTA, pompe, ventilateur, échangeur. Masses à prendre sur la fiche fabricant ; la répartition égale sur les appuis est à affiner selon le centre de gravité.</div></div>
+
+  <div class="card" id="cMat"><h2>Poids volumiques des matériaux (NF EN 1991-1-1 Annexe A)</h2><div id="mat"></div>
+    <div class="note">Sélection de valeurs de l'Annexe A (indicatives, à recouper avec la norme) ; cocher celles à citer dans la note. Liquides en température (hydrocarbures, eau chaude) : utiliser <a href="../fluides/">H1 Propriétés des fluides</a>.</div></div>
+
+  <div class="card"><h2>Symboles des charges</h2><div id="sym"></div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id), f=CH.fx, h=CH.esc, uid=()=>Math.random().toString(36).slice(2,8);
+let G=CH.lire('G')||{complexes:[],lineiques:[],ponctuelles:[],materiaux:[]};
+if(!G.complexes.length&&!G.lineiques.length&&!G.ponctuelles.length) G.complexes=[{id:uid(),type:'couv',nom:'Couverture',maj:3,note:true,couches:CH.DEFAUTS_CPX.couv.map(d=>({nom:d[0],e:d[1]??''}))}];
+const enr=()=>CH.ecrire('G',G);
+/* ---------- affaire ---------- */
+(()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:null; $('aff').innerHTML=K&&(K.num||K.intitule)?`Affaire : <b>${h(CAHIER.libAffaire(K))}</b> – ${h(K.client||'')} – phase ${h(K.phase||'')}`:'Affaire : renseigner l\'identification dans le <a href="../cahier/">cahier de supportage</a> (reprise automatique dans la note d\'hypothèses).'; $('phInfo').textContent=$('aff').textContent; })();
+/* ---------- complexes ---------- */
+const TYP={couv:'Couverture',bard:'Bardage',plan:'Plancher',autre:'Charge surfacique'};
+const optCat=sel=>{ const C=CH.catalogue(), fams=[...new Set(C.map(m=>m.fam))]; return '<option value="">—</option>'+fams.map(fa=>`<optgroup label="${h(fa)}">${C.filter(m=>m.fam===fa).map(m=>`<option ${m.nom===sel?'selected':''}>${h(m.nom)}</option>`).join('')}</optgroup>`).join(''); };
+function rendreCpx(){
+  $('cpx').innerHTML=G.complexes.map((c,ci)=>{ const P=CH.poidsComplexe(c);
+    return `<div class="cx" data-ci="${ci}"><div class="tete"><div><label>Désignation</label><input data-f="nom" value="${h(c.nom)}"></div><div style="flex:0 0 170px"><label>Type</label><select data-f="type">${Object.entries(TYP).map(([k,l])=>`<option value="${k}" ${k===c.type?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div style="flex:0 0 150px"><label>Majoration (%)</label><input data-f="maj" type="number" step="0.5" value="${c.maj??3}"></div><label class="chk" style="flex:0 0 auto"><input type="checkbox" data-f="note" ${c.note!==false?'checked':''}> note</label>
+      <div style="flex:0 0 auto" class="noprint"><button type="button" class="sec mini" data-x="cpx">✕ Supprimer</button></div></div>
+      <div class="lay"><div><table class="ed"><tr><th>Couche (catalogue)</th><th class="n">e (mm)</th><th class="n">Libre (daN/m²)</th><th class="n">daN/m²</th><th></th></tr>`+
+      c.couches.map((l,li)=>{ const L=P.lignes.find(x=>x.m.nom===l.nom&&c.couches.indexOf(l)===li)||P.lignes[li]; const m=CH.catalogue().find(x=>x.nom===l.nom);
+        return `<tr data-li="${li}"><td><select data-c="nom">${optCat(l.nom)}</select>${m?`<div class="note">${h(m.obs||'')}</div>`:''}</td><td style="width:80px"><input data-c="e" type="number" step="any" value="${h(l.e??'')}" placeholder="${m&&m.mode==='vol'?m.e:''}" ${m&&m.mode==='vol'?'':'disabled'}></td>
+          <td style="width:80px"><input data-c="libre" type="number" step="any" value="${h(l.libre??'')}" ${m&&m.mode==='libre'?'':'disabled'}></td><td class="n">${m?f(CH.poidsComplexe({couches:[l],maj:0}).tot*100,2):''}</td><td class="noprint"><button type="button" class="sec mini" data-x="couche">✕</button></td></tr>`; }).join('')+
+      `<tr class="noprint"><td colspan="5"><button type="button" class="sec mini" data-addc>➕ couche</button></td></tr>
+      <tr><td>Sous-total</td><td></td><td></td><td class="n">${f(P.st*100,2)}</td><td></td></tr><tr><td>Majoration ${f(P.maj*100,1)} %</td><td></td><td></td><td class="n">${f(P.majv*100,2)}</td><td></td></tr></table>
+      <div class="tot">g = ${f(P.tot*100,1)} daN/m² = ${f(P.tot,3)} kN/m²</div></div><div>${CH.coupeComplexe(P,(c.nom||TYP[c.type])+' – coupe de principe')}</div></div></div>`; }).join('')||'<div class="note">Aucun complexe.</div>';
+}
+document.querySelector('#cCpx').addEventListener('click',e=>{ const a=e.target.closest('[data-add]'); if(a){ const k=a.dataset.add; G.complexes.push({id:uid(),type:k,nom:TYP[k]+' '+(G.complexes.filter(c=>c.type===k).length+1),maj:3,note:true,couches:CH.DEFAUTS_CPX[k].map(d=>({nom:d[0],e:d[1]??''}))}); maj(); return; }
+  const box=e.target.closest('.cx'); if(!box) return; const c=G.complexes[+box.dataset.ci];
+  if(e.target.closest('[data-x="cpx"]')){ if(confirm('Supprimer ce complexe ?')){ G.complexes.splice(+box.dataset.ci,1); maj(); } return; }
+  if(e.target.closest('[data-x="couche"]')){ c.couches.splice(+e.target.closest('tr').dataset.li,1); maj(); return; }
+  if(e.target.closest('[data-addc]')){ c.couches.push({nom:'',e:''}); maj(); } });
+document.querySelector('#cCpx').addEventListener('change',e=>{ const box=e.target.closest('.cx'); if(!box) return; const c=G.complexes[+box.dataset.ci], el=e.target;
+  if(el.dataset.f) c[el.dataset.f]=el.type==='checkbox'?el.checked:el.value;
+  if(el.dataset.c){ const l=c.couches[+el.closest('tr').dataset.li]; l[el.dataset.c]=el.value; if(el.dataset.c==='nom'){ l.e=''; l.libre=''; } }
+  maj(); });
+/* ---------- linéiques ---------- */
+const GC_PRESETS=[['Garde-corps acier industriel (main courante, lisse, plinthe, montants)',0.20],['Garde-corps tube inox',0.15],['Garde-corps vitré (verre feuilleté)',0.50],['Valeur saisie',null]];
+function rendreLin(){
+  const LI=G.lineiques.map((l,i)=>[l,i]).filter(([l])=>l.type!=='tuy');
+  $('lin').innerHTML=LI.length?`<table class="ed"><tr><th>Désignation</th><th>Nature</th><th>Données</th><th class="n">g (kN/m)</th><th>note</th><th></th></tr>`+LI.map(([l,i])=>{
+    let d='';
+    if(l.type==='gc') d=`<select data-l="preset">${GC_PRESETS.map((p,k)=>`<option value="${k}" ${+l.preset===k?'selected':''}>${h(p[0])}${p[1]!=null?' – '+f(p[1],2)+' kN/m (indicatif)':''}</option>`).join('')}</select>${GC_PRESETS[+l.preset||0][1]==null?`<input data-l="q" type="number" step="0.01" value="${l.q}" style="width:90px;margin-left:4px"> kN/m`:''}`;
+    else d=`<input data-l="q" type="number" step="0.01" value="${l.q}" style="width:90px"> kN/m · <input data-l="detail" value="${h(l.detail||'')}" placeholder="précision (origine de la valeur)" style="width:55%">`;
+    return `<tr data-i="${i}"><td><input data-l="nom" value="${h(l.nom)}"></td><td>${{gc:'Garde-corps',autre:'Autre'}[l.type]}</td><td>${d}</td><td class="n"><b>${f(l.q,3)}</b></td><td><input type="checkbox" data-l="note" ${l.note!==false?'checked':''}></td><td class="noprint"><button type="button" class="sec mini" data-x>✕</button></td></tr>`; }).join('')+'</table>':'<div class="note">Aucune charge linéique.</div>';
+}
+function calcLin(){ G.lineiques.forEach(l=>{ if(l.type==='gc'){ const p=GC_PRESETS[+l.preset||0]; if(p[1]!=null){ l.q=p[1]; l.detail=p[0]+' (valeur indicative, à confirmer)'; } else l.detail='Valeur saisie'; }
+  if(l.type==='tuy'){ const r=CH.qTuyau(l); l.q=r.q; l.detail=r.desc; } }); }
+document.querySelector('#cLin').addEventListener('click',e=>{ const a=e.target.closest('[data-lin]'); if(a){ const t=a.dataset.lin; G.lineiques.push(t==='gc'?{id:uid(),type:'gc',nom:'Garde-corps',preset:0,q:0.2,note:true}:{id:uid(),type:'autre',nom:'Charge linéique',q:0,detail:'',note:true}); maj(); return; }
+  if(e.target.closest('[data-x]')){ G.lineiques.splice(+e.target.closest('tr').dataset.i,1); maj(); } });
+document.querySelector('#cLin').addEventListener('change',e=>{ const tr=e.target.closest('tr[data-i]'); if(!tr) return; const l=G.lineiques[+tr.dataset.i], el=e.target; l[el.dataset.l]=el.type==='checkbox'?el.checked:el.type==='number'?+el.value:el.value;
+  if(el.dataset.l==='dn'){ const P=PIPES.find(p=>p.dn==l.dn); if(P&&P.s[l.sch]===undefined) l.sch=Object.keys(P.s)[0]; } maj(); });
+/* ---------- tuyauteries ---------- */
+const nvTuy=(o={})=>({id:uid(),type:'tuy',nom:'L'+(G.lineiques.filter(l=>l.type==='tuy').length+1),dn:100,sch:'40',mat:'P265GH',fluide:0,rhoF:1000,ecal:0,rhoCal:100,q:0,note:true,...o});
+function rendreTuy(){ const L=G.lineiques.map((l,i)=>[l,i]).filter(([l])=>l.type==='tuy');
+  $('tuy').innerHTML=L.length?`<table class="ed"><tr><th>Ligne</th><th>DN / sch / matériau</th><th>Fluide</th><th class="n">ρ<sub>f</sub> (kg/m³)</th><th>Calorifuge</th><th class="n">q vide</th><th class="n">Service : G</th><th class="n">Épreuve : Q<sub>ép</sub> eau</th><th>note</th><th></th></tr>`+L.map(([l,i])=>{ const r=CH.qTuyau(l), P=PIPES.find(p=>p.dn==l.dn)||PIPES[0], sch=SCH_ORDER.filter(x=>P.s[x]!==undefined);
+    return `<tr data-i="${i}"><td><input data-l="nom" value="${h(l.nom)}" style="width:90px"></td>
+      <td><span class="inl">DN <select data-l="dn">${PIPES.map(p=>`<option ${p.dn==l.dn?'selected':''}>${p.dn}</option>`).join('')}</select> <select data-l="sch">${sch.map(x=>`<option ${x===l.sch?'selected':''}>${x}</option>`).join('')}</select> <select data-l="mat">${MATS.map(m=>`<option ${m.id===l.mat?'selected':''}>${m.id}</option>`).join('')}</select></span><div class="note">Ø${f(r.D,1)} × ${f(r.en,2)}</div></td>
+      <td><select data-l="fluide">${FLUIDS.map((x,k)=>`<option value="${k}" ${+l.fluide===k?'selected':''}>${h(x.n)}</option>`).join('')}</select></td>
+      <td style="width:80px"><input data-l="rhoF" type="number" value="${l.rhoF}"></td>
+      <td><span class="inl"><input data-l="ecal" type="number" value="${l.ecal}" style="width:55px"> mm × <input data-l="rhoCal" type="number" value="${l.rhoCal}" style="width:60px"> kg/m³</span></td>
+      <td class="n">${f(r.qVide,3)}</td><td class="n"><b>${f(r.qServ,3)}</b></td><td class="n">${r.qEp>0?`<b style="color:#0098db">${f(r.qEp,3)}</b>`:'<span class="note">couverte</span>'}</td>
+      <td><input type="checkbox" data-l="note" ${l.note!==false?'checked':''}></td><td class="noprint"><button type="button" class="sec mini" data-x>✕</button></td></tr>`; }).join('')+'</table><div class="note">Valeurs en kN/m. Service : G = tube + calorifuge + fluide. Épreuve (fluide plus léger que l\'eau) : G = q vide et eau Q<sub>ép</sub> (action variable, bleu) ; « couverte » : fluide au moins aussi dense que l\'eau.</div>':'<div class="note">Aucune ligne.</div>'; }
+$('addTuy').onclick=()=>{ G.lineiques.push(nvTuy()); maj(); };
+$('impTuy').onclick=()=>{ const K=CAHIER.existe()?CAHIER.lire():null, T=K?K.types.filter(t=>t.kind==='s1'&&t.etat&&t.etat.tuyaux):[];
+  if(!T.length){ alert('Aucun support S1 dans le cahier de supportage de ce navigateur.'); return; }
+  const cle=t=>[t.dn,t.sch,t.mat,+t.rho||0,+t.ecal||0,+t.rhoCal||0].join('|'), deja=new Set(G.lineiques.filter(l=>l.type==='tuy').map(l=>[l.dn,l.sch,l.mat,+l.rhoF||0,+l.ecal||0,+l.rhoCal||0].join('|'))); let n=0, dir=0;
+  T.forEach(ty=>ty.etat.tuyaux.forEach(t=>{ if(t.mode!=='base'){ dir++; return; } const k=cle(t); if(deja.has(k)) return; deja.add(k); n++;
+    G.lineiques.push(nvTuy({nom:t.nom||('DN'+t.dn),dn:t.dn,sch:t.sch,mat:t.mat,fluide:+t.fluide||0,rhoF:+t.rho||0,ecal:+t.ecal||0,rhoCal:+t.rhoCal||0,detail:'importée de '+ty.nom})); }));
+  maj(); alert(`${n} ligne(s) importée(s) (doublons ignorés)`+(dir?` ; ${dir} tuyauterie(s) en saisie directe non reprise(s).`:'.')); };
+document.querySelector('#cTuy').addEventListener('click',e=>{ if(e.target.closest('[data-x]')){ G.lineiques.splice(+e.target.closest('tr').dataset.i,1); maj(); } });
+document.querySelector('#cTuy').addEventListener('change',e=>{ const tr=e.target.closest('tr[data-i]'); if(!tr) return; const l=G.lineiques[+tr.dataset.i], el=e.target, k=el.dataset.l;
+  l[k]=el.type==='checkbox'?el.checked:el.type==='number'?+el.value:el.value;
+  if(k==='fluide'){ l.fluide=+el.value; const fl=FLUIDS[l.fluide]; if(fl&&fl.r!==null) l.rhoF=fl.r; }
+  if(k==='rhoF'){ const p=FLUIDS.findIndex(x=>x.r===null); if(FLUIDS[+l.fluide]&&FLUIDS[+l.fluide].r!==l.rhoF&&p>=0) l.fluide=p; }
+  if(k==='dn'){ const P=PIPES.find(p=>p.dn==l.dn); if(P&&P.s[l.sch]===undefined) l.sch=Object.keys(P.s)[0]; } maj(); });
+/* ---------- ponctuelles ---------- */
+function rendrePon(){
+  $('pon').innerHTML=G.ponctuelles.length?`<table class="ed"><tr><th>Équipement</th><th class="n">Masse à vide (kg)</th><th class="n">Masse en service (kg)</th><th class="n">Nb appuis</th><th class="n">G vide / appui (kN)</th><th class="n">G service / appui (kN)</th><th>Observation</th><th>note</th><th></th></tr>`+G.ponctuelles.map((p,i)=>`<tr data-i="${i}"><td><input data-p="nom" value="${h(p.nom)}"></td><td><input data-p="mVide" type="number" value="${p.mVide}" style="width:90px"></td><td><input data-p="mServ" type="number" value="${p.mServ}" style="width:90px"></td><td><input data-p="n" type="number" min="1" value="${p.n}" style="width:60px"></td>
+    <td class="n">${f(p.mVide*CH.g/1000/Math.max(p.n,1),2)}</td><td class="n"><b>${f(p.mServ*CH.g/1000/Math.max(p.n,1),2)}</b></td><td><input data-p="obs" value="${h(p.obs||'')}" placeholder="fiche fabricant, position du CdG…"></td><td><input type="checkbox" data-p="note" ${p.note!==false?'checked':''}></td><td class="noprint"><button type="button" class="sec mini" data-x>✕</button></td></tr>`).join('')+'</table>':'<div class="note">Aucun équipement.</div>';
+}
+$('addPon').onclick=()=>{ G.ponctuelles.push({id:uid(),nom:'Équipement',mVide:100,mServ:150,n:4,obs:'',note:true}); maj(); };
+$('pon').addEventListener('click',e=>{ if(e.target.closest('[data-x]')){ G.ponctuelles.splice(+e.target.closest('tr').dataset.i,1); maj(); } });
+$('pon').addEventListener('change',e=>{ const tr=e.target.closest('tr[data-i]'), el=e.target, p=G.ponctuelles[+tr.dataset.i]; p[el.dataset.p]=el.type==='checkbox'?el.checked:el.type==='number'?Math.max(+el.value,el.dataset.p==='n'?1:0):el.value; maj(); });
+/* ---------- matériaux ---------- */
+function rendreMat(){ const fams=[...new Set(CH.ANNEXE_A.map(a=>a.fam))];
+  $('mat').innerHTML=`<table class="ed"><tr><th>note</th><th>Matériau</th><th>Famille</th><th class="n">γ (kN/m³)</th></tr>`+CH.ANNEXE_A.map(a=>`<tr><td><input type="checkbox" data-m="${a.id}" ${G.materiaux.includes(a.id)?'checked':''} ${a.v==null?'disabled':''}></td><td>${h(a.nom)}</td><td>${h(a.fam)}</td><td class="n">${CH.valA(a.v)}</td></tr>`).join('')+'</table>'; }
+$('mat').addEventListener('change',e=>{ const id=e.target.dataset.m; if(!id) return; G.materiaux=e.target.checked?[...new Set([...G.materiaux,id])]:G.materiaux.filter(x=>x!==id); enr(); });
+$('sym').innerHTML=CH.symboles();
+function maj(){ calcLin(); rendreCpx(); rendreLin(); rendreTuy(); rendrePon(); enr(); }
+maj(); rendreMat();
+</script>
+<script src="../commun/replier.js?v=2.42"></script>
+<script src="../commun/aide.js?v=2.42"></script>
+<script>AIDE.init({titre:"Aide – G1 Charges permanentes",manuel:"g1",intro:"G1 recense les charges permanentes de l'affaire autres que le poids propre des éléments calculés (ajouté automatiquement par S1, P1, P2, T1). Chaque élément coché « note » est repris dans la note d'hypothèses (NH).",
+  etapes:[{t:"Complexes",html:"« ➕ Couverture / Bardage / Plancher / Autre » : choisir les couches dans le catalogue, saisir les épaisseurs (mode vol) ou une valeur libre ; la coupe de principe se dessine à droite.",cible:"#cCpx"},
+    {t:"Charges linéiques",html:"Garde-corps (valeurs indicatives ou saisies) ou autre charge linéique.",cible:"#cLin"},
+    {t:"Lignes de tuyauterie",html:"« ➕ Ligne » ou « 📥 Importer les lignes du cahier » (tuyauteries des supports S1, doublons ignorés). Pour chaque ligne : q à vide, G en service et, si le fluide est moins dense que l'eau, le poids de l'eau d'épreuve Q<sub>ép</sub> (action variable, en remplacement du fluide).",cible:"#cTuy"},
+    {t:"Équipements",html:"Masses à vide et en service (fiche fabricant), nombre d'appuis : charge par appui.",cible:"#cPon"},
+    {t:"Poids volumiques",html:"Cocher les valeurs de l'Annexe A à citer dans la note.",cible:"#cMat"},
+    {t:"Note d'hypothèses",html:"« 📑 Note d'hypothèses » rassemble G1, Q1, C1 et les hypothèses générales."}],
+  faq:[{q:"Tuyauterie : contenu en G ou en Q ?",r:"En service, le fluide est classé en G. Si ρ<sub>fluide</sub> &lt; 1 000 kg/m³, une situation d\'épreuve hydraulique est prévue : la ligne est remplie d\'eau à la place du fluide et cette eau est une action variable Q<sub>ép</sub> (situation transitoire, NF EN 1990 §3.2, §4.1.1) : ELU 1,35·q<sub>vide</sub> + 1,5·Q<sub>ép</sub>, sans autre action variable (cas E<sub>P</sub> de S1). Si l\'épreuve est pneumatique ou si la ligne n\'est jamais remplie d\'eau, ne pas retenir ce cas (à justifier)."},
+    {q:"Le poids propre est-il compté deux fois ?",r:"Non : le poids propre des profilés calculés est ajouté par les calculettes ; ne mettre dans G1 que les charges rapportées (complexes, équipements, réseaux…). Pour un complexe porté par une ossature calculée (pannes, lisses), ne pas cocher le forfait « ossature secondaire » si les pannes sont dimensionnées dans un autre outil."},
+    {q:"Contenu des équipements : permanent ou variable ?",r:"Le contenu en service d'un équipement à niveau stable peut être traité en charge permanente ; s'il varie (cuve, trémie), le traiter en charge variable (Q1 ou valeur du projet) et préciser l'hypothèse."}]});</script>
+</body>
+</html>

@@ -50,7 +50,27 @@ const DESSIN = (() => {
   }
 
   /* ---------- rendu d'une vue (coordonnées planche, mm) ---------- */
-  function rendreVue(V, sol, X, Y) {
+  /* parties visibles des arêtes (mode vectoriel / DXF) : une arête de la face i est cachée là où une face j > i (plus proche, peinte après) la recouvre */
+  function aretesVisibles(items, P2n) {
+    const polys = items.map((it) => { const R = it.f.rings.map((r) => r.map(P2n)), xs = R.flat().map((p) => p[0]), ys = R.flat().map((p) => p[1]); return { R, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }; });
+    const C = 4, grille = new Map(), cle = (i, j) => i + ":" + j;
+    polys.forEach((P, k) => { for (let i = Math.floor(P.x0 / C); i <= Math.floor(P.x1 / C); i++) for (let j = Math.floor(P.y0 / C); j <= Math.floor(P.y1 / C); j++) { const c = cle(i, j); (grille.get(c) || grille.set(c, []).get(c)).push(k); } });
+    const EPS = 0.06, dans = (P, x, y) => { if (x < P.x0 + EPS || x > P.x1 - EPS || y < P.y0 + EPS || y > P.y1 - EPS) return false; let c = false, dm = Infinity;
+      P.R.forEach((r) => r.forEach((a, i) => { const b = r[(i + 1) % r.length]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
+        const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-12, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L2)); dm = Math.min(dm, Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy)); }));
+      return c && dm > EPS; };
+    const cache = (k, x, y) => (grille.get(cle(Math.floor(x / C), Math.floor(y / C))) || []).some((j) => j > k && dans(polys[j], x, y));
+    const segs = [];
+    items.forEach((it, k) => it.edges.forEach(([p, q]) => { const a = P2n(p), b = P2n(q), L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 1e-3) return;
+      const n = Math.max(2, Math.ceil(L / 0.4)), pt = (t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], vis = [];
+      for (let i = 0; i <= n; i++) { const [x, y] = pt(i / n); vis.push(!cache(k, x, y)); }
+      const bord = (t0, t1, v0) => { for (let r = 0; r < 6; r++) { const tm = (t0 + t1) / 2, [x, y] = pt(tm); if (!cache(k, x, y) === v0) t0 = tm; else t1 = tm; } return (t0 + t1) / 2; };
+      let deb = vis[0] ? 0 : null;
+      for (let i = 1; i <= n; i++) { if (vis[i] && deb === null) deb = bord((i - 1) / n, i / n, false); if (!vis[i] && deb !== null) { segs.push([pt(deb), pt(bord((i - 1) / n, i / n, true)), it.S.trait || TF]); deb = null; } }
+      if (deb !== null) segs.push([pt(deb), b, it.S.trait || TF]); }));
+    return segs;
+  }
+  function rendreVue(V, sol, X, Y, vec) {
     const w = V.w, cle = (p) => p.map((v) => Math.round(v * 1e5)).join(","), ek = (a, b) => { const A = cle(a), B = cle(b); return A < B ? A + "|" + B : B + "|" + A; };
     const items = [];
     sol.forEach((S) => {
@@ -66,11 +86,13 @@ const DESSIN = (() => {
     });
     items.sort((a, b) => a.prof - b.prof);
     const P2 = (p) => `${X(dot(p, V.u)).toFixed(2)},${Y(dot(p, V.v)).toFixed(2)}`;
+    if (vec) return `<g data-c="CONTOUR">` + aretesVisibles(items, (p) => [X(dot(p, V.u)), Y(dot(p, V.v))]).map(([a, b, w]) => `<line x1="${a[0].toFixed(3)}" y1="${a[1].toFixed(3)}" x2="${b[0].toFixed(3)}" y2="${b[1].toFixed(3)}" stroke="#000" stroke-width="${w}" stroke-linecap="round"/>`).join("") + "</g>";
     return items.map(({ f, edges, S }) => `<path d="${f.rings.map((R) => "M" + R.map(P2).join("L") + "Z").join("")}" fill="${S.fond || "#fff"}" fill-rule="evenodd" stroke="none"/>` +
       (edges.length ? `<path d="${edges.map(([p, q]) => "M" + P2(p) + "L" + P2(q)).join("")}" stroke="#000" stroke-width="${S.trait || TF}" stroke-linecap="round" fill="none"/>` : "")).join("");
   }
 
   /* ---------- primitives 2D de la planche ---------- */
+  const CAL = { fort: "CONTOUR", fin: "FIN", axe: "AXES", tirets: "CACHE", cache: "CACHE", fantome: "PIECES_VOISINES" };   // calques DXF
   const STY = { fort: `stroke="#000" stroke-width="${TF}"`, fin: `stroke="#000" stroke-width="${TFin}"`, axe: `stroke="#000" stroke-width="${TFin}" stroke-dasharray="8 1.5 1 1.5"`,
     tirets: `stroke="#000" stroke-width="${TFin}" stroke-dasharray="3 1.5"`, fantome: `stroke="#000" stroke-width="${TFin}" stroke-dasharray="10 1.5 1 1.5 1 1.5"`, cache: `stroke="#000" stroke-width="${TFin}" stroke-dasharray="3 1.5"` };
   const txt = (x, y, s, o = {}) => `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" font-family="${F}" font-size="${o.h || 3.5}" ${o.b ? 'font-weight="700"' : ""} text-anchor="${o.a || "start"}" ${o.rot ? `transform="rotate(${o.rot} ${x.toFixed(2)} ${y.toFixed(2)})"` : ""} fill="#000">${esc(s)}</text>`;
@@ -113,14 +135,22 @@ const DESSIN = (() => {
   function planche(spec) {
     const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
-    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
-    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * 5 + 4.5 + 2.5 + (t.note ? 3.2 : 0), 0), hTp = spec.statut ? 15 : 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
+    const A4 = spec.format === "A4", TH = A4 ? { hl: 4.8, f: 2.4, ft: 3, nt: 2.2, bd: 11, b1: 4, b2: 2.1 } : { hl: 6, f: 2.8, ft: 3.5, nt: 2.5, bd: 13, b1: 5, b2: 2.5 };   // tailles selon le format
+    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
+    const coupeTxt = (t, n) => { const L = []; let l = ""; String(t).split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
+    const ncTab = Math.floor(wB / (A4 ? 1.22 : 1.38));
+    tabs.forEach((t) => { t._note = t.note ? coupeTxt(t.note, ncTab) : []; });
+    const hTab = tabs.reduce((a, t) => a + (t.rows.length + 1) * TH.hl + TH.ft + 2 + 2.5 + t._note.length * (TH.nt + 0.9), 0), hTp = spec.statut ? TH.bd + 2 : 0, hB = hCart + hNom + hTab + (tabs.length ? 1 : 0) + hTp;
     const bloc = { x0: zx1 - wB, y0: zy1 - hB, x1: zx1, y1: zy1 };
-    const tampon = spec.statut ? { x0: bloc.x0, y0: bloc.y0, x1: bloc.x1, y1: bloc.y0 + hTp - 2 } : null;   // « non valable pour exécution » : en tête du bloc cartouche
     const coupeR = (R, B) => B && R[0] < B.x1 && R[2] > B.x0 && R[1] < B.y1 && R[3] > B.y0;
     const lignesNotes = [], ncN = Math.max(30, Math.floor((bloc.x0 - zx0 - 6) / 1.35));      // notes coupées à la largeur disponible
     (spec.notes || []).forEach((n) => { let l = ""; String(n).split(" ").forEach((m) => { if ((l + " " + m).trim().length > ncN) { lignesNotes.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) lignesNotes.push(l.trim()); });
     const hNotes = lignesNotes.length ? lignesNotes.length * 3.4 + 4 : 0;
+    /* deux dispositions du bloc : « pile » (bandeau + tableaux au-dessus de la nomenclature) ou « côte » (bandeau + tableaux à gauche de la nomenclature, si la largeur le permet) */
+    const hPile = hTab + (tabs.length ? 1 : 0) + hTp, blocA = { x0: zx1 - wB, y0: zy1 - hCart - hNom, x1: zx1, y1: zy1 };
+    const DISPO = { pile: { obst: [bloc], zt: { x0: bloc.x0, y0: bloc.y0, w: wB } } };
+    if (hPile > 0 && zx1 - zx0 - 2 * wB - 4 >= 0) { const r = { x0: blocA.x0 - 4 - wB, x1: blocA.x0 - 4, y1: zy1 - hNotes - 1, y0: zy1 - hNotes - 1 - hPile }; DISPO.cote = { obst: [blocA, r], zt: { x0: r.x0, y0: r.y0, w: wB } }; }
+    let obst = DISPO.pile.obst;
     /* vues interrompues : intervalles [a, b] supprimés le long d'un axe du modèle, remplacés par une bande de 7 mm (lignes de rupture) */
     const mkMap = (ints, gm) => { const L = ints.slice().sort((p, q) => q[0] - p[0]); return (t) => L.reduce((t, [a, b]) => (t <= a ? t : t >= b ? t - (b - a) + gm : a + (t - a) / (b - a) * gm), t); };
     const intsVue = (V, axe) => (spec.interruptions || []).filter((I) => !I.vues || I.vues.includes(V.id)).flatMap((I) => { const c = dot(I.ax, V[axe]); return Math.abs(c) > 0.99 ? [c > 0 ? [I.a, I.b] : [-I.b, -I.a]] : []; });
@@ -151,7 +181,7 @@ const DESSIN = (() => {
         const gx = Math.min(12, (zx1 - zx0 - W) / Math.max(cols.length, 1)), x0 = {}, y0 = {}; let x = zx0 + gx / 2; cols.forEach((c) => { x0[c] = x; x += wc[c] + gx; });
         let y = zy0 + 2; ligs.forEach((r) => { y0[r] = y; y += hl[r] + 4; });
         const rects = vues.map((V) => ({ V, x: x0[V.col] + V.mg.g, y: y0[V.lig] + V.mg.h, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k }));
-        const chev = rects.some((r) => { const R = [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b]; return coupeR(R, bloc) || coupeR(R, tampon); });
+        const chev = rects.some((r) => { const R = [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b]; return obst.some((B) => coupeR(R, B)); });
         if (chev) continue;
         ech = e; place = rects; grille = { x0, y0, wc, hl, cols, ligs }; break;
       }
@@ -159,35 +189,38 @@ const DESSIN = (() => {
     };
     // choix : vues complètes ; interrompues si l'échelle y gagne ; vue de dessus abandonnée seulement si elle coûte plus d'un facteur 2
     const coupes = !!(spec.interruptions && spec.interruptions.length);
-    let best = essai(spec.vues, false);
-    if (coupes) { const r = essai(spec.vues, true); if (r.ech && (!best.ech || r.ech < best.ech)) best = r; }
-    if (spec.vues.some((v) => v.option)) { const L = spec.vues.filter((v) => !v.option); let r = essai(L, false); if (coupes) { const r2 = essai(L, true); if (r2.ech && (!r.ech || r2.ech < r.ech)) r = r2; } if (r.ech && (!best.ech || r.ech * 2 < best.ech)) best = r; }
+    const choisir = () => { let best = essai(spec.vues, false);
+      if (coupes) { const r = essai(spec.vues, true); if (r.ech && (!best.ech || r.ech < best.ech)) best = r; }
+      if (spec.vues.some((v) => v.option)) { const L = spec.vues.filter((v) => !v.option); let r = essai(L, false); if (coupes) { const r2 = essai(L, true); if (r2.ech && (!r.ech || r2.ech < r.ech)) r = r2; } if (r.ech && (!best.ech || r.ech * 2 < best.ech)) best = r; }
+      return best; };
+    let best = choisir(), dispo = "pile";
+    if (DISPO.cote) { obst = DISPO.cote.obst; const r = choisir(); if (r.ech && (!best.ech || r.ech < best.ech)) { best = r; dispo = "cote"; } else obst = DISPO.pile.obst; }
+    const ZT = DISPO[dispo].zt;
     let { ech, place, grille } = best;
     const vues = place ? place.map((r) => r.V) : spec.vues.map((v) => ({ ...VUES[v.id], ...v }));
     if (!ech) { ech = 100; const k = 10; vues.forEach((V) => { V.mg = V.mg || { g: 18, d: 18, h: 24, b: 18 }; if (V.u0 == null) { V.u0 = 0; V.u1 = 1; V.v0 = 0; V.v1 = 1; } V.mu = V.mu || ((t) => t); V.mv = V.mv || ((t) => t); V.iu = V.iu || []; V.iv = V.iv || []; }); place = vues.map((V, i) => ({ V, x: zx0 + 20 + i * 120, y: zy0 + 20, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k })); }
     const k = 1000 / ech;
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
-    s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
+    s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
     [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; });   // repères de centrage
-    if (spec.statut) { const T = tampon, ph = spec.statut.phase || "APS/APD";
-      s += `<text x="${PW / 2}" y="${PH / 2}" font-family="${F}" font-size="${(PW * 0.034).toFixed(1)}" font-weight="700" fill="#000" fill-opacity="0.06" text-anchor="middle" transform="rotate(-25 ${PW / 2} ${PH / 2})">PHASE ${esc(ph)} – NON VALABLE POUR EXÉCUTION</text>`;
-      s += `<rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
-        txt((T.x0 + T.x1) / 2, T.y0 + 6.2, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: 4.2, b: 1 }) +
-        txt((T.x0 + T.x1) / 2, T.y0 + 10.6, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: 2.2 }); }
+    if (spec.statut) { const T = { x0: ZT.x0, y0: ZT.y0, x1: ZT.x0 + ZT.w, y1: ZT.y0 + hTp - 2 }, ph = spec.statut.phase || "APS/APD";   // bandeau encadré (pas de filigrane)
+      s += `<g data-c="CARTOUCHE"><rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
+        txt((T.x0 + T.x1) / 2, T.y0 + 1.6 + TH.b1, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: TH.b1, b: 1 }) +
+        txt((T.x0 + T.x1) / 2, T.y1 - 2.4, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: TH.b2 }) + "</g>"; }
     place.forEach(({ V, x, y, w, h }) => {
       const X = (u) => x + (V.mu(u) - V.u0) * k, Y = (v) => y + (V.v1 - V.mv(v)) * k, P = (p) => [X(dot(p, V.u)), Y(dot(p, V.v))], dans = (o) => !o.vues || o.vues.includes(V.id);
       let g = "";
       // ouvrage : murs (hachures béton) puis sols
       (spec.murs || []).filter(dans).forEach((m) => { const Q = m.rect.map(P), xs = Q.map((q) => q[0]), ys = Q.map((q) => q[1]), a = Math.min(...xs), b = Math.max(...xs), c = Math.min(...ys), d = Math.max(...ys);
         if (b - a < 0.3 || d - c < 0.3) return; const id = "hb" + Math.random().toString(36).slice(2, 8);
-        g += `<defs><pattern id="${id}" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="3" stroke="#000" stroke-width="0.18"/></pattern></defs><rect x="${a}" y="${c}" width="${b - a}" height="${d - c}" fill="url(#${id})" stroke="#000" stroke-width="${TF}"/>`; });
-      g += rendreVue(V, spec.solides, X, Y);
+        g += `<g data-c="OUVRAGE"><defs><pattern id="${id}" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="3" stroke="#000" stroke-width="0.18"/></pattern></defs><rect x="${a}" y="${c}" width="${b - a}" height="${d - c}" fill="url(#${id})" stroke="#000" stroke-width="${TF}"/></g>`; });
+      g += rendreVue(V, spec.solides, X, Y, spec.vecteur);
       (spec.sols || []).filter(dans).forEach((so) => { const a = P(so.a), b = P(so.b), L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 1) return; const m = P(so.mat), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
-        let nx = m[0] - mx, ny = m[1] - my; const n = Math.hypot(nx, ny) || 1; nx /= n; ny /= n; g += hachures(a[0], a[1], b[0], b[1], nx, ny); });
+        let nx = m[0] - mx, ny = m[1] - my; const n = Math.hypot(nx, ny) || 1; nx /= n; ny /= n; g += `<g data-c="OUVRAGE">${hachures(a[0], a[1], b[0], b[1], nx, ny)}</g>`; });
       (spec.aides || []).filter(dans).forEach((a) => { const Q = a.pts.map(P); if (Q.length < 2 || Math.hypot(Q[Q.length - 1][0] - Q[0][0], Q[Q.length - 1][1] - Q[0][1]) < 0.5) return;
-        g += `<polyline points="${Q.map((q) => q.map((v) => v.toFixed(2)).join(",")).join(" ")}" fill="none" ${STY[a.type] || STY.fin}/>`; });
+        g += `<polyline data-c="${CAL[a.type] || "FIN"}" points="${Q.map((q) => q.map((v) => v.toFixed(2)).join(",")).join(" ")}" fill="none" ${STY[a.type] || STY.fin}/>`; });
       (spec.cercles || []).filter(dans).forEach((c) => { const n = c.n || [1, 0, 0]; if (Math.abs(dot(n, V.w)) < 0.9) return; const [cx, cy] = P(c.c), r = c.r * k;
-        g += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${STY[c.style] || STY.fin}/>`;
+        g += `<circle data-c="${CAL[c.style] || "FIN"}" cx="${cx}" cy="${cy}" r="${r}" fill="none" ${STY[c.style] || STY.fin}/>`;
         if (c.croix) g += `<line x1="${cx - r - 2}" y1="${cy}" x2="${cx + r + 2}" y2="${cy}" ${STY.axe}/><line x1="${cx}" y1="${cy - r - 2}" x2="${cx}" y2="${cy + r + 2}" ${STY.axe}/>`; });
       // lignes de rupture (trait fin avec zigzag, ISO 128) : bande blanche par pièce traversant l'intervalle
       const zig = (x1, y1, x2, y2) => { const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, nx = -uy, ny = ux, m = L / 2, P2 = (t, o) => `${(x1 + ux * t + nx * o).toFixed(2)},${(y1 + uy * t + ny * o).toFixed(2)}`;
@@ -196,21 +229,21 @@ const DESSIN = (() => {
         let o0 = Infinity, o1 = -Infinity; const oth = axe === "u" ? V.v : V.u, ax = V[axe];
         S.faces.forEach((f) => { const t = f.rings[0].map((p) => dot(p, ax)); if (Math.min(...t) < a && Math.max(...t) > b) f.rings[0].forEach((p) => { const o = dot(p, oth); o0 = Math.min(o0, o); o1 = Math.max(o1, o); }); });
         if (o0 > o1) return;
-        if (axe === "u") { const xa = X(a), xb = X(b), ya = Y(o1) - 2.5, yb = Y(o0) + 2.5; g += `<rect x="${xa + 0.15}" y="${ya}" width="${xb - xa - 0.3}" height="${yb - ya}" fill="#fff"/>` + zig(xa, ya, xa, yb) + zig(xb, ya, xb, yb); }
-        else { const ya = Y(b), yb = Y(a), xa = X(o0) - 2.5, xb = X(o1) + 2.5; g += `<rect x="${xa}" y="${ya + 0.15}" width="${xb - xa}" height="${yb - ya - 0.3}" fill="#fff"/>` + zig(xa, ya, xb, ya) + zig(xa, yb, xb, yb); } })));
+        if (axe === "u") { const xa = X(a), xb = X(b), ya = Y(o1) - 2.5, yb = Y(o0) + 2.5; g += `<rect data-masque="1" x="${xa + 0.15}" y="${ya}" width="${xb - xa - 0.3}" height="${yb - ya}" fill="#fff"/>` + zig(xa, ya, xa, yb) + zig(xb, ya, xb, yb); }
+        else { const ya = Y(b), yb = Y(a), xa = X(o0) - 2.5, xb = X(o1) + 2.5; g += `<rect data-masque="1" x="${xa}" y="${ya + 0.15}" width="${xb - xa}" height="${yb - ya - 0.3}" fill="#fff"/>` + zig(xa, ya, xb, ya) + zig(xa, yb, xb, yb); } })));
       // cotes
       const niv = { gauche: 0, droite: 0, haut: 0, bas: 0 };
       (spec.cotes || []).filter((c) => c.vue === V.id).forEach((c) => { const a = P(c.a), b = P(c.b), n = c.niv || 0, pos = { gauche: x - 10 - 8 * n, droite: x + w + 10 + 8 * n, haut: y - 10 - 8 * n, bas: y + h + 10 + 8 * n }[c.cote];
-        g += cote(a, b, c.cote === "gauche" || c.cote === "droite" ? "v" : "h", pos, c.txt); });
+        g += `<g data-c="COTES">${cote(a, b, c.cote === "gauche" || c.cote === "droite" ? "v" : "h", pos, c.txt)}</g>`; });
       // étiquettes et repères (bulles)
       (spec.etiquettes || []).filter((e) => e.vue === V.id).forEach((e) => { const [px, py] = P(e.p), tx = px + (e.dx || 12), ty = py + (e.dy || -10);
-        g += `<line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" ${STY.fin}/><line x1="${tx}" y1="${ty}" x2="${tx + (e.dx < 0 ? -1 : 1) * (e.txt.length * 1.75 + 2)}" y2="${ty}" ${STY.fin}/>` + txt(tx + (e.dx < 0 ? -1 : 1) * 1, ty - 1, e.txt, { h: 2.5, a: e.dx < 0 ? "end" : "start" }); });
+        g += `<g data-c="REPERES"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" ${STY.fin}/><line x1="${tx}" y1="${ty}" x2="${tx + (e.dx < 0 ? -1 : 1) * (e.txt.length * 1.75 + 2)}" y2="${ty}" ${STY.fin}/>` + txt(tx + (e.dx < 0 ? -1 : 1) * 1, ty - 1, e.txt, { h: 2.5, a: e.dx < 0 ? "end" : "start" }) + "</g>"; });
       const cx0 = x + w / 2, cy0 = y + h / 2;
       (spec.reperes || []).filter((r) => r.vue === V.id).forEach((r) => { const [px, py] = P(r.p); let dx = r.dx ?? (px - cx0), dy = r.dy ?? (py - cy0); const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
         const L = r.L || 14, bx = px + dx * L, by = py + dy * L, R = 3.5;
-        g += `<circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }); });
-      if (spec.scu) { g += triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - V.titre.length * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7); /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
-      g += txt(x + w / 2, y + h + V.mg.b + 1, V.titre, { a: "middle", h: 3.5, b: 1 });
+        g += `<g data-c="REPERES"><circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }) + "</g>"; });
+      if (spec.scu) { g += `<g data-c="REPERES">` + triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - V.titre.length * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7) + "</g>"; /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
+      g += `<g data-c="TEXTE">${txt(x + w / 2, y + h + V.mg.b + 1, V.titre, { a: "middle", h: 3.5, b: 1 })}</g>`;
       s += `<g>${g}</g>`;
     });
     // perspective isométrique (sans échelle) dans la plus grande zone libre
@@ -220,29 +253,29 @@ const DESSIN = (() => {
       const du = Math.max(...us) - Math.min(...us), dv = Math.max(...vs) - Math.min(...vs);
       const occ = place.map((r) => [r.x - r.V.mg.g, r.y - r.V.mg.h, r.x + r.w + r.V.mg.d, r.y + r.h + r.V.mg.b + 6]);
       const gR = Math.max(...occ.map((o) => o[2])), gB = Math.max(...occ.map((o) => o[3]));
-      const cand = [[gR + 4, zy0 + 4, zx1 - 4, bloc.y0 - 4], [zx0 + 4, gB + 2, bloc.x0 - 4, zy1 - hNotes - 2]];
-      if (grille) grille.cols.forEach((c) => grille.ligs.forEach((r) => { if (!place.some((p) => p.V.col === c && p.V.lig === r)) cand.push([grille.x0[c] + 2, grille.y0[r] + 2, zx1 - 4, bloc.y0 - 4]); }));
-      if (tampon) cand.forEach((R) => { if (coupeR(R, tampon)) R[1] = Math.max(R[1], tampon.y1 + 3); });
-      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !coupeR(R, bloc) && !coupeR(R, tampon);
+      const hautO = Math.min(...obst.map((B) => B.y0)), cand = [[gR + 4, zy0 + 4, zx1 - 4, (dispo === "pile" ? bloc.y0 : blocA.y0) - 4], [gR + 4, zy0 + 4, zx1 - 4, hautO - 4], [zx0 + 4, gB + 2, bloc.x0 - 4, zy1 - hNotes - 2]];
+      if (grille) grille.cols.forEach((c) => grille.ligs.forEach((r) => { if (!place.some((p) => p.V.col === c && p.V.lig === r)) cand.push([grille.x0[c] + 2, grille.y0[r] + 2, zx1 - 4, hautO - 4]); }));
+      const libre = (R) => !occ.some((o) => o[0] < R[2] && o[2] > R[0] && o[1] < R[3] && o[3] > R[1]) && !obst.some((B) => coupeR(R, B));
       let mieux = null;
       cand.forEach((R) => { if (R[2] - R[0] < 50 || R[3] - R[1] < 50 || !libre(R)) return; const ki = Math.min((R[2] - R[0] - 10) / du, (R[3] - R[1] - 16) / dv); if (!mieux || ki > mieux.ki) mieux = { R, ki }; });
       if (mieux) { const { R, ki } = mieux, kk = Math.min(ki, k * 1.5), cx = (R[0] + R[2]) / 2, cy = (R[1] + R[3] - 8) / 2, um = (Math.max(...us) + Math.min(...us)) / 2, vm = (Math.max(...vs) + Math.min(...vs)) / 2;
         const XI = (a) => cx + (a - um) * kk, YI = (b) => cy - (b - vm) * kk;
-        s += `<g>${rendreVue(Vi, sols, XI, YI)}${txt(cx, cy + dv * kk / 2 + 8, "PERSPECTIVE (sans échelle)", { a: "middle", b: 1 })}`;
-        if (spec.scu) { s += triedre(Vi, Math.max(R[0] + 12, cx - du * kk / 2 - 6), Math.min(R[3] - 14, cy + dv * kk / 2 + 2), 10); (spec.appuis || []).forEach((a) => { s += etiqAppui(XI(dot(a.p, u)), YI(dot(a.p, v)), a.n); }); }
+        s += `<g>${rendreVue(Vi, sols, XI, YI, spec.vecteur)}${txt(cx, cy + dv * kk / 2 + 8, "PERSPECTIVE (sans échelle)", { a: "middle", b: 1 })}`;
+        if (spec.scu) { s += `<g data-c="REPERES">` + triedre(Vi, Math.max(R[0] + 12, cx - du * kk / 2 - 6), Math.min(R[3] - 14, cy + dv * kk / 2 + 2), 10) + "</g>"; (spec.appuis || []).forEach((a) => { s += etiqAppui(XI(dot(a.p, u)), YI(dot(a.p, v)), a.n); }); }
         s += "</g>"; }
     }
-    // tableau des configurations
-    let yb = bloc.y0 + hTp;
+    // tableau des configurations, nomenclature, cartouche : calque CARTOUCHE
+    s += `<g data-c="CARTOUCHE">`;
+    let yb = ZT.y0 + hTp;
     const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
     tabs.forEach((tab) => {
-      const hl = 5, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = bloc.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * wB; }); const wc = (i) => pw[i] / sw * wB;
-      s += txt(bloc.x0, yb + 3.5, tab.titre || "Tableau", { h: 3, b: 1 }); yb += 4.5;
-      s += `<rect x="${bloc.x0}" y="${yb}" width="${wB}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
-      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + 3.5, c, { a: "middle", h: 2.3, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
-      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(bloc.x0, yy, bloc.x1, yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + 3.5, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: 2.3, b: tab.gras && tab.gras(j, i) }); }); });
+      const hl = TH.hl, pw = tab.larg || tab.cols.map(() => 1), sw = pw.reduce((a, b) => a + b, 0), xs = []; let xx = ZT.x0; pw.forEach((p) => { xs.push(xx); xx += p / sw * ZT.w; }); const wc = (i) => pw[i] / sw * ZT.w;
+      s += txt(ZT.x0, yb + TH.ft + 0.4, tab.titre || "Tableau", { h: TH.ft, b: 1 }); yb += TH.ft + 2;
+      s += `<rect x="${ZT.x0}" y="${yb}" width="${ZT.w}" height="${hl * (tab.rows.length + 1)}" fill="#fff" stroke="#000" stroke-width="${TF}"/>`;
+      tab.cols.forEach((c, i) => { s += txt(xs[i] + wc(i) / 2, yb + hl * 0.68, c, { a: "middle", h: TH.f, b: 1 }); if (i) s += ligne(xs[i], yb, xs[i], yb + hl * (tab.rows.length + 1)); });
+      tab.rows.forEach((r, j) => { const yy = yb + hl * (j + 1); s += ligne(ZT.x0, yy, (ZT.x0 + ZT.w), yy, j ? TFin : TF); r.forEach((c, i) => { s += txt(i === 0 && tab.gauche ? xs[i] + 1.2 : xs[i] + wc(i) / 2, yy + hl * 0.68, c, { a: i === 0 && tab.gauche ? "start" : "middle", h: TH.f, b: tab.gras && tab.gras(j, i) }); }); });
       yb += hl * (tab.rows.length + 1) + 2.5;
-      if (tab.note) { s += txt(bloc.x0, yb + 1.2, tab.note, { h: 2 }); yb += 3.2; }
+      tab._note.forEach((l) => { s += txt(ZT.x0, yb + 1.8, l, { h: TH.nt }); yb += TH.nt + 0.9; });
     });
     // nomenclature (repères numérotés de bas en haut, en-tête en bas, au-dessus du cartouche)
     if (nom.length) {
@@ -251,8 +284,8 @@ const DESSIN = (() => {
       let xx = bloc.x0; const xs = C.map((c) => { const a = xx; xx += c[0] * kx; return a; });
       xs.slice(1).forEach((xv) => { s += ligne(xv, yN, xv, yN + hNom); });
       const rows = nom.slice().reverse();
-      rows.forEach((r, j) => { const yy = yN + lgN * j; if (j) s += ligne(bloc.x0, yy, bloc.x1, yy); r.forEach((c, i) => { s += txt(i === 2 ? xs[i] + 1.5 : xs[i] + C[i][0] * kx / 2, yy + 4.1, c, { a: i === 2 ? "start" : "middle", h: 2.5 }); }); });
-      const yh = yN + lgN * rows.length; s += ligne(bloc.x0, yh, bloc.x1, yh, TF); C.forEach((c, i) => { s += txt(xs[i] + c[0] * kx / 2, yh + 4.1, c[1], { a: "middle", h: 2.5, b: 1 }); });
+      rows.forEach((r, j) => { const yy = yN + lgN * j; if (j) s += ligne(bloc.x0, yy, bloc.x1, yy); r.forEach((c, i) => { s += txt(i === 2 ? xs[i] + 1.5 : xs[i] + C[i][0] * kx / 2, yy + lgN * 0.68, c, { a: i === 2 ? "start" : "middle", h: A4 ? 2.2 : 2.5 }); }); });
+      const yh = yN + lgN * rows.length; s += ligne(bloc.x0, yh, bloc.x1, yh, TF); C.forEach((c, i) => { s += txt(xs[i] + c[0] * kx / 2, yh + lgN * 0.68, c[1], { a: "middle", h: A4 ? 2.2 : 2.5, b: 1 }); });
     }
     // cartouche provisoire
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;
@@ -270,9 +303,88 @@ const DESSIN = (() => {
     // symbole de la méthode E (ISO 5456-2)
     const sx = xc + w1 / 2 - 8, sy = yc + 30; s += `<path d="M${sx},${sy - 2} L${sx + 7},${sy - 3.5} L${sx + 7},${sy + 3.5} L${sx},${sy + 2}Z" fill="none" ${STY.fin}/><circle cx="${sx + 13}" cy="${sy}" r="3.5" fill="none" ${STY.fin}/><circle cx="${sx + 13}" cy="${sy}" r="2" fill="none" ${STY.fin}/>`;
     s += `<line x1="${sx - 1}" y1="${sy}" x2="${sx + 17.5}" y2="${sy}" ${STY.axe}/>`;
+    s += `</g><g data-c="TEXTE">`;
     s += lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("");   // notes à gauche du cartouche
-    s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche provisoire – à remplacer par le cartouche FIP", { a: "end", h: 2 });
+    s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche provisoire – à remplacer par le cartouche FIP", { a: "end", h: 2 }) + "</g>";
     return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
   }
-  return { prisme, boite, cylindre, cercle, planche, VUES, FORMATS };
+  /* =====================================================================
+     EXPORT DXF (AutoCAD R12, ASCII, mm) depuis une ou plusieurs planches vectorielles (spec.vecteur = true)
+     Calques ISO : CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE
+     Planches côte à côte dans l'espace objet (échelle 1:1 de la feuille, cotes en texte).
+     ===================================================================== */
+  const CALQUES = { "0": [7, "CONTINUOUS"], CADRE: [7, "CONTINUOUS"], CONTOUR: [7, "CONTINUOUS"], FIN: [9, "CONTINUOUS"], AXES: [1, "CENTER"], CACHE: [6, "DASHED"], PIECES_VOISINES: [8, "PHANTOM"],
+    COTES: [3, "CONTINUOUS"], REPERES: [4, "CONTINUOUS"], TEXTE: [7, "CONTINUOUS"], OUVRAGE: [8, "CONTINUOUS"], CARTOUCHE: [7, "CONTINUOUS"], FILIGRANE: [9, "CONTINUOUS"] };
+  const TIRETS = { "8 1.5 1 1.5": "AXES", "10 1.5 1 1.5 1 1.5": "PIECES_VOISINES", "3 1.5": "CACHE" };
+  const CP1252 = "€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–—˜™š›œ\u009DžŸ";
+  const ASCII = { "\u202F": " ", "\u00A0": " ", "\u2009": " ", "≈": "~", "≤": "<=", "≥": ">=", "→": "->", "−": "-", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "²": "2", "³": "3", "⁴": "4" };
+  const encTexte = (t) => [...String(t).replace(/[\u202F\u00A0\u2009≈≤≥→−₀-₉⁴]/g, (c) => ASCII[c] || c).replace(/Ø/g, "%%c").replace(/±/g, "%%p").replace(/°/g, "%%d")].map((c) => { const k = c.codePointAt(0); if (k < 128 || (k >= 160 && k < 256) || CP1252.includes(c)) return c; return "\\U+" + k.toString(16).toUpperCase().padStart(4, "0"); }).join("");
+  function enOctets(str) { const out = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) { const c = str[i], k = c.charCodeAt(0), j = CP1252.indexOf(c); out[i] = k < 128 || (k >= 160 && k < 256) ? k : j >= 0 ? 128 + j : 63; } return out; }
+  function dxf(pages) {
+    const E = [], nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +v.toFixed(4));
+    const ligne = (L, x1, y1, x2, y2) => E.push(`0\nLINE\n8\n${L}\n10\n${nb(x1)}\n20\n${nb(y1)}\n30\n0\n11\n${nb(x2)}\n21\n${nb(y2)}\n31\n0`);
+    let ox = 0;
+    pages.forEach((pg) => {
+      const doc = new DOMParser().parseFromString(pg.svg, "image/svg+xml"), root = doc.documentElement, vb = root.getAttribute("viewBox").split(/\s+/).map(Number), PH = vb[3], PW = vb[2];
+      const X = (x) => ox + x, Y = (y) => PH - y, masques = [], segs = [];
+      const calque = (el, parent) => el.getAttribute("data-c") || TIRETS[(el.getAttribute("stroke-dasharray") || "").trim()] || parent || (+el.getAttribute("stroke-width") >= 0.5 ? "CONTOUR" : "FIN");
+      const seg = (L, a, b) => segs.push({ L, a, b });
+      const solide = (L, P) => { const p = P.slice(0, 4); while (p.length < 4) p.push(p[p.length - 1]); E.push(`0\nSOLID\n8\n${L}\n` + [p[0], p[1], p[3], p[2]].map((q, i) => `1${i}\n${nb(X(q[0]))}\n2${i}\n${nb(Y(q[1]))}\n3${i}\n0`).join("\n")); };
+      const chemin = (d) => { const T = d.match(/[MLHVZmlhvz]|-?\d*\.?\d+(?:e-?\d+)?/g) || [], polys = []; let cur = null, x = 0, y = 0, i = 0, cmd = "M";
+        while (i < T.length) { if (/[A-Za-z]/.test(T[i])) cmd = T[i++]; if (/[Zz]/.test(cmd)) { if (cur) { cur.ferme = true; } cmd = "M"; continue; }
+          const n = () => +T[i++];
+          if (cmd === "M") { x = n(); y = n(); cur = { pts: [[x, y]] }; polys.push(cur); cmd = "L"; } else if (cmd === "m") { x += n(); y += n(); cur = { pts: [[x, y]] }; polys.push(cur); cmd = "l"; }
+          else if (cmd === "L") { x = n(); y = n(); cur.pts.push([x, y]); } else if (cmd === "l") { x += n(); y += n(); cur.pts.push([x, y]); }
+          else if (cmd === "H") { x = n(); cur.pts.push([x, y]); } else if (cmd === "h") { x += n(); cur.pts.push([x, y]); }
+          else if (cmd === "V") { y = n(); cur.pts.push([x, y]); } else if (cmd === "v") { y += n(); cur.pts.push([x, y]); } else i++; }
+        return polys; };
+      const marche = (el, L) => {
+        for (const n of el.children) {
+          const tag = n.tagName.toLowerCase(), c = calque(n, L);
+          if (["defs", "pattern", "image", "title"].includes(tag)) continue;
+          if (tag === "g") { marche(n, n.getAttribute("data-c") || L); continue; }
+          const at = (k) => +n.getAttribute(k) || 0, fill = n.getAttribute("fill") || "", stroke = n.getAttribute("stroke");
+          if (tag === "line") seg(c, [at("x1"), at("y1")], [at("x2"), at("y2")]);
+          else if (tag === "polyline" || tag === "polygon") { const P = n.getAttribute("points").trim().split(/\s+/).map((q) => q.split(",").map(Number)); P.forEach((p, i) => { if (i) seg(c, P[i - 1], p); }); if (tag === "polygon") seg(c, P[P.length - 1], P[0]); }
+          else if (tag === "rect") { const x = at("x"), y = at("y"), w = at("width"), h = at("height");
+            if (n.getAttribute("data-masque")) { masques.push([x, y, x + w, y + h]); continue; }
+            if (/^url/.test(fill)) { for (let t = -h; t < w; t += 3) { const a = [x + Math.max(t, 0), y + h - Math.max(-t, 0)], L2 = Math.min(w - Math.max(t, 0), h - Math.max(-t, 0)); if (L2 > 0.2) seg("OUVRAGE", a, [a[0] + L2, a[1] - L2]); } }
+            if (stroke && stroke !== "none") [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach(([a, b, cc, d]) => seg(c, [a, b], [cc, d])); }
+          else if (tag === "circle") { const r = at("r"); if (fill === "#000" && r < 1) { E.push(`0\nCIRCLE\n8\n${c}\n10\n${nb(X(at("cx")))}\n20\n${nb(Y(at("cy")))}\n30\n0\n40\n${nb(r)}`); continue; }
+            if ((stroke && stroke !== "none") || fill === "#000") E.push(`0\nCIRCLE\n8\n${c}\n10\n${nb(X(at("cx")))}\n20\n${nb(Y(at("cy")))}\n30\n0\n40\n${nb(r)}`); }
+          else if (tag === "path") { const P = chemin(n.getAttribute("d") || "");
+            if (fill === "#000") P.forEach((p) => solide(c, p.pts));
+            else if (stroke && stroke !== "none") P.forEach((p) => { p.pts.forEach((q, i) => { if (i) seg(c, p.pts[i - 1], q); }); if (p.ferme) seg(c, p.pts[p.pts.length - 1], p.pts[0]); }); }
+          else if (tag === "text") { const t = n.textContent; if (!t.trim()) continue; const h = at("font-size") * 0.72, an = n.getAttribute("text-anchor"), j = an === "middle" ? 1 : an === "end" ? 2 : 0;
+            const m = /rotate\(\s*(-?[\d.]+)/.exec(n.getAttribute("transform") || ""), rot = m ? -+m[1] : 0, x = X(at("x")), y = Y(at("y")), lay = n.getAttribute("fill-opacity") && +n.getAttribute("fill-opacity") < 0.5 ? "FILIGRANE" : c;
+            const m2 = /rotate\(\s*(-?[\d.]+)/.exec(n.getAttribute("transform") || "");
+            E.push(`0\nTEXT\n8\n${lay === "CONTOUR" || lay === "FIN" ? "TEXTE" : lay}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}\n50\n${nb(rot)}\n7\nISO\n72\n${j}` + (j ? `\n11\n${nb(x)}\n21\n${nb(y)}\n31\n0` : "")); }
+        }
+      };
+      marche(root, null);
+      // découpe par les bandes des vues interrompues (géométrie seulement, pas les cotes ni les repères)
+      const coupe = (a, b, M) => { let t0 = 0, t1 = 1; const dx = b[0] - a[0], dy = b[1] - a[1], p = [-dx, dx, -dy, dy], q = [a[0] - M[0], M[2] - a[0], a[1] - M[1], M[3] - a[1]];
+        for (let i = 0; i < 4; i++) { if (Math.abs(p[i]) < 1e-12) { if (q[i] <= 0) return [[a, b]]; continue; } const r = q[i] / p[i]; if (p[i] < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r); }
+        if (t0 >= t1 - 1e-9) return [[a, b]]; const P = (t) => [a[0] + dx * t, a[1] + dy * t], out = []; if (t0 > 1e-9) out.push([a, P(t0)]); if (t1 < 1 - 1e-9) out.push([P(t1), b]); return out; };
+      // fusion des segments colinéaires jointifs (arêtes découpées par le tri des faces), suppression des fragments < 0,3 mm
+      const groupes = new Map();
+      segs.forEach((s) => { let a = s.a, b = s.b; if (b[0] < a[0] - 1e-9 || (Math.abs(b[0] - a[0]) < 1e-9 && b[1] < a[1])) [a, b] = [b, a];
+        const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 1e-6) return; const ux = dx / L, uy = dy / L, ang = Math.round(Math.atan2(uy, ux) * 2000), off = Math.round((a[1] * ux - a[0] * uy) * 200);
+        const k = s.L + "|" + ang + "|" + off; (groupes.get(k) || groupes.set(k, { L: s.L, ux, uy, ls: [] }).get(k)).ls.push([a[0] * ux + a[1] * uy, b[0] * ux + b[1] * uy, a, b]); });
+      const fusion = [];
+      groupes.forEach((G) => { G.ls.sort((p, q) => p[0] - q[0]); let cur = null;
+        G.ls.forEach((l) => { if (cur && l[0] <= cur[1] + 0.05) { if (l[1] > cur[1]) { cur[1] = l[1]; cur[3] = l[3]; } } else { if (cur) fusion.push({ L: G.L, a: cur[2], b: cur[3] }); cur = l.slice(); } });
+        if (cur) fusion.push({ L: G.L, a: cur[2], b: cur[3] }); });
+      fusion.forEach((s) => { let L = [[s.a, s.b]]; if (!["COTES", "REPERES", "CARTOUCHE", "TEXTE", "CADRE"].includes(s.L)) masques.forEach((M) => { L = L.flatMap(([a, b]) => coupe(a, b, M)); });
+        L.forEach(([a, b]) => { const lg = Math.hypot(b[0] - a[0], b[1] - a[1]); if (lg > (s.L === "CONTOUR" ? 0.3 : 1e-4)) ligne(s.L, X(a[0]), Y(a[1]), X(b[0]), Y(b[1])); }); });
+      ox += PW + 40;
+    });
+    const lt = (n, d, p) => `0\nLTYPE\n2\n${n}\n70\n0\n3\n${d}\n72\n65\n73\n${p.length}\n40\n${p.reduce((a, b) => a + Math.abs(b), 0)}` + p.map((v) => `\n49\n${v}`).join("");
+    const H = `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1009\n9\n$INSBASE\n10\n0\n20\n0\n30\n0\n9\n$EXTMIN\n10\n0\n20\n0\n30\n0\n9\n$EXTMAX\n10\n${ox}\n20\n300\n30\n0\n9\n$LTSCALE\n40\n1\n9\n$DWGCODEPAGE\n3\nANSI_1252\n0\nENDSEC`;
+    const T = `0\nSECTION\n2\nTABLES\n0\nTABLE\n2\nLTYPE\n70\n4\n${lt("CONTINUOUS", "Solid line", [])}\n${lt("CENTER", "Axe ISO ____ . ____", [8, -1.5, 0.5, -1.5])}\n${lt("DASHED", "Cache ISO __ __", [3, -1.5])}\n${lt("PHANTOM", "Pieces voisines ____ . . ____", [10, -1.5, 0.5, -1.5, 0.5, -1.5])}\n0\nENDTAB\n` +
+      `0\nTABLE\n2\nLAYER\n70\n${Object.keys(CALQUES).length}\n` + Object.entries(CALQUES).map(([n, [c, l]]) => `0\nLAYER\n2\n${n}\n70\n0\n62\n${c}\n6\n${l}`).join("\n") + `\n0\nENDTAB\n` +
+      `0\nTABLE\n2\nSTYLE\n70\n1\n0\nSTYLE\n2\nISO\n70\n0\n40\n0\n41\n0.85\n50\n0\n71\n0\n42\n2.5\n3\narial.ttf\n4\n\n0\nENDTAB\n0\nENDSEC`;
+    return enOctets(`${H}\n${T}\n0\nSECTION\n2\nENTITIES\n${E.join("\n")}\n0\nENDSEC\n0\nEOF\n`);
+  }
+  return { prisme, boite, cylindre, cercle, planche, dxf, VUES, FORMATS };
 })();

@@ -44,6 +44,16 @@ const SCHEMAS = (() => {
     return s + tx(470, 120, "w = q_p·(c_pe − c_pi)", { b: 1, c: K, s: 12 });
   })(), "Vue en plan : la face au vent est poussée, les autres faces sont aspirées");
 
+  S["zones-vent"] = svg(600, 260, (() => {
+    const X0 = 120, Y0 = 40, W = 300, H = 180, d10 = 30, b4 = 45, z = (x, y, w, h, o, t) => `<rect x="${X0 + x}" y="${Y0 + y}" width="${w}" height="${h}" fill="${B}" opacity="${o}" stroke="${K}" stroke-width=".8"/>` + tx(X0 + x + w / 2, Y0 + y + h / 2 + 4, t, { b: 1, s: 12 });
+    let s = z(0, 0, d10, b4, .75, "F") + z(0, H - b4, d10, b4, .75, "F") + z(0, b4, d10, H - 2 * b4, .55, "G") + z(d10, 0, W / 2 - d10, H, .3, "H") + z(W / 2, 0, d10, H, .45, "J") + z(W / 2 + d10, 0, W / 2 - d10, H, .2, "I");
+    s += `<line x1="${X0 + W / 2}" y1="${Y0 - 6}" x2="${X0 + W / 2}" y2="${Y0 + H + 6}" stroke="${K}" stroke-dasharray="6 3"/>` + tx(X0 + W / 2, Y0 + H + 18, "faîtage", { s: 9, c: M });
+    s += fl(30, Y0 + H / 2, 110, Y0 + H / 2, C, 3) + tx(60, Y0 + H / 2 - 8, "vent", { c: C, b: 1 });
+    s += `<line x1="${X0}" y1="${Y0 - 14}" x2="${X0 + d10}" y2="${Y0 - 14}" stroke="${M}"/>` + tx(X0 + d10 / 2, Y0 - 18, "e/10", { s: 9, c: M }) + `<line x1="${X0 + W / 2}" y1="${Y0 - 14}" x2="${X0 + W / 2 + d10}" y2="${Y0 - 14}" stroke="${M}"/>` + tx(X0 + W / 2 + d10 / 2, Y0 - 18, "e/10", { s: 9, c: M });
+    s += `<line x1="${X0 - 12}" y1="${Y0}" x2="${X0 - 12}" y2="${Y0 + b4}" stroke="${M}"/>` + tx(X0 - 16, Y0 + b4 / 2 + 3, "e/4", { s: 9, c: M, a: "end" }) + `<line x1="${X0 - 12}" y1="${Y0 + H - b4}" x2="${X0 - 12}" y2="${Y0 + H}" stroke="${M}"/>` + tx(X0 - 16, Y0 + H - b4 / 2 + 3, "e/4", { s: 9, c: M, a: "end" });
+    s += tx(X0 + W + 14, Y0 + 20, "F : angles au vent (succion maxi)", { s: 10, a: "start" }) + tx(X0 + W + 14, Y0 + 40, "G : rive au vent entre les F", { s: 10, a: "start" }) + tx(X0 + W + 14, Y0 + 60, "H : reste du versant au vent", { s: 10, a: "start" }) + tx(X0 + W + 14, Y0 + 80, "J : bande sous le vent du faîtage", { s: 10, a: "start" }) + tx(X0 + W + 14, Y0 + 100, "I : reste du versant sous le vent", { s: 10, a: "start" }) + tx(X0 + W + 14, Y0 + 130, "e = min(b ; 2h)", { s: 11, b: 1, a: "start" }) + tx(X0 + W + 14, Y0 + 146, "b : largeur ⊥ au vent", { s: 10, c: M, a: "start" });
+    return s;
+  })(), "Toiture à deux versants, vent perpendiculaire au faîtage (θ = 0°) : zones de la figure 7.8");
   S.neige = svg(600, 230, (() => {
     const toit = (x0, w, v1, v2, t) => { const h = 34; let s = `<polygon points="${x0},150 ${x0 + w / 2},${150 - h} ${x0 + w},150" fill="#eef1f5" stroke="${K}" stroke-width="1.4"/><line x1="${x0}" y1="150" x2="${x0}" y2="175" stroke="${K}" stroke-width="1.4"/><line x1="${x0 + w}" y1="150" x2="${x0 + w}" y2="175" stroke="${K}" stroke-width="1.4"/>`;
       const b = (xa, xb, v) => `<rect x="${xa}" y="${150 - h - 10 - 40 * v}" width="${xb - xa}" height="${40 * v}" fill="#a9c9ef" stroke="${B}" stroke-width=".8"/>` + tx((xa + xb) / 2, 150 - h - 14 - 40 * v, v.toFixed(1).replace(".", ","), { s: 10, c: B, b: 1 });

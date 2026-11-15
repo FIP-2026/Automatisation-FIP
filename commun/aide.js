@@ -87,6 +87,7 @@ const AIDE = (() => {
       ${(cfg.etapes || []).length ? `<h3>Tutoriel pas à pas</h3><ol>${cfg.etapes.map((e) => `<li><b class="t">${e.t}</b>${e.html}${e.cible ? `<div><button class="sec montrer" data-c="${e.cible}">Montrer</button></div>` : ""}</li>`).join("")}</ol>` : ""}
       ${(cfg.faq || []).length ? `<h3>Questions fréquentes</h3>${cfg.faq.map((f) => `<details><summary>${f.q}</summary><div>${f.r}</div></details>`).join("")}` : ""}
       ${(cfg.liens || []).length ? `<h3>Pour comprendre (Référentiel)</h3><div>${[...new Map(cfg.liens.map((l) => [l[1], l[2] || l[1]])).entries()].map(([id, lib]) => `<a href="${urlRef(id)}" target="_blank" rel="noopener">📘 ${lib}</a>`).join("<br>")}</div>` : ""}
+      ${cfg.manuel ? `<h3>Pour contrôler (Manuel technique)</h3><div><a href="${BASE}manuel/#${cfg.manuel}" target="_blank" rel="noopener">📖 Formules, hypothèses et cas de validation</a></div>` : ""}
       <h3>À savoir</h3><div class="note">Les « ? » à côté des champs donnent une explication courte. Les résultats sont des prédimensionnements (APS/APD) à faire valider par un ingénieur structure.</div></div>`;
     document.body.appendChild(panneau);
     panneau.querySelector("[data-x]").onclick = () => panneau.classList.remove("on");

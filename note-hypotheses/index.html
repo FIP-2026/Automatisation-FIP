@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.42"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — NH Note d'hypothèses</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.42">
+<script src="../commun/apps.js?v=2.42"></script>
+<script src="../commun/cahier.js?v=2.42"></script>
+<script src="../climat/data/zonage.js?v=2.42"></script>
+<script src="../commun/data/tuyauterie.js?v=2.42"></script>
+<script src="../commun/charges.js?v=2.42"></script>
+<style>
+  main{grid-template-columns:minmax(300px,380px) 1fr}
+  .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
+  .src .ok{color:#1d7a36;font-weight:700}.src .ko{color:#b26a00;font-weight:700}
+  .nh{font-size:12.5px;line-height:1.5;background:#fff}.nh h1{font-size:20px;color:#114088;margin:0 0 6px}
+  .nh h2{font-size:15px;color:#114088;border-left:4px solid #e30009;padding-left:8px;margin:18px 0 6px}.nh h3{font-size:13.5px;margin:12px 0 4px}.nh h4{font-size:12.5px;margin:8px 0 4px}
+  .nh table{width:100%;border-collapse:collapse;margin:4px 0 8px}.nh td,.nh th{border:1px solid #d5dae1;padding:3px 6px;font-size:12px;vertical-align:top}.nh th{background:#eef1f5;text-align:left}
+  .nh .n{text-align:right}.nh .pied{font-size:10.5px;color:#5f6670}.nh svg{max-width:100%;height:auto}.nh .card{box-shadow:none;border:0;padding:0;margin:0}
+  .nh .ref{font-size:11px;color:#5f6670}
+  @media (max-width:950px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">NH</span>Note d'hypothèses</h1>
+    <div class="sub">Rassemble les hypothèses de l'affaire : générales, charges permanentes (G1), d'exploitation (Q1), climatiques et sismiques (C1), combinaisons — NF EN 1990 + AN</div>
+  </div>
+  <button onclick="imprimerNH()">🖨️ Imprimer / PDF</button>
+</header>
+<main>
+<div id="form">
+  <div class="card"><h2>Sources</h2><div class="src" id="src"></div><div class="note">Chaque outil enregistre ses hypothèses dans ce navigateur à chaque modification ; ouvrir C1 met à jour les charges climatiques.</div></div>
+  <div class="card" id="cGen"><h2>Hypothèses générales</h2>
+    <label>Objet de la note</label><textarea id="objet" rows="3" data-g="objet"></textarea>
+    <label>Durée d'utilisation de projet (NF EN 1990 Tab. 2.1(NF))</label><select id="duree" data-g="duree"><option value="1">Catégorie 1 – 10 ans (structures provisoires)</option><option value="2">Catégorie 2 – 10 à 25 ans (éléments remplaçables)</option><option value="3">Catégorie 3 – 15 à 30 ans (agricoles et similaires)</option><option value="4" selected>Catégorie 4 – 50 ans (bâtiments et ouvrages courants)</option><option value="5">Catégorie 5 – 100 ans (monumentaux, ponts)</option></select>
+    <label>Classe de conséquences (NF EN 1990 Annexe B)</label><select id="cc" data-g="cc"><option>CC1</option><option selected>CC2</option><option>CC3</option></select>
+    <div class="row"><div><label>Acier de construction</label><select id="acier" data-g="acier"><option>S235</option><option>S275</option><option selected>S355</option></select></div><div><label>Boulonnerie</label><select id="boul" data-g="boul"><option>4.6</option><option>5.6</option><option selected>8.8</option><option>10.9</option></select></div></div>
+    <label>Béton (si concerné)</label><input id="beton" data-g="beton" placeholder="ex. C25/30, XC1 (NF EN 1992-1-1)">
+    <label>Limites de déformation</label><input id="fleche" data-g="fleche">
+    <label>Remarques / hypothèses particulières</label><textarea id="rem" rows="3" data-g="rem"></textarea></div>
+  <div class="card" id="cOpt"><h2>Contenu de la note</h2>
+    <label>Modèle</label><select id="niv"><option value="simple">Simplifiée (hypothèses rédigées)</option><option value="classique" selected>Classique (tableaux et schémas)</option><option value="complet">Complète (détail des formules et des calculs)</option></select>
+    <div id="secs" style="margin-top:6px"></div>
+    <div class="actions"><button type="button" id="voir">👁 Mettre à jour l'aperçu</button><button type="button" id="word" style="background:#2b579a;border-color:#2b579a">📄 Word</button></div>
+    <div class="note">Trame Word générique en attendant la trame FIP.</div></div>
+</div>
+<section><div class="card"><div id="nh" class="nh"></div></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id), f=CH.fx, h=CH.esc;
+const GEN0={objet:"Présente note définit les hypothèses de calcul (actions, combinaisons, matériaux) retenues pour le dimensionnement des ouvrages de l'affaire.",duree:'4',cc:'CC2',acier:'S355',boul:'8.8',beton:'',fleche:'NF EN 1993-1-1/NA §7.2, Tab. 7.1 (selon l\'usage des éléments)',rem:'',secs:{gen:true,G:true,Q:true,C:true,comb:true}};
+let gen={...GEN0,...(CH.lire('gen')||{})}; gen.secs={...GEN0.secs,...(gen.secs||{})};
+const SECS=[['gen','Hypothèses générales'],['G','Charges permanentes (G1)'],['Q','Charges d\'exploitation (Q1)'],['C','Charges climatiques et sismiques (C1)'],['comb','Combinaisons d\'actions']];
+document.querySelectorAll('[data-g]').forEach(el=>{ el.value=gen[el.dataset.g]??''; el.addEventListener('input',()=>{ gen[el.dataset.g]=el.value; CH.ecrire('gen',gen); rendre(); }); });
+$('secs').innerHTML=SECS.map(([k,l])=>`<label class="chk" style="display:block"><input type="checkbox" data-s="${k}" ${gen.secs[k]?'checked':''}> ${l}</label>`).join('');
+$('secs').addEventListener('change',e=>{ gen.secs[e.target.dataset.s]=e.target.checked; CH.ecrire('gen',gen); rendre(); });
+$('niv').onchange=rendre; $('voir').onclick=rendre;
+const dt=d=>d?new Date(d).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'';
+function sources(){ const S=[['C1','Climat et séisme','../climat/',CH.lire('C')],['G1','Charges permanentes','../charges-permanentes/',CH.lire('G')],['Q1','Charges d\'exploitation','../charges-exploitation/',CH.lire('Q')]];
+  $('src').innerHTML=S.map(([c,n,u,o])=>`<span class="${o?'ok':'ko'}">${o?'✔':'○'}</span><a href="${u}">${c} – ${n}</a><span class="note">${o?dt(o.date):'non renseigné'}</span>`).join(''); }
+/* ---------- note ---------- */
+function rendre(){
+  sources();
+  const niv=$('niv').value, K=CAHIER.existe()?CAHIER.lire().affaire:{}, G=CH.lire('G'), Q=CH.lire('Q'), C=CH.lire('C'), S=gen.secs; let n=0; const T2=t=>`<h2>${++n}. ${t}</h2>`;
+  let x=`<h1>Note d'hypothèses${niv==='simple'?' (simplifiée)':''}</h1><table>`+[['Affaire',CAHIER.libAffaire(K)||'—','Client',K.client||'—'],['Site',[K.site,C&&C.res&&C.res.lieu].filter(Boolean).join(' – ')||'—','Phase',K.phase||'—'],['N° de document',K.doc||'—','Indice / date',`${K.indice||'—'} du ${K.date?new Date(K.date).toLocaleDateString('fr-FR'):'—'}`],['Réalisé',K.realise||'—','Contrôlé / approuvé',[K.controle,K.approuve].filter(Boolean).join(' / ')||'—']].map(r=>`<tr><th style="width:16%">${r[0]}</th><td>${h(r[1])}</td><th style="width:16%">${r[2]}</th><td>${h(r[3])}</td></tr>`).join('')+'</table>';
+  x+=T2('Objet')+`<p>${h(gen.objet).replace(/\n/g,'<br>')}</p>`;
+  // références
+  const R=[['NF EN 1990 + AN','Bases de calcul des structures (combinaisons, coefficients partiels et ψ)']];
+  if(S.G||S.Q) R.push(['NF EN 1991-1-1 + AN','Poids volumiques, poids propres, charges d\'exploitation des bâtiments']);
+  if(S.Q&&Q&&(Q.zones||[]).concat(Q.gardecorps||[]).some(z=>z.cat==='PASS'||z.cat==='ISO')) R.push(['NF EN ISO 14122-2 et -3 ; NF E 85-015','Moyens d\'accès permanents aux machines : plates-formes, passerelles, garde-corps']);
+  if(S.C&&C&&C.res){ if(C.res.neige) R.push(['NF EN 1991-1-3 + AN','Charges de neige']); if(C.res.vent) R.push(['NF EN 1991-1-4 + AN','Actions du vent']); if(C.res.seisme) R.push(['NF EN 1998-1 + AN ; décret 2010-1254/1255 ; arrêté du 22/10/2010 modifié','Actions sismiques, zonage et règles parasismiques']); }
+  R.push(['NF EN 1993-1-1 + AN ; NF EN 1993-1-8 + AN','Calcul des structures en acier ; assemblages']); if(gen.beton) R.push(['NF EN 1992-1-1 + AN','Calcul des structures en béton']);
+  x+=T2('Références normatives')+(niv==='simple'?`<p>${R.map(r=>r[0]).join(' ; ')}.</p>`:`<table>${R.map(r=>`<tr><td style="width:36%"><b>${h(r[0])}</b></td><td>${h(r[1])}</td></tr>`).join('')}</table>`);
+  if(S.gen){ const D={1:'10 ans',2:'10 à 25 ans',3:'15 à 30 ans',4:'50 ans',5:'100 ans'}[gen.duree];
+    x+=T2('Hypothèses générales')+(niv==='simple'?`<p>Durée d'utilisation de projet ${D} (catégorie ${gen.duree}) ; classe de conséquences ${gen.cc} ; acier ${gen.acier}, boulons classe ${gen.boul}${gen.beton?' ; béton '+h(gen.beton):''} ; limites de déformation : ${h(gen.fleche)}.${gen.rem?' '+h(gen.rem):''}</p>`:
+      `<table><tr><td style="width:36%">Durée d'utilisation de projet</td><td>Catégorie ${gen.duree} – ${D} (NF EN 1990 Tab. 2.1(NF))</td></tr><tr><td>Classe de conséquences</td><td>${gen.cc} (NF EN 1990 Annexe B)</td></tr>
+      <tr><td>Acier de construction</td><td>${gen.acier} – f<sub>y</sub> = ${({S235:235,S275:275,S355:355})[gen.acier]} MPa (t ≤ 40 mm), E = 210 000 MPa (NF EN 1993-1-1 Tab. 3.1)</td></tr><tr><td>Boulonnerie</td><td>Classe ${gen.boul} – f<sub>ub</sub> = ${({'4.6':400,'5.6':500,'8.8':800,'10.9':1000})[gen.boul]} MPa (NF EN 1993-1-8 Tab. 3.1)</td></tr>
+      ${gen.beton?`<tr><td>Béton</td><td>${h(gen.beton)}</td></tr>`:''}<tr><td>Coefficients partiels matériaux</td><td>γ<sub>M0</sub> = γ<sub>M1</sub> = 1,00 ; γ<sub>M2</sub> = 1,25 (NF EN 1993-1-1/NA, 1993-1-8/NA)</td></tr><tr><td>Limites de déformation</td><td>${h(gen.fleche)}</td></tr>${gen.rem?`<tr><td>Remarques</td><td>${h(gen.rem).replace(/\n/g,'<br>')}</td></tr>`:''}</table>`); }
+  if(S.G) x+=T2('Charges permanentes')+CH.noteG(G,niv);
+  if(S.Q) x+=T2('Charges d\'exploitation')+CH.noteQ(Q,niv);
+  if(S.C){ x+=T2('Charges climatiques et sismiques');
+    if(!C) x+='<p><i>Non renseignées : ouvrir l\'outil C1 pour le site du projet.</i></p>';
+    else if(niv==='simple'){ const r=C.res; x+=`<p>Site : ${h(r.lieu)}${r.adr?' ('+h(r.adr)+')':''}, altitude ${f(r.alt,0)} m.</p><ul>`+
+      (r.vent?`<li><b>Vent</b> (NF EN 1991-1-4 + AN) : zone ${h(r.vent.zone)}, v<sub>b,0</sub> = ${f(r.vent.vb0,0)} m/s, ${h(r.vent.cat)}, c<sub>o</sub> = ${f(r.vent.co,2)} ; q<sub>p</sub>(z<sub>e</sub> = ${f(r.vent.ze,1)} m) = <b>${f(r.vent.qp,3)} kN/m²</b>.</li>`:'')+
+      ventInt(r.vent,'li')+
+      (r.neige?`<li><b>Neige</b> (NF EN 1991-1-3 + AN) : région ${h(r.neige.zone)}, altitude ${f(r.neige.A,0)} m : s<sub>k</sub> = <b>${f(r.neige.sk,2)} kN/m²</b>${r.neige.sAd?`, s<sub>Ad</sub> = ${f(r.neige.sAd,2)} kN/m²`:''} ; C<sub>e</sub> = ${f(r.neige.Ce,2)}, C<sub>t</sub> = ${f(r.neige.Ct,2)}.</li>`:'')+
+      (r.seisme?`<li><b>Séisme</b> (NF EN 1998-1 + AN, arrêté du 22/10/2010) : zone ${r.seisme.zone}, catégorie d'importance ${h(r.seisme.cat)} (γ<sub>I</sub> = ${f(r.seisme.gI,1)}), a<sub>g</sub> = ${f(r.seisme.ag,2)} m/s², sol ${h(r.seisme.sol)} (S = ${f(r.seisme.S,2)}), q = ${f(r.seisme.q,1)} ; plateau S<sub>d</sub> = ${f(r.seisme.Sdpal,2)} m/s². ${h(r.seisme.exig)}.</li>`:'')+'</ul>'; }
+    else x+=ventInt(C.res.vent,'bloc')+C.syn+(niv==='complet'?`<h3>Détail des calculs</h3>${C.det}`:''); }
+  if(S.comb){ x+=T2('Combinaisons d\'actions');
+    const lig=[['Charges d\'exploitation (selon catégorie, Q1)','voir Q1','',''],['Neige (altitude ≤ 1000 m)','0,5','0,2','0'],['Neige (altitude > 1000 m)','0,7','0,5','0,2'],['Vent','0,6','0,2','0'],['Température (hors incendie)','0,6','0,5','0']];
+    x+=niv==='simple'?`<p>Combinaisons de la NF EN 1990 + AN : ELU fondamental 1,35·G<sub>k,sup</sub> / 1,00·G<sub>k,inf</sub> + 1,5·Q<sub>k,1</sub> + Σ1,5·ψ<sub>0,i</sub>·Q<sub>k,i</sub> (6.10) ; ELS caractéristique G + Q<sub>k,1</sub> + Σψ<sub>0,i</sub>·Q<sub>k,i</sub> ; situations accidentelle (6.11b) et sismique (6.12b) : G + A<sub>d</sub> (ou A<sub>Ed</sub>) + Σψ<sub>2,i</sub>·Q<sub>k,i</sub>.</p>`:
+      `<table><tr><th>Situation</th><th>Combinaison</th><th>Référence</th></tr><tr><td>ELU fondamental (STR/GEO)</td><td>Σ γ<sub>G,j</sub>·G<sub>k,j</sub> + γ<sub>Q,1</sub>·Q<sub>k,1</sub> + Σ γ<sub>Q,i</sub>·ψ<sub>0,i</sub>·Q<sub>k,i</sub> ; γ<sub>G</sub> = 1,35 (défavorable) / 1,00 (favorable), γ<sub>Q</sub> = 1,50 (0 si favorable)</td><td>NF EN 1990 éq. 6.10, Tab. A1.2(B)(F)</td></tr>
+      <tr><td>Accidentelle</td><td>G<sub>k</sub> + A<sub>d</sub> + (ψ<sub>1,1</sub> ou ψ<sub>2,1</sub>)·Q<sub>k,1</sub> + Σ ψ<sub>2,i</sub>·Q<sub>k,i</sub> (neige accidentelle s<sub>Ad</sub>)</td><td>éq. 6.11b + AN</td></tr><tr><td>Sismique</td><td>G<sub>k</sub> + A<sub>Ed</sub> + Σ ψ<sub>2,i</sub>·Q<sub>k,i</sub> ; directions combinées 100 % / 30 %</td><td>éq. 6.12b ; NF EN 1998-1 §4.3.3.5</td></tr>
+      <tr><td>ELS caractéristique</td><td>G<sub>k</sub> + Q<sub>k,1</sub> + Σ ψ<sub>0,i</sub>·Q<sub>k,i</sub></td><td>éq. 6.14b</td></tr><tr><td>ELS fréquent</td><td>G<sub>k</sub> + ψ<sub>1,1</sub>·Q<sub>k,1</sub> + Σ ψ<sub>2,i</sub>·Q<sub>k,i</sub></td><td>éq. 6.15b</td></tr><tr><td>ELS quasi permanent</td><td>G<sub>k</sub> + Σ ψ<sub>2,i</sub>·Q<sub>k,i</sub></td><td>éq. 6.16b</td></tr></table>
+      <h3>Coefficients ψ (NF EN 1990 Tab. A1.1 + AN)</h3><table><tr><th>Action</th><th class="n">ψ<sub>0</sub></th><th class="n">ψ<sub>1</sub></th><th class="n">ψ<sub>2</sub></th></tr>${lig.map(l=>`<tr><td>${l[0]}</td><td class="n">${l[1]}</td><td class="n">${l[2]}</td><td class="n">${l[3]}</td></tr>`).join('')}</table>
+      ${niv==='complet'?`<p class="pied">Règles de combinaison : chaque action variable est tour à tour dominante ; les actions d'un même groupe (vent selon les directions, cas de neige) ne sont pas cumulées ; la charge d'entretien des toitures inaccessibles (catégorie H) n'est cumulée ni avec la neige ni avec le vent (AN). L'utilisation des expressions 6.10a/6.10b n'est pas retenue (6.10 prudente).</p>`:''}`; }
+  x+=`<p class="pied">Note générée par FIP Études (${typeof CALC_VERSION!=='undefined'?CALC_VERSION:''}) le ${new Date().toLocaleString('fr-FR')} – hypothèses à valider par l'ingénieur responsable de l'affaire.</p>`;
+  $('nh').innerHTML=x;
+}
+/* pression intérieure c_pi et coefficients nets c_p,net (NF EN 1991-1-4 §7.2.9, §7.3, §7.4) */
+function ventInt(v,mode){ if(!v) return ''; const s=n=>(n>0?'+':n<0?'−':'')+f(Math.abs(n),2), s3=n=>(n>0?'+':n<0?'−':'')+f(Math.abs(n),3), L=[];
+  if(v.bat){ const B=v.bat; L.push(`<b>Pression intérieure</b> : c<sub>pi</sub> = ${B.v.map(s).join(' / ')} – ${B.txt} (NF EN 1991-1-4 ${B.ref}).`);
+    if(B.net) L.push(`<b>Coefficients nets des parois</b> c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub>, avec pour chaque zone la valeur de c<sub>pi</sub> la plus défavorable : pression maximale ${s(B.net.pmax[1])} (${B.net.pmax[0]}), dépression maximale ${s(B.net.dmin[1])} (${B.net.dmin[0]})${B.net.qp?`, soit w = q<sub>p</sub>·c<sub>p,net</sub> = ${s3(B.net.qp*B.net.pmax[1])} / ${s3(B.net.qp*B.net.dmin[1])} kN/m²`:''} (§5.2, éq. 5.1-5.2).`); }
+  if(v.ti||v.mi) L.push(`<b>Éléments sans pression intérieure</b> (${[v.ti&&'toiture isolée',v.mi&&'mur isolé'].filter(Boolean).join(', ')}) : coefficients de pression nette c<sub>p,net</sub> directement tabulés (${[v.ti&&'§7.3, Tab. 7.6 / 7.7, encombrement φ',v.mi&&'§7.4, Tab. 7.9'].filter(Boolean).join(' ; ')}), la face supérieure et la face inférieure étant combinées.`);
+  if(!L.length) return '';
+  return mode==='li'?L.map(t=>`<li>${t}</li>`).join(''):`<h3>Pression intérieure et coefficients nets</h3><ul>${L.map(t=>`<li>${t}</li>`).join('')}</ul>`; }
+function imprimerNH(){ rendre(); const w=window.open('','_blank'); if(!w) return;
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Note d'hypothèses</title><link rel="stylesheet" href="../commun/calc.css"><style>${document.querySelector('style').textContent}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body><div class="nh">${$('nh').innerHTML}</div></body></html>`); w.document.close(); setTimeout(()=>w.print(),500); }
+$('word').onclick=async()=>{ rendre(); const b=$('word'),l=b.innerHTML; b.disabled=true; b.innerHTML='⏳ Génération…'; try{ const K=CAHIER.existe()?CAHIER.lire().affaire:{}; await EXPORT.wordDe($('nh'),{titre:'Note d\'hypothèses',fichier:'NH_'+(K.doc||K.num||'affaire')}); }catch(e){ alert('Export impossible : '+e.message); } finally{ b.disabled=false; b.innerHTML=l; } };
+rendre();
+</script>
+<script src="../commun/replier.js?v=2.42"></script>
+<script src="../commun/export.js?v=2.42"></script>
+<script>EXPORT.init({code:'NH',titre:'Note d\'hypothèses',zones:()=>[document.getElementById('nh')],nom:()=>'note'});</script>
+<script src="../commun/aide.js?v=2.42"></script>
+<script>AIDE.init({titre:"Aide – NH Note d'hypothèses",manuel:"nh",intro:"NH rassemble les hypothèses saisies dans C1 (climat, séisme), G1 (charges permanentes) et Q1 (charges d'exploitation), complétées des hypothèses générales, et produit la note d'hypothèses de l'affaire.",
+  etapes:[{t:"Vérifier les sources",html:"Le tableau « Sources » indique si C1, G1 et Q1 sont renseignés (date de dernière mise à jour). Cliquer pour compléter.",cible:"#src"},
+    {t:"Hypothèses générales",html:"Objet, durée d'utilisation, classe de conséquences, matériaux, limites de déformation, remarques.",cible:"#cGen"},
+    {t:"Choisir le modèle et sortir la note",html:"Simplifiée (rédigée), classique (tableaux et schémas) ou complète (détail des calculs) ; sections au choix ; Word ou PDF.",cible:"#cOpt"}],
+  faq:[{q:"D'où viennent les valeurs ?",r:"De la dernière saisie de chaque outil dans ce navigateur. Pour C1, ouvrir l'outil sur le site du projet met à jour vent, neige et séisme."},
+    {q:"La trame FIP ?",r:"La mise en page Word est générique en attendant la trame FIP : le contenu sera injecté dans la trame (cartouche, en-têtes, styles) dès qu'elle sera fournie."}]});</script>
+</body>
+</html>

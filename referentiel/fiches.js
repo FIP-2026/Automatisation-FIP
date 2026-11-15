@@ -7,8 +7,9 @@ const FICHES = [
 { id: "normes", theme: "Normes", titre: "Les textes utilisés par les calculettes",
   bref: "Les Eurocodes donnent les règles européennes ; l'Annexe nationale (AN) fixe les valeurs propres à la France. Les deux se lisent toujours ensemble.",
   corps: `<table><tr><th>Texte</th><th>Sujet</th><th>Outils</th></tr>
-  <tr><td>NF EN 1990 + AN</td><td>Bases de calcul : états limites, combinaisons d'actions, coefficients γ et ψ</td><td>P1, P2, S1</td></tr>
-  <tr><td>NF EN 1991-1-1 + AN</td><td>Poids propres, charges d'exploitation des planchers</td><td>P1, C1</td></tr>
+  <tr><td>NF EN 1990 + AN</td><td>Bases de calcul : états limites, combinaisons d'actions, coefficients γ et ψ</td><td>P1, P2, S1, NH</td></tr>
+  <tr><td>NF EN 1991-1-1 + AN</td><td>Poids volumiques (Annexe A), poids propres, charges d'exploitation et garde-corps</td><td>G1, Q1, NH, P1</td></tr>
+  <tr><td>NF EN ISO 14122-2 et -3 ; NF E 85-015</td><td>Moyens d'accès permanents aux machines : passerelles, plates-formes, garde-corps</td><td>Q1</td></tr>
   <tr><td>NF EN 1991-1-3 + AN</td><td>Neige (cartes, coefficients de forme)</td><td>C1, S1, P1</td></tr>
   <tr><td>NF EN 1991-1-4 + AN</td><td>Vent (pression, coefficients de pression et de force)</td><td>C1, S1, P1, P2</td></tr>
   <tr><td>Recommandations CNC2M N0380 (2017)</td><td>Application de l'EN 1991-1-4 aux structures métalliques</td><td>C1</td></tr>
@@ -42,6 +43,23 @@ const FICHES = [
   <li><b>T</b> : pour un support de tuyauterie, le frottement μ·G quand le tuyau se dilate, et les efforts des points fixes (voir <a href="#supportage">Supportage</a>).</li>
   <li><b>E</b> : séisme (voir <a href="#seisme">Séisme</a>). <b>EP</b> : épreuve hydraulique (tuyauteries pleines d'eau), cas temporaire.</li></ul>`,
   refs: "NF EN 1990 §4.1 ; NF EN 1991-1-1 Tab. 6.2 + AN.", calc: "toutes" },
+{ id: "permanentes", theme: "Bases de calcul", titre: "Charges permanentes : complexes, tuyauteries, équipements",
+  bref: "Tout ce qui pèse en permanence en plus de la structure calculée : couverture, bardage, plancher, réseaux, garde-corps, tuyauteries en service, équipements. Le poids propre de la structure est ajouté par chaque calculette.",
+  corps: `<div class="form">Complexe : g = (1 + m)·Σ ρ<sub>i</sub>·e<sub>i</sub>·g<sub>0</sub> (ou masse surfacique) &nbsp;·&nbsp; Tuyauterie : q = g<sub>0</sub>·(m<sub>tube</sub> + m<sub>calo</sub> + m<sub>contenu</sub>) par mètre</div>
+  <ul><li><b>Poids volumiques</b> : Annexe A de la NF EN 1991-1-1 (béton armé 25 kN/m³, acier 77 à 78,5 kN/m³, bois, maçonnerie, matières stockées…), sinon fiches fabricants. Pour une fourchette, l'AN impose la <b>valeur médiane</b> si le projet ne précise rien.</li>
+  <li><b>Tuyauterie</b> : à vide (tube + calorifuge), en service (+ fluide) et pleine d'eau (épreuve). Le contenu en service est classé en <b>G</b>. Si le fluide est plus léger que l'eau (gaz, vapeur, hydrocarbures légers), il faut prévoir la situation d'<b>épreuve hydraulique</b> : la ligne est remplie d'eau à la place du fluide, et cette eau est une action variable <b>Q</b> (situation transitoire) : 1,35·q<sub>vide</sub> + 1,5·q<sub>eau</sub>, sans autre action variable.</li>
+  <li><b>Équipements</b> (Coriolis, CTA, pompe) : masse à vide en G ; le contenu en G s'il est stable, sinon en Q (à préciser).</li>
+  <li><b>Divers / réseaux</b> (éclairage, sprinkler, gaines) : provisions forfaitaires à confirmer par les lots concernés.</li></ul>`,
+  refs: "NF EN 1991-1-1 §2.1, §4, §5, Annexe A ; NF EN 1990 §3.2, §4.1.1.", calc: "G1, S1, T1, NH" },
+{ id: "exploitation", theme: "Bases de calcul", titre: "Charges d'exploitation : catégories, q_k et Q_k",
+  bref: "Chaque usage a sa charge répartie q_k (effets d'ensemble) et sa charge concentrée Q_k (effets locaux) ; les deux ne se cumulent pas. La France fixe ses propres valeurs dans l'annexe nationale.",
+  corps: `<table><tr><th>Usage</th><th>q<sub>k</sub> (kN/m²)</th><th>Q<sub>k</sub> (kN)</th></tr><tr><td>A habitation</td><td>1,5</td><td>2,0</td></tr><tr><td>B bureaux</td><td>2,5</td><td>4,0</td></tr><tr><td>C lieux de réunion (C1 à C5)</td><td>2,5 à 5,0</td><td>3,0 à 7,0</td></tr><tr><td>D commerces</td><td>5,0</td><td>5,0 / 7,0</td></tr><tr><td>E1 stockage</td><td>7,5</td><td>7,0</td></tr><tr><td>F / G véhicules légers / moyens</td><td>2,3 / 5,0</td><td>15 / 90</td></tr><tr><td>Usage inconnu</td><td colspan="2">comme D1</td></tr><tr><td>H toiture inaccessible (pente &lt; 15 %, étanchée)</td><td>0,8</td><td>1,5</td></tr><tr><td>Passerelle d'accès aux machines (ISO 14122-2)</td><td>2,0</td><td>1,5 sur 200 × 200 mm</td></tr></table>
+  <ul><li>q<sub>k</sub> pour les poutres, poteaux, fondations ; Q<sub>k</sub> pour le platelage, le caillebotis, les solives.</li><li>Toiture H : charge d'entretien, jamais cumulée avec la neige ni le vent.</li><li>Grandes surfaces : réduction α<sub>A</sub> = 0,77 + 3,5/A ≤ 1 (A, B, C3, D1, F), non cumulable avec la réduction α<sub>n</sub> en fonction du nombre d'étages.</li><li>Garde-corps : force horizontale linéique à hauteur de main courante (≤ 1,20 m) : 0,6 kN/m (A, B, C1), 1,0 (C2 à C4, D), 3,0 (C5), 2,0 minimum (E) selon l'AN ; garde-corps industriels et accès aux machines : 30 daN/m (0,3 kN/m), NF E 85-015 qui renvoie à la NF EN ISO 14122-3 ; garde-corps de bâtiment : NF P 01-012.</li></ul>`,
+  refs: "NF EN 1991-1-1 §6.3, §6.4 + AN (NF P 06-111-2) Tab. 6.2(NF), 6.8(NF), 6.10(NF), 6.12(NF), §6.3.1.2(10)-(11) ; NF P 01-012 ; NF E 85-015 ; NF EN ISO 14122-2 et -3.", calc: "Q1, NH" },
+{ id: "note-hyp", theme: "Bases de calcul", titre: "La note d'hypothèses",
+  bref: "Document de début d'affaire qui fixe, avant tout calcul, les règles, les matériaux, les charges et les combinaisons : tout le monde calcule ensuite avec les mêmes données.",
+  corps: `<p>Contenu type : objet, références normatives, hypothèses générales (durée d'utilisation, classe de conséquences, matériaux), charges permanentes, d'exploitation, climatiques et sismiques, combinaisons et coefficients ψ. Dans FIP Études : C1 + G1 + Q1 → <b>NH</b>, en version simplifiée, classique (tableaux et schémas) ou complète (détail des calculs).</p>`,
+  refs: "NF EN 1990 §2 (durée d'utilisation Tab. 2.1(NF)), Annexe B (classes de conséquences), §6.4, §6.5.", calc: "NH" },
 { id: "taux", theme: "Bases de calcul", titre: "Taux de travail, taux cible et couleurs",
   bref: "Le taux de travail = sollicitation / résistance. Vert ≤ taux cible, jaune entre le taux cible et 100 %, rouge au-delà de 100 %.",
   corps: `<p>Le <b>taux cible</b> (90 % par défaut) laisse une marge en APS/APD : les charges et la géométrie évoluent souvent en phase d'exécution. Un taux jaune n'est pas faux, mais il faudra peut-être reprendre le profilé.</p>
@@ -65,10 +83,17 @@ const FICHES = [
   corps: `<div class="form">Paroi : w = q<sub>p</sub>(z<sub>e</sub>)·(c<sub>pe</sub> − c<sub>pi</sub>) &nbsp;&nbsp; Objet, barre : F = c<sub>f</sub>·q<sub>p</sub>(z<sub>e</sub>)·A<sub>ref</sub></div>
   <ul><li><b>c<sub>pe</sub></b> (extérieur) : positif = pression (face au vent, zone D), négatif = dépression/aspiration (côtés, toiture, arrière). Les zones A, B, C, F, G… se mesurent avec e = min(b ; 2h).</li>
   <li><b>c<sub>pe,10</sub> / c<sub>pe,1</sub></b> : pour les surfaces ≥ 10 m² ou ≤ 1 m². En charpente on utilise c<sub>pe,10</sub> (CNC2M §7).</li>
-  <li><b>c<sub>pi</sub></b> (intérieur) : +0,2 et −0,3 si la perméabilité des façades n'est pas connue (AN).</li>
+  <li><b>c<sub>pi</sub></b> (intérieur) : +0,2 et −0,3 si la perméabilité des façades n'est pas connue (AN) ; avec une grande ouverture sur une face (« face dominante »), l'intérieur prend 75 à 90 % de la pression extérieure de cette face ; sinon c<sub>pi</sub> se lit sur la figure 7.13 selon la part d'ouvertures en dépression μ.</li>
+  <li><b>c<sub>p,net</sub></b> (net) : ce qui agit vraiment sur la paroi, extérieur moins intérieur : c<sub>p,net</sub> = c<sub>pe</sub> − c<sub>pi</sub>. On prend pour chaque zone le c<sub>pi</sub> le plus défavorable : une aspiration extérieure (−1,3) et une surpression intérieure (+0,2) s'additionnent (−1,5). Auvents et murs isolés : c<sub>p,net</sub> donné directement par les tableaux (pas d'intérieur).</li>
   <li><b>c<sub>f</sub></b> des profilés : l'AN donne des valeurs par forme (cornière, U, I, H, tubes) selon l'angle du vent ; un tube rond (tuyau) a c<sub>f</sub> ≤ 1,2.</li>
   <li><b>Toitures isolées</b> (auvents) : c<sub>f</sub> dépend de l'encombrement φ dessous (0 vide, 1 encombré).</li></ul>`,
-  refs: "NF EN 1991-1-4 §5.2, §7.2 (Tab. 7.1 à 7.4), §7.3 (Tab. 7.6, 7.7), §7.4 (Tab. 7.9), §7.7 + AN (fig. 7.39 à 7.50 NA) ; CNC2M N0380 §5 à §8.", calc: "C1, S1" },
+  refs: "NF EN 1991-1-4 §5.2, §7.2 (Tab. 7.1 à 7.4), §7.2.9 (c_pi, éq. 7.1 à 7.3, fig. 7.13), §7.3 (Tab. 7.6, 7.7), §7.4 (Tab. 7.9), §7.7 + AN (fig. 7.39 à 7.50 NA) ; CNC2M N0380 §5 à §8.", calc: "C1, S1" },
+{ id: "zones-vent", theme: "Actions climatiques", titre: "Zones de vent des murs et des toitures (A à J)",
+  bref: "Le vent aspire plus fort près des arêtes attaquées : la paroi est découpée en zones dont la taille dépend de e = min(b ; 2h). Plus la zone est près d'un angle au vent, plus le c_pe est négatif.",
+  corps: `<table><tr><th>Zone</th><th>Où</th><th>Dimension</th></tr><tr><td><b>A, B, C</b></td><td>murs latéraux (parallèles au vent), depuis l'arête au vent</td><td>A : e/5 ; B : 4e/5 ; C : le reste</td></tr><tr><td><b>D</b> / <b>E</b></td><td>mur au vent (pression) / mur sous le vent (dépression)</td><td>toute la face</td></tr>
+  <tr><td><b>F</b></td><td>angles de toiture côté vent : succion maximale</td><td>e/10 (sens du vent) × e/4 (le long de la rive)</td></tr><tr><td><b>G</b></td><td>rive au vent entre les deux zones F</td><td>e/10 × (b − e/2)</td></tr><tr><td><b>H</b></td><td>reste du versant au vent (ou jusqu'à e/2 pour θ = 90°)</td><td>—</td></tr><tr><td><b>J</b></td><td>bande sous le vent juste après le faîtage (2 versants, θ = 0°)</td><td>e/10</td></tr><tr><td><b>I</b></td><td>reste de la toiture sous le vent</td><td>—</td></tr></table>
+  <p>Toiture à un versant, vent parallèle à la pente : F se dédouble en F<sub>haut</sub> (rive haute) et F<sub>bas</sub>. Les schémas de C1 donnent les cotes réelles (e/10, e/4, e/2) et une légende des c<sub>pe,10</sub>.</p>`,
+  refs: "NF EN 1991-1-4 §7.2.2 (fig. 7.5, Tab. 7.1), §7.2.3 (fig. 7.6), §7.2.4 (fig. 7.7, Tab. 7.3a), §7.2.5 (fig. 7.8, Tab. 7.4a-b) + AN.", calc: "C1" },
 { id: "neige", theme: "Actions climatiques", titre: "La neige",
   bref: "La carte donne la neige au sol s_k (selon la zone et l'altitude). Sur une toiture, on la multiplie par un coefficient de forme μ qui dépend de la pente.",
   corps: `<div class="form">s = μ<sub>i</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> &nbsp;&nbsp; μ<sub>1</sub> = 0,8 (α ≤ 30°) ; 0,8·(60 − α)/30 (30° à 60°) ; 0 (α ≥ 60°)</div>

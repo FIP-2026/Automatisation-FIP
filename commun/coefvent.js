@@ -196,21 +196,48 @@ const CV = (() => {
       return `<rect x="${X0 + x * W}" y="${Y0 + y * H}" width="${w * W}" height="${h * H}" fill="${COUL(v)}" stroke="#171a1e" stroke-width=".8"/>` +
         (w * W > 18 && h * H > 14 ? `<text x="${X0 + (x + w / 2) * W}" y="${Y0 + (y + h / 2) * H + 4}" font-size="${w * W > 50 ? 11 : 9}" text-anchor="middle" font-weight="700">${z.replace("_", "")}${w * W > 46 ? " " + fx(v) : ""}</text>` : ""); }).join("");
   }
-  /* plan des murs (vent de gauche) */
+  /* légende des zones : pastille + zone + c_pe */
+  function legende(x, y, items, larg) {
+    const n = Math.max(1, Math.floor(larg / 92)); let t = "";
+    items.forEach(([z, v], i) => { const cx = x + (i % n) * 92, cy = y + Math.floor(i / n) * 16;
+      t += `<rect x="${cx}" y="${cy - 9}" width="14" height="11" fill="${COUL(v)}" stroke="#171a1e" stroke-width=".6"/><text x="${cx + 18}" y="${cy}" font-size="10"><tspan font-weight="700">${nomZ(z)}</tspan> : ${fx(v)}</text>`; });
+    return { svg: t, h: Math.ceil(items.length / n) * 16 };
+  }
+  const nomZ = (z) => z.replace("_up", " (haut)").replace("_low", " (bas)");
+  const nomL = (z) => z.replace("_up", "↑").replace("_low", "↓");
+  /* cotation : ticks aux abscisses xs (px) le long d'une ligne ; libellés */
+  function cotH(xs, y, lib) { let t = `<line x1="${xs[0]}" y1="${y}" x2="${xs[xs.length - 1]}" y2="${y}" stroke="#5f6670" stroke-width=".7"/>`;
+    xs.forEach((x) => { t += `<line x1="${x}" y1="${y - 4}" x2="${x}" y2="${y + 4}" stroke="#5f6670" stroke-width=".7"/>`; });
+    let k = 0;
+    for (let i = 0; i < xs.length - 1; i++) { const l = lib[i], m = (xs[i] + xs[i + 1]) / 2, w = xs[i + 1] - xs[i], dec = w < 6 * l.length + 4 ? (k++ % 2) * 9 : 0;
+      t += `<text x="${m}" y="${y - 4 - dec}" font-size="8.5" text-anchor="middle" fill="#5f6670">${l}</text>`; }
+    return t; }
+  function cotV(ys, x, lib) { let t = `<line x1="${x}" y1="${ys[0]}" x2="${x}" y2="${ys[ys.length - 1]}" stroke="#5f6670" stroke-width=".7"/>`;
+    ys.forEach((y) => { t += `<line x1="${x - 4}" y1="${y}" x2="${x + 4}" y2="${y}" stroke="#5f6670" stroke-width=".7"/>`; });
+    for (let i = 0; i < ys.length - 1; i++) t += `<text x="${x + 6}" y="${(ys[i] + ys[i + 1]) / 2 + 3}" font-size="8.5" fill="#5f6670">${lib[i]}</text>`;
+    return t; }
+  const nomCote = (l, e, mur) => { const r = (a, b) => Math.abs(a - b) < 1e-6 * Math.max(1, e); return mur ? (r(l, e / 5) ? "e/5" : r(l, 4 * e / 5) ? "4e/5" : "") : r(l, e / 10) ? "e/10" : r(l, e / 4) ? "e/4" : r(l, e / 2 - e / 10) ? "e/2 − e/10" : ""; };
+  const m2 = (v) => v.toFixed(2).replace(".", ",");
+  /* plan des murs (vent de gauche) : A, B, C sur les faces latérales, D au vent, E sous le vent */
   function svgMurs(M, b, d) {
-    const W = 420, H = 230, s = Math.min(220 / d, 150 / b), w = d * s, hh = b * s, X0 = 100, Y0 = (H - hh) / 2;
-    let x = X0, t = "";
-    M.zones.forEach(([z, l]) => { t += `<rect x="${x}" y="${Y0 - 14}" width="${l * s}" height="10" fill="${COUL(M.cpe[z])}" stroke="#171a1e" stroke-width=".6"/><rect x="${x}" y="${Y0 + hh + 4}" width="${l * s}" height="10" fill="${COUL(M.cpe[z])}" stroke="#171a1e" stroke-width=".6"/>`;
-      if (l * s > 24) t += `<text x="${x + l * s / 2}" y="${Y0 - 18}" font-size="10" text-anchor="middle" font-weight="700">${z} ${fx(M.cpe[z])}</text>`; x += l * s; });
-    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:460px"><rect x="${X0}" y="${Y0}" width="${w}" height="${hh}" fill="#f7f9fc" stroke="#171a1e"/>${t}
+    const s = Math.min(240 / d, 120 / b), w = d * s, hh = b * s, X0 = 92, Y0 = 52;
+    let x = X0, t = "", xs = [X0], lib = [], k = 0;
+    M.zones.forEach(([z, l]) => { const lw = l * s;
+      [Y0 - 14, Y0 + hh + 4].forEach((yy) => { t += `<rect x="${x}" y="${yy}" width="${lw}" height="10" fill="${COUL(M.cpe[z])}" stroke="#171a1e" stroke-width=".6"/>`; });
+      if (lw >= 12) t += `<text x="${x + lw / 2}" y="${Y0 - 17}" font-size="10" text-anchor="middle" font-weight="700">${z}</text>`;
+      else { const lx = x + lw / 2, ly = Y0 - 30 - 10 * (k++ % 2); t += `<line x1="${lx}" y1="${Y0 - 14}" x2="${lx}" y2="${ly + 2}" stroke="#171a1e" stroke-width=".5"/><text x="${lx}" y="${ly}" font-size="10" text-anchor="middle" font-weight="700">${z}</text>`; }
+      x += lw; xs.push(x); lib.push(nomCote(l, M.e, true) || m2(l)); });
+    const L = legende(10, Y0 + hh + 58, [...M.zones.map(([z]) => [z, M.cpe[z]]), ["D", M.cpe.D], ["E", M.cpe.E]], 400), H = Y0 + hh + 62 + L.h + 26;
+    return `<svg viewBox="0 0 420 ${H}" style="width:100%;max-width:460px"><rect x="${X0}" y="${Y0}" width="${w}" height="${hh}" fill="#f7f9fc" stroke="#171a1e"/>${t}
       <rect x="${X0 - 12}" y="${Y0}" width="8" height="${hh}" fill="${COUL(M.cpe.D)}" stroke="#171a1e" stroke-width=".6"/><rect x="${X0 + w + 4}" y="${Y0}" width="8" height="${hh}" fill="${COUL(M.cpe.E)}" stroke="#171a1e" stroke-width=".6"/>
-      <text x="${X0 - 16}" y="${Y0 + hh / 2}" font-size="10" text-anchor="end" font-weight="700">D ${fx(M.cpe.D)}</text><text x="${X0 + w + 16}" y="${Y0 + hh / 2}" font-size="10" font-weight="700">E ${fx(M.cpe.E)}</text>
-      ${fleche(X0 - 30, Y0 + hh / 2 + 22)}<text x="${X0 + w / 2}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#5f6670">plan – d = ${d} m (∥ vent), b = ${b} m ; e = ${M.e.toFixed(2)} m</text></svg>`;
+      <text x="${X0 - 16}" y="${Y0 + hh / 2 + 4}" font-size="11" text-anchor="end" font-weight="700">D</text><text x="${X0 + w + 16}" y="${Y0 + hh / 2 + 4}" font-size="11" font-weight="700">E</text>
+      ${fleche(X0 - 30, Y0 + hh / 2 + 22)}${cotH(xs, Y0 + hh + 30, lib)}${w > 130 ? `<text x="${X0 + w / 2}" y="${Y0 + hh / 2 + 4}" font-size="9" text-anchor="middle" fill="#5f6670">bâtiment (vue en plan)</text>` : ""}${L.svg}
+      <text x="10" y="${H - 16}" font-size="9" fill="#5f6670">Murs verticaux (Fig. 7.5), vent de gauche ; cotes en m.</text><text x="10" y="${H - 4}" font-size="9" fill="#5f6670">d = ${m2(d)} m (∥ vent), b = ${m2(b)} m ; e = min(b ; 2h) = ${m2(M.e)} m</text></svg>`;
   }
   /* plan de toiture avec zones (vent de gauche) ; L le long de l'axe vertical du dessin pour θ = 0 */
   function svgToiture(R, cas, L, W) {
     const th90 = /θ = 90/.test(cas.nom), Dv = th90 ? L : W, Bv = th90 ? W : L, e = th90 ? R.e90 : R.e0;   // Dv : profondeur dans le sens du vent
-    const S = Math.min(240 / Dv, 170 / Bv), w = Dv * S, h = Bv * S, X0 = 70, Y0 = 26, val = {};
+    const S = Math.min(250 / Dv, 170 / Bv), w = Dv * S, h = Bv * S, X0 = 56, Y0 = 58, val = {};
     cas.zones.forEach((z, i) => { val[z] = cas.v[i]; });
     const fx_ = (m) => Math.min(m / Dv, 1), fy = (m) => Math.min(m / Bv, 0.5), d10 = fx_(e / 10), b4 = fy(e / 4);
     let defs;
@@ -220,11 +247,26 @@ const CV = (() => {
     else if (!th90) defs = [["F", 0, 0, d10, b4], ["F", 0, 1 - b4, d10, b4], ["G", 0, b4, d10, 1 - 2 * b4], ["H", d10, 0, 0.5 - d10, 1], ["J", 0.5, 0, d10, 1], ["I", 0.5 + d10, 0, 0.5 - d10, 1]];
     else defs = [["F", 0, 0, d10, b4], ["F", 0, 1 - b4, d10, b4], ["G", 0, b4, d10, 0.5 - b4], ["G", 0, 0.5, d10, 0.5 - b4], ["H", d10, 0, fx_(e / 2) - d10, 1], ["I", fx_(e / 2), 0, 1 - fx_(e / 2), 1]];
     defs = defs.filter((z) => z[3] > 1e-6 && z[4] > 1e-6);
+    let t = "", gauche = [], bas = [];
+    defs.forEach(([z, x, y, ww, hh]) => { const px = X0 + x * w, py = Y0 + y * h, pw = ww * w, ph = hh * h, v = val[z];
+      t += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="${COUL(v)}" stroke="#171a1e" stroke-width=".8"/>`;
+      if (pw >= 16 && ph >= 13) t += `<text x="${px + pw / 2}" y="${py + ph / 2 + (pw >= 44 && ph >= 30 ? -1 : 4)}" font-size="${pw >= 30 && ph >= 20 ? 12 : 10}" text-anchor="middle" font-weight="700">${nomL(z)}</text>` + (pw >= 44 && ph >= 30 ? `<text x="${px + pw / 2}" y="${py + ph / 2 + 12}" font-size="9.5" text-anchor="middle">${fx(v)}</text>` : "");
+      else if (x < 1e-9) gauche.push([z, px + pw / 2, py + ph / 2]); else bas.push([z, px + pw / 2, py + ph]); });
+    // renvois à gauche (zones de rive au vent trop étroites) – étiquettes espacées d'au moins 12 px
+    gauche.sort((a, b) => a[2] - b[2]); let yl = -1e9;
+    gauche.forEach(([z, cx, cy]) => { const ly = Math.max(cy, yl + 12); yl = ly; t += `<polyline points="${cx},${cy} ${X0 - 6},${ly} ${X0 - 12},${ly}" fill="none" stroke="#171a1e" stroke-width=".6"/><circle cx="${cx}" cy="${cy}" r="1.6"/><text x="${X0 - 14}" y="${ly + 3.5}" font-size="10" text-anchor="end" font-weight="700">${nomL(z)}</text>`; });
+    bas.forEach(([z, cx, cy], i) => { const ly = Y0 + h + 16 + 11 * (i % 2); t += `<line x1="${cx}" y1="${cy - 4}" x2="${cx}" y2="${ly - 9}" stroke="#171a1e" stroke-width=".6"/><text x="${cx}" y="${ly}" font-size="10" text-anchor="middle" font-weight="700">${nomL(z)}</text>`; });
+    // cotes : en haut le long du vent, à droite pour les bandes de rive
+    const bx = [...new Set(defs.flatMap(([, x, , ww]) => [x, x + ww]).map((v) => +v.toFixed(6)))].sort((a, b) => a - b);
+    const by = [...new Set(defs.filter((d) => d[1] < 1e-9).flatMap(([, , y, , hh]) => [y, y + hh]).map((v) => +v.toFixed(6)))].sort((a, b) => a - b);
+    const cote = cotH(bx.map((v) => X0 + v * w), Y0 - 10, bx.slice(1).map((v, i) => nomCote((v - bx[i]) * Dv, e) || m2((v - bx[i]) * Dv))) +
+      cotV(by.map((v) => Y0 + v * h), X0 + w + 10, by.slice(1).map((v, i) => nomCote((v - by[i]) * Bv, e) || m2((v - by[i]) * Bv)));
     const faite = R.type === "bi" ? (th90 ? `<line x1="${X0}" y1="${Y0 + h / 2}" x2="${X0 + w}" y2="${Y0 + h / 2}" stroke="#171a1e" stroke-dasharray="6 3"/>` : `<line x1="${X0 + w / 2}" y1="${Y0}" x2="${X0 + w / 2}" y2="${Y0 + h}" stroke="#171a1e" stroke-dasharray="6 3"/>`) : "";
-    const rive = R.type === "mono" && !R.terrasse ? (th90 ? `<text x="${X0 + w / 2}" y="${Y0 - 6}" font-size="9" text-anchor="middle" fill="#5f6670">rive haute</text><text x="${X0 + w / 2}" y="${Y0 + h + 12}" font-size="9" text-anchor="middle" fill="#5f6670">rive basse</text>`
-      : `<text x="${X0 - 4}" y="${Y0 - 6}" font-size="9" fill="#5f6670">${/180/.test(cas.nom) ? "rive haute" : "rive basse"}</text>`) : "";
-    return `<svg viewBox="0 0 360 ${h + 60}" style="width:100%;max-width:420px">${rectZones(X0, Y0, w, h, defs, val)}${faite}${rive}${fleche(X0 - 6, Y0 + h / 2)}
-      <text x="4" y="${Y0 + h + 28}" font-size="10" fill="#5f6670">plan de toiture – e = ${e.toFixed(2)} m ; e/10 = ${(e / 10).toFixed(2)} m ; e/4 = ${(e / 4).toFixed(2)} m${/H|I/.test(cas.zones.join("")) && (th90 || R.terrasse) ? " ; e/2 = " + (e / 2).toFixed(2) + " m" : ""}</text></svg>`;
+    const rive = R.type === "mono" && !R.terrasse ? (th90 ? `<text x="${X0 + w + 26}" y="${Y0 + 8}" font-size="9" fill="#5f6670">rive haute</text><text x="${X0 + w + 26}" y="${Y0 + h}" font-size="9" fill="#5f6670">rive basse</text>`
+      : `<text x="${X0}" y="${Y0 + h + 40}" font-size="9" fill="#5f6670">rive au vent : ${/180/.test(cas.nom) ? "rive haute" : "rive basse"}</text>`) : "";
+    const zs = [...new Set(defs.map((d) => d[0]))], Lg = legende(8, Y0 + h + 58, zs.map((z) => [z, val[z]]), 380), H = Y0 + h + 62 + Lg.h + 26;
+    return `<svg viewBox="0 0 400 ${H}" style="width:100%;max-width:440px">${t}${faite}${rive}${cote}${fleche(X0 - 2, 18)}${Lg.svg}
+      <text x="8" y="${H - 16}" font-size="9" fill="#5f6670">Plan de toiture, vent de gauche${R.type === "bi" ? " ; - - - faîtage" : ""} ; cotes en m.</text><text x="8" y="${H - 4}" font-size="9" fill="#5f6670">e = min(b ; 2h) = ${m2(e)} m ; e/10 = ${m2(e / 10)} m ; e/4 = ${m2(e / 4)} m ; e/2 = ${m2(e / 2)} m</text></svg>`;
   }
   /* toiture isolée à un versant : répartition c1 / c2 → c3 (CNC2M figure 22) */
   function svgToitIsolee(T, c, titre) {

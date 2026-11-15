@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.42"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — Manuel technique</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.42">
+<script src="../commun/apps.js?v=2.42"></script>
+<script src="../commun/barres3d.js?v=2.42"></script>
+<script src="../commun/acier.js?v=2.42"></script>
+<script src="../commun/data/tuyauterie.js?v=2.42"></script>
+<script src="../commun/charges.js?v=2.42"></script>
+<script src="../commun/coefvent.js?v=2.42"></script>
+<style>
+  main{grid-template-columns:minmax(230px,290px) 1fr}
+  nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
+  nav.toc a{display:block;padding:3px 8px;border-radius:5px;text-decoration:none;color:var(--ink);font-size:13px}
+  nav.toc a.n2{padding-left:20px;font-size:12.5px;color:#4a525c}
+  nav.toc a:hover{background:#eef4fb;color:var(--fip-bleu)}
+  .man p,.man li{font-size:13.5px;line-height:1.6}
+  .man h3{font-size:14.5px;color:var(--fip-bleu);margin:16px 0 6px}
+  .man .form{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#fbfbf6;border:1px solid #e6e3cf;border-radius:6px;padding:8px 12px;margin:8px 0;line-height:1.8;white-space:normal}
+  .man table{margin:6px 0 10px}.man td,.man th{font-size:12.5px;vertical-align:top}
+  .man .ref{font-size:12px;color:var(--muted)}
+  .man .lim{border-left:4px solid #d4a300;background:#fffaf0;padding:6px 10px;border-radius:4px;font-size:13px;margin:8px 0}
+  .theme{font-size:11px;font-weight:700;color:var(--fip-rouge);text-transform:uppercase;letter-spacing:.06em}
+  article.card:target{box-shadow:0 0 0 3px rgba(227,0,9,.35)}
+  .ok{color:#1d7a36;font-weight:700}.ko{color:#c0141c;font-weight:700}
+  @media (max-width:950px){main{grid-template-columns:1fr}nav.toc{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">MT</span>Manuel technique</h1>
+    <div class="sub">Mode d'emploi, manuel de référence (hypothèses, formules, paragraphes des normes) et tests de validation, pour comprendre, contrôler et qualifier les calculettes</div>
+  </div>
+  <a href="../referentiel/" class="noprint"><button class="sec" type="button">📘 Référentiel</button></a>
+  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+</header>
+<main>
+<nav class="toc card noprint" id="toc"></nav>
+<section class="man" id="man">
+
+<article class="card" id="presentation"><div class="theme">Généralités</div><h2>1. Objet du manuel et démarche de qualification</h2>
+<p>Ce manuel décrit, pour chaque calculette, <b>ce qui est calculé et comment</b> : modèle, hypothèses, formules avec leurs paragraphes de référence, domaine de validité et limites. Il complète le <a href="../referentiel/">Référentiel</a> (notions vulgarisées) et l'aide intégrée « ❓ » (utilisation pas à pas). Il sert de base au <b>contrôle</b> et à la <b>qualification</b> des outils par le service.</p>
+<h3>Démarche de qualification proposée</h3>
+<ol>
+<li><b>Identifier la version</b> : chaque page affiche sa version (pied de page de l'accueil, notes de calcul). Les résultats d'une note ne sont valables que pour la version indiquée.</li>
+<li><b>Lire le chapitre du module</b> : hypothèses, formules, limites (§ concernés de ce manuel).</li>
+<li><b>Exécuter les tests de validation</b> (chapitre <a href="#valid">16</a>) : ils lancent le moteur de calcul de la version en cours sur des cas à solution analytique connue et affichent l'écart. Un test en rouge bloque la qualification.</li>
+<li><b>Recouper sur des cas projet</b> par un calcul indépendant (Robot, calcul manuel, autre logiciel) : la note de calcul complète donne toutes les valeurs intermédiaires (formules détaillées) pour faciliter ce recoupement.</li>
+<li><b>Consigner</b> : version, cas testés, écarts, décision (qualifié / qualifié avec réserves / non qualifié). Consulter le <a href="#journal">journal des modifications</a> à chaque nouvelle version.</li>
+</ol>
+<div class="lim"><b>Statut des résultats :</b> outils de <b>prédimensionnement (APS/APD)</b>. Les résultats sont à vérifier par un ingénieur qualifié ; les études d'exécution restent à la charge des entreprises.</div>
+</article>
+
+<article class="card" id="usage"><div class="theme">Généralités</div><h2>2. Mode d'emploi général</h2>
+<h3>Enchaînement type d'une affaire de supportage</h3>
+<ol>
+<li><b>Cahier de supportage (CS)</b> : créer l'affaire (n°, client, site, phase APS/APD, indice, réalisé / contrôlé). Ces champs alimentent toutes les calculettes et les cartouches.</li>
+<li><b>Climat (C1)</b> : localiser le site, obtenir les zones de vent, neige, séisme, q<sub>p</sub>(z), s<sub>k</sub>, a<sub>g</sub> ; les importer dans le cahier (paramètres communs).</li>
+<li><b>Portée de tuyauterie (T1)</b> : portées admissibles entre supports par ligne (contrainte, flèche, fréquence).</li>
+<li><b>Supports (S1)</b> : modéliser chaque support type, vérifier, « ➕ Ajouter au cahier ». Plan (dessin industriel, DXF) et note de calcul disponibles dans S1.</li>
+<li><b>Cahier</b> : configurations (cotes différentes), quantités et repères, puis sorties : cahier Word / PDF (plans schématiques ou planches A3/A4), notes de calcul par type, plans DXF, nomenclature (BOM), descentes de charges.</li>
+</ol>
+<h3>Autres outils</h3>
+<table><tr><th>Outil</th><th>Usage</th></tr>
+<tr><td>P1 Poutre</td><td>Poutre isostatique fléchie (profilé laminé) : résistance, déversement, flèches, fréquence.</td></tr>
+<tr><td>P2 Poteau</td><td>Poteau comprimé et fléchi : flambement y/z, déversement, interaction N–M (Annexe B), déplacement horizontal.</td></tr>
+<tr><td>H1 Fluides</td><td>Masse volumique, pression de vapeur, viscosité en fonction de la température.</td></tr>
+<tr><td>Base de données</td><td>Profilés (schémas et notations), tubes, matériaux, aciers, coefficients ψ, limites de flèche, c<sub>f</sub> des profilés.</td></tr></table>
+<h3>Données et sorties</h3>
+<ul><li>Les données sont enregistrées dans le <b>navigateur du poste</b> (aucun serveur) : exporter le cahier en .json pour archiver ou transmettre.</li>
+<li>Sorties : Word (.docx), Excel (.xlsx), PDF (impression), DXF R12 (plans). La trame Word FIP remplacera la mise en page générique.</li></ul>
+</article>
+
+<article class="card" id="conv"><div class="theme">Généralités</div><h2>3. Conventions, unités et coefficients</h2>
+<table><tr><th>Sujet</th><th>Convention</th></tr>
+<tr><td>Unités internes</td><td>kN, m, kN/m², MPa (= N/mm²) ; sections en cm, cm², cm³, cm⁴, cm⁶ (base de profilés) ; dimensions de tubes en mm.</td></tr>
+<tr><td>Repère global (S1, plans, DDC)</td><td>X ∥ axe des tuyauteries ; Y horizontal transversal ; Z vertical ascendant (trièdre direct). F<sub>z</sub> &lt; 0 : charge descendante.</td></tr>
+<tr><td>Repère local d'une barre</td><td>x de l'origine vers l'extrémité ; y, z axes de la section (y-y fort, z-z faible, NF EN 1993-1-1 §1.7) ; cornières : axes principaux u (fort), v (faible).</td></tr>
+<tr><td>Efforts internes</td><td>Effort de la partie aval sur la partie amont ; N &gt; 0 en traction.</td></tr>
+<tr><td>Descentes de charges</td><td>Efforts exercés <b>par le support sur l'ouvrage</b>, en repère global, au point d'appui.</td></tr>
+<tr><td>Coefficients partiels</td><td>γ<sub>G</sub> = 1,35 (défavorable) / 1,00 (favorable) ; γ<sub>Q</sub> = 1,50 (NF EN 1990 éq. 6.10 + AN, Tab. A1.2(B)). γ<sub>M0</sub> = γ<sub>M1</sub> = 1,00 (NF EN 1993-1-1/NA) ; γ<sub>M2</sub> = γ<sub>M3</sub> = 1,25 (NF EN 1993-1-8/NA).</td></tr>
+<tr><td>Coefficients ψ</td><td>Vent 0,6 / 0,2 / 0 ; neige 0,5 / 0,2 / 0 (≤ 1000 m) ou 0,7 / 0,5 / 0,2 (&gt; 1000 m) ; température 0,6 / 0,5 / 0 ; exploitation selon catégorie (Tab. A1.1 + AN).</td></tr>
+<tr><td>Acier</td><td>E = 210 000 MPa ; G = 81 000 MPa ; ρ = 7 850 kg/m³ ; f<sub>y</sub> selon NF EN 1993-1-1 Tab. 3.1 (t ≤ 40 mm / 40 &lt; t ≤ 80 mm).</td></tr></table>
+</article>
+
+<article class="card" id="comb"><div class="theme">Moteur commun</div><h2>4. Combinaisons d'actions</h2>
+<p>Générées automatiquement à partir des actions variables actives (moteur commun P1, P2, S1).</p>
+<div class="form">ELU fondamental (6.10) : Σ γ<sub>G</sub>·G + 1,5·Q<sub>k,1</sub> + Σ 1,5·ψ<sub>0,i</sub>·Q<sub>k,i</sub> avec γ<sub>G</sub> ∈ {1,35 ; 1,00}<br>ELS caractéristique (6.14b) : G + Q<sub>k,1</sub> + Σ ψ<sub>0,i</sub>·Q<sub>k,i</sub><br>ELS quasi permanent (6.16b) : G + Σ ψ<sub>2,i</sub>·Q<sub>k,i</sub><br>Situation sismique (6.12b) : G + A<sub>Ed</sub> (+ ψ<sub>2</sub>·Q, nuls ici)</div>
+<p><b>Algorithme :</b> chaque action variable est tour à tour dominante, les autres d'accompagnement ou absentes ; une action à ψ<sub>0</sub> = 0 n'est jamais d'accompagnement ; les actions d'un même groupe sont exclusives (vent ±X / ±Y, T+ / T−) ; exclusions spécifiques (catégorie H non combinée à la neige ni au vent ; épreuve hydraulique non combinée aux autres variables). Séisme (S1) : 8 combinaisons 1·G ± E<sub>x</sub> ± 0,3·E<sub>y</sub> et 1·G ± 0,3·E<sub>x</sub> ± E<sub>y</sub> (NF EN 1998-1 §4.3.3.5.2).</p>
+<p class="ref">Références : NF EN 1990 §6.4.3.2, §6.5.3, Annexe A1 + AN ; NF EN 1998-1 §4.3.3.5.</p>
+</article>
+
+<article class="card" id="acier"><div class="theme">Moteur commun</div><h2>5. Résistance des profilés acier (NF EN 1993-1-1)</h2>
+<h3>5.1 Classes de section (Tab. 5.2)</h3>
+<div class="form">ε = √(235/f<sub>y</sub>)<br>I, H, U : semelle comprimée c/t ≤ 9ε (cl. 1), 10ε (2), 14ε (3) ; âme c/t ≤ 72ε / 83ε / 124ε (flexion), 33ε / 38ε / 42ε (compression)<br>c semelle = (b − t<sub>w</sub> − 2r)/2 (I) ou b − t<sub>w</sub> − r (U) ; c âme = h − 2t<sub>f</sub> − 2r<br>Cornières : classe 3 si h/t ≤ 15ε et (b + h)/2t ≤ 11,5ε, sinon 4<br>Tubes rectangulaires : c = h − 3t ; tubes ronds : d/t ≤ 50ε² / 70ε² / 90ε²</div>
+<p>Classe 4 : non couverte (message bloquant). IPN, UPN : épaisseur d'aile moyenne (ailes inclinées).</p>
+<h3>5.2 Résistances de section</h3>
+<div class="form">N<sub>Rk</sub> = A·f<sub>y</sub> ; M<sub>Rk</sub> = W·f<sub>y</sub> avec W = W<sub>pl</sub> (classes 1–2) ou W<sub>el</sub> (classe 3) (§6.2.4, §6.2.5)<br>V<sub>pl,Rd</sub> = A<sub>v</sub>·f<sub>y</sub>/(√3·γ<sub>M0</sub>) (§6.2.6, éq. 6.18)</div>
+<h3>5.3 Flambement (§6.3.1)</h3>
+<div class="form">λ̄ = L<sub>cr</sub>/(i·λ<sub>1</sub>) ; λ<sub>1</sub> = 93,9·ε<br>Φ = 0,5·[1 + α·(λ̄ − 0,2) + λ̄²] ; χ = 1/(Φ + √(Φ² − λ̄²)) ≤ 1 (éq. 6.49) ; χ = 1 si λ̄ ≤ 0,2<br>α = 0,13 (a<sub>0</sub>) ; 0,21 (a) ; 0,34 (b) ; 0,49 (c) ; 0,76 (d) (Tab. 6.1)</div>
+<p>Courbes (Tab. 6.2, laminés en I) : h/b &gt; 1,2 et t<sub>f</sub> ≤ 40 mm → a (y), b (z) ; h/b ≤ 1,2 et t<sub>f</sub> ≤ 100 mm → b (y), c (z) ; IPN/UPN/UPE : facteurs du catalogue (classeur). Cornières : courbe b autour de v. Tubes : courbe c (formés à froid, prudent).</p>
+<h3>5.4 Déversement (§6.3.2.2, cas général)</h3>
+<div class="form">M<sub>cr</sub> = C<sub>1</sub>·π²EI<sub>z</sub>/L² · [√(I<sub>w</sub>/I<sub>z</sub> + L²GI<sub>t</sub>/(π²EI<sub>z</sub>) + (C<sub>2</sub>z<sub>g</sub>)²) − C<sub>2</sub>z<sub>g</sub>] (NCCI SN003, k = k<sub>w</sub> = 1)<br>λ̄<sub>LT</sub> = √(W·f<sub>y</sub>/M<sub>cr</sub>) ; χ<sub>LT</sub> par (6.56) avec α<sub>LT</sub> : courbe a (h/b ≤ 2) ou b (h/b &gt; 2) ; χ<sub>LT</sub> = 1 si λ̄<sub>LT</sub> ≤ 0,2 ou M<sub>Ed</sub>/M<sub>cr</sub> ≤ 0,04</div>
+<p class="ref">Références : NF EN 1993-1-1 §5.5, §6.2, §6.3.1, §6.3.2 + AN ; NCCI SN003.</p>
+</article>
+
+<article class="card" id="c1"><div class="theme">C1 · G1 · Q1 · NH – Charges et hypothèses</div><h2>6. Charges : C1 climat et séisme, G1, Q1, note d'hypothèses</h2>
+<h3 id="c1-vent">6.1 Vent (NF EN 1991-1-4 + AN)</h3>
+<div class="form">v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> (4.1) ; v<sub>b,0</sub> = 22 / 24 / 26 / 28 m/s (zones 1 à 4, AN fig. 4.3(NA)) ; q<sub>b</sub> = ½·ρ·v<sub>b</sub>², ρ = 1,225 kg/m³<br>k<sub>r</sub> = 0,19·(z<sub>0</sub>/0,05)<sup>0,07</sup> ; c<sub>r</sub>(z) = k<sub>r</sub>·ln(max(z, z<sub>min</sub>)/z<sub>0</sub>) (4.4, 4.5)<br>v<sub>m</sub>(z) = c<sub>r</sub>(z)·c<sub>o</sub>(z)·v<sub>b</sub> (4.3) ; I<sub>v</sub>(z) = k<sub>I</sub>/ln(max(z, z<sub>min</sub>)/z<sub>0</sub>) (4.7 + AN 4.20-NA)<br>q<sub>p</sub>(z) = [1 + 7·I<sub>v</sub>(z)]·½·ρ·v<sub>m</sub>²(z) (4.8)</div>
+<table><tr><th>Catégorie</th><th>z<sub>0</sub> (m)</th><th>z<sub>min</sub> (m)</th><th>k<sub>I</sub></th></tr><tr><td>0</td><td>0,005</td><td>1</td><td>1,000</td></tr><tr><td>II</td><td>0,05</td><td>2</td><td>0,995</td></tr><tr><td>IIIa</td><td>0,20</td><td>5</td><td>0,970</td></tr><tr><td>IIIb</td><td>0,50</td><td>9</td><td>0,923</td></tr><tr><td>IV</td><td>1,0</td><td>15</td><td>0,854</td></tr></table>
+<p><b>Orographie</b> (procédure 1, AN §4.3.3) : altitudes IGN au point et à 500 m / 1000 m dans les 4 directions ; A<sub>m</sub> = (2A<sub>C</sub> + ΣA<sub>N,E,S,O 1,2</sub>)/10 (4.12-NA) ; ΔA<sub>C</sub> = A<sub>C</sub> − A<sub>m</sub> (4.13-NA) ; c<sub>o</sub>(z) = 1 + 0,004·ΔA<sub>C</sub>·e<sup>−0,014(z−10)</sup> ≥ 1, z ≥ 10 m.</p>
+<p><b>Exemple de contrôle</b> : zone 2, catégorie II, z = 10 m, c<sub>o</sub> = 1 → q<sub>b</sub> = 352,8 Pa ; c<sub>r</sub> = 1,0067 ; v<sub>m</sub> = 24,16 m/s ; I<sub>v</sub> = 0,1878 ; <b>q<sub>p</sub> = 827,5 Pa</b> (c<sub>e</sub> = 2,346).</p>
+<h3 id="c1-coef">6.2 Coefficients aérodynamiques</h3>
+<p>Profilés : c<sub>f</sub> des figures 7.39(NA) à 7.50(NA), ramené à la largeur projetée (maximum sur l'incidence) ; tubes ronds c<sub>f</sub> = 1,2 (fig. 7.28, sous-critique, prudent) ; ψ<sub>λ</sub> = 1. Bâtiments fermés (Tab. 7.1, 7.3a, 7.4a-b + AN), toitures isolées (Tab. 7.6 / CNC2M, 7.7), murs isolés (Tab. 7.9), c<sub>pi</sub> et k<sub>dc</sub> : valeurs tabulées des normes citées.</p>
+<p id="c1-cpi"><b>Pression intérieure c<sub>pi</sub> (§7.2.9)</b>, trois modes : (1) <b>forfaitaire</b> +0,2 / −0,3 lorsque la perméabilité n'est pas connue avec certitude (§7.2.9(6) + AN NOTE 2), la valeur la plus défavorable étant retenue zone par zone ; (2) <b>face dominante</b> (aire des ouvertures d'une face ≥ 2 fois celle des autres) : c<sub>pi</sub> = 0,75·c<sub>pe</sub> (rapport 2), 0,90·c<sub>pe</sub> (rapport ≥ 3), interpolation linéaire entre les deux (§7.2.9(5), éq. 7.1 et 7.2), c<sub>pe</sub> de la zone de l'ouverture ; à traiter en situation accidentelle si l'ouverture n'est pas permanente (§7.2.9(3)) ; (3) <b>selon les ouvertures</b> : μ = Σ A<sub>ouv</sub>(c<sub>pe</sub> ≤ 0) / Σ A<sub>ouv</sub> (éq. 7.3), c<sub>pi</sub> lu par l'utilisateur sur la fig. 7.13 en fonction de μ et h/d (interpolation linéaire entre h/d = 0,25 et 1) : la courbe n'est pas numérisée dans l'outil.</p>
+<div class="form">c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> ; par zone : c<sub>p,net,max</sub> = c<sub>pe</sub> − min(c<sub>pi</sub>), c<sub>p,net,min</sub> = c<sub>pe</sub> − max(c<sub>pi</sub>) ; w = q<sub>p</sub>(z<sub>e</sub>)·c<sub>p,net</sub> (§5.2, éq. 5.1-5.2 ; c<sub>pe</sub> et c<sub>pi</sub> simultanés §7.2.9(1)) ; convention : &gt; 0 vers l'intérieur de la paroi<br>Toitures isolées (§7.3, Tab. 7.6 / 7.7) et murs isolés (§7.4, Tab. 7.9) : c<sub>p,net</sub> tabulés directement (deux faces combinées, pas de c<sub>pi</sub>)</div>
+<p><b>Exemple de contrôle</b> : bâtiment 30 × 20 m, h = 8 m, θ = 0° (d = 20 m) : h/d = 0,40 → c<sub>pe,10</sub>(D) = 0,70 + 0,10 × (0,40 − 0,25)/0,75 = <b>+0,72</b> ; forfaitaire : c<sub>p,net,max</sub>(D) = 0,72 + 0,30 = <b>+1,02</b> ; face dominante D, rapport 3 : c<sub>pi</sub> = 0,9 × 0,72 = <b>+0,648</b>.</p>
+<h3 id="c1-neige">6.3 Neige (NF EN 1991-1-3 + AN)</h3>
+<div class="form">s<sub>k</sub>(A) = s<sub>k,200</sub> + Δs (AN §4.1) ; régions A1 à D : Δs = A/1000 − 0,20 (200–500 m) ; 1,5A/1000 − 0,45 (500–1000 m) ; 3,5A/1000 − 2,45 (1000–2000 m)<br>Région E : Δs = 1,5A/1000 − 0,30 ; 3,5A/1000 − 1,30 ; 7A/1000 − 4,80<br>s = μ<sub>i</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> (5.1) ; μ<sub>1</sub> = 0,8 (α ≤ 30°), 0,8·(60 − α)/30 (30–60°), 0 (≥ 60°)<br>Accidentelle : s<sub>Ad</sub> (A2, B1, B2, C2, D) ; majoration faible pente : +0,2 kN/m² (p &lt; 3 %), +0,1 (3 à 5 %) (AN §5.2(6))</div>
+<p><b>Exemple</b> : région A1, A = 600 m → s<sub>k</sub> = 0,45 + (1,5 × 0,6 − 0,45) = <b>0,90 kN/m²</b>.</p>
+<h3 id="c1-seisme">6.4 Séisme (NF EN 1998-1 + AN, arrêté du 22/10/2010 modifié)</h3>
+<div class="form">a<sub>g</sub> = γ<sub>I</sub>·a<sub>gr</sub> ; a<sub>gr</sub> = 0,4 / 0,7 / 1,1 / 1,6 / 3,0 m/s² (zones 1 à 5) ; γ<sub>I</sub> = 0,8 / 1,0 / 1,2 / 1,4 (cat. I à IV)<br>S<sub>e</sub>(T) : 0 ≤ T ≤ T<sub>B</sub> : a<sub>g</sub>S[1 + T/T<sub>B</sub>(2,5η − 1)] ; T<sub>B</sub>–T<sub>C</sub> : 2,5a<sub>g</sub>Sη ; T<sub>C</sub>–T<sub>D</sub> : ×T<sub>C</sub>/T ; &gt; T<sub>D</sub> : ×T<sub>C</sub>T<sub>D</sub>/T² (3.2–3.5), η = 1<br>S<sub>d</sub>(T) : idem avec 2,5/q, minoré par β·a<sub>g</sub>, β = 0,2 (3.13–3.16)<br>Vertical : a<sub>vg</sub>/a<sub>g</sub> = 0,8 (zones 1–4) / 0,9 (zone 5) ; T<sub>B</sub>, T<sub>C</sub>, T<sub>D</sub> = 0,03 / 0,20 / 2,5 s ou 0,15 / 0,40 / 2,0 s ; S<sub>ve</sub> : plateau 3,0·a<sub>vg</sub> (3.8–3.11) ; q<sub>v</sub> ≤ 1,5<br>T<sub>1</sub> = C<sub>t</sub>·H<sup>3/4</sup> (4.6) ; F<sub>b</sub> = S<sub>d</sub>(T<sub>1</sub>)·m·λ (4.5)<br>Éléments non structuraux : S<sub>a</sub> = α·S·[3(1 + z/H)/(1 + (1 − T<sub>a</sub>/T<sub>1</sub>)²) − 0,5] ≥ α·S (4.25) ; F<sub>a</sub> = S<sub>a</sub>·W<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub> (4.24)</div>
+<p>Classe de sol inconnue : enveloppe des spectres D et E. <b>Exemple</b> : zone 3, catégorie II, sol C (S = 1,5) → plateau S<sub>e</sub> = 1,1 × 1,5 × 2,5 = <b>4,125 m/s²</b> ; S<sub>d</sub> (q = 1,5) = 2,75 m/s².</p>
+<p class="ref">Références : NF EN 1991-1-4/NA, 1991-1-3/NA, 1998-1/NA ; arrêté du 22/10/2010 art. 4 (modifié le 08/09/2021) ; CNC2M (toitures isolées).</p>
+<h3 id="g1">6.5 G1 – Charges permanentes (NF EN 1991-1-1 + AN)</h3>
+<div class="form">Complexe (couverture, bardage, plancher) : g = (1 + m)·Σ g<sub>i</sub> ; couche définie par une épaisseur : g<sub>i</sub> = γ<sub>i</sub>·e<sub>i</sub> (γ en kN/m³, e en m) ; couche catalogue : g<sub>i</sub> surfacique (kN/m²) ; m = majoration (fixations, recouvrements)<br>Tuyauterie (linéique) : q<sub>vide</sub> = g·[π/4·(D² − d<sub>i</sub>²)·ρ<sub>acier</sub> + π/4·((D + 2t<sub>c</sub>)² − D²)·ρ<sub>calo</sub>] ; q<sub>service</sub> = q<sub>vide</sub> + g·π/4·d<sub>i</sub>²·ρ<sub>f</sub> ; q<sub>eau</sub> = q<sub>vide</sub> + g·π/4·d<sub>i</sub>²·1000 (même base que T1 et S1)<br>Classement : service G = q<sub>service</sub> ; si ρ<sub>f</sub> &lt; 1000 kg/m³, situation d'épreuve hydraulique où l'eau remplace le fluide : G = q<sub>vide</sub>, Q<sub>ép</sub> = q<sub>eau</sub> − q<sub>vide</sub> (action variable, situation transitoire) ; ELU γ<sub>G</sub>·q<sub>vide</sub> + 1,5·Q<sub>ép</sub>, sans autre action variable (cas E<sub>P</sub> de S1) ; sinon épreuve couverte par G<br>Équipement : G = m<sub>vide</sub>·g (permanent) ; (m<sub>service</sub> − m<sub>vide</sub>)·g à classer par l'ingénieur (G ou Q selon la NF EN 1991-1-1 §2.1) ; charge par appui = G / n</div>
+<p>Poids volumiques : Annexe A de la NF EN 1991-1-1 (Tab. A.1 à A.12, pour les matériaux à fourchette, valeur <b>médiane</b> retenue à défaut de spécification du projet, conformément à l'AN 2 de la NF P 06-111-2 ; Annexe A informative). <b>Le poids propre des éléments calculés n'est pas saisi dans G1</b> : il est ajouté automatiquement par chaque outil de calcul (S1 : profilés du support ; P1 : poids linéique de la poutre ; P2 : poids du poteau ajouté à N<sub>G</sub> ; T1 : tube). <b>Exemple</b> : DN100 (114,3 × 6,02) P265GH, sans calorifuge : q<sub>vide</sub> = 0,158 kN/m ; plein d'eau <b>0,238 kN/m</b> (G, Q<sub>ép</sub> = 0) ; au gaz G = 0,158 kN/m en service et, à l'épreuve, G = 0,158 + <b>Q<sub>ép</sub> = 0,081 kN/m</b> (eau). Les lignes peuvent être importées des supports S1 du cahier (doublons DN / schedule / matériau / ρ / calorifuge ignorés).</p>
+<h3 id="q1">6.6 Q1 – Charges d'exploitation</h3>
+<table><tr><th>Catégorie</th><th>q<sub>k</sub> (kN/m²)</th><th>Q<sub>k</sub> (kN)</th><th>Référence</th></tr><tr><td>A planchers / escaliers / balcons</td><td>1,5 / 2,5 / 3,5</td><td>2,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>B bureaux</td><td>2,5</td><td>4,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>C1 à C5</td><td>2,5 / 4,0 / 4,0 / 5,0 / 5,0</td><td>3,0 / 4,0 / 4,0 / 7,0 / 4,5</td><td>Tab. 6.2(NF)</td></tr><tr><td>D1 / D2 commerces</td><td>5,0 / 5,0</td><td>5,0 / 7,0</td><td>Tab. 6.2(NF)</td></tr><tr><td>E1 stockage</td><td>7,5</td><td>7,0</td><td>Tab. 6.4 (normatif selon l'AN)</td></tr><tr><td>F / G véhicules (≤ 30 kN / 30 à 160 kN)</td><td>2,3 / 5,0</td><td>15 / 90</td><td>Tab. 6.8(NF)</td></tr><tr><td>Catégorie non spécifiée</td><td colspan="2">valeurs de D1</td><td>AN §6.3.1.2(1)</td></tr><tr><td>I – toiture avec aménagement paysager</td><td>≥ 3,0</td><td>—</td><td>AN §6.3.4.1</td></tr><tr><td>H toiture inaccessible (pente &lt; 15 %, étanchée / autres)</td><td>0,8 / 0</td><td>1,5</td><td>Tab. 6.10(NF)</td></tr><tr><td>Passerelle / plate-forme d'accès aux machines</td><td>2,0</td><td>1,5 (200 × 200 mm)</td><td>NF EN ISO 14122-2</td></tr></table>
+<p>q<sub>k</sub> et Q<sub>k</sub> ne se cumulent pas (§6.3.1.2(5)) ; cloisons mobiles (§6.3.1.2(8)) : 0,5 / 0,8 / 1,2 kN/m² selon le poids propre linéique (≤ 1 / ≤ 2 / ≤ 3 kN/m). Réduction (AN, non simultanées) : α<sub>A</sub> = 0,77 + 3,5/A ≤ 1 (A, B, C3, D1, F ; AN §6.3.1.2(10)) appliqué si l'aire est saisie ; α<sub>n</sub> = 0,5 + 1,36/n (A) ou 0,7 + 0,8/n (B, F) (AN §6.3.1.2(11)) non appliqué. <b>Exemple</b> : B, A = 20 m² → α<sub>A</sub> = 0,945 → q<sub>k</sub> = 2,36 kN/m². Garde-corps : Tab. 6.12(NF) = 0,6 (A, B, C1) ; 1,0 (C2 à C4, D) ; 3,0 (C5) ; 2,0 minimum (E) kN/m. Garde-corps industriels et accès aux machines : 0,3 kN/m (30 daN/m), NF E 85-015 renvoyant à la NF EN ISO 14122-3 (valeur usuelle confirmée par l'utilisateur, <b>non contrôlée sur le texte</b> : à vérifier). Garde-corps de bâtiment (NF P 01-012) : valeur à saisir selon la norme en vigueur (non intégrée). Toutes les valeurs de l'AN ci-dessus ont été contrôlées sur la NF P 06-111-2 (juin 2004).</p>
+<h3 id="nh">6.7 NH – Note d'hypothèses</h3>
+<p>NH n'effectue pas de calcul : il assemble les données enregistrées par C1 (résultats vent, neige, séisme et synthèse), G1 et Q1, les hypothèses générales (durée d'utilisation NF EN 1990 Tab. 2.1(NF), classe de conséquences Annexe B, matériaux, γ<sub>M</sub>) et les combinaisons de la NF EN 1990 (éq. 6.10, 6.11b, 6.12b, 6.14b à 6.16b ; ψ Tab. A1.1 + AN). Trois modèles : simplifiée (rédigée), classique (tableaux et schémas), complète (plus le détail des calculs C1 et des formules G1 / Q1). Contrôle : vérifier la date des sources affichée et que le site de C1 est celui de l'affaire.</p>
+<p class="ref">Références : NF EN 1990/NA, NF EN 1991-1-1/NA (Tab. 6.2(NF), 6.4, 6.10(NF), 6.12(NF), Annexe A), NF EN ISO 14122-2 et -3.</p>
+</article>
+
+<article class="card" id="t1"><div class="theme">T1 – Tuyauterie</div><h2>7. T1 – Portée admissible des tuyauteries</h2>
+<div class="form">Masses linéiques : tube π/4·(D² − d<sub>i</sub>²)·ρ ; fluide π/4·d<sub>i</sub>²·ρ<sub>f</sub> ; calorifuge π/4·((D + 2t<sub>i</sub>)² − D²)·ρ<sub>i</sub> ; q = m·g<br>I = π(D⁴ − d<sub>i</sub>⁴)/64 (épaisseur nominale) ; Z = π(D⁴ − d<sub>ic</sub>⁴)/(32D) (épaisseur corrodée e<sub>c</sub> = e<sub>n</sub>(1 − tol) − c)<br>σ = P·D/(4e<sub>c</sub>) + (k<sub>M</sub>·q·L² + P<sub>pt</sub>·L/4)/Z ≤ f (contrainte longitudinale soutenue)<br>δ = k<sub>d</sub>·q·L⁴/(EI) + P<sub>pt</sub>·L³/(48EI) ; f<sub>1</sub> = π/(2L²)·√(EI/m)<br>L<sub>adm</sub> = plus grande portée satisfaisant tous les critères actifs (dichotomie, 0 à 60 m)</div>
+<table><tr><th>Modèle</th><th>k<sub>M</sub></th><th>k<sub>d</sub></th><th>Réaction appui interm. / rive</th></tr>
+<tr><td>Poutre continue (enveloppe travée de rive)</td><td>0,107</td><td>0,0069</td><td>1,143·qL / 0,40·qL</td></tr>
+<tr><td>Pratique tuyauterie (qL²/10, 5qL⁴/384EI)</td><td>0,100</td><td>5/384</td><td>1,10·qL / 0,50·qL</td></tr>
+<tr><td>Travées isostatiques</td><td>0,125</td><td>5/384</td><td>1,00·qL / 0,50·qL</td></tr></table>
+<div class="form">Admissible EN 13480-3 / CODETI : aciers non austénitiques f = min(R<sub>eH,t</sub>/1,5 ; R<sub>m</sub>/2,4) (§5.2.2.1) ; austénitiques f = R<sub>p1,0,t</sub>/1,5 (§5.2.2.2)<br>ASME B31.3 : S<sub>h</sub> ≈ min(S<sub>T</sub>/3 ; 2/3·S<sub>Y</sub> ; 2/3·S<sub>Y,T</sub> (0,9·S<sub>Y,T</sub> austénitiques)) (§302.3.2) – préférer la valeur du Tableau A-1</div>
+<p><b>Exemple</b> : DN100 sch 40 (114,3 × 6,02) rempli d'eau → I = 301,1 cm⁴ ; Z = 52,7 cm³ ; m = 24,3 kg/m ; q = 0,238 kN/m.</p>
+<div class="lim">Limites : T &gt; 400 °C hors domaine (fluage) ; contrainte de pression longitudinale seule ; pas de flexibilité (dilatation) ni de charges occasionnelles : relève de l'étude de flexibilité.</div>
+<p class="ref">Références : NF EN 13480-3 §5.2, §12.3.2 ; CODETI Div.1 Partie C ; ASME B31.3 §302.3, §320 ; ASME B31.1 Tab. 121.5 (flèche 2,5 mm).</p>
+</article>
+
+<article class="card" id="s1"><div class="theme">S1 – Supports de tuyauterie</div><h2>8. S1 – Modèle de calcul</h2>
+<h3 id="s1-modele">8.1 Calcul de barres 3D</h3>
+<p>Méthode des déplacements, élastique linéaire au 1<sup>er</sup> ordre, 6 ddl par nœud. Matrice de rigidité locale 12 × 12 d'Euler-Bernoulli (EA/L, GJ/L, 12EI/L³, 6EI/L², 4EI/L, 2EI/L), transformée en repère global (rotation R, axes locaux définis par un vecteur v<sub>z</sub>). Charges réparties : efforts d'encastrement parfait (qL/2, qL²/12). Résolution par élimination de Gauss avec pivot partiel ; réactions R = K·U − F ; efforts internes le long des barres par équilibre de la partie amont.</p>
+<p>Chaque barre est découpée aux points d'appui des tuyaux, aux nœuds des autres barres et aux appuis. Les tuyaux sont reliés à la barre par des <b>bras rigides</b> : la charge appliquée à l'axe du tuyau est transportée au nœud de la barre avec son moment (M = r × F), l'excentricité valant e = demi-emprise du profilé + D<sub>cal</sub>/2 + sabot.</p>
+<h3>8.2 Liaisons</h3>
+<table><tr><th>Liaison</th><th>Modélisation</th></tr>
+<tr><td>Platine (sol, plafond, mur)</td><td>Encastrement ; par défaut <b>semi-rigide</b> : ressorts en rotation S<sub>j</sub> = 10·E·I/L sur les deux rotations de flexion (torsion bloquée) – prudent pour les déplacements ; ou rigide ; ou S<sub>j</sub> saisi.</td></tr>
+<tr><td>Pied de jambe de force, appui mural du L mural</td><td>Articulation (translations bloquées).</td></tr>
+<tr><td>Assemblages montant / traverse / consoles</td><td>Rigides (soudés), lignes moyennes concourantes.</td></tr>
+<tr><td>Jambe de force</td><td>Bielle articulée : inerties et torsion × 10⁻⁴ (effort normal seul).</td></tr></table>
+<h3>8.3 Torsion non uniforme (gauchissement)</h3>
+<div class="form">a = √(E·I<sub>w</sub>/(G·I<sub>t</sub>)) ; raideur : I<sub>t,eff</sub> = I<sub>t</sub>·L/(L − a·tanh(L/a)) (barre I/U encastrée, gauchissement bloqué à la platine)<br>Bi-moment : B = T·a·tanh(L<sub>e</sub>/a), L<sub>e</sub> = L (porte-à-faux) ou L/2 (entre appuis) ; σ<sub>w</sub> = B·ω/I<sub>w</sub>, ω = (h − t<sub>f</sub>)·b/4 (ajouté aux taux de section et de stabilité)</div>
+<h3 id="s1-actions">8.4 Actions</h3>
+<table><tr><th>Action</th><th>Valeur par tuyauterie</th><th>Réf.</th></tr>
+<tr><td>G</td><td>q<sub>service</sub>·portée + G suppl. ; poids propre des profilés automatique</td><td>EN 1991-1-1</td></tr>
+<tr><td>T (glissant)</td><td>F<sub>x</sub> = μ·G (μ = 0,3 acier/acier, 0,1 PTFE), signe ±</td><td>—</td></tr>
+<tr><td>T (guidé)</td><td>μ·G axial + F<sub>y</sub> saisi</td><td>—</td></tr>
+<tr><td>T (point fixe)</td><td>F<sub>x</sub>, F<sub>y</sub>, F<sub>z</sub> saisis, ou estimation : Δ = α·ΔT·L<sub>r</sub> ; frottement μ·q·L<sub>r</sub> + coude / lyre 12EIΔ/L<sub>b</sub>³ ou compensateur c·Δ (+ P·A<sub>eff</sub> au point fixe principal)</td><td>—</td></tr>
+<tr><td>S</td><td>μ·s<sub>k</sub>·D<sub>cal</sub>·portée</td><td>EN 1991-1-3</td></tr>
+<tr><td>W</td><td>tuyau : q<sub>p</sub>·c<sub>f</sub>·D<sub>cal</sub>·portée (c<sub>f</sub> = 1,2) ; profilés : q<sub>p</sub>·c<sub>f</sub>·largeur exposée (c<sub>f</sub> AN selon famille) ; directions ±X et ±Y (supports muraux : vent transversal dirigé vers le mur)</td><td>EN 1991-1-4 §7.7, §7.9</td></tr>
+<tr><td>E</td><td>F = k<sub>E</sub>·G, k<sub>E</sub> = S<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub> (éléments non structuraux), sur tuyaux et profilés, directions X et Y</td><td>EN 1998-1 §4.3.5</td></tr>
+<tr><td>EP</td><td>(q<sub>eau</sub> − q<sub>service</sub>)·portée, non combinée aux variables</td><td>—</td></tr></table>
+<h3 id="s1-verif">8.5 Vérifications (toutes les combinaisons ELU, sections aux extrémités et au milieu de chaque tronçon)</h3>
+<div class="form">Section (§6.2.1(7), critère linéaire) : |N<sub>Ed</sub>|/N<sub>Rk</sub> + |M<sub>y,Ed</sub>|/M<sub>y,Rk</sub> + |M<sub>z,Ed</sub>|/M<sub>z,Rk</sub> (+ σ<sub>w</sub>/f<sub>y</sub>) ≤ 1<br>Cisaillement + torsion (§6.2.6, §6.2.7) : max(V<sub>z</sub>/V<sub>pl,z</sub> ; V<sub>y</sub>/V<sub>pl,y</sub>) + τ<sub>t</sub>/(f<sub>y</sub>/√3) ≤ 1 ; τ<sub>t</sub> = T/W<sub>t</sub> ; W<sub>t</sub> = I<sub>t</sub>/t<sub>max</sub> (ouverts), 2t(h − t)(b − t) (tubes rect.), 2I<sub>t</sub>/D (ronds)<br>Stabilité (simplifiée) : N compression : n + k·|M<sub>y</sub>|/(χ<sub>LT</sub>M<sub>y,Rk</sub>) + k·|M<sub>z</sub>|/M<sub>z,Rk</sub> ≤ 1 avec n = |N|/(χ·N<sub>Rk</sub>), k = min(1 + 0,6·min(λ̄, 1)·n ; 1 + 0,6·n) ; traction : |M<sub>y</sub>|/(χ<sub>LT</sub>M<sub>y,Rk</sub>) + |M<sub>z</sub>|/M<sub>z,Rk</sub> + N/N<sub>Rk</sub> ≤ 1<br>ELS : déplacement aux points d'appui des tuyaux et extrémités libres ≤ min(L<sub>réf</sub>/n ; d<sub>max</sub>) (n = 150, d<sub>max</sub> = 5 mm par défaut), combinaisons caractéristiques</div>
+<table><tr><th>Barre</th><th>L<sub>cr</sub></th></tr><tr><td>Montant, suspente, console en porte-à-faux</td><td>2L (prudent, nœuds déplaçables hors plan)</td></tr><tr><td>Traverse entre appuis (U, L mural)</td><td>L</td></tr><tr><td>Console avec jambe de force</td><td>max(b ; 2(L − b))</td></tr><tr><td>Jambe de force</td><td>longueur de la bielle</td></tr></table>
+<p>Cornières : axes principaux u, v, vérification élastique (classe 3 au mieux), sans déversement. Résistances : W = W<sub>pl</sub> (classes 1–2) ou W<sub>el</sub> ; cornières W<sub>u</sub>, W<sub>v</sub>.</p>
+<h3 id="s1-fix">8.6 Fixations</h3>
+<div class="form">Groupe de 4 fixations aux angles d'un rectangle a<sub>1</sub> × a<sub>2</sub>, platine rigide, axe neutre au centre (prudent) :<br>traction T = max(N; 0)/4 + |M<sub>1</sub>|/(2a<sub>2</sub>) + |M<sub>2</sub>|/(2a<sub>1</sub>) ; cisaillement V = √(V<sub>1</sub>² + V<sub>2</sub>²)/4 + M<sub>t</sub>/(4r), r = √(a<sub>1</sub>² + a<sub>2</sub>²)/2<br>Tiges filetées (NF EN 1993-1-8 Tab. 3.4) : F<sub>t,Rd</sub> = 0,9·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> ; F<sub>v,Rd</sub> = 0,6·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> ; F<sub>v</sub>/F<sub>v,Rd</sub> + F<sub>t</sub>/(1,4·F<sub>t,Rd</sub>) ≤ 1<br>Crapaud maison (§3.9) : F<sub>p,C</sub> = 0,7·f<sub>ub</sub>·A<sub>s</sub> ; F<sub>s,Rd</sub> = μ·(F<sub>p,C</sub> − 0,8·F<sub>t</sub>)/γ<sub>M3</sub> (k<sub>s</sub> = 1, n = 1)</div>
+<p>Chevilles : efforts par fixation fournis pour le choix fournisseur (ETE) ; non vérifiées par l'outil.</p>
+<h3 id="s1-ddc">8.7 Descentes de charges, diagrammes, alertes</h3>
+<ul><li>DDC : réactions changées de signe (effort du support sur l'ouvrage), par cas caractéristique et en enveloppe ELU / sismique, composante par composante (non concomitantes, prudent).</li>
+<li>Diagrammes : efforts internes de la combinaison choisie ; déformée par interpolation d'Hermite des déplacements nodaux + flèche locale q·s²(L − s)²/(24EI).</li>
+<li>Alertes de conception (règles de l'art, seuils réglables) : pince d'étrier (e<sub>2</sub> ≥ 1,2·d<sub>0</sub>, EN 1993-1-8 Tab. 3.3), profilé en I tourné, gros diamètre sur étrier, calorifuge sans sabot, élancement, longueurs de console / montant, torsion, fixations sous le profilé (axe ≥ nu + 1,5·d), jambe de force (angle, largeur), classe 4.</li></ul>
+<div class="lim">Non traités : platines, chevilles (ETE fabricant), soudures, étriers, effets du 2<sup>nd</sup> ordre, séisme vertical, déversement des cornières, flambement par torsion-flexion des U.</div>
+</article>
+
+<article class="card" id="p1"><div class="theme">P1 – Poutre</div><h2>9. P1 – Poutre isostatique</h2>
+<div class="form">Efforts : R<sub>A</sub> = qL/2 + ΣP(L − a)/L ; M(x), V(x) par équilibre ; flèche : 5qL⁴/384EI (répartie) et Pbx(L² − b² − x²)/(6LEI) (ponctuelle), superposées<br>M<sub>c,Rd</sub> = W·f<sub>y</sub>/γ<sub>M0</sub> ; V<sub>pl,Rd</sub> = A<sub>vz</sub>f<sub>y</sub>/(√3γ<sub>M0</sub>)<br>Interaction M–V (§6.2.8) si V<sub>Ed</sub> &gt; 0,5V<sub>pl,Rd</sub> : ρ = (2V<sub>Ed</sub>/V<sub>pl,Rd</sub> − 1)² ; M<sub>V,Rd</sub> = (W<sub>pl</sub> − ρA<sub>w</sub>²/(4t<sub>w</sub>))·f<sub>y</sub>/γ<sub>M0</sub><br>Déversement : C<sub>1</sub>/C<sub>2</sub> = 1,127/0,454 (répartie), 1,348/0,630 (ponctuelle centrée), 1,0/0,5 (autre), 1,0/0 entre maintiens ; z<sub>g</sub> = ±h/2 selon le niveau de chargement ; M<sub>b,Rd</sub> = χ<sub>LT</sub>·W·f<sub>y</sub>/γ<sub>M1</sub><br>ELS : w<sub>max</sub> ≤ L/n<sub>1</sub>, w<sub>3</sub> ≤ L/n<sub>2</sub> (NA §7.2.1, Tab. 7.1) ; f<sub>1</sub> = 17,75/√δ[mm] sous G + 0,2·Q (+ part fixe) ≥ 2,6 Hz (habitations, bureaux) ou 5 Hz (gymnases) (NA §7.2.3(1)B)</div>
+<div class="lim">Non traités : voilement par cisaillement (h<sub>w</sub>/t<sub>w</sub> &gt; 72ε), charges concentrées sur l'âme (EN 1993-1-5 §6), classe 4, torsion des U chargés hors centre de cisaillement, assemblages.</div>
+</article>
+
+<article class="card" id="p2"><div class="theme">P2 – Poteau</div><h2>10. P2 – Poteau comprimé et fléchi</h2>
+<div class="form">L<sub>cr</sub> = k·H : articulé-articulé 1,0 ; encastré-articulé 0,7 ; encastré-encastré 0,5 ; encastré-libre 2,0<br>N<sub>Ed</sub> = ΣN ; M<sub>Ed</sub> : console q<sub>w</sub>H²/2 + N·e ; sinon max(q<sub>w</sub>H²/8 + N·e/2 ; N·e)<br>Flambement : N<sub>Ed</sub> ≤ χ<sub>y</sub>N<sub>Rk</sub>/γ<sub>M1</sub> et χ<sub>z</sub>N<sub>Rk</sub>/γ<sub>M1</sub><br>Interaction (6.61) : N<sub>Ed</sub>/(χ<sub>y</sub>N<sub>Rk</sub>/γ<sub>M1</sub>) + k<sub>yy</sub>·M<sub>y,Ed</sub>/(χ<sub>LT</sub>M<sub>y,Rk</sub>/γ<sub>M1</sub>) ≤ 1 ; (6.62) : N<sub>Ed</sub>/(χ<sub>z</sub>N<sub>Rk</sub>/γ<sub>M1</sub>) + k<sub>zy</sub>·M<sub>y,Ed</sub>/(χ<sub>LT</sub>M<sub>y,Rk</sub>/γ<sub>M1</sub>) ≤ 1<br>Annexe B (méthode 2, barres sensibles à la torsion) : classes 1–2 k<sub>yy</sub> = C<sub>my</sub>[1 + min(λ̄<sub>y</sub> − 0,2 ; 0,8)·n<sub>y</sub>] ; k<sub>zy</sub> = max(1 − 0,1·min(λ̄<sub>z</sub>, 1)·n<sub>z</sub>/(C<sub>mLT</sub> − 0,25) ; …) ; classe 3 k<sub>yy</sub> = C<sub>my</sub>(1 + 0,6·min(λ̄<sub>y</sub>, 1)·n<sub>y</sub>)<br>C<sub>m</sub> (Tab. B.3) : 0,95 (charge répartie), 0,6 (N·e seul), 1,0 (combiné) ; ≥ 0,4<br>ELS (§7.2.2 + AN) : console u = qH⁴/(8EI) ≤ H/150 (industriel) ou H/250 ; tenu en tête f = 5qH<sub>i</sub>⁴/(384EI) ≤ H<sub>i</sub>/150</div>
+<div class="lim">Non traités : imperfections globales et 2<sup>nd</sup> ordre du portique, flambement par torsion / flexion-torsion (UPN, UPE), pied de poteau, classe 4.</div>
+</article>
+
+<article class="card" id="h1"><div class="theme">H1 – Fluides</div><h2>11. H1 – Propriétés des fluides</h2>
+<table><tr><th>Fluide</th><th>ρ(t)</th><th>P<sub>v</sub>(t)</th><th>Viscosité</th></tr>
+<tr><td>Eau</td><td>Kell (1975), 0–150 °C</td><td>Wagner & Pruss (1993, IAPWS)</td><td>Vogel : μ = 2,414·10⁻⁵·10<sup>247,8/(T − 140)</sup> Pa·s</td></tr>
+<tr><td>Éthanol</td><td>806,3 − 0,8425t − 1,25·10⁻⁴t²</td><td>Antoine : log<sub>10</sub>P[mmHg] = 8,20417 − 1642,89/(230,3 + t)</td><td>μ = 1,20·exp[1733,6(1/T − 1/293,15)] mPa·s</td></tr>
+<tr><td>Produits pétroliers</td><td>API MPMS 11.1 / ASTM D1250 Tab. 54B : ρ = ρ<sub>15</sub>·exp[−α·Δt(1 + 0,8α·Δt)], α = K<sub>0</sub>/ρ<sub>15</sub>² + K<sub>1</sub>/ρ<sub>15</sub></td><td>US EPA AP-42 §7.1 (RVP ; constantes A, B Tab. 7.1-2)</td><td>ASTM D341 (Walther) entre deux points ; loi d'Andrade si ν &lt; 1,5 mm²/s</td></tr>
+<tr><td>Émulseur</td><td>ρ<sub>20</sub> fiche × dilatation de l'eau</td><td>Celle de l'eau</td><td>Entre deux points de la fiche</td></tr></table>
+<div class="lim">Valeurs à confirmer par la fiche produit / FDS pour les mélanges ; domaine de chaque corrélation affiché par l'outil.</div>
+</article>
+
+<article class="card" id="cs"><div class="theme">CS – Cahier de supportage</div><h2>12. CS – Cahier de supportage</h2>
+<ul><li><b>Type</b> = un support S1 (profilés, tuyauteries, actions) ; <b>configuration</b> = même type avec cotes différentes (H, L, h, a<sub>i</sub>…). Chaque configuration est recalculée par le moteur S1 (page S1 chargée en arrière-plan, mêmes formules).</li>
+<li><b>Enveloppe de DDC d'un type</b> : pour chaque appui et chaque composante, valeur de plus grande valeur absolue sur toutes les combinaisons et toutes les configurations (non concomitante, prudente).</li>
+<li><b>Statut</b> : le plus défavorable des configurations (non vérifié &gt; non calculé &gt; taux élevé &gt; conforme).</li>
+<li><b>Nomenclature (BOM)</b> : profilés × longueurs × quantités ; chevilles (forfait par platine) ; majoration accessoires (platines, goussets, soudures) en % de la masse des profilés.</li>
+<li><b>Notes de calcul</b> : configuration la plus sollicitée (taux maxi) de chaque type, ou toutes ; <b>plans</b> : planche dessinée sur la 1<sup>re</sup> configuration, cotes en lettres, valeurs au tableau des configurations.</li></ul>
+</article>
+
+<article class="card" id="dessin"><div class="theme">Plans</div><h2>13. Dessin industriel et export DXF</h2>
+<ul><li><b>Projection européenne</b> (ISO 5456-2, méthode E) : vue de face (regard selon −X), vue de gauche placée à droite (de droite à gauche pour les supports muraux), vue de dessus placée dessous ; perspective isométrique sans échelle.</li>
+<li><b>Échelle</b> : la plus grande de la série NF EN ISO 5455 (1:1, 1:2, 1:5, 1:10, 1:20, 1:50, 1:100) tenant sur le format ; vue de dessus abandonnée seulement si elle coûte plus d'un facteur 2 ; <b>vues interrompues</b> (plus grande plage sans détail le long d'une barre droite, &gt; 450 mm, ±120 mm conservés) si l'échelle y gagne, cotes en vraie grandeur.</li>
+<li><b>Faces cachées</b> : profilés extrudés (sections réelles, coupes biaises aux assemblages), algorithme du peintre sur faces découpées tous les 40 mm, arêtes de silhouette et arêtes vives (&gt; 15°). DXF : parties visibles de chaque arête calculées par test d'occultation (échantillonnage 0,4 mm, raffinement par dichotomie).</li>
+<li><b>Traits</b> (ISO 128) : fort 0,5 mm, fin 0,25 mm, axes en trait mixte fin, pièces voisines (tuyauteries) en trait mixte fin à deux tirets ; cotation ISO 129 ; écritures 2,5 / 3,5 mm.</li>
+<li><b>Mention de phase</b> : bandeau « NON VALABLE POUR EXÉCUTION – PHASE APS/APD » en tête du bloc cartouche, phase rappelée au cartouche ; sur A3, bandeau et tableaux passent à gauche de la nomenclature si l'échelle y gagne.</li>
+<li><b>Cotes données</b> : géométrie du support et positionnement des tuyauteries ; platines, fixations et altimétrie hors planche (note de chevillage, plan d'implantation).</li>
+<li><b>DXF</b> : R12 ASCII, mm à l'échelle 1:1 de la feuille, code page ANSI 1252, calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE ; cotes non associatives.</li></ul>
+</article>
+
+<article class="card" id="ndc"><div class="theme">Sorties</div><h2>14. Notes de calcul</h2>
+<p><b>Simplifiée</b> (une page) : identification, mention de phase, vue de face, synthèse des taux par critère avec combinaison dimensionnante, profilés, tuyauteries, actions, modèle, DDC enveloppes. <b>Complète</b> : synthèse, références, hypothèses de charges (valeurs, ψ, γ), matériaux et sections, modèle 2D / 3D, liaisons, chargement par cas, combinaisons, DDC (cas simples / ELU / les deux), diagrammes N, V, M, déformée ELS, critères avec formules détaillées (valeurs numériques intermédiaires), fixations, alertes et limites. Les formules détaillées reprennent exactement celles du chapitre <a href="#s1-verif">8.5</a>.</p>
+</article>
+
+<article class="card" id="limites"><div class="theme">Qualification</div><h2>15. Domaine de validité général</h2>
+<ul><li>Calcul élastique au 1<sup>er</sup> ordre, petits déplacements ; profilés laminés et tubes de la base (sections de classe 1 à 3).</li>
+<li>Actions statiques équivalentes ; pas d'analyse dynamique (hors fréquence propre indicative).</li>
+<li>Annexes nationales françaises ; valeurs recommandées des normes lorsque l'AN renvoie au projet (à confirmer par le cahier des charges).</li>
+<li>Prédimensionnement APS/APD : marges recommandées (taux cible 90 % par défaut).</li></ul>
+</article>
+
+<article class="card" id="valid"><div class="theme">Qualification</div><h2>16. Tests de validation (exécutés en direct)</h2>
+<p>Les tests ci-dessous exécutent le <b>moteur de calcul de la version en cours</b> (fichiers <code>commun/barres3d.js</code> et <code>commun/acier.js</code>, utilisés par S1, P1, P2) et le comparent à des solutions analytiques ou tabulées indépendantes. Tolérance : 0,1 %.</p>
+<div id="tests"><div class="msg info">⏳ Exécution des tests…</div></div>
+<h3>Cas de recoupement S1 (calcul manuel, version 2.32)</h3>
+<table><tr><th>Cas</th><th>Calcul manuel</th><th>S1</th></tr>
+<tr><td>Console murale UPN 100, L = 0,6 m, G = 1,191 kN à 0,15 m, 1,35·G : moment d'encastrement</td><td>1,35 × (1,191 × 0,15 + 0,104 × 0,6²/2) = 0,2665 kNm</td><td class="ok">0,2665 kNm</td></tr>
+<tr><td>Idem : effort tranchant</td><td>1,35 × (1,191 + 0,104 × 0,6) = 1,692 kN</td><td class="ok">1,693 kN</td></tr>
+<tr><td>Montant SHS 120×120×4, L<sub>cr</sub> = 3,0 m, courbe c : χ</td><td>λ̄ = 0,68 ; Φ = 0,85 ; χ = 0,739</td><td class="ok">0,739</td></tr>
+<tr><td>Console UPN 100 (console + jambe), critère de section</td><td>0,003 + 0,010 + 0,164 + 0,225 (σ<sub>w</sub>) = 0,401</td><td class="ok">0,401</td></tr></table>
+</article>
+
+<article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
+<table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.42</td><td>C1, NH</td><td>Bâtiment fermé : choix de c<sub>pi</sub> (forfaitaire +0,2 / −0,3, face dominante §7.2.9(5), selon les ouvertures μ et fig. 7.13) et tableau des c<sub>p,net</sub> = c<sub>pe,10</sub> − c<sub>pi</sub> avec w = q<sub>p</sub>·c<sub>p,net</sub> ; reprise de c<sub>pi</sub>, c<sub>p,net</sub> et des éléments à pression nette (toiture isolée, mur isolé) dans la note d'hypothèses.</td><td>Aucun pour le mode forfaitaire (valeurs déjà retenues) ; nouveaux résultats pour les deux autres modes.</td></tr>
+<tr><td>2.41</td><td>Q1</td><td>Garde-corps industriels : NF E 85-015 et NF EN ISO 14122-3 regroupées en une seule catégorie, 0,3 kN/m (30 daN/m) par défaut.</td><td>Valeur par défaut seulement (inchangée pour la catégorie ISO) ; lignes NF E 85-015 existantes basculées sur cette catégorie.</td></tr>
+<tr><td>2.40</td><td>S1, G1, Q1, cahier</td><td>Épreuve hydraulique : appliquée aux seules lignes à fluide moins dense que l'eau ; l'eau d'épreuve (contenu complet) est classée Q et remplace le fluide de service : γ<sub>G</sub>·(G − G<sub>fl</sub>) + 1,5·E<sub>P</sub> (avant : E<sub>P</sub> = q<sub>eau</sub> − q<sub>service</sub> ajouté à G complet, et pour toutes les lignes). Nouveau cas simple G<sub>fl</sub> dans les DDC. Q1 et G1 contrôlés sur l'AN NF P 06-111-2 : F, G (Tab. 6.8(NF)) et garde-corps (Tab. 6.12(NF)) confirmés, α<sub>A</sub> AN ajouté, catégorie non spécifiée (D1) et I paysager ; Annexe A : valeur médiane (AN 2) au lieu de la valeur haute ; garde-corps NF P 01-012 / NF E 85-015 à saisir.</td><td><b>Résultats S1 modifiés</b> pour les supports avec épreuve cochée : légère hausse pour les lignes à gaz (1,35·q<sub>vide</sub> + 1,5·eau), suppression du cas d'épreuve pour les lignes à fluide ≥ 1 000 kg/m³. Relancer les supports concernés du cahier.</td></tr>
+<tr><td>2.39</td><td>G1, C1</td><td>G1 : lignes de tuyauterie (q vide, G en service, q eau, Q<sub>ép</sub> automatique si ρ<sub>f</sub> &lt; ρ<sub>eau</sub>), import depuis le cahier ; C1 : schémas des zones de vent (lettres toujours lisibles, cotes e/10, e/4, e/2, légende des c<sub>pe</sub>).</td><td>Nouveau classement G / Q des tuyauteries dans la note d'hypothèses ; dessins seulement pour C1 (valeurs inchangées).</td></tr>
+<tr><td>2.38</td><td>C1, G1, Q1, NH</td><td>C1 limité au climat et au séisme ; complexes déplacés dans le nouvel outil G1 (même catalogue, Fa sismique de C1 lu dans G1) ; nouveaux outils Q1 et NH.</td><td>Aucun changement de formule ; vérifier les complexes saisis avant 2.38 (à ressaisir dans G1).</td></tr>
+<tr><td>2.37</td><td>S1</td><td>Nouveau type « Support en L plafonnier » ; entraxes de fixation par défaut 200 mm pour les montants / suspentes en tube (T, L, L plafonnier).</td><td>Nouveaux types et valeurs par défaut (pas de changement des formules).</td></tr>
+<tr><td>2.31</td><td>S1</td><td>Correction du facteur d'imperfection α des tubes (courbe c) et cornières (courbe b) : lu dans une mauvaise table depuis la v2.6, χ non numérique → taux de stabilité nul.</td><td class="ko">Stabilité des montants tubes et cornières non vérifiée entre v2.6 et v2.30 : recalculer les supports concernés.</td></tr>
+<tr><td>2.25</td><td>S1</td><td>Alerte « fixations sous le profilé ».</td><td>Avertissement de conception (pas de changement de taux).</td></tr>
+<tr><td>2.22</td><td>C1</td><td>Spectre sismique vertical (a<sub>vg</sub>/a<sub>g</sub> = 0,8 / 0,9, arrêté modifié 2021).</td><td>Information complémentaire.</td></tr>
+<tr><td>2.6</td><td>S1</td><td>Estimation de l'effort d'ancrage des points fixes.</td><td>Nouvelles valeurs de F<sub>x</sub> si l'estimation est utilisée.</td></tr></table>
+<p class="ref">Historique complet : dépôt git du site (messages de version).</p>
+</article>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id), f=fmtN;
+/* ---------- sommaire ---------- */
+$('toc').innerHTML='<h3>Sommaire</h3>'+[...document.querySelectorAll('article')].map(a=>`<a href="#${a.id}">${a.querySelector('h2').textContent}</a>`+[...a.querySelectorAll('h3[id]')].map(h=>`<a class="n2" href="#${h.id}">${h.textContent}</a>`).join('')).join('');
+if(location.hash){ const el=document.querySelector(location.hash); if(el) setTimeout(()=>el.scrollIntoView({block:'start'}),60); }
+/* ---------- tests de validation ---------- */
+function tests(){
+  const E=210e6,G=81e6,sec={E,G,A:28.5e-4,Iy:1943e-8,Iz:142e-8,J:6.98e-8};              // IPE 200 (m, kN)
+  const T=[], ajout=(n,ref,v,vr,unit)=>T.push({n,ref,v,vr,unit,ok:Math.abs(v-vr)<=1e-3*Math.max(Math.abs(vr),1e-12)});
+  { const L=2,P=10,r=Barres3D.resoudre({noeuds:[{x:0,y:0,z:0},{x:L,y:0,z:0}],barres:[{i:0,j:1,...sec,vz:[0,0,1]}],appuis:{0:[1,1,1,1,1,1]},charges:[{n:1,F:[0,0,-P,0,0,0]}]});
+    ajout('Console, charge en bout P = 10 kN, L = 2 m : flèche','PL³/(3EI)',-r.depl(1)[2]*1000,P*L**3/(3*E*sec.Iy)*1000,'mm');
+    ajout('Idem : moment d\'encastrement','PL',Math.abs(r.reactions[0][4]),P*L,'kNm'); }
+  { const L=4,q=5,n=8,N=[...Array(n+1)].map((_,i)=>({x:L*i/n,y:0,z:0})),B=[...Array(n)].map((_,i)=>({i,j:i+1,...sec,vz:[0,0,1]}));
+    const r=Barres3D.resoudre({noeuds:N,barres:B,appuis:{0:[1,1,1,1,1,1],[n]:[1,1,1,1,1,1]},reparties:B.map((_,b)=>({b,q:[0,0,-q]}))});
+    ajout('Poutre bi-encastrée q = 5 kN/m, L = 4 m : moment sur appui','qL²/12',Math.abs(r.reactions[0][4]),q*L*L/12,'kNm');
+    ajout('Idem : moment à mi-travée','qL²/24',Math.abs(Barres3D.interne(r.elems[n/2-1],L/n)[4]),q*L*L/24,'kNm');
+    ajout('Idem : flèche à mi-travée','qL⁴/(384EI)',-r.depl(n/2)[2]*1000,q*L**4/(384*E*sec.Iy)*1000,'mm'); }
+  { const L=5,q=10,n=10,N=[...Array(n+1)].map((_,i)=>({x:L*i/n,y:0,z:0})),B=[...Array(n)].map((_,i)=>({i,j:i+1,...sec,vz:[0,0,1]}));
+    const r=Barres3D.resoudre({noeuds:N,barres:B,appuis:{0:[1,1,1,1,0,0],[n]:[0,1,1,0,0,0]},reparties:B.map((_,b)=>({b,q:[0,0,-q]}))});
+    ajout('Poutre sur appuis simples q = 10 kN/m, L = 5 m : moment','qL²/8',Math.abs(Barres3D.interne(r.elems[n/2-1],L/n)[4]),q*L*L/8,'kNm');
+    ajout('Idem : flèche','5qL⁴/(384EI)',-r.depl(n/2)[2]*1000,5*q*L**4/(384*E*sec.Iy)*1000,'mm'); }
+  { const L=1.5,Tt=0.8,r=Barres3D.resoudre({noeuds:[{x:0,y:0,z:0},{x:L,y:0,z:0}],barres:[{i:0,j:1,...sec}],appuis:{0:[1,1,1,1,1,1]},charges:[{n:1,F:[0,0,0,Tt,0,0]}]});
+    ajout('Torsion d\'une console T = 0,8 kNm, L = 1,5 m : rotation','TL/(GJ)',r.depl(1)[3],Tt*L/(G*sec.J),'rad'); }
+  { const H=2,L=1,P=5,r=Barres3D.resoudre({noeuds:[{x:0,y:0,z:0},{x:0,y:0,z:H},{x:0,y:L,z:H}],barres:[{i:0,j:1,...sec,vz:[0,1,0]},{i:1,j:2,...sec,vz:[0,0,1]}],appuis:{0:[1,1,1,1,1,1]},charges:[{n:2,F:[0,0,-P,0,0,0]}]});
+    ajout('Cadre en L 3D (poteau 2 m + console 1 m), P = 5 kN en bout : flèche','PL³/3EI + PL²H/EI + PH/EA',-r.depl(2)[2]*1000,(P*L**3/(3*E*sec.Iy)+P*L*L*H/(E*sec.Iy)+P*H/(E*sec.A))*1000,'mm');
+    ajout('Idem : moment en pied','PL',Math.hypot(...r.reactions[0].slice(3)),P*L,'kNm'); }
+  [['a',0.6656],['b',0.5970],['c',0.5399],['d',0.4671]].forEach(([c,v])=>ajout(`Coefficient de flambement χ, λ̄ = 1,0, courbe ${c}`,'courbes EN 1993-1-1 fig. 6.4 – valeur tabulée usuelle',chi(1,ALPHA[c]).chi,v,''));
+  ajout('χ, λ̄ = 0,5, courbe b','valeur tabulée 0,8842',chi(0.5,ALPHA.b).chi,0.8842,''); ajout('χ, λ̄ = 2,0, courbe c','valeur tabulée 0,1962',chi(2,ALPHA.c).chi,0.1962,'');
+  ajout('χ, λ̄ = 0,2 (palier)','1',chi(0.2,ALPHA.c).chi,1,'');
+  if(typeof CV!=='undefined'){ const M=CV.murs(30,20,8);
+    ajout('C1 – c_pe,10 zone D, h/d = 0,40','Tab. 7.1, interpolation 0,70 → 0,80',M.cpe.D,0.72,''); ajout('C1 – c_p,net,max zone D, c_pi forfaitaire −0,3','c_pe − min(c_pi)',M.cpe.D-Math.min(...CV.CPI),1.02,'');
+    ajout('C1 – c_pi face dominante D, rapport 3','0,9·c_pe (éq. 7.2)',0.9*M.cpe.D,0.648,''); }
+  if(typeof CH!=='undefined'){ const D=114.3,di=D-2*6.02,a=d=>Math.PI/4*d*d*1e-6,rs=(MATS.find(m=>m.id==='P265GH')||{rho:7850}).rho, qv=(a(D)-a(di))*rs*9.81/1000, qw=qv+a(di)*1000*9.81/1000;
+    const r1=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:1000,ecal:0,rhoCal:0}), r2=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:0,ecal:0,rhoCal:0}), r3=CH.qTuyau({dn:100,sch:'40',mat:'P265GH',rhoF:840,ecal:50,rhoCal:100});
+    ajout('G1 – DN100 sch 40 plein d\'eau : G en service','g·[π/4(D²−dᵢ²)ρ + π/4·dᵢ²·1000]',r1.qServ,qw,'kN/m'); ajout('Idem : surcharge d\'épreuve (ρ_f = ρ_eau)','0',r1.qEp,0,'kN/m');
+    ajout('G1 – DN100 sch 40 au gaz : Q_ép','q_eau − q_vide',r2.qEp,qw-qv,'kN/m');
+    ajout('G1 – DN100 gazole 840 kg/m³ + calo 50 mm à 100 kg/m³ : Q_ép (eau complète)','π/4·dᵢ²·1000·g',r3.qEp,a(di)*1000*9.81/1000,'kN/m');
+    ajout('Q1 – α_A catégorie B, A = 20 m²','0,77 + 3,5/20 (AN §6.3.1.2(10))',CH.alphaA('B',20),0.945,''); ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
+    ajout('Idem : calorifuge compris dans q vide','q_vide(tube) + π/4((D+100)²−D²)·100·g',r3.qVide,qv+(a(D+100)-a(D))*100*9.81/1000,'kN/m'); }
+  const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
+  $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
+    T.map(t=>`<tr><td>${t.n}</td><td>${t.ref}</td><td class="n">${f(t.v,4)} ${t.unit}</td><td class="n">${f(t.vr,4)} ${t.unit}</td><td class="n">${f(Math.abs(t.v-t.vr)/Math.max(Math.abs(t.vr),1e-12)*100,3)} %</td><td class="${t.ok?'ok':'ko'}">${t.ok?'✔':'✘'}</td></tr>`).join('')+'</table>';
+}
+try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
+</script>
+<script src="../commun/replier.js?v=2.42"></script>
+</body>
+</html>
