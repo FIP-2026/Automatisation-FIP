@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.51"></script>
+<script src="../commun/auth.js?v=2.52"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AS1 Barres tendues boulonnées</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.51">
-<script src="../commun/apps.js?v=2.51"></script>
-<script src="../commun/cahier.js?v=2.51"></script>
-<script src="../commun/data/profils.js?v=2.51"></script>
-<script src="../commun/acier.js?v=2.51"></script>
-<script src="../commun/tendues.js?v=2.51"></script>
-<script src="../commun/ident.js?v=2.51"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.52">
+<script src="../commun/apps.js?v=2.52"></script>
+<script src="../commun/cahier.js?v=2.52"></script>
+<script src="../commun/data/profils.js?v=2.52"></script>
+<script src="../commun/acier.js?v=2.52"></script>
+<script src="../commun/tendues.js?v=2.52"></script>
+<script src="../commun/ident.js?v=2.52"></script>
 <style>.fig svg{width:100%;max-width:560px;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}</style>
 </head>
 <body>
@@ -48,7 +48,7 @@
 <section id="res">
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong>AS1 – Barre tendue boulonnée</strong><br><span id="phIdent"></span><br><span id="phInfo"></span></div>
   <div class="card" id="rSyn"></div>
-  <div class="card"><h2>Règles de conception et alertes</h2><div id="rReg"></div></div>
+  <div class="card"><h2>Règles de conception et alertes</h2><div id="rReg"></div><div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" id="versRC">📥 Ajouter au rapport de calcul</button> <span id="rcMsg" class="note"></span></div></div>
   <div class="card"><h2>Schéma de l'attache</h2><div id="rSch" class="fig"></div></div>
   <div class="card"><h2>Vérifications</h2><div id="rVer"></div></div>
   <div class="card"><h2>Méthode et références</h2><div id="rMeth"></div></div>
@@ -73,10 +73,16 @@ function schema(o,R){ const W=640,H=230; let s=`<svg viewBox="0 0 ${W} ${H}" xml
   const xe=x0+20+Lb+20; s+=`<line x1="${xe+120}" y1="${y0+hb/2}" x2="${xe+175}" y2="${y0+hb/2}" stroke="#e30009" stroke-width="2.4"/><path d="M${xe+175},${y0+hb/2-5} l9,5 l-9,5z" fill="#e30009"/><text x="${xe+120}" y="${y0+hb/2-8}" fill="#e30009" font-weight="700">N = ${f(o.NEd,1)} kN</text>`;
   s+=`<text x="${x0}" y="${H-30}" fill="#5f6670">${o.n*nr} ${o.boulon} ${o.classe} · d<tspan font-size="8" dy="2">0</tspan><tspan dy="-2"> = ${R.d0} mm${R.surd?' (surdimensionné)':''} · e₁ = ${o.e1}, p₁ = ${o.p1}, e₂ = ${o.e2}${o.type==='U'&&nr>1?', p₂ = '+o.p2:''} mm</tspan></text><text x="${x0}" y="${H-12}" fill="#5f6670">capacité de l'attache N<tspan font-size="8" dy="2">Rd</tspan><tspan dy="-2"> = ${f(R.NRd,1)} kN</tspan></text>`;
   return s+'</svg>'; }
+let DERNIER=null;
+function versRC(){ if(!DERNIER) return; const {o,R}=DERNIER, I=IDENT.lire(), rep_=I.repere||o.prof.n, g=id=>$(id).innerHTML;
+  let L=[]; try{ L=JSON.parse(localStorage.getItem('fip.rc.as1'))||[]; }catch(e){}
+  const x={id:rep_,repere:rep_,t:Date.now(),prof:o.prof.n,nb:o.nb,NEd:o.NEd,NRd:R.NRd,taux:R.gouv.r,critere:R.gouv.n,boulons:`${o.n*(o.type==='U'?o.nr:1)} ${o.boulon} ${o.classe}`,html:{syn:g('rSyn'),reg:g('rReg').replace(/<div class="actions[\s\S]*$/,''),sch:g('rSch'),ver:g('rVer')}};
+  const i=L.findIndex(y=>y.id===x.id); if(i>=0) L[i]=x; else L.push(x);
+  try{ localStorage.setItem('fip.rc.as1',JSON.stringify(L)); $('rcMsg').innerHTML=`« ${h(rep_)} » enregistrée (${L.length} attache${L.length>1?'s':''} dans le <a href="../rapport-calcul/">rapport de calcul</a>).`; }catch(e){ $('rcMsg').textContent='Enregistrement impossible.'; } }
 function calc(){
   const o={type:$('type').value,prof:profil($('prof').value),nb:+$('nb').value,nuance:$('nuance').value,NEd:num('NEd',0),boulon:$('boulon').value,classe:$('classe').value,n:Math.max(1,Math.round(num('n',2))),nr:Math.max(1,Math.round(num('nr',1))),
     jeu:num('jeu',2),filete:$('filete').value==='1',e1:num('e1',35),p1:num('p1',50),e2:num('e2',27),p2:num('p2',100),tg:num('tg',8),e1g:num('e1g',35),e2g:num('e2g',35),nuanceG:$('nuG').value};
-  try{ const R=TENDUES.calculer(o); o.d0=R.d0; const L=R.lignes; L.forEach(l=>l.gov=l===R.gouv);
+  try{ const R=TENDUES.calculer(o); o.d0=R.d0; DERNIER={o,R}; const L=R.lignes; L.forEach(l=>l.gov=l===R.gouv);
     $('rSyn').innerHTML=`<h2>Synthèse</h2><div style="font-size:18px;font-weight:800;color:${R.gouv.r<=1?'#1d7a36':'#c0141c'}">${R.gouv.r<=1?'✔ ATTACHE VÉRIFIÉE':'✘ ATTACHE NON VÉRIFIÉE'} – taux maxi ${f(R.gouv.r*100,0)} %</div><div class="note">Capacité N<sub>Rd</sub> = ${f(R.NRd,1)} kN – critère : ${R.gouv.n}</div>`;
     $('phIdent').textContent=IDENT.libelle(IDENT.lire());
     $('rReg').innerHTML=R.alertes.length?`<table>${R.alertes.map(a=>`<tr><td style="width:28px">⚠️</td><td>${a}</td></tr>`).join('')}</table>`:'<div class="msg ok" style="margin:0">✔ Dispositions constructives respectées (pinces et entraxes Tab. 3.3, trusquinage, gousset).</div>';
@@ -92,11 +98,12 @@ function calc(){
 }
 document.querySelectorAll('#form input, #form select').forEach(el=>el.addEventListener('input',calc));
 calc();
+$('versRC').onclick=versRC;
 </script>
-<script src="../commun/replier.js?v=2.51"></script>
-<script src="../commun/export.js?v=2.51"></script>
+<script src="../commun/replier.js?v=2.52"></script>
+<script src="../commun/export.js?v=2.52"></script>
 <script>EXPORT.init({code:'AS1',titre:'Barre tendue boulonnée',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],affaire:()=>IDENT.lire(),nom:()=>document.getElementById('prof').value});</script>
-<script src="../commun/aide.js?v=2.51"></script>
+<script src="../commun/aide.js?v=2.52"></script>
 <script>AIDE.init({titre:"Aide – AS1 Barres tendues boulonnées",manuel:"as1",intro:"AS1 vérifie l'attache boulonnée d'une barre tendue (cornière simple ou jumelée attachée par une aile, UPN par l'âme) sur un gousset : boulons, section brute et nette, pression diamétrale, cisaillement de bloc, gousset. Méthode du classeur BE CM, conforme à la NF EN 1993-1-8.",
   etapes:[{t:"Identification",html:"Champs de la trame repris dans le cartouche de la note.",cible:"#cIdent"},
     {t:"Barre",html:"Type, section, nombre (2 = cornières ou UPN jumelés de part et d'autre du gousset, boulons en double cisaillement), nuance et effort de traction.",cible:"#cBarre"},
