@@ -10,7 +10,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.52";
+const CALC_VERSION = "v2.53";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
@@ -308,7 +308,7 @@ const CALC_APPS = [
   {
     code: "RC",
     titre: "Rapport de calcul",
-    description: "Rapport de l'ouvrage : hypothèses, ossature (A1), supportage (cahier), assemblages (AS1), descentes de charges, synthèse des taux ; simplifié, complet ou au choix ; identification et cartouche ; Word / PDF.",
+    description: "Rapport de l'ouvrage : hypothèses, ossature (A1), supportage (synthèse et notes détaillées par support), assemblages (AS1), descentes de charges, synthèse des taux ; simplifié, complet ou au choix ; identification et cartouche ; Word / PDF.",
     url: "rapport-calcul/",
     categorie: "rap",
     normes: ["NF EN 1990", "NF EN 1993-1-1 / 1-8"],

@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.52"></script>
+<script src="../commun/auth.js?v=2.53"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — RC Rapport de calcul</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.52">
-<script src="../commun/apps.js?v=2.52"></script>
-<script src="../commun/cahier.js?v=2.52"></script>
-<script src="../commun/acier.js?v=2.52"></script>
-<script src="../climat/data/zonage.js?v=2.52"></script>
-<script src="../commun/data/tuyauterie.js?v=2.52"></script>
-<script src="../commun/charges.js?v=2.52"></script>
-<script src="../commun/notes.js?v=2.52"></script>
-<script src="../commun/ident.js?v=2.52"></script>
-<script src="../commun/pictos-s1.js?v=2.52"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.53">
+<script src="../commun/apps.js?v=2.53"></script>
+<script src="../commun/cahier.js?v=2.53"></script>
+<script src="../commun/acier.js?v=2.53"></script>
+<script src="../climat/data/zonage.js?v=2.53"></script>
+<script src="../commun/data/tuyauterie.js?v=2.53"></script>
+<script src="../commun/charges.js?v=2.53"></script>
+<script src="../commun/notes.js?v=2.53"></script>
+<script src="../commun/ident.js?v=2.53"></script>
+<script src="../commun/pictos-s1.js?v=2.53"></script>
 <style>
   main{grid-template-columns:minmax(300px,380px) 1fr}
   .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}.src .ok{color:#1d7a36;font-weight:700}.src .ko{color:#b26a00;font-weight:700}
@@ -27,6 +27,7 @@
   .rc h2{font-size:15px;color:#114088;border-left:4px solid #e30009;padding-left:8px;margin:18px 0 6px}.rc h3{font-size:13.5px;margin:12px 0 4px}
   .rc table{width:100%;border-collapse:collapse;margin:4px 0 8px}.rc td,.rc th{border:1px solid #d5dae1;padding:3px 6px;font-size:12px;vertical-align:top}.rc th{background:#eef1f5;text-align:left}
   .rc .n{text-align:right}.rc .pied{font-size:10.5px;color:#5f6670}.rc svg{max-width:100%;height:auto}.rc .noprint,.rc .actions,.rc select,.rc button{display:none!important}
+  #iframeS1{position:absolute;left:-10000px;top:0;width:1200px;height:900px;border:0}
   .rc .picto svg{width:30px;height:24px;vertical-align:middle}.rc .bar{display:inline-block;width:70px;height:6px;background:#eef1f5;margin-right:4px;vertical-align:middle}.rc .bar i{display:block;height:6px}
   @media (max-width:950px){main{grid-template-columns:1fr}}
 </style>
@@ -51,14 +52,21 @@
     <div id="secs" style="margin-top:6px"></div>
     <div class="actions"><button type="button" id="voir">👁 Mettre à jour l'aperçu</button></div>
     <div class="note">Sorties : boutons « Word » et « Imprimer / PDF » en haut de page (trame Word générique en attendant la trame FIP).</div></div>
+  <div class="card" id="cSup"><h2>Notes détaillées des supports</h2>
+    <div class="row"><div><label>Note par support</label><select id="sNiv"><option value="simple">Simplifiée (1 page par support)</option><option value="complet">Complète</option></select></div>
+      <div><label>Configurations</label><select id="sConf"><option value="pire">La plus sollicitée de chaque type</option><option value="toutes">Toutes les configurations</option></select></div></div>
+    <div class="row"><div><label>Descente de charges</label><select id="sDdc"><option value="les2">Cas simples + ELU</option><option value="elu">ELU (enveloppes)</option><option value="cas">Cas simples</option></select></div>
+      <div><label>Critères</label><select id="sForm"><option value="detail">Formules détaillées</option><option value="resume">Résumé des taux</option></select></div></div>
+    <div class="actions"><button type="button" id="genSup">⚙ Générer les notes des supports</button></div><div id="etatSup" class="note">Notes calculées par le moteur S1 à partir du cahier de supportage ; générées automatiquement à l'export si la section est retenue.</div></div>
   <div class="card" id="cAs"><h2>Assemblages enregistrés</h2><div id="lAs"></div></div>
 </div>
 <section><div class="card"><div id="rc" class="rc"></div></div></section>
+<iframe id="iframeS1" title="moteur S1" aria-hidden="true" tabindex="-1"></iframe>
 </main>
 <script>
 const $=id=>document.getElementById(id), f=fmtN, h=escH;
 const CLE='fip.rc';
-const SECS=[['docs','Documents de référence'],['unites','Unités et conventions'],['hyp','Hypothèses (synthèse de la note d\'hypothèses)'],['a1','Ossature – toiture isolée (A1)'],['a1ddc','Descente de charges de l\'ossature'],['sup','Supportage (cahier)'],['as','Assemblages (AS1)'],['concl','Synthèse et conclusion']];
+const SECS=[['docs','Documents de référence'],['unites','Unités et conventions'],['hyp','Hypothèses (synthèse de la note d\'hypothèses)'],['a1','Ossature – toiture isolée (A1)'],['a1ddc','Descente de charges de l\'ossature'],['sup','Supportage (cahier) – synthèse'],['supdet','Supportage – notes de calcul détaillées par support'],['as','Assemblages (AS1)'],['concl','Synthèse et conclusion']];
 let etat={niv:'complet',secs:Object.fromEntries(SECS.map(([k])=>[k,true])),objet:''}; try{ etat={...etat,...(JSON.parse(localStorage.getItem(CLE))||{})}; }catch(e){}
 const enr=()=>{ try{ localStorage.setItem(CLE,JSON.stringify(etat)); }catch(e){} };
 IDENT.init({cible:'cIdent',cle:'RC',repere:'Ouvrage',change:()=>rendre()});
@@ -99,7 +107,9 @@ function rendre(){ sources();
   if(S('sup')){ x+=T2('Supportage');
     const L=K?K.types:[]; if(!L.length) x+='<p><i>Cahier de supportage vide.</i></p>';
     else { let tot=0; x+=`<table><tr><th>Type</th><th>Désignation</th><th>Profilés</th><th class="n">Qté</th><th class="n">Taux maxi</th><th>Critère</th></tr>${L.map(T=>{ const cs=T.configs.filter(c=>c.resume), r=cs.reduce((a,c)=>(c.resume.taux>(a?a.taux:-1)?c.resume:a),null), q=T.configs.reduce((s,c)=>s+(+c.qte||0),0), ty=(T.etat&&T.etat.type)||T.typeS1; tot+=q; if(r) synth.push(['Support '+T.nom,{r:r.taux,n:r.critere}]);
-        return `<tr><td>${ty?`<span class="picto">${PICTOS_S1[ty]}</span> `:''}<b>${h(T.nom)}</b></td><td>${h(T.designation||(r&&r.typeNom)||(ty?NOMS_S1[ty]:T.kind==='spe'?'Support spécial':''))}</td><td>${h(r?r.profils.join(', '):T.kind==='spe'?(T.plan||''):'—')}</td><td class="n">${q}</td><td class="n">${r?barre(r.taux):'—'}</td><td class="pied">${h(r?r.critere:(T.kind==='spe'?'support spécial':'non calculé'))}</td></tr>`; }).join('')}</table><p class="pied">${tot} supports au total. ${cpl?'Notes de calcul détaillées par support type : cahier de supportage (« Notes de calcul »), à joindre en annexe.':''}</p>`; } }
+        return `<tr><td>${ty?`<span class="picto">${PICTOS_S1[ty]}</span> `:''}<b>${h(T.nom)}</b></td><td>${h(T.designation||(r&&r.typeNom)||(ty?NOMS_S1[ty]:T.kind==='spe'?'Support spécial':''))}</td><td>${h(r?r.profils.join(', '):T.kind==='spe'?(T.plan||''):'—')}</td><td class="n">${q}</td><td class="n">${r?barre(r.taux):'—'}</td><td class="pied">${h(r?r.critere:(T.kind==='spe'?'support spécial':'non calculé'))}</td></tr>`; }).join('')}</table><p class="pied">${tot} supports au total. ${cpl?'Notes de calcul détaillées par support type : section suivante.':''}</p>`; } }
+  if(S('supdet')&&(cpl||$('niv').value==='perso')){ x+=T2('Supportage – notes de calcul par support');
+    x+=NSUP?`<style>${NSUP.css}</style>${NSUP.html}`:'<p><i>Notes non générées : « ⚙ Générer les notes des supports » (générées automatiquement à l\'export Word).</i></p>'; }
   if(S('as')){ x+=T2('Assemblages');
     if(!AS.length) x+='<p><i>Aucune attache enregistrée (AS1).</i></p>';
     else { x+=`<table><tr><th>Repère</th><th>Barre</th><th>Boulons</th><th class="n">N<sub>Ed</sub> (kN)</th><th class="n">N<sub>Rd</sub> (kN)</th><th class="n">Taux</th><th>Critère</th></tr>${AS.map(a=>{ synth.push([/^attache/i.test(a.repere)?a.repere:'Attache '+a.repere,{r:a.taux,n:a.critere}]); return `<tr><td><b>${h(a.repere)}</b></td><td>${h(a.prof)}${a.nb>1?' ×2':''}</td><td>${h(a.boulons)}</td><td class="n">${f(a.NEd,1)}</td><td class="n">${f(a.NRd,1)}</td><td class="n">${barre(a.taux)}</td><td class="pied">${h(String(a.critere).replace(/<[^>]+>/g,''))}</td></tr>`; }).join('')}</table>`;
@@ -108,20 +118,40 @@ function rendre(){ sources();
     x+=synth.length?`<table><tr><th>Élément</th><th class="n">Taux maxi</th><th>Critère dimensionnant</th></tr>${synth.map(([e,g])=>`<tr><td>${h(e)}</td><td class="n">${barre(g.r||0)}</td><td class="pied">${h(String(g.n||'').replace(/<[^>]+>/g,''))}</td></tr>`).join('')}</table><p><b style="color:${max<=1?'#1d7a36':'#c0141c'}">${max<=1?'✔ Tous les éléments récapitulés sont vérifiés':'✘ Certains éléments ne sont pas vérifiés'} (taux maxi ${f(max*100,0)} %).</b> Résultats de prédimensionnement à confirmer en phase d'exécution.</p>`:'<p><i>Aucun résultat à récapituler.</i></p>'; }
   x+=`<p class="pied">Rapport généré par FIP Études (${typeof CALC_VERSION!=='undefined'?CALC_VERSION:''}) le ${new Date().toLocaleString('fr-FR')} – à valider par l'ingénieur responsable de l'affaire.</p>`;
   $('rc').innerHTML=x; }
-function imprimerRC(){ rendre(); const w=window.open('','_blank'); if(!w) return;
+/* ---------- notes détaillées des supports : moteur S1 (iframe même origine), comme le cahier ---------- */
+let api=null, NSUP=null;
+function moteur(){ if(api) return Promise.resolve(api);
+  return new Promise((ok,ko)=>{ const fr=$('iframeS1'), t0=Date.now(); fr.src='../supports/?moteur=1&v='+encodeURIComponent(CALC_VERSION);
+    const att=()=>{ try{ const w=fr.contentWindow; if(w&&w.S1API&&w.document.readyState==='complete'){ api=w.S1API; return ok(api);} }catch(e){ return ko(e); }
+      if(Date.now()-t0>20000) return ko(new Error('S1 ne répond pas')); setTimeout(att,150); }; setTimeout(att,300); }); }
+async function notesSupports(){ const K=CAHIER.existe()?CAHIER.lire():null, L=K?K.types.filter(T=>T.kind==='s1'&&T.etat):[];
+  if(!L.length){ NSUP={html:'<p><i>Aucun support type calculé dans le cahier.</i></p>',css:''}; return NSUP; }
+  if(K.aRecalc||L.some(T=>T.configs.some(c=>!c.resume))){ NSUP={html:'<div class="msg warn">Le cahier contient des configurations à recalculer : ouvrir le <a href="../cahier/">cahier de supportage</a> et « Recalculer tout », puis régénérer.</div>',css:''}; return NSUP; }
+  const A=await moteur(), o={niveau:$('sNiv').value,ddc:$('sDdc').value,formules:$('sForm').value}, P=[]; let i=0;
+  for(const T of L){ A.charger(T.etat);
+    const confs=$('sConf').value==='toutes'?T.configs:[T.configs.reduce((a,c)=>(c.resume?.taux||0)>(a.resume?.taux||0)?c:a,T.configs[0])];
+    for(const c of confs){ $('etatSup').textContent=`⏳ Note ${++i} : ${CAHIER.repere(T,c)}…`; A.appliquerCotes({...(T.cotes0||{}),...(c.cotes||{})});
+      P.push(await A.ndc({...o,sansCommun:true,ident:{repere:CAHIER.repere(T,c),qte:+c.qte||0,lignes:c.lignes||''}})); } }
+  NSUP={html:P.map((x,k)=>(k?'<div class="saut" style="break-before:page"></div>':'')+x).join(''),css:A.ndcCSS(),n:P.length,t:Date.now()};
+  $('etatSup').textContent=`${P.length} note(s) générée(s) le ${new Date().toLocaleString('fr-FR')}.`; return NSUP; }
+$('genSup').onclick=async()=>{ const b=$('genSup'); b.disabled=true; try{ await notesSupports(); rendre(); }catch(e){ $('etatSup').textContent='Génération impossible : '+e.message; } finally{ b.disabled=false; } };
+['sNiv','sConf','sDdc','sForm'].forEach(id=>$(id).addEventListener('change',()=>{ NSUP=null; $('etatSup').textContent='Options modifiées : régénérer les notes.'; rendre(); }));
+async function avantExport(){ if(($('niv').value!=='perso'||etat.secs.supdet!==false)&&!NSUP) { try{ await notesSupports(); }catch(e){} } rendre(); }
+async function imprimerRC(){ await avantExport(); const w=window.open('','_blank'); if(!w) return;
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Rapport de calcul</title><link rel="stylesheet" href="../commun/calc.css"><style>${document.querySelector('style').textContent}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body><div class="rc">${$('rc').innerHTML}</div></body></html>`); w.document.close(); setTimeout(()=>w.print(),600); }
 rendre();
 </script>
-<script src="../commun/replier.js?v=2.52"></script>
-<script src="../commun/export.js?v=2.52"></script>
-<script>EXPORT.init({code:'RC',titre:'Rapport de calcul',excel:false,avant:()=>rendre(),zones:()=>[document.getElementById('rc')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.num||'ouvrage'; }});</script>
-<script src="../commun/aide.js?v=2.52"></script>
+<script src="../commun/replier.js?v=2.53"></script>
+<script src="../commun/export.js?v=2.53"></script>
+<script>EXPORT.init({code:'RC',titre:'Rapport de calcul',excel:false,avant:()=>avantExport(),zones:()=>[document.getElementById('rc')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.num||'ouvrage'; }});</script>
+<script src="../commun/aide.js?v=2.53"></script>
 <script>AIDE.init({titre:"Aide – RC Rapport de calcul",manuel:"rc",intro:"RC assemble le rapport de calcul de l'ouvrage à partir des résultats enregistrés par les modules : hypothèses (C1, G1, Q1, NH), ossature (A1, futur bâtiment fermé), supportage (cahier, S1) et assemblages (AS1). Modèle simplifié, complet ou au choix ; sortie Word ou PDF.",
   etapes:[{t:"Identification",html:"Champs de la trame repris dans le cartouche du rapport.",cible:"#cIdent"},
     {t:"Sources",html:"État des résultats disponibles dans ce navigateur et liens vers les modules pour les compléter : A1 enregistre à chaque calcul, AS1 par « Ajouter au rapport de calcul ».",cible:"#cSrc"},
     {t:"Contenu",html:"Objet, modèle (simplifié : synthèses et taux ; complet : détail des vérifications ; au choix : sections cochées).",cible:"#cOpt"},
+    {t:"Notes des supports",html:"Options des notes détaillées des supports (modèle, configurations, DDC, formules) et génération.",cible:"#cSup"},
     {t:"Assemblages",html:"Liste des attaches enregistrées depuis AS1 ; ✕ pour en retirer une.",cible:"#cAs"}],
   faq:[{q:"Pourquoi séparer rapport de calcul et cahier de supportage ?",r:"Le cahier gère les supports, le repérage, les quantités et les plans ; le rapport récapitule les calculs de l'ouvrage (ossature, supportage, assemblages) dans un document unique, avec la même identification."},
-    {q:"Les notes détaillées des supports ?",r:"Dans cette version, le rapport donne la synthèse des supports types (profilés, quantités, taux) ; les notes détaillées par support restent produites par le cahier, à joindre en annexe."}]});</script>
+    {q:"Les notes détaillées des supports ?",r:"Section « Supportage – notes de calcul détaillées » : une note par support type (configuration la plus sollicitée) ou par configuration, simplifiée ou complète, calculée par le moteur S1 à partir du cahier de supportage ; bouton « ⚙ Générer » ou génération automatique à l'export. Le cahier conserve la gestion des supports, les quantités, les plans et le DXF."}]});</script>
 </body>
 </html>
