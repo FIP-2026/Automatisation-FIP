@@ -4,22 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.53"></script>
+<script src="../commun/auth.js?v=2.54"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — RC Rapport de calcul</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.53">
-<script src="../commun/apps.js?v=2.53"></script>
-<script src="../commun/cahier.js?v=2.53"></script>
-<script src="../commun/acier.js?v=2.53"></script>
-<script src="../climat/data/zonage.js?v=2.53"></script>
-<script src="../commun/data/tuyauterie.js?v=2.53"></script>
-<script src="../commun/charges.js?v=2.53"></script>
-<script src="../commun/notes.js?v=2.53"></script>
-<script src="../commun/ident.js?v=2.53"></script>
-<script src="../commun/pictos-s1.js?v=2.53"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.54">
+<script src="../commun/apps.js?v=2.54"></script>
+<script src="../commun/cahier.js?v=2.54"></script>
+<script src="../commun/acier.js?v=2.54"></script>
+<script src="../climat/data/zonage.js?v=2.54"></script>
+<script src="../commun/data/tuyauterie.js?v=2.54"></script>
+<script src="../commun/charges.js?v=2.54"></script>
+<script src="../commun/notes.js?v=2.54"></script>
+<script src="../commun/ident.js?v=2.54"></script>
+<script src="../commun/pictos-s1.js?v=2.54"></script>
+<script src="../commun/projet.js?v=2.54"></script>
 <style>
   main{grid-template-columns:minmax(300px,380px) 1fr}
   .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}.src .ok{color:#1d7a36;font-weight:700}.src .ko{color:#b26a00;font-weight:700}
@@ -45,7 +46,7 @@
 <main>
 <div id="form">
   <div class="card" id="cIdent"></div>
-  <div class="card" id="cSrc"><h2>Sources</h2><div class="src" id="src"></div><div class="note">Chaque module enregistre ses résultats dans ce navigateur : A1 à chaque calcul, AS1 par « Ajouter au rapport de calcul », le cahier de supportage, C1 / G1 / Q1 / NH pour les hypothèses.</div></div>
+  <div class="card" id="cSrc"><h2>Sources</h2><div class="src" id="src"></div><div class="note">Chaque module enregistre ses résultats dans ce navigateur : A1 à chaque calcul, AS1 par « Ajouter au rapport de calcul », le cahier de supportage, C1 / G1 / Q1 / NH pour les hypothèses.</div><div id="projet" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"></div></div>
   <div class="card" id="cOpt"><h2>Contenu du rapport</h2>
     <label>Objet</label><textarea id="objet" rows="3">Le présent rapport récapitule les hypothèses, les vérifications de dimensionnement (NF EN 1993-1-1, NF EN 1993-1-8 et leurs annexes nationales) et les descentes de charges de l'ouvrage, en phase de prédimensionnement.</textarea>
     <label>Modèle</label><select id="niv"><option value="simple">Simplifié (synthèses et taux)</option><option value="complet" selected>Complet (détail des vérifications)</option><option value="perso">Au choix (sections ci-dessous)</option></select>
@@ -139,19 +140,20 @@ $('genSup').onclick=async()=>{ const b=$('genSup'); b.disabled=true; try{ await 
 async function avantExport(){ if(($('niv').value!=='perso'||etat.secs.supdet!==false)&&!NSUP) { try{ await notesSupports(); }catch(e){} } rendre(); }
 async function imprimerRC(){ await avantExport(); const w=window.open('','_blank'); if(!w) return;
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Rapport de calcul</title><link rel="stylesheet" href="../commun/calc.css"><style>${document.querySelector('style').textContent}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body><div class="rc">${$('rc').innerHTML}</div></body></html>`); w.document.close(); setTimeout(()=>w.print(),600); }
-rendre();
+rendre(); PROJET.barre('projet');
 </script>
-<script src="../commun/replier.js?v=2.53"></script>
-<script src="../commun/export.js?v=2.53"></script>
+<script src="../commun/replier.js?v=2.54"></script>
+<script src="../commun/export.js?v=2.54"></script>
 <script>EXPORT.init({code:'RC',titre:'Rapport de calcul',excel:false,avant:()=>avantExport(),zones:()=>[document.getElementById('rc')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.num||'ouvrage'; }});</script>
-<script src="../commun/aide.js?v=2.53"></script>
+<script src="../commun/aide.js?v=2.54"></script>
 <script>AIDE.init({titre:"Aide – RC Rapport de calcul",manuel:"rc",intro:"RC assemble le rapport de calcul de l'ouvrage à partir des résultats enregistrés par les modules : hypothèses (C1, G1, Q1, NH), ossature (A1, futur bâtiment fermé), supportage (cahier, S1) et assemblages (AS1). Modèle simplifié, complet ou au choix ; sortie Word ou PDF.",
   etapes:[{t:"Identification",html:"Champs de la trame repris dans le cartouche du rapport.",cible:"#cIdent"},
     {t:"Sources",html:"État des résultats disponibles dans ce navigateur et liens vers les modules pour les compléter : A1 enregistre à chaque calcul, AS1 par « Ajouter au rapport de calcul ».",cible:"#cSrc"},
     {t:"Contenu",html:"Objet, modèle (simplifié : synthèses et taux ; complet : détail des vérifications ; au choix : sections cochées).",cible:"#cOpt"},
     {t:"Notes des supports",html:"Options des notes détaillées des supports (modèle, configurations, DDC, formules) et génération.",cible:"#cSup"},
     {t:"Assemblages",html:"Liste des attaches enregistrées depuis AS1 ; ✕ pour en retirer une.",cible:"#cAs"}],
-  faq:[{q:"Pourquoi séparer rapport de calcul et cahier de supportage ?",r:"Le cahier gère les supports, le repérage, les quantités et les plans ; le rapport récapitule les calculs de l'ouvrage (ossature, supportage, assemblages) dans un document unique, avec la même identification."},
+  faq:[{q:"Projeteur et calculateur sur deux postes ?",r:"« ⬇ Exporter le projet » enregistre toutes les données d'affaire du navigateur (cahier, hypothèses, A1, AS1, rapport, identifications) dans un fichier .json ; l'autre poste l'importe (« ⬆ Importer un projet »), fait sa part, puis réexporte. L'import remplace le projet en cours du navigateur. Fichier à conserver sur le réseau FIP / SharePoint."},
+    {q:"Pourquoi séparer rapport de calcul et cahier de supportage ?",r:"Le cahier gère les supports, le repérage, les quantités et les plans ; le rapport récapitule les calculs de l'ouvrage (ossature, supportage, assemblages) dans un document unique, avec la même identification."},
     {q:"Les notes détaillées des supports ?",r:"Section « Supportage – notes de calcul détaillées » : une note par support type (configuration la plus sollicitée) ou par configuration, simplifiée ou complète, calculée par le moteur S1 à partir du cahier de supportage ; bouton « ⚙ Générer » ou génération automatique à l'export. Le cahier conserve la gestion des supports, les quantités, les plans et le DXF."}]});</script>
 </body>
 </html>

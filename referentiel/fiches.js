@@ -64,6 +64,10 @@ const FICHES = [
   bref: "Document qui justifie l'ouvrage : il rappelle les hypothèses (renvoi à la note d'hypothèses), présente le modèle, les vérifications avec leurs taux, les descentes de charges et conclut. Il doit permettre à un contrôleur de refaire le cheminement.",
   corps: `<p>Contenu type : identification, objet, documents de référence, unités, hypothèses, ossature (modèle, chargements, combinaisons, stabilité, vérifications), éléments secondaires, assemblages, descentes de charges, synthèse des taux et conclusion. Dans FIP Études : outil <b>RC</b>, alimenté par A1, le cahier de supportage et AS1.</p>`,
   refs: "NF EN 1990 §2, Annexe B (gestion de la qualité) ; usages de contrôle technique.", calc: "RC, NH" },
+{ id: "projet", theme: "Normes", titre: "Fichier projet : partager une affaire",
+  bref: "Les données saisies restent dans le navigateur du poste. Pour qu'un projeteur et un calculateur travaillent sur la même affaire, on échange un fichier projet (.json) qui contient tout : cahier, hypothèses, ossature, assemblages, rapport.",
+  corps: `<ul><li><b>Exporter</b> (accueil ou rapport de calcul) en fin de session, ranger le fichier sur le réseau FIP / SharePoint de l'affaire.</li><li><b>Importer</b> sur l'autre poste : le projet en cours du navigateur est remplacé (l'exporter avant si besoin).</li><li><b>Nouveau projet</b> : vide les données d'affaire du navigateur avant d'en commencer une autre.</li><li>Un seul fichier à jour à la fois : convenir de qui « tient la main » (projeteur pour le cahier et les plans, calculateur pour S1 et le rapport).</li></ul>`,
+  refs: "Organisation interne FIP.", calc: "toutes" },
 { id: "taux", theme: "Bases de calcul", titre: "Taux de travail, taux cible et couleurs",
   bref: "Le taux de travail = sollicitation / résistance. Vert ≤ taux cible, jaune entre le taux cible et 100 %, rouge au-delà de 100 %.",
   corps: `<p>Le <b>taux cible</b> (90 % par défaut) laisse une marge en APS/APD : les charges et la géométrie évoluent souvent en phase d'exécution. Un taux jaune n'est pas faux, mais il faudra peut-être reprendre le profilé.</p>

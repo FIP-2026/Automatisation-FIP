@@ -14,6 +14,7 @@ AIDE.init({
   ],
   liens: [["#secRecap", "combinaisons", "Combinaisons et enveloppes"], ["#secBom", "assemblages", "Fixations"]],
   faq: [
+    { q: "Échanger l'affaire avec le calculateur ?", r: "Accueil ou Rapport de calcul : « ⬇ Exporter le projet » crée un fichier .json avec toutes les données d'affaire (cahier compris) ; le calculateur l'importe, calcule (S1, RC), puis réexporte. L'export .json du cahier seul reste disponible." },
     { q: "Où sont passées les notes de calcul ?", r: "Elles sont produites dans le Rapport de calcul (RC, famille « Rapports de calcul ») avec les mêmes options (simplifiée / complète, configurations, DDC, formules), aux côtés de l'ossature et des assemblages. Le cahier garde les supports, le repérage, les quantités, la BOM, les plans et le DXF." },
     { q: "Pictogramme du type de support ?", r: "Chaque support type affiche le pictogramme de son type S1 (montant au sol, console, T, L, U…). Pour un type « à calculer », cliquer sur le pictogramme pour choisir le type dans la galerie : S1 s'ouvrira directement sur ce type." },
     { q: "Documents de référence et unités dans les notes ?", r: "Les notes du cahier commencent par un préambule unique : documents de référence (saisis dans NH Note d'hypothèses) et tableau des unités et conventions ; ils ne sont pas répétés dans chaque note." },
