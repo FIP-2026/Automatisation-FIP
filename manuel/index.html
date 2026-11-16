@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.50"></script>
+<script src="../commun/auth.js?v=2.51"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.50">
-<script src="../commun/apps.js?v=2.50"></script>
-<script src="../commun/data/profils.js?v=2.50"></script>
-<script src="../commun/barres3d.js?v=2.50"></script>
-<script src="../commun/acier.js?v=2.50"></script>
-<script src="../commun/data/tuyauterie.js?v=2.50"></script>
-<script src="../commun/charges.js?v=2.50"></script>
-<script src="../commun/coefvent.js?v=2.50"></script>
-<script src="../commun/tendues.js?v=2.50"></script>
-<script src="../commun/portique.js?v=2.50"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.51">
+<script src="../commun/apps.js?v=2.51"></script>
+<script src="../commun/data/profils.js?v=2.51"></script>
+<script src="../commun/barres3d.js?v=2.51"></script>
+<script src="../commun/acier.js?v=2.51"></script>
+<script src="../commun/data/tuyauterie.js?v=2.51"></script>
+<script src="../commun/charges.js?v=2.51"></script>
+<script src="../commun/coefvent.js?v=2.51"></script>
+<script src="../commun/tendues.js?v=2.51"></script>
+<script src="../commun/portique.js?v=2.51"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -287,6 +287,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.51</td><td>Cahier, S1</td><td>Pictogramme du type de support dans le cahier (en-tête du type, listing, fiches) ; choix du type par galerie illustrée pour les types à calculer, transmis à S1 (commun/pictos-s1.js).</td><td>Aucun (présentation).</td></tr>
 <tr><td>2.50</td><td>A1</td><td>Repérage des pieds de poteaux (files A / B × portiques 1 à n, plan) et descente de charges par nœud : portiques courants, portiques de pignon (part de charge de rive), pieds de palée (efforts longitudinaux) ; affichage cas simples / enveloppe ELU / les deux ; résultats enregistrés pour le futur module de note de calcul.</td><td>Nouvelles sorties (portiques de pignon et palées) ; portique courant inchangé.</td></tr>
 <tr><td>2.49</td><td>A1, AS1</td><td>Carte d'identification (trame) dans les modules (commun/ident.js, cartouche Word) ; A1 : décalage du 1<sup>er</sup> cours depuis la rive, nombre d'intervalles et de panneaux de poutre au vent au choix (nœuds dans l'axe des pannes), bracons usuels au 1<sup>er</sup> cours, valeurs des charges sur le schéma, schémas des pannes et lisses, carte « Règles de conception et alertes » ; AS1 : alertes de conception (pinces maxi, trusquinage, âme du UPN, gousset, 1 boulon).</td><td>A1 : positions des pannes et des bracons modifiées (décalage de rive 0,2 m par défaut).</td></tr>
 <tr><td>2.48</td><td>AS1 (nouvel outil), A1, accueil</td><td>AS1 Barres tendues boulonnées (classeur BE CM, famille « Assemblages »), reliée à A1 ; A1 : cours de faîtage décalés (±0,2 m) et espacement maxi, bandeau de bardage (panneau surélevé c<sub>f</sub> = 1,8) et lisses, symboles 3D de la poutre au vent et des palées (croix, cadre avec contre-poteaux), bouton d'optimisation, attache des diagonales en cornière vérifiée ; W<sub>el,z</sub> pour les U sans W<sub>pl,z</sub>.</td><td>A1 : espacement des pannes recalculé (≤ maxi), diagonales en cornière limitées par l'attache ; pannes en U : interaction linéaire.</td></tr>
@@ -367,6 +368,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.50"></script>
+<script src="../commun/replier.js?v=2.51"></script>
 </body>
 </html>

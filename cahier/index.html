@@ -4,18 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.50"></script>
+<script src="../commun/auth.js?v=2.51"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.50">
-<script src="../commun/acier.js?v=2.50"></script>
-<script src="../commun/cahier.js?v=2.50"></script>
-<script src="../commun/notes.js?v=2.50"></script>
-<script src="../commun/dessin.js?v=2.50"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.51">
+<script src="../commun/acier.js?v=2.51"></script>
+<script src="../commun/cahier.js?v=2.51"></script>
+<script src="../commun/pictos-s1.js?v=2.51"></script>
+<script src="../commun/notes.js?v=2.51"></script>
+<script src="../commun/dessin.js?v=2.51"></script>
 <style>
+  .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
+  .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
+  .pickPop{position:absolute;z-index:50;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:8px;display:grid;grid-template-columns:repeat(3,150px);gap:6px}
+  .pickPop button{display:flex;flex-direction:column;align-items:center;gap:2px;background:#fff;color:#171a1e;border:1px solid var(--line);border-radius:6px;padding:4px;font-size:11.5px;font-weight:500}
+  .pickPop button:hover,.pickPop button.on{border-color:#1f6fd1;background:#eef4fb}.pickPop svg{width:80px;height:64px}
   .logoAff{max-height:48px;max-width:160px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff}
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:5px 10px;font-size:12px}
   .typeBloc{border:1px solid var(--line);border-left:4px solid var(--fip-bleu);border-radius:6px;padding:8px 10px;margin:10px 0;background:#fbfcfd}
@@ -102,7 +108,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.50"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.51"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -202,7 +208,7 @@ let api=null;
 function moteur(){
   if(api) return Promise.resolve(api);
   return new Promise((ok,ko)=>{ const fr=$('iframeS1'), t0=Date.now();
-    fr.src='../supports/?moteur=1&v=2.50';
+    fr.src='../supports/?moteur=1&v=2.51';
     const att=()=>{ try{ const w=fr.contentWindow; if(w&&w.S1API&&w.document.readyState==='complete'){ api=w.S1API; return ok(api);} }catch(e){ return ko(e); }
       if(Date.now()-t0>20000) return ko(new Error('S1 ne répond pas')); setTimeout(att,150); };
     setTimeout(att,300); });
@@ -268,12 +274,21 @@ function nouveauType(kind){
   K.types.push(T); enr(); tout();
 }
 $('addNC').onclick=()=>nouveauType('s1'); $('addSPE').onclick=()=>nouveauType('spe');
-const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.50`;
+const lienS1=(T,c)=>`../supports/?cahier=${encodeURIComponent(T.id)}&conf=${encodeURIComponent(c.id)}&v=2.51`;
+/* pictogramme du type de support S1 (type calculé : fixé par S1 ; type à calculer : choisi ici, transmis à S1) */
+const typeDe=T=>T.kind==='spe'?null:(T.etat&&T.etat.type)||T.typeS1||null;
+const pictoT=(T,ti,mini)=>{ const ty=typeDe(T); if(T.kind==='spe') return ''; const choix=!T.etat&&ti!=null;
+  return `<span class="picto ${mini?'mini':''} ${choix?'choix':''}" ${choix?`data-tpk="${ti}" title="Choisir le type de support"`:`title="${h(NOMS_S1[ty]||'')}"`}>${ty?PICTOS_S1[ty]:'<svg viewBox="0 0 80 64"><rect x="8" y="8" width="64" height="48" fill="none" stroke="#8a929c" stroke-dasharray="4 3"/><text x="40" y="38" text-anchor="middle" font-size="14" fill="#8a929c">?</text></svg>'}${mini?'':`<span>${h(ty?NOMS_S1[ty]:'Type à choisir')}${choix?' ▾':''}</span>`}</span>`; };
+function choisirType(el){ const ti=+el.dataset.tpk, T=K.types[ti]; document.querySelectorAll('.pickPop').forEach(p=>p.remove());
+  const r=el.getBoundingClientRect(), pop=document.createElement('div'); pop.className='pickPop'; pop.style.left=(r.left+window.scrollX)+'px'; pop.style.top=(r.bottom+window.scrollY+4)+'px';
+  pop.innerHTML=Object.keys(PICTOS_S1).map(k=>`<button type="button" data-k="${k}" class="${T.typeS1===k?'on':''}">${PICTOS_S1[k]}${h(NOMS_S1[k])}</button>`).join('');
+  pop.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; T.typeS1=b.dataset.k; if(!T.designation) T.designation=''; pop.remove(); enr(); tout(); });
+  document.body.appendChild(pop); setTimeout(()=>document.addEventListener('click',function f(e){ if(!pop.contains(e.target)){ pop.remove(); document.removeEventListener('click',f); } }),0); }
 function gestion(){
   if(!K.types.length){ $('rGestion').innerHTML='<div class="msg info">Cahier vide. « ➕ Type calculé (S1) » : créer le support dans S1 puis « Ajouter au cahier ». « ➕ Type à calculer » : réserver un type et ses quantités, à calculer plus tard. « ➕ Support spécial » : support dessiné à part, compté dans la BOM.</div>'; etatRecalc(); return; }
   $('rGestion').innerHTML=K.types.map((T,ti)=>{
     const spe=T.kind==='spe', defs=T.cotesDef||[], r=resumeT(T);
-    const tete=`<div class="tete"><input data-tn="${ti}" value="${h(T.nom)}" style="width:90px;font-weight:700"> <input data-td="${ti}" value="${h(T.designation||'')}" placeholder="${spe?'Désignation (ex. arbre de Noël)':h(r?.typeNom||'Désignation')}" style="flex:1;min-width:140px">
+    const tete=`<div class="tete">${pictoT(T,ti)} <input data-tn="${ti}" value="${h(T.nom)}" style="width:90px;font-weight:700"> <input data-td="${ti}" value="${h(T.designation||'')}" placeholder="${spe?'Désignation (ex. arbre de Noël)':h(r?.typeNom||'Désignation')}" style="flex:1;min-width:140px">
       ${spe?`<input data-tp="${ti}" value="${h(T.plan||'')}" placeholder="N° de plan" style="width:120px"> <input data-tm="${ti}" type="number" min="0" step="any" value="${h(T.masse??'')}" placeholder="kg / u" title="Masse unitaire estimée (kg)" style="width:80px">`:`<span class="note">${h(r?(r.profils||[]).join(' + ')+' '+(r.nuance||''):'à calculer dans S1')}</span>`}
       ${BADGE[stType(T)]}
       <span class="act">${spe?'':`<a href="${lienS1(T,T.configs[0])}"><button type="button" title="Ouvrir le type dans S1">✎ S1</button></a>`}<button class="sec" type="button" data-tdup="${ti}" title="Dupliquer le type">⧉</button><button class="sec" type="button" data-tup="${ti}" title="Monter">↑</button><button class="sec" type="button" data-tdel="${ti}" title="Supprimer le type" style="color:var(--bad)">✕</button></span></div>`;
@@ -289,6 +304,7 @@ function gestion(){
     return `<div class="typeBloc ${spe?'spe':''}">${tete}${tab}${ddcM}</div>`; }).join('')+
     `<div class="note">Cotes en mm ; une cote sur fond jaune est propre à la configuration (sinon valeur du type). Une modification de cote rend la configuration « à recalculer ». Pour changer profilé, tuyauterie ou actions : ✎ S1 sur le type (commun à toutes ses configurations).</div>`;
   const ix=s=>s.split('|').map((x,i)=>i<2?+x:x), on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,()=>fn(el)));
+  on('[data-tpk]','click',el=>choisirType(el));
   on('[data-tn]','change',el=>{ const T=K.types[+el.dataset.tn], v=el.value.trim(); if(!v||K.types.some(t=>t!==T&&t.nom===v)){ alert('Repère vide ou déjà utilisé.'); el.value=T.nom; return; } T.nom=v; enr(); tout(); });
   on('[data-td]','change',el=>{ K.types[+el.dataset.td].designation=el.value; enr(); tout(); });
   on('[data-tp]','change',el=>{ K.types[+el.dataset.tp].plan=el.value; enr(); tout(); });
@@ -323,7 +339,7 @@ function listing(){
   let tot=0;
   $('rListing').innerHTML=`<table><tr><th>Repère</th><th>Type / désignation</th><th>Profilés / plan</th><th class="n">Qté</th><th>Repères</th><th>Lignes / iso</th><th>Statut</th></tr>`+
     K.types.map(T=>T.configs.map(c=>{ const r=c.resume||resumeT(T); tot+=+c.qte||0;
-      return `<tr><td><b>${h(repere(T,c))}</b></td><td>${h(T.designation||r?.typeNom||(T.kind==='spe'?'Support spécial':'—'))}</td><td>${T.kind==='spe'?(T.plan?'plan '+h(T.plan):'—'):h(r?(r.profils||[]).join(' + ')+' '+(r.nuance||''):'—')}</td><td class="n">${+c.qte||0}</td><td>${h(c.reperes||'')}</td><td>${h(c.lignes||'')}</td><td>${BADGE[stConf(T,c)]}</td></tr>`; }).join('')).join('')+
+      return `<tr><td><b>${h(repere(T,c))}</b></td><td>${pictoT(T,null,true)} ${h(T.designation||r?.typeNom||(typeDe(T)?NOMS_S1[typeDe(T)]:'')||(T.kind==='spe'?'Support spécial':'—'))}</td><td>${T.kind==='spe'?(T.plan?'plan '+h(T.plan):'—'):h(r?(r.profils||[]).join(' + ')+' '+(r.nuance||''):'—')}</td><td class="n">${+c.qte||0}</td><td>${h(c.reperes||'')}</td><td>${h(c.lignes||'')}</td><td>${BADGE[stConf(T,c)]}</td></tr>`; }).join('')).join('')+
     `<tr><td colspan="3"><b>Total</b></td><td class="n"><b>${tot}</b></td><td colspan="3"></td></tr></table>`;
 }
 
@@ -383,7 +399,7 @@ function fiches(){
   const S=K.rapport.sec||{}, avec=S.plans||S.verif||S.ddcType||S.ddcConf||S.ddcCas;
   if(!avec){ $('rTypes').innerHTML=''; return; }
   $('rTypes').innerHTML=K.types.map((T,ti)=>{ const spe=T.kind==='spe', r=resumeT(T), defs=T.cotesDef||[];
-    let pre='', s=`<div class="card fiche ${ti?'':'premiere'}"><h2>${spe?'Support spécial':'Support type'} ${h(T.nom)} — ${h(T.designation||r?.typeNom||(spe?'':'non calculé'))}</h2>`;
+    let pre='', s=`<div class="card fiche ${ti?'':'premiere'}"><h2>${spe?'':pictoT(T,null,true)+' '}${spe?'Support spécial':'Support type'} ${h(T.nom)} — ${h(T.designation||r?.typeNom||(typeDe(T)?NOMS_S1[typeDe(T)]+' (non calculé)':(spe?'':'non calculé')))}</h2>`;
     if(spe){ s+=`<table><tr><td>Plan</td><td><b>${h(T.plan||'à établir')}</b> (AutoCAD / Plant 3D / Advance Steel)</td></tr><tr><td>Masse unitaire estimée</td><td>${T.masse===''||T.masse==null?'—':f(+T.masse,1)+' kg'}</td></tr></table>`; }
     else if(!r){ s+='<div class="msg info">Type non calculé : ouvrir dans S1 (✎ S1) pour le dimensionner.</div>'; }
     else {
@@ -435,10 +451,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 demarrer();
 </script>
-<script src="../commun/replier.js?v=2.50"></script>
-<script src="../commun/aide.js?v=2.50"></script>
-<script src="aide-cs.js?v=2.50"></script>
-<script src="../commun/export.js?v=2.50"></script>
+<script src="../commun/replier.js?v=2.51"></script>
+<script src="../commun/aide.js?v=2.51"></script>
+<script src="aide-cs.js?v=2.51"></script>
+<script src="../commun/export.js?v=2.51"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>

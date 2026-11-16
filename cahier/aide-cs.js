@@ -14,6 +14,7 @@ AIDE.init({
   ],
   liens: [["#secRecap", "combinaisons", "Combinaisons et enveloppes"], ["#secBom", "assemblages", "Fixations"]],
   faq: [
+    { q: "Pictogramme du type de support ?", r: "Chaque support type affiche le pictogramme de son type S1 (montant au sol, console, T, L, U…). Pour un type « à calculer », cliquer sur le pictogramme pour choisir le type dans la galerie : S1 s'ouvrira directement sur ce type." },
     { q: "Documents de référence et unités dans les notes ?", r: "Les notes du cahier commencent par un préambule unique : documents de référence (saisis dans NH Note d'hypothèses) et tableau des unités et conventions ; ils ne sont pas répétés dans chaque note." },
     { q: "Type ou configuration ?", r: "Un <b>type</b> = un dessin de support (profilés, tuyaux, actions). Une <b>configuration</b> = le même support avec une ou plusieurs cotes différentes (hauteur, longueur, position des tuyaux). Changer de profilé ou de DN = nouveau type." },
     { q: "Pourquoi « à recalculer » ?", r: "Une cote ou un paramètre commun a changé : cliquer « ⟳ Recalculer tout »." },
