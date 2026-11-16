@@ -10,7 +10,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.54";
+const CALC_VERSION = "v2.55";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
@@ -290,10 +290,10 @@ const CALC_APPS = [
   {
     code: "Q1",
     titre: "Charges d'exploitation",
-    description: "Catégories A à E, H, passerelles industrielles (ISO 14122), charges concentrées, cloisons mobiles, garde-corps, coefficients ψ.",
+    description: "Catégories A à E, H, passerelles et escaliers industriels (ISO 14122, NF E 85-015), charges concentrées, cloisons mobiles, garde-corps (Eurocode, NF E 85-015), coefficients ψ.",
     url: "charges-exploitation/",
     categorie: "clim",
-    normes: ["NF EN 1991-1-1 + AN", "NF EN ISO 14122"],
+    normes: ["NF EN 1991-1-1 + AN", "NF E 85-015", "NF EN ISO 14122"],
     statut: "ok",
     vignette: `
 <svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">

@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.54"></script>
+<script src="../commun/auth.js?v=2.55"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — NH Note d'hypothèses</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.54">
-<script src="../commun/apps.js?v=2.54"></script>
-<script src="../commun/cahier.js?v=2.54"></script>
-<script src="../climat/data/zonage.js?v=2.54"></script>
-<script src="../commun/data/tuyauterie.js?v=2.54"></script>
-<script src="../commun/charges.js?v=2.54"></script>
-<script src="../commun/notes.js?v=2.54"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.55">
+<script src="../commun/apps.js?v=2.55"></script>
+<script src="../commun/cahier.js?v=2.55"></script>
+<script src="../climat/data/zonage.js?v=2.55"></script>
+<script src="../commun/data/tuyauterie.js?v=2.55"></script>
+<script src="../commun/charges.js?v=2.55"></script>
+<script src="../commun/notes.js?v=2.55"></script>
 <style>
   main{grid-template-columns:minmax(300px,380px) 1fr}
   .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
@@ -58,7 +58,7 @@
     <label>Modèle</label><select id="niv"><option value="simple">Simplifiée (hypothèses rédigées)</option><option value="classique" selected>Classique (tableaux et schémas)</option><option value="complet">Complète (détail des formules et des calculs)</option></select>
     <div id="secs" style="margin-top:6px"></div>
     <div class="actions"><button type="button" id="voir">👁 Mettre à jour l'aperçu</button></div>
-    <div class="note">Sorties : boutons « Word » et « Imprimer / PDF » en haut de page (trame Word générique en attendant la trame FIP).</div></div>
+    <div class="note">Sorties : boutons « Word » (trame FIP dès que l'affaire est renseignée dans le cahier : page de garde, révisions, en-tête, pied de page) et « Imprimer / PDF » en haut de page.</div></div>
 </div>
 <section><div class="card"><div id="nh" class="nh"></div></div></section>
 </main>
@@ -89,7 +89,8 @@ function rendre(){
   // références
   const R=[['NF EN 1990 + AN','Bases de calcul des structures (combinaisons, coefficients partiels et ψ)']];
   if(S.G||S.Q) R.push(['NF EN 1991-1-1 + AN','Poids volumiques, poids propres, charges d\'exploitation des bâtiments']);
-  if(S.Q&&Q&&(Q.zones||[]).concat(Q.gardecorps||[]).some(z=>z.cat==='PASS'||z.cat==='ISO')) R.push(['NF EN ISO 14122-2 et -3 ; NF E 85-015','Moyens d\'accès permanents aux machines : plates-formes, passerelles, garde-corps']);
+  if(S.Q&&Q&&(Q.zones||[]).concat(Q.gardecorps||[]).some(z=>z.cat==='PASS'||z.cat==='ISO')) R.push(['NF EN ISO 14122-2 et -3','Moyens d\'accès permanents aux machines : plates-formes, passerelles, garde-corps']);
+  if(S.Q&&Q&&(Q.zones||[]).concat(Q.gardecorps||[]).some(z=>/^(E85|ESC-I)/.test(z.cat))) R.push(['NF E 85-015','Éléments d\'installations industrielles – moyens d\'accès permanents : escaliers, échelles, garde-corps']);
   if(S.C&&C&&C.res){ if(C.res.neige) R.push(['NF EN 1991-1-3 + AN','Charges de neige']); if(C.res.vent) R.push(['NF EN 1991-1-4 + AN','Actions du vent']); if(C.res.seisme) R.push(['NF EN 1998-1 + AN ; décret 2010-1254/1255 ; arrêté du 22/10/2010 modifié','Actions sismiques, zonage et règles parasismiques']); }
   R.push(['NF EN 1993-1-1 + AN ; NF EN 1993-1-8 + AN','Calcul des structures en acier ; assemblages']); if(gen.beton) R.push(['NF EN 1992-1-1 + AN','Calcul des structures en béton']);
   if(S.docs) x+=T2('Documents de référence')+NOTES.docs('<p><i>Aucun document de référence saisi.</i></p>');
@@ -133,16 +134,16 @@ function imprimerNH(){ rendre(); const w=window.open('','_blank'); if(!w) return
 /* export Word : bouton « Word » de l'en-tête (EXPORT.init) */
 rendre();
 </script>
-<script src="../commun/replier.js?v=2.54"></script>
-<script src="../commun/export.js?v=2.54"></script>
+<script src="../commun/replier.js?v=2.55"></script>
+<script src="../commun/export.js?v=2.55"></script>
 <script>EXPORT.init({code:'NH',titre:'Note d\'hypothèses',excel:false,avant:()=>rendre(),zones:()=>[document.getElementById('nh')],nom:()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:{}; return K.doc||K.num||'affaire'; }});</script>
-<script src="../commun/aide.js?v=2.54"></script>
+<script src="../commun/aide.js?v=2.55"></script>
 <script>AIDE.init({titre:"Aide – NH Note d'hypothèses",manuel:"nh",intro:"NH rassemble les hypothèses saisies dans C1 (climat, séisme), G1 (charges permanentes) et Q1 (charges d'exploitation), complétées des hypothèses générales, et produit la note d'hypothèses de l'affaire.",
   etapes:[{t:"Vérifier les sources",html:"Le tableau « Sources » indique si C1, G1 et Q1 sont renseignés (date de dernière mise à jour). Cliquer pour compléter.",cible:"#src"},
     {t:"Hypothèses générales",html:"Objet, durée d'utilisation, classe de conséquences, matériaux, limites de déformation, remarques.",cible:"#cGen"},
     {t:"Documents de référence",html:"« ➕ Document » : plans, CCTP, notes, rapports, fiches fabricants, mails ou comptes rendus (type, référence, désignation, indice, date, émetteur). Ils sont repris dans la note d'hypothèses et dans les notes de calcul S1 et du cahier.",cible:"#cDocs"},
     {t:"Choisir le modèle et sortir la note",html:"Simplifiée (rédigée), classique (tableaux et schémas) ou complète (détail des calculs) ; sections au choix (dont documents de référence et tableau des unités) ; sortie par les boutons « Word » et « Imprimer / PDF » de l'en-tête.",cible:"#cOpt"}],
   faq:[{q:"D'où viennent les valeurs ?",r:"De la dernière saisie de chaque outil dans ce navigateur. Pour C1, ouvrir l'outil sur le site du projet met à jour vent, neige et séisme."},
-    {q:"La trame FIP ?",r:"La mise en page Word est générique en attendant la trame FIP : le contenu sera injecté dans la trame (cartouche, en-têtes, styles) dès qu'elle sera fournie."}]});</script>
+    {q:"La trame FIP ?",r:"L'export Word suit la trame FIP des documents : page de garde (adresse FIP, client, site, projet et phase, titre, logo du client, tableau des révisions 0 à 5, mention d'approbation tacite à 10 jours, N° de document et révision), en-tête (client, projet, titre, logo FIP) et pied de page (Rév, N° de document, Page x de y). Les champs viennent de l'affaire du cahier de supportage."}]});</script>
 </body>
 </html>

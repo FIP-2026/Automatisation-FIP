@@ -132,11 +132,39 @@ const DESSIN = (() => {
   /* spec : { format:'A3'|'A4', vues:[{id, col, lig}], solides:[...], aides:[{type:'axe'|'tirets'|'fin', pts:[[x,y,z]...], vues?}], cercles:[{c, r, n, style, vues?}],
              sols:[{a, b, mat:[x,y,z] (côté matière), vues?}], murs:[{rect:[[...]...] (4 pts), vues?}], cotes:[{vue, a, b, dir, cote:'haut'|'bas'|'gauche'|'droite', niv, txt}],
              reperes:[{vue, p, n}], etiquettes:[{vue, p, txt, dx, dy}], nomenclature:[[rep, qte, des, mat, long, masse]], tableau:{titre, cols, rows}, cartouche:{...}, notes:[...] } */
+  /* ---------- gabarit FIP A3 (commun/data/gabarit-a3.js) : cadre, cartouche et tableau des révisions à attributs ----------
+     K (cartouche) : client1, client2, titre (ou titres[3]), projet, doc, lot, chrono, page, rev, bonPour, revisions:[{rev, desc, par, verif, appr, date}] */
+  const avecGabarit = (spec) => spec.format !== "A4" && typeof GABARIT_A3 !== "undefined" && !(spec.cartouche && spec.cartouche.provisoire === true);
+  function valeursGabarit(K, ech) {
+    const coupe = (t, n) => { const L = []; let l = ""; String(t || "").split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { if (l.trim()) L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
+    const tit = K.titres || coupe(K.titre, 30), V = { CLIENT1: K.client1 ?? K.client ?? "", CLIENT2: K.client2 ?? "", TITRE1: tit[0] || "", TITRE2: tit[1] || "", TITRE3: tit.slice(2).join(" "),
+      PROJET: K.projet || "00-000", DOC: K.doc || "PLN", LOT: K.lot || "", CHRONO: K.chrono || "01", PAGE: K.page || "01", REV: K.rev ?? K.indice ?? "0", "BON-POUR": K.bonPour || "CONSULTATION", ECHELLE: ech ? "1:" + ech : "" };
+    const R = (K.revisions || []).slice(-5);
+    for (let i = 0; i < 5; i++) { const r = R[i] || {}; Object.assign(V, { ["DESCRIPTION" + i]: R[i] ? [r.rev != null && String(r.rev) !== String(i) ? "(" + r.rev + ")" : "", r.desc || ""].join(" ").trim() : i ? "" : "CREATION DU DOCUMENT", ["PAR" + i]: r.par || "", ["VERIFIE" + i]: r.verif || "", ["APPROUVE" + i]: r.appr || "", ["DATE" + i]: r.date || "" }); }
+    return V;
+  }
+  function gabaritSVG(V, PH) {
+    const G = GABARIT_A3, anc = ["start", "middle", "end"], fs = (h) => +(h / 0.72).toFixed(2);
+    let s = `<g data-gabarit="A3">`;
+    for (const k of ["F", "C", "R"]) {
+      const B = G[k], [ox, oy] = B.o, X = (x) => +(ox + x).toFixed(3), Y = (y) => +(PH - oy - y).toFixed(3);
+      const T = (x, y, h, ha, va, t, att) => `<text${att ? ` data-att="${att}"` : ""} x="${X(x)}" y="${+(Y(y) + (va === 2 ? h / 2 : va === 3 ? h : 0)).toFixed(3)}" font-size="${fs(h)}" text-anchor="${anc[ha] || "start"}" fill="#000">${esc(t)}</text>`;
+      s += `<path d="${B.l.map((l) => `M${X(l[0])},${Y(l[1])}L${X(l[2])},${Y(l[3])}`).join("")}" stroke="#000" stroke-width="${k === "F" ? 0.5 : TFin}" fill="none"/>`;
+      B.c.forEach((c) => { s += `<circle cx="${X(c[0])}" cy="${Y(c[1])}" r="${c[2]}" fill="none" stroke="#000" stroke-width="${TFin}"/>`; });
+      B.r.forEach((r) => { s += `<rect x="${X(r[0])}" y="${Y(r[1] + r[3])}" width="${r[2]}" height="${r[3]}" fill="#000"/>`; });
+      B.t.forEach((t) => { s += T(t[0], t[1], t[2], t[3], t[4], t[5]); });
+      B.m.forEach((m) => { const n = m[3].length, pas = m[2] * 2; m[3].forEach((l, i) => { s += T(m[0], m[1] - (i - (n - 1) / 2) * pas, m[2], 1, 2, l); }); });
+      B.a.forEach((a) => { s += T(a[2], a[3], a[4], a[5], a[6], V[a[0]] ?? "", a[0]); });
+      if (B.logo) B.logo.forEach((g) => { s += `<path d="${g.loops.map((L) => "M" + L.map((p) => X(p[0]) + "," + Y(p[1])).join("L") + "Z").join("")}" fill="#${g.rgb}" fill-rule="evenodd"/>`; });
+    }
+    return s + "</g>";
+  }
+
   function planche(spec) {
-    const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
+    const GAB = avecGabarit(spec), [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = GAB ? 10 : 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
     const A4 = spec.format === "A4", TH = A4 ? { hl: 4.8, f: 2.4, ft: 3, nt: 2.2, bd: 11, b1: 4, b2: 2.1 } : { hl: 6, f: 2.8, ft: 3.5, nt: 2.5, bd: 13, b1: 5, b2: 2.5 };   // tailles selon le format
-    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(180, zx1 - zx0), hCart = 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
+    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(180, zx1 - zx0), hCart = GAB ? 112 : 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
     const coupeTxt = (t, n) => { const L = []; let l = ""; String(t).split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
     const ncTab = Math.floor(wB / (A4 ? 1.22 : 1.38));
     tabs.forEach((t) => { t._note = t.note ? coupeTxt(t.note, ncTab) : []; });
@@ -201,8 +229,9 @@ const DESSIN = (() => {
     if (!ech) { ech = 100; const k = 10; vues.forEach((V) => { V.mg = V.mg || { g: 18, d: 18, h: 24, b: 18 }; if (V.u0 == null) { V.u0 = 0; V.u1 = 1; V.v0 = 0; V.v1 = 1; } V.mu = V.mu || ((t) => t); V.mv = V.mv || ((t) => t); V.iu = V.iu || []; V.iv = V.iv || []; }); place = vues.map((V, i) => ({ V, x: zx0 + 20 + i * 120, y: zy0 + 20, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k })); }
     const k = 1000 / ech;
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
-    s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/><rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
-    [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; });   // repères de centrage
+    s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/>`;
+    if (!GAB) { s += `<rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
+      [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; }); }   // repères de centrage
     if (spec.statut) { const T = { x0: ZT.x0, y0: ZT.y0, x1: ZT.x0 + ZT.w, y1: ZT.y0 + hTp - 2 }, ph = spec.statut.phase || "APS/APD";   // bandeau encadré (pas de filigrane)
       s += `<g data-c="CARTOUCHE"><rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
         txt((T.x0 + T.x1) / 2, T.y0 + 1.6 + TH.b1, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: TH.b1, b: 1 }) +
@@ -287,8 +316,12 @@ const DESSIN = (() => {
       rows.forEach((r, j) => { const yy = yN + lgN * j; if (j) s += ligne(bloc.x0, yy, bloc.x1, yy); r.forEach((c, i) => { s += txt(i === 2 ? xs[i] + 1.5 : xs[i] + C[i][0] * kx / 2, yy + lgN * 0.68, c, { a: i === 2 ? "start" : "middle", h: A4 ? 2.2 : 2.5 }); }); });
       const yh = yN + lgN * rows.length; s += ligne(bloc.x0, yh, bloc.x1, yh, TF); C.forEach((c, i) => { s += txt(xs[i] + c[0] * kx / 2, yh + lgN * 0.68, c[1], { a: "middle", h: A4 ? 2.2 : 2.5, b: 1 }); });
     }
-    // cartouche provisoire
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;
+    if (GAB) {   // gabarit FIP A3 : cadre, cartouche et révisions (blocs à attributs dans le DXF)
+      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH) + `<g data-c="TEXTE">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
+      return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
+    }
+    // cartouche provisoire (A4)
     s += `<rect x="${xc}" y="${yc}" width="${wB}" height="${hCart}" fill="#fff" stroke="#000" stroke-width="0.7"/>`;
     const cel = (x, y, wd, hd, lab, val, o = {}) => ligne(x, y, x + wd, y) + ligne(x, y, x, y + hd) + txt(x + 1.2, y + 2.6, lab, { h: 1.8 }) + txt(x + (o.c ? wd / 2 : 1.5), y + hd - 1.6, val, { h: o.h || 2.8, b: o.b, a: o.c ? "middle" : "start" });
     const w1 = 45, w2 = wB - w1;
@@ -305,7 +338,7 @@ const DESSIN = (() => {
     s += `<line x1="${sx - 1}" y1="${sy}" x2="${sx + 17.5}" y2="${sy}" ${STY.axe}/>`;
     s += `</g><g data-c="TEXTE">`;
     s += lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("");   // notes à gauche du cartouche
-    s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche provisoire – à remplacer par le cartouche FIP", { a: "end", h: 2 }) + "</g>";
+    s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche simplifié A4 – le gabarit FIP est en A3", { a: "end", h: 2 }) + "</g>";
     return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
   }
   /* =====================================================================
@@ -321,7 +354,7 @@ const DESSIN = (() => {
   const encTexte = (t) => [...String(t).replace(/[\u202F\u00A0\u2009≈≤≥→−₀-₉⁴]/g, (c) => ASCII[c] || c).replace(/Ø/g, "%%c").replace(/±/g, "%%p").replace(/°/g, "%%d")].map((c) => { const k = c.codePointAt(0); if (k < 128 || (k >= 160 && k < 256) || CP1252.includes(c)) return c; return "\\U+" + k.toString(16).toUpperCase().padStart(4, "0"); }).join("");
   function enOctets(str) { const out = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) { const c = str[i], k = c.charCodeAt(0), j = CP1252.indexOf(c); out[i] = k < 128 || (k >= 160 && k < 256) ? k : j >= 0 ? 128 + j : 63; } return out; }
   function dxf(pages) {
-    const E = [], nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +v.toFixed(4));
+    const E = [], inserts = [], nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +v.toFixed(4));
     const ligne = (L, x1, y1, x2, y2) => E.push(`0\nLINE\n8\n${L}\n10\n${nb(x1)}\n20\n${nb(y1)}\n30\n0\n11\n${nb(x2)}\n21\n${nb(y2)}\n31\n0`);
     let ox = 0;
     pages.forEach((pg) => {
@@ -342,6 +375,7 @@ const DESSIN = (() => {
         for (const n of el.children) {
           const tag = n.tagName.toLowerCase(), c = calque(n, L);
           if (["defs", "pattern", "image", "title"].includes(tag)) continue;
+          if (tag === "g" && n.getAttribute("data-gabarit")) { const V = {}; n.querySelectorAll("[data-att]").forEach((t) => { V[t.getAttribute("data-att")] = t.textContent; }); inserts.push({ x: ox, V }); continue; }   // gabarit FIP : blocs + attributs
           if (tag === "g") { marche(n, n.getAttribute("data-c") || L); continue; }
           const at = (k) => +n.getAttribute(k) || 0, fill = n.getAttribute("fill") || "", stroke = n.getAttribute("stroke");
           if (tag === "line") seg(c, [at("x1"), at("y1")], [at("x2"), at("y2")]);
@@ -379,12 +413,37 @@ const DESSIN = (() => {
         L.forEach(([a, b]) => { const lg = Math.hypot(b[0] - a[0], b[1] - a[1]); if (lg > (s.L === "CONTOUR" ? 0.3 : 1e-4)) ligne(s.L, X(a[0]), Y(a[1]), X(b[0]), Y(b[1])); }); });
       ox += PW + 40;
     });
+    // gabarit FIP A3 : définitions de blocs (noms compatibles R12) et insertions avec attributs (modifiables dans AutoCAD : ATTEDIT / EATTEDIT)
+    const NOMS = { F: "FIP-FORMAT-A3", C: "CARTOUCHE-FIP", R: "REVISION-FIP" }, BL = [];
+    const txtDxf = (o, L, x, y, h, ha, va, t, att, def) => { const al = ha || va ? `\n11\n${nb(x)}\n21\n${nb(y)}\n31\n0` : "";
+      if (o === "TEXT") return `0\nTEXT\n8\n${L}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}\n7\nISO\n72\n${ha}${al}\n73\n${va}`;
+      return `0\n${o}\n8\n${L}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}` + (o === "ATTDEF" ? `\n3\n${att}` : "") + `\n2\n${att}\n70\n0\n7\nISO\n72\n${ha}${al}\n74\n${va}`; };
+    if (inserts.length && typeof GABARIT_A3 !== "undefined") {
+      const G = GABARIT_A3, logo = [];
+      G.C.logo.forEach((g) => g.tri.forEach((t) => { logo.push(`0\nSOLID\n8\n0\n62\n${g.aci}\n10\n${t[0]}\n20\n${t[1]}\n30\n0\n11\n${t[2]}\n21\n${t[3]}\n31\n0\n12\n${t[4]}\n22\n${t[5]}\n32\n0\n13\n${t[4]}\n23\n${t[5]}\n33\n0`); }));
+      BL.push(`0\nBLOCK\n8\n0\n2\nLOGOS-FIP\n70\n0\n10\n0\n20\n0\n30\n0\n3\nLOGOS-FIP\n${logo.join("\n")}\n0\nENDBLK\n8\n0`);
+      for (const k of ["F", "C", "R"]) {
+        const B = G[k], e = [];
+        B.l.forEach((l) => e.push(`0\nLINE\n8\n0\n10\n${l[0]}\n20\n${l[1]}\n30\n0\n11\n${l[2]}\n21\n${l[3]}\n31\n0`));
+        B.c.forEach((c) => e.push(`0\nCIRCLE\n8\n0\n10\n${c[0]}\n20\n${c[1]}\n30\n0\n40\n${c[2]}`));
+        B.r.forEach((r) => e.push(`0\nSOLID\n8\n0\n10\n${r[0]}\n20\n${r[1]}\n30\n0\n11\n${r[0] + r[2]}\n21\n${r[1]}\n31\n0\n12\n${r[0]}\n22\n${r[1] + r[3]}\n32\n0\n13\n${r[0] + r[2]}\n23\n${r[1] + r[3]}\n33\n0`));
+        B.t.forEach((t) => e.push(txtDxf("TEXT", "0", t[0], t[1], t[2], t[3], t[4], t[5])));
+        B.m.forEach((m) => { const n = m[3].length; m[3].forEach((l, i) => e.push(txtDxf("TEXT", "0", m[0], m[1] - (i - (n - 1) / 2) * m[2] * 2, m[2], 1, 2, l))); });
+        B.a.forEach((a) => e.push(txtDxf("ATTDEF", "0", a[2], a[3], a[4], a[5], a[6], a[1], a[0])));
+        if (B.logo) e.push(`0\nINSERT\n8\n0\n2\nLOGOS-FIP\n10\n0\n20\n0\n30\n0`);
+        BL.push(`0\nBLOCK\n8\n0\n2\n${NOMS[k]}\n70\n${B.a.length ? 2 : 0}\n10\n0\n20\n0\n30\n0\n3\n${NOMS[k]}\n${e.join("\n")}\n0\nENDBLK\n8\n0`);
+      }
+      inserts.forEach(({ x, V }) => { for (const k of ["F", "C", "R"]) { const B = G[k], X = x + B.o[0], Y = B.o[1];
+        E.push(`0\nINSERT\n8\nCARTOUCHE\n${B.a.length ? "66\n1\n" : ""}2\n${NOMS[k]}\n10\n${nb(X)}\n20\n${nb(Y)}\n30\n0`);
+        if (B.a.length) { B.a.forEach((a) => E.push(txtDxf("ATTRIB", "CARTOUCHE", X + a[2], Y + a[3], a[4], a[5], a[6], V[a[0]] ?? a[1], a[0]))); E.push(`0\nSEQEND\n8\nCARTOUCHE`); } } });
+    }
     const lt = (n, d, p) => `0\nLTYPE\n2\n${n}\n70\n0\n3\n${d}\n72\n65\n73\n${p.length}\n40\n${p.reduce((a, b) => a + Math.abs(b), 0)}` + p.map((v) => `\n49\n${v}`).join("");
     const H = `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1009\n9\n$INSBASE\n10\n0\n20\n0\n30\n0\n9\n$EXTMIN\n10\n0\n20\n0\n30\n0\n9\n$EXTMAX\n10\n${ox}\n20\n300\n30\n0\n9\n$LTSCALE\n40\n1\n9\n$DWGCODEPAGE\n3\nANSI_1252\n0\nENDSEC`;
     const T = `0\nSECTION\n2\nTABLES\n0\nTABLE\n2\nLTYPE\n70\n4\n${lt("CONTINUOUS", "Solid line", [])}\n${lt("CENTER", "Axe ISO ____ . ____", [8, -1.5, 0.5, -1.5])}\n${lt("DASHED", "Cache ISO __ __", [3, -1.5])}\n${lt("PHANTOM", "Pieces voisines ____ . . ____", [10, -1.5, 0.5, -1.5, 0.5, -1.5])}\n0\nENDTAB\n` +
       `0\nTABLE\n2\nLAYER\n70\n${Object.keys(CALQUES).length}\n` + Object.entries(CALQUES).map(([n, [c, l]]) => `0\nLAYER\n2\n${n}\n70\n0\n62\n${c}\n6\n${l}`).join("\n") + `\n0\nENDTAB\n` +
       `0\nTABLE\n2\nSTYLE\n70\n1\n0\nSTYLE\n2\nISO\n70\n0\n40\n0\n41\n0.85\n50\n0\n71\n0\n42\n2.5\n3\narial.ttf\n4\n\n0\nENDTAB\n0\nENDSEC`;
-    return enOctets(`${H}\n${T}\n0\nSECTION\n2\nENTITIES\n${E.join("\n")}\n0\nENDSEC\n0\nEOF\n`);
+    const BS = BL.length ? `0\nSECTION\n2\nBLOCKS\n${BL.join("\n")}\n0\nENDSEC\n` : "";
+    return enOctets(`${H}\n${T}\n${BS}0\nSECTION\n2\nENTITIES\n${E.join("\n")}\n0\nENDSEC\n0\nEOF\n`);
   }
   return { prisme, boite, cylindre, cercle, planche, dxf, VUES, FORMATS };
 })();

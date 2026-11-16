@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.54"></script>
+<script src="../commun/auth.js?v=2.55"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — RC Rapport de calcul</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.54">
-<script src="../commun/apps.js?v=2.54"></script>
-<script src="../commun/cahier.js?v=2.54"></script>
-<script src="../commun/acier.js?v=2.54"></script>
-<script src="../climat/data/zonage.js?v=2.54"></script>
-<script src="../commun/data/tuyauterie.js?v=2.54"></script>
-<script src="../commun/charges.js?v=2.54"></script>
-<script src="../commun/notes.js?v=2.54"></script>
-<script src="../commun/ident.js?v=2.54"></script>
-<script src="../commun/pictos-s1.js?v=2.54"></script>
-<script src="../commun/projet.js?v=2.54"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.55">
+<script src="../commun/apps.js?v=2.55"></script>
+<script src="../commun/cahier.js?v=2.55"></script>
+<script src="../commun/acier.js?v=2.55"></script>
+<script src="../climat/data/zonage.js?v=2.55"></script>
+<script src="../commun/data/tuyauterie.js?v=2.55"></script>
+<script src="../commun/charges.js?v=2.55"></script>
+<script src="../commun/notes.js?v=2.55"></script>
+<script src="../commun/ident.js?v=2.55"></script>
+<script src="../commun/pictos-s1.js?v=2.55"></script>
+<script src="../commun/projet.js?v=2.55"></script>
 <style>
   main{grid-template-columns:minmax(300px,380px) 1fr}
   .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}.src .ok{color:#1d7a36;font-weight:700}.src .ko{color:#b26a00;font-weight:700}
@@ -52,7 +52,7 @@
     <label>Modèle</label><select id="niv"><option value="simple">Simplifié (synthèses et taux)</option><option value="complet" selected>Complet (détail des vérifications)</option><option value="perso">Au choix (sections ci-dessous)</option></select>
     <div id="secs" style="margin-top:6px"></div>
     <div class="actions"><button type="button" id="voir">👁 Mettre à jour l'aperçu</button></div>
-    <div class="note">Sorties : boutons « Word » et « Imprimer / PDF » en haut de page (trame Word générique en attendant la trame FIP).</div></div>
+    <div class="note">Sorties : boutons « Word » (trame FIP : page de garde avec logos FIP et client, tableau des révisions, sommaire, en-tête et pied de page) et « Imprimer / PDF » en haut de page. Plan aligné sur la trame FIP des notes de calcul (§1 Introduction à §15 Annexes).</div></div>
   <div class="card" id="cSup"><h2>Notes détaillées des supports</h2>
     <div class="row"><div><label>Note par support</label><select id="sNiv"><option value="simple">Simplifiée (1 page par support)</option><option value="complet">Complète</option></select></div>
       <div><label>Configurations</label><select id="sConf"><option value="pire">La plus sollicitée de chaque type</option><option value="toutes">Toutes les configurations</option></select></div></div>
@@ -67,7 +67,7 @@
 <script>
 const $=id=>document.getElementById(id), f=fmtN, h=escH;
 const CLE='fip.rc';
-const SECS=[['docs','Documents de référence'],['unites','Unités et conventions'],['hyp','Hypothèses (synthèse de la note d\'hypothèses)'],['a1','Ossature – toiture isolée (A1)'],['a1ddc','Descente de charges de l\'ossature'],['sup','Supportage (cahier) – synthèse'],['supdet','Supportage – notes de calcul détaillées par support'],['as','Assemblages (AS1)'],['concl','Synthèse et conclusion']];
+const SECS=[['regl','Règlements, matériaux, logiciels (§3, 6, 7)'],['docs','Documents de référence (§4)'],['unites','Unités (§5)'],['hyp','Hypothèses de charge (§8)'],['crit','Critères de vérification (§9)'],['mod','Modèles, chargements, combinaisons (§10 à 12)'],['a1','Ossature A1 – résultats (§13)'],['sup','Supportage – synthèse des types (§10)'],['supdet','Supportage – notes détaillées par support (§13)'],['as','Assemblages AS1 (§13)'],['a1ddc','Descentes de charges de l\'ossature (§13)'],['concl','Conclusion et annexes (§14, 15)']];
 let etat={niv:'complet',secs:Object.fromEntries(SECS.map(([k])=>[k,true])),objet:''}; try{ etat={...etat,...(JSON.parse(localStorage.getItem(CLE))||{})}; }catch(e){}
 const enr=()=>{ try{ localStorage.setItem(CLE,JSON.stringify(etat)); }catch(e){} };
 IDENT.init({cible:'cIdent',cle:'RC',repere:'Ouvrage',change:()=>rendre()});
@@ -83,40 +83,66 @@ function sources(){ const A1=lire('fip.a1.res'), K=CAHIER.existe()?CAHIER.lire()
   $('src').innerHTML=L.map(([c,n,u,o])=>`<span class="${o?'ok':'ko'}">${o?'✔':'○'}</span><a href="${u}">${c} – ${n}</a><span class="note">${o?(typeof o==='number'?dt(o):o):'—'}</span>`).join('');
   $('lAs').innerHTML=AS.length?`<table class="ed" style="font-size:12px"><tr><th>Repère</th><th>Barre</th><th class="n">Taux</th><th></th></tr>${AS.map((a,i)=>`<tr><td>${h(a.repere)}</td><td>${h(a.prof)}${a.nb>1?' ×2':''}</td><td class="n">${f(a.taux*100,0)} %</td><td><button type="button" class="sec" data-x="${i}" style="padding:2px 8px">✕</button></td></tr>`).join('')}</table>`:'<div class="note">Aucune attache : dans AS1, « 📥 Ajouter au rapport de calcul ».</div>'; }
 $('lAs').addEventListener('click',e=>{ const b=e.target.closest('[data-x]'); if(!b) return; const L=lire('fip.rc.as1')||[]; L.splice(+b.dataset.x,1); localStorage.setItem('fip.rc.as1',JSON.stringify(L)); rendre(); });
+/* titres des instantanés (A1, AS1, notes de supports) rétrogradés : h1 → h4 (notes), h2-h4 → h5, hors sommaire Word */
+const bas=(t,notes)=>String(t||'').replace(/<(\/?)h([1-4])\b/g,(m,sl,k)=>`<${sl}h${notes&&k==='1'?4:5}`);
 function rendre(){ sources();
   const niv=$('niv').value, S=k=>niv!=='perso'||etat.secs[k]!==false, cpl=niv==='complet'||niv==='perso', I=IDENT.lire(), A1=lire('fip.a1.res'), K=CAHIER.existe()?CAHIER.lire():null, AS=lire('fip.rc.as1')||[], C=CH.lire('C'), G=CH.lire('G'), Q=CH.lire('Q');
-  let n=0; const T2=t=>`<h2>${++n}. ${t}</h2>`, synth=[];
-  let x=`<h1>Rapport de calcul${niv==='simple'?' (simplifié)':''}</h1><table>`+[['Affaire',[I.num,I.intitule].filter(Boolean).join(' – ')||'—','Client',I.client||'—'],['Site',I.site||'—','Phase',I.phase||'—'],['Ouvrage / repère',I.repere||'—','N° de note / indice',[I.doc,I.indice&&'ind. '+I.indice].filter(Boolean).join(' ')||'—'],['Réalisé',I.realise||'—','Contrôlé / approuvé',[I.controle,I.approuve].filter(Boolean).join(' / ')||'—']].map(r=>`<tr><th style="width:16%">${r[0]}</th><td>${h(r[1])}</td><th style="width:16%">${r[2]}</th><td>${h(r[3])}</td></tr>`).join('')+'</table>';
+  let n=0, m=0; const T2=t=>{ m=0; return `<h2>${++n}. ${t}</h2>`; }, T3=t=>`<h3>${n}.${++m} ${t}</h3>`, synth=[];
+  let x=`<h1>Rapport de calcul${niv==='simple'?' (simplifié)':''}</h1><table class="hors-trame">`+[['Affaire',[I.num,I.intitule].filter(Boolean).join(' – ')||'—','Client',I.client||'—'],['Site',I.site||'—','Phase',I.phase||'—'],['Ouvrage / repère',I.repere||'—','N° de note / indice',[I.doc,I.indice&&'ind. '+I.indice].filter(Boolean).join(' ')||'—'],['Réalisé',I.realise||'—','Contrôlé / approuvé',[I.controle,I.approuve].filter(Boolean).join(' / ')||'—']].map(r=>`<tr><th style="width:16%">${r[0]}</th><td>${h(r[1])}</td><th style="width:16%">${r[2]}</th><td>${h(r[3])}</td></tr>`).join('')+'</table>';
   x+=`<div class="pied">Prédimensionnement (phase ${h(I.phase||'APS/APD')}) – résultats et descentes de charges non valables pour exécution.</div>`;
-  x+=T2('Objet')+`<p>${h($('objet').value).replace(/\n/g,'<br>')}</p>`;
+  const r=C&&C.res, RA=(A1&&A1.resume)||{}, H=A1&&A1.html&&Object.fromEntries(Object.entries(A1.html).map(([k,v])=>[k,bas(v)])), sadef=/SADEF|ZED|SIGMA|Σ/i.test(RA.panne||''), vide='<p><i>Sans objet.</i></p>';
+  const catQ=Q?(Q.zones||[]).concat(Q.gardecorps||[]).map(z=>z.cat):[];
+  /* plan aligné sur la trame FIP des notes de calcul (1 Introduction … 15 Annexes) */
+  x+=T2('Introduction')+`<p>${h($('objet').value).replace(/\n/g,'<br>')||'<i>Objet à décrire (carte « Contenu du rapport »).</i>'}</p>`;
+  x+=T2('Objectif du document')+`<p>La présente note de calcul a pour but de justifier le prédimensionnement ${[A1?'de l\'ossature (toiture isolée)':'',K&&K.types.length?'des supports de tuyauterie':'',AS.length?'des assemblages':''].filter(Boolean).join(', ').replace(/, ([^,]*)$/,' et $1')||'des ouvrages'} de l'affaire citée au §1${I.phase?`, en phase ${h(I.phase)}`:''}.</p>`;
+  if(S('regl')){ x+=T2('Règlements utilisés')+'<ul>'+[['NF EN 1990 et NF EN 1990/NA','Bases de calcul des structures',1],['NF EN 1991-1-1 et NF P 06-111-2 (AN)','Poids volumiques, poids propres, charges d\'exploitation',G||Q||A1],['NF EN 1991-1-3 et NF EN 1991-1-3/NA','Charges de neige',(r&&r.neige)||A1],['NF EN 1991-1-4 et NF EN 1991-1-4/NA','Actions du vent',(r&&r.vent)||A1],['NF EN 1998-1 et NF EN 1998-1/NA','Calcul des structures pour leur résistance aux séismes',(r&&r.seisme)||(RA&&RA.seis)],['NF EN 1993-1-1 et NF EN 1993-1-1/NA','Calcul des structures en acier – règles générales',1],['NF EN 1993-1-3 et NF EN 1993-1-3/NA','Profilés et plaques formés à froid',sadef],['NF EN 1993-1-8 et NF EN 1993-1-8/NA','Calcul des assemblages',AS.length||(K&&K.types.length)],['NF E 85-015','Moyens d\'accès permanents industriels : escaliers, échelles, garde-corps',catQ.some(c=>/^(E85|ESC-I)/.test(c))],['NF EN ISO 14122-2 et -3','Moyens d\'accès permanents aux machines',catQ.some(c=>c==='PASS'||c==='ISO')]].filter(z=>z[2]).map(([n,t])=>`<li><b>${n}</b> – ${t}</li>`).join('')+'</ul>'; }
   if(S('docs')) x+=T2('Documents de référence')+NOTES.docs('<p><i>Aucun document de référence (à saisir dans la note d\'hypothèses).</i></p>');
-  if(S('unites')&&cpl) x+=T2('Unités et conventions')+NOTES.unites('nh');
-  if(S('hyp')){ x+=T2('Hypothèses');
-    const r=C&&C.res; x+=`<p>Hypothèses détaillées dans la note d'hypothèses de l'affaire (outil NH). Synthèse :</p><ul>`+
+  if(S('unites')&&cpl) x+=T2('Unités')+NOTES.unites('nh');
+  if(S('regl')&&cpl){ x+=T2('Caractéristiques des matériaux')+`<p>Acier (NF EN 1993-1-1 §3.2.6) : E = 210 000 N/mm² ; G ≈ 81 000 N/mm² ; ν = 0,3 ; α = 12×10<sup>-6</sup> K<sup>-1</sup> ; ρ = 7 850 kg/m³.</p>
+      <table><tr><th>Nuance</th><th class="n">f<sub>y</sub> (N/mm²) t ≤ 40 mm</th><th class="n">f<sub>u</sub> (N/mm²)</th><th>Référence</th></tr><tr><td>S235</td><td class="n">235</td><td class="n">360</td><td class="pied">NF EN 1993-1-1 Tab. 3.1 (NF EN 10025-2)</td></tr><tr><td>S275</td><td class="n">275</td><td class="n">430</td><td class="pied">NF EN 1993-1-1 Tab. 3.1</td></tr><tr><td>S355</td><td class="n">355</td><td class="n">490</td><td class="pied">NF EN 1993-1-1 Tab. 3.1</td></tr>${sadef?'<tr><td>S390GD (profilés à froid)</td><td class="n">390</td><td class="n">460</td><td class="pied">NF EN 1993-1-3 Tab. 3.1b (NF EN 10346)</td></tr>':''}</table>
+      <p class="pied">Coefficients partiels (NF EN 1993-1-1/NA, NF EN 1993-1-8/NA) : γ<sub>M0</sub> = 1,00 ; γ<sub>M1</sub> = 1,00 ; γ<sub>M2</sub> = 1,25.</p>`;
+    x+=T2('Logiciels utilisés')+`<ul><li>FIP Études ${typeof CALC_VERSION!=='undefined'?CALC_VERSION:''} (outils internes FIP, qualification : manuel technique) : ${[A1?'A1 toiture isolée':'',K&&K.types.length?'S1 / cahier de supportage':'',AS.length?'AS1 assemblages':'',(C||G||Q)?'C1, G1, Q1 hypothèses':''].filter(Boolean).join(', ')||'—'}.</li></ul>`; }
+  if(S('hyp')){ x+=T2('Hypothèses de charge');
+    if(cpl){ x+=T3('Chargement permanent')+(G?CH.noteG(G,'simple'):vide);
+      x+=T3('Chargement d\'exploitation')+(Q?CH.noteQ(Q,'simple'):vide);
+      x+=T3('Chargement climatique')+(r&&(r.vent||r.neige)?'<ul>'+(r.neige?`<li>Neige (NF EN 1991-1-3 + AN) : région ${h(r.neige.zone)}, s<sub>k</sub> = ${f(r.neige.sk,2)} kN/m²${r.neige.sAd?`, s<sub>Ad</sub> = ${f(r.neige.sAd,2)} kN/m²`:''}.</li>`:'')+(r.vent?`<li>Vent (NF EN 1991-1-4 + AN) : zone ${h(r.vent.zone)}, q<sub>p</sub> = ${f(r.vent.qp,3)} kN/m² (z<sub>e</sub> = ${f(r.vent.ze,1)} m).</li>`:'')+'</ul>':vide);
+      x+=T3('Chargement sismique')+(r&&r.seisme?`<p>NF EN 1998-1 + AN : zone ${r.seisme.zone}, a<sub>g</sub> = ${f(r.seisme.ag,2)} m/s², sol ${h(r.seisme.sol)}.</p>`:vide);
+      x+='<p class="pied">Hypothèses détaillées dans la note d\'hypothèses de l\'affaire (outil NH).</p>'; }
+    else { const r=C&&C.res; x+=`<p>Hypothèses détaillées dans la note d'hypothèses de l'affaire (outil NH). Synthèse :</p><ul>`+
       (r&&r.vent?`<li>Vent (NF EN 1991-1-4 + AN) : zone ${h(r.vent.zone)}, q<sub>p</sub> = ${f(r.vent.qp,3)} kN/m² (z<sub>e</sub> = ${f(r.vent.ze,1)} m).</li>`:'')+
       (r&&r.neige?`<li>Neige (NF EN 1991-1-3 + AN) : région ${h(r.neige.zone)}, s<sub>k</sub> = ${f(r.neige.sk,2)} kN/m²${r.neige.sAd?`, s<sub>Ad</sub> = ${f(r.neige.sAd,2)} kN/m²`:''}.</li>`:'')+
-      (r&&r.seisme?`<li>Séisme (NF EN 1998-1 + AN) : zone ${r.seisme.zone}, a<sub>g</sub> = ${f(r.seisme.ag,2)} m/s², sol ${h(r.seisme.sol)}.</li>`:'')+'</ul>'+
-      (cpl?(G?`<h3>Charges permanentes</h3>${CH.noteG(G,'simple')}`:'')+(Q?`<h3>Charges d'exploitation</h3>${CH.noteQ(Q,'simple')}`:''):'')+
-      (!r&&!G&&!Q?'<p><i>Hypothèses non renseignées (C1, G1, Q1).</i></p>':''); }
-  if(S('a1')){ x+=T2('Ossature – toiture isolée (A1)');
-    if(!A1) x+='<p><i>Aucun calcul A1 enregistré dans ce navigateur.</i></p>';
-    else { const R=A1.resume||{}; synth.push(['Ossature A1',A1.gov]);
-      x+=`<p>${R.type==='bi'?'Toiture à deux versants':'Toiture à un versant'}, portée ${f(R.L,2)} m, hauteur ${f(R.H,2)} m, pente ${f(R.p,1)} %, ${R.nP} portiques à ${f(R.e,2)} m ; poteaux ${h(R.col)}, traverses ${h(R.tra)}, pannes ${h(R.panne)}. Calcul du ${dt(A1.t)}.</p>`;
-      if(!cpl||!A1.html) x+=`<table><tr><th>Critère</th><th class="n">Taux</th><th>Combinaison</th></tr>${(A1.lignes||[]).map(l=>`<tr><td>${l.n}</td><td class="n">${barre(l.r)}</td><td class="pied">${h(String(l.comb||'').replace(/<[^>]+>/g,''))}</td></tr>`).join('')}</table>`;
-      else { const H=A1.html; x+=`<h3>Synthèse</h3>${H.syn}<h3>Règles de conception</h3>${H.reg}<h3>Modèle et chargement</h3>${H.mod}<h3>Vue 3D</h3>${H.d3}<h3>Moments ELU et déformée</h3>${H.diag}<h3>Stabilité globale</h3>${H.stab}<h3>Vérifications des barres</h3>${H.ver}<h3>Pannes et lisses</h3>${H.pan}<h3>Contreventement</h3>${H.cv}<h3>Hypothèses et limites</h3>${H.hyp}`; } } }
-  if(S('a1ddc')&&A1&&A1.html) x+=T2('Descente de charges de l\'ossature')+A1.html.ddc;
-  if(S('sup')){ x+=T2('Supportage');
+      (r&&r.seisme?`<li>Séisme (NF EN 1998-1 + AN) : zone ${r.seisme.zone}, a<sub>g</sub> = ${f(r.seisme.ag,2)} m/s², sol ${h(r.seisme.sol)}.</li>`:'')+'</ul>'+(!r&&!G&&!Q?'<p><i>Hypothèses non renseignées (C1, G1, Q1).</i></p>':''); } }
+  if(S('crit')){ x+=T2('Critères de vérification')+`<ul><li>ELU : taux de travail ≤ 100 % – résistance des sections (NF EN 1993-1-1 §6.2), stabilité des barres : flambement, déversement, flexion composée (§6.3.1 à §6.3.3, annexe B).</li>
+      <li>Stabilité d'ensemble : α<sub>cr</sub> (§5.2.1) ; imperfections et effets du second ordre pris en compte si α<sub>cr</sub> &lt; 10 (§5.2.2, §5.3).</li>
+      <li>ELS : déplacements comparés aux limites retenues dans chaque module (NF EN 1993-1-1/NA §7.2 ; cahier des charges).</li>
+      ${AS.length?'<li>Assemblages : NF EN 1993-1-8 §3 (boulons : cisaillement, pression diamétrale) et section nette, cisaillement de bloc (§3.10.2).</li>':''}
+      ${K&&K.types.length?'<li>Supports : taux maxi des barres et flèches selon les critères de l\'outil S1 (manuel technique).</li>':''}</ul>`; }
+  if(S('mod')){ x+=T2('Modèles de calculs');
+    if(A1){ x+=T3('Ossature – toiture isolée (A1)')+`<p>${RA.type==='bi'?'Toiture à deux versants':'Toiture à un versant'}, portée ${f(RA.L,2)} m, hauteur ${f(RA.H,2)} m, pente ${f(RA.p,1)} %, ${RA.nP} portiques à ${f(RA.e,2)} m ; poteaux ${h(RA.col)}, traverses ${h(RA.tra)}, pannes ${h(RA.panne)}. Calcul du ${dt(A1.t)}.</p>`+(cpl&&H?`<h4>Cotes, profilés et chargement</h4>${H.mod}<h4>Vue 3D</h4>${H.d3}<h4>Règles de conception</h4>${H.reg}`:''); }
+    if(S('sup')){ x+=T3('Supportage (cahier)');
     const L=K?K.types:[]; if(!L.length) x+='<p><i>Cahier de supportage vide.</i></p>';
     else { let tot=0; x+=`<table><tr><th>Type</th><th>Désignation</th><th>Profilés</th><th class="n">Qté</th><th class="n">Taux maxi</th><th>Critère</th></tr>${L.map(T=>{ const cs=T.configs.filter(c=>c.resume), r=cs.reduce((a,c)=>(c.resume.taux>(a?a.taux:-1)?c.resume:a),null), q=T.configs.reduce((s,c)=>s+(+c.qte||0),0), ty=(T.etat&&T.etat.type)||T.typeS1; tot+=q; if(r) synth.push(['Support '+T.nom,{r:r.taux,n:r.critere}]);
-        return `<tr><td>${ty?`<span class="picto">${PICTOS_S1[ty]}</span> `:''}<b>${h(T.nom)}</b></td><td>${h(T.designation||(r&&r.typeNom)||(ty?NOMS_S1[ty]:T.kind==='spe'?'Support spécial':''))}</td><td>${h(r?r.profils.join(', '):T.kind==='spe'?(T.plan||''):'—')}</td><td class="n">${q}</td><td class="n">${r?barre(r.taux):'—'}</td><td class="pied">${h(r?r.critere:(T.kind==='spe'?'support spécial':'non calculé'))}</td></tr>`; }).join('')}</table><p class="pied">${tot} supports au total. ${cpl?'Notes de calcul détaillées par support type : section suivante.':''}</p>`; } }
-  if(S('supdet')&&(cpl||$('niv').value==='perso')){ x+=T2('Supportage – notes de calcul par support');
-    x+=NSUP?`<style>${NSUP.css}</style>${NSUP.html}`:'<p><i>Notes non générées : « ⚙ Générer les notes des supports » (générées automatiquement à l\'export Word).</i></p>'; }
-  if(S('as')){ x+=T2('Assemblages');
+        return `<tr><td>${ty?`<span class="picto">${PICTOS_S1[ty]}</span> `:''}<b>${h(T.nom)}</b></td><td>${h(T.designation||(r&&r.typeNom)||(ty?NOMS_S1[ty]:T.kind==='spe'?'Support spécial':''))}</td><td>${h(r?r.profils.join(', '):T.kind==='spe'?(T.plan||''):'—')}</td><td class="n">${q}</td><td class="n">${r?barre(r.taux):'—'}</td><td class="pied">${h(r?r.critere:(T.kind==='spe'?'support spécial':'non calculé'))}</td></tr>`; }).join('')}</table><p class="pied">${tot} supports au total. ${cpl?'Notes de calcul détaillées par support type : §13.':''}</p>`; } }
+    if(!A1&&!(K&&K.types.length)) x+=vide; }
+  if(S('mod')&&cpl){ x+=T2('Chargements')+(A1?'<p>Les cas de charges de l\'ossature (permanentes, exploitation, neige, vent, séisme) sont représentés avec leurs valeurs sur les schémas cotés du §10.</p>':'')+(K&&K.types.length?'<p>Supports : charges des lignes de tuyauterie (poids à vide, en service, épreuve) et efforts horizontaux selon les notes par support.</p>':'')+(!A1&&!(K&&K.types.length)?vide:'');
+    x+=T2('Combinaisons de charges')+`<p>NF EN 1990 et NF EN 1990/NA (approche 2, équation 6.10) :</p><ul><li>ELU fondamental (6.10) : 1,35 G (ou 1,00 G si favorable) + 1,5 Q<sub>k,1</sub> + Σ 1,5 ψ<sub>0,i</sub> Q<sub>k,i</sub> ;</li><li>ELU sismique (6.12b) : G + A<sub>Ed</sub> + Σ ψ<sub>2,i</sub> Q<sub>k,i</sub> ;</li><li>ELS caractéristique (6.14b) : G + Q<sub>k,1</sub> + Σ ψ<sub>0,i</sub> Q<sub>k,i</sub>.</li></ul><p class="pied">Coefficients ψ : NF EN 1990/NA Tab. A1.1(NF). Liste des combinaisons générées : hypothèses et limites de chaque module.</p>`; }
+  x+=T2('Résultats');
+  if(A1&&S('a1')){ synth.push(['Ossature A1',A1.gov]);
+    x+=T3('Résultats globaux – ossature A1');
+    if(!cpl||!H) x+=`<table><tr><th>Critère</th><th class="n">Taux</th><th>Combinaison</th></tr>${(A1.lignes||[]).map(l=>`<tr><td>${l.n}</td><td class="n">${barre(l.r)}</td><td class="pied">${h(String(l.comb||'').replace(/<[^>]+>/g,''))}</td></tr>`).join('')}</table>`;
+    else { x+=`<h4>Synthèse</h4>${H.syn}<h4>Moments ELU et déformée</h4>${H.diag}<h4>Stabilité globale</h4>${H.stab}`;
+      x+=T3('Vérification des barres – ossature A1')+`<h4>Portiques</h4>${H.ver}<h4>Pannes et lisses</h4>${H.pan}<h4>Contreventement</h4>${H.cv}`; } }
+  if(S('supdet')&&(cpl||$('niv').value==='perso')){ x+=T3('Vérification des supports – notes par support');
+    x+=NSUP?`<style>${NSUP.css}</style>${bas(NSUP.html,1)}`:'<p><i>Notes non générées : « ⚙ Générer les notes des supports » (générées automatiquement à l\'export Word).</i></p>'; }
+  if(S('as')){ x+=T3('Vérification des assemblages');
     if(!AS.length) x+='<p><i>Aucune attache enregistrée (AS1).</i></p>';
     else { x+=`<table><tr><th>Repère</th><th>Barre</th><th>Boulons</th><th class="n">N<sub>Ed</sub> (kN)</th><th class="n">N<sub>Rd</sub> (kN)</th><th class="n">Taux</th><th>Critère</th></tr>${AS.map(a=>{ synth.push([/^attache/i.test(a.repere)?a.repere:'Attache '+a.repere,{r:a.taux,n:a.critere}]); return `<tr><td><b>${h(a.repere)}</b></td><td>${h(a.prof)}${a.nb>1?' ×2':''}</td><td>${h(a.boulons)}</td><td class="n">${f(a.NEd,1)}</td><td class="n">${f(a.NRd,1)}</td><td class="n">${barre(a.taux)}</td><td class="pied">${h(String(a.critere).replace(/<[^>]+>/g,''))}</td></tr>`; }).join('')}</table>`;
-      if(cpl) AS.forEach(a=>{ x+=`<h3>Attache ${h(a.repere)}</h3>${a.html.sch}${a.html.ver}${a.html.reg}`; }); } }
-  if(S('concl')){ x+=T2('Synthèse et conclusion'); const max=synth.reduce((m,s)=>Math.max(m,s[1].r||0),0);
+      if(cpl) AS.forEach(a=>{ x+=`<h4>Attache ${h(a.repere)}</h4>${bas(a.html.sch)}${bas(a.html.ver)}${bas(a.html.reg)}`; }); } }
+  if(S('a1ddc')&&A1&&H) x+=T3('Descentes de charges')+H.ddc;
+  if(!A1&&!(K&&K.types.length)&&!AS.length) x+=vide;
+  if(S('concl')){ x+=T2('Conclusion'); const max=synth.reduce((m,s)=>Math.max(m,s[1].r||0),0);
     x+=synth.length?`<table><tr><th>Élément</th><th class="n">Taux maxi</th><th>Critère dimensionnant</th></tr>${synth.map(([e,g])=>`<tr><td>${h(e)}</td><td class="n">${barre(g.r||0)}</td><td class="pied">${h(String(g.n||'').replace(/<[^>]+>/g,''))}</td></tr>`).join('')}</table><p><b style="color:${max<=1?'#1d7a36':'#c0141c'}">${max<=1?'✔ Tous les éléments récapitulés sont vérifiés':'✘ Certains éléments ne sont pas vérifiés'} (taux maxi ${f(max*100,0)} %).</b> Résultats de prédimensionnement à confirmer en phase d'exécution.</p>`:'<p><i>Aucun résultat à récapituler.</i></p>'; }
+  if(cpl&&A1&&H&&S('a1')) x+=T2('Annexes')+T3('Hypothèses et limites du modèle A1')+H.hyp;
   x+=`<p class="pied">Rapport généré par FIP Études (${typeof CALC_VERSION!=='undefined'?CALC_VERSION:''}) le ${new Date().toLocaleString('fr-FR')} – à valider par l'ingénieur responsable de l'affaire.</p>`;
   $('rc').innerHTML=x; }
 /* ---------- notes détaillées des supports : moteur S1 (iframe même origine), comme le cahier ---------- */
@@ -142,17 +168,18 @@ async function imprimerRC(){ await avantExport(); const w=window.open('','_blank
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Rapport de calcul</title><link rel="stylesheet" href="../commun/calc.css"><style>${document.querySelector('style').textContent}@page{size:A4;margin:12mm}body{background:#fff}</style></head><body><div class="rc">${$('rc').innerHTML}</div></body></html>`); w.document.close(); setTimeout(()=>w.print(),600); }
 rendre(); PROJET.barre('projet');
 </script>
-<script src="../commun/replier.js?v=2.54"></script>
-<script src="../commun/export.js?v=2.54"></script>
+<script src="../commun/replier.js?v=2.55"></script>
+<script src="../commun/export.js?v=2.55"></script>
 <script>EXPORT.init({code:'RC',titre:'Rapport de calcul',excel:false,avant:()=>avantExport(),zones:()=>[document.getElementById('rc')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.num||'ouvrage'; }});</script>
-<script src="../commun/aide.js?v=2.54"></script>
+<script src="../commun/aide.js?v=2.55"></script>
 <script>AIDE.init({titre:"Aide – RC Rapport de calcul",manuel:"rc",intro:"RC assemble le rapport de calcul de l'ouvrage à partir des résultats enregistrés par les modules : hypothèses (C1, G1, Q1, NH), ossature (A1, futur bâtiment fermé), supportage (cahier, S1) et assemblages (AS1). Modèle simplifié, complet ou au choix ; sortie Word ou PDF.",
-  etapes:[{t:"Identification",html:"Champs de la trame repris dans le cartouche du rapport.",cible:"#cIdent"},
+  etapes:[{t:"Identification",html:"Champs de la trame FIP : client, site, projet, phase, N° de document, révision et motif, auteur / vérifié / approuvé, logo du client (page de garde Word) ; « 📌 Archiver l'indice » alimente le tableau des révisions.",cible:"#cIdent"},
     {t:"Sources",html:"État des résultats disponibles dans ce navigateur et liens vers les modules pour les compléter : A1 enregistre à chaque calcul, AS1 par « Ajouter au rapport de calcul ».",cible:"#cSrc"},
     {t:"Contenu",html:"Objet, modèle (simplifié : synthèses et taux ; complet : détail des vérifications ; au choix : sections cochées).",cible:"#cOpt"},
     {t:"Notes des supports",html:"Options des notes détaillées des supports (modèle, configurations, DDC, formules) et génération.",cible:"#cSup"},
     {t:"Assemblages",html:"Liste des attaches enregistrées depuis AS1 ; ✕ pour en retirer une.",cible:"#cAs"}],
   faq:[{q:"Projeteur et calculateur sur deux postes ?",r:"« ⬇ Exporter le projet » enregistre toutes les données d'affaire du navigateur (cahier, hypothèses, A1, AS1, rapport, identifications) dans un fichier .json ; l'autre poste l'importe (« ⬆ Importer un projet »), fait sa part, puis réexporte. L'import remplace le projet en cours du navigateur. Fichier à conserver sur le réseau FIP / SharePoint."},
+    {q:"Le plan du rapport ?",r:"Celui de la trame FIP des notes de calcul : 1 Introduction, 2 Objectif, 3 Règlements utilisés (déduits des modules employés), 4 Documents de référence, 5 Unités, 6 Caractéristiques des matériaux, 7 Logiciels, 8 Hypothèses de charge (8.1 à 8.4), 9 Critères de vérification, 10 Modèles de calculs, 11 Chargements, 12 Combinaisons, 13 Résultats (globaux, barres, supports, assemblages, descentes de charges), 14 Conclusion, 15 Annexes. Le modèle simplifié omet 5, 6, 7, 11 et 12. Le sommaire Word se met à jour à l'ouverture (accepter la mise à jour des champs)."},
     {q:"Pourquoi séparer rapport de calcul et cahier de supportage ?",r:"Le cahier gère les supports, le repérage, les quantités et les plans ; le rapport récapitule les calculs de l'ouvrage (ossature, supportage, assemblages) dans un document unique, avec la même identification."},
     {q:"Les notes détaillées des supports ?",r:"Section « Supportage – notes de calcul détaillées » : une note par support type (configuration la plus sollicitée) ou par configuration, simplifiée ou complète, calculée par le moteur S1 à partir du cahier de supportage ; bouton « ⚙ Générer » ou génération automatique à l'export. Le cahier conserve la gestion des supports, les quantités, les plans et le DXF."}]});</script>
 </body>

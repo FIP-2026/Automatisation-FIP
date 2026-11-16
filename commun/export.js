@@ -60,10 +60,13 @@ const EXPORT = (() => {
   /* =====================================================================
      WORD
      ===================================================================== */
+  /* révisions de la page de garde : IDENT.revisions si chargé, sinon indice en cours seul */
+  const IDENT_REVS = (a) => (typeof IDENT !== "undefined" && IDENT.revisions ? IDENT.revisions(a) : (a.revs || []).concat([{ rev: a.indice ?? "0", desc: a.motif || "Création du document", par: a.realise || "", verif: a.controle || "", appr: a.approuve || "", date: a.date ? new Date(a.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "" }]));
   async function word(o = {}) {                                // o : { zones, titre, fichier } pour exporter un document précis (ex. note de calcul)
     const D = window.docx;
-    const { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ImageRun, ShadingType, AlignmentType, Header, Footer, PageNumber, BorderStyle } = D;
+    const { Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ImageRun, ShadingType, AlignmentType, Header, Footer, PageNumber, BorderStyle, HeadingLevel, VerticalAlign, HeightRule } = D;
     const ENCRE = "171A1E";
+    let TRAME = false, nbTitres = 0;   // trame FIP (page de garde, révisions, en-tête et pied de page, sommaire) dès qu'une identification existe
     const runs = (node, fmt = {}) => {
       if (node.nodeType === 3) {
         const t = node.nodeValue.replace(/\s+/g, " "); if (!t.trim() && !fmt.garderEspace) return t ? [new TextRun({ text: " ", ...fmt })] : [];
@@ -80,13 +83,14 @@ const EXPORT = (() => {
       if (node.classList.contains("badge")) return [new TextRun({ text: " [" + net(texte(node)) + "] ", bold: true, color: f.color, size: 16 })];
       return [...node.childNodes].flatMap((n) => runs(n, f));
     };
-    const BLOC = /^(DIV|SECTION|P|UL|OL|LI|TABLE|H1|H2|H3|H4|DETAILS|SUMMARY|FORM|MAIN|HEADER|FOOTER|LABEL|IMG)$/;
+    const BLOC = /^(DIV|SECTION|P|UL|OL|LI|TABLE|H1|H2|H3|H4|H5|DETAILS|SUMMARY|FORM|MAIN|HEADER|FOOTER|LABEL|IMG)$/;
     const estBloc = (n) => n.nodeType === 1 && (BLOC.test(n.tagName) || n.tagName.toLowerCase() === "svg");
     async function blocs(el, opt = {}) {
       const out = []; let enCours = [];
       const vider = () => { if (enCours.some((r) => r)) out.push(new Paragraph({ children: enCours, spacing: { after: 60 }, ...(opt.para || {}) })); enCours = []; };
       for (const n of el.childNodes) {
         if (n.nodeType === 1 && ignorer(n)) continue;
+        if (TRAME && n.nodeType === 1 && n.classList.contains("hors-trame")) continue;   // déjà porté par la page de garde
         if (n.nodeType === 1 && n.classList.contains("saut")) { vider(); out.push(new Paragraph({ pageBreakBefore: true, children: [] })); continue; }   // saut de page (notes successives)
         if (!estBloc(n)) { enCours.push(...runs(n, opt.fmt || {})); continue; }
         vider();
@@ -99,6 +103,12 @@ const EXPORT = (() => {
             out.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [new ImageRun({ type: "png", data: u8, transformation: { width: w, height: h } })] })); }
         }
         else if (tag === "TABLE") { out.push(await tableau(n)); out.push(new Paragraph({ text: "", spacing: { after: 60 } })); }
+        else if (tag === "H5") out.push(new Paragraph({ spacing: { before: 120, after: 60 }, keepNext: true, children: runs(n, { bold: true, color: "114088", size: 20 }) }));
+        else if (TRAME && /^H[1-4]$/.test(tag)) {                 // trame FIP : titres Word (sommaire) ; H1 = titre du document, porté par la page de garde
+          if (tag === "H1") continue;
+          const lv = { H2: HeadingLevel.HEADING_1, H3: HeadingLevel.HEADING_2, H4: HeadingLevel.HEADING_3 }[tag]; nbTitres++;
+          out.push(new Paragraph({ heading: lv, keepNext: true, border: tag === "H2" ? { left: { style: BorderStyle.SINGLE, size: 18, color: "E30009", space: 6 } } : undefined, children: runs(n, { bold: true, color: "114088", size: tag === "H2" ? 26 : tag === "H3" ? 22 : 20 }) }));
+        }
         else if (/^H[1-4]$/.test(tag) || tag === "SUMMARY") {
           const niv = tag === "H1" || tag === "H2" ? 26 : 22;
           out.push(new Paragraph({ spacing: { before: 200, after: 80 }, keepNext: true, border: tag === "H2" ? { left: { style: BorderStyle.SINGLE, size: 18, color: "E30009", space: 6 } } : undefined, children: runs(n, { bold: true, color: "114088", size: niv }) }));
@@ -138,10 +148,11 @@ const EXPORT = (() => {
     const enfants = [];
     let logo = null; try { logo = new Uint8Array(await (await fetch(BASE + "img/logo-fip.png")).arrayBuffer()); } catch (e) { }
     const titre = o.titre || cfg.titre;
-    if (!o.zones) enfants.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }));
+    const titreP = () => new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }), posTitre = enfants.length;
     // cartouche d'affaire (cahier de supportage) — provisoire, en attendant la trame Word FIP
     let aff = cfg.affaire ? cfg.affaire() : null; if (!aff && !o.zones) try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }   // cfg.affaire : identification saisie dans le module (IDENT)
     let logoClient = null, dimLogo = { width: 64, height: 32 };
+    TRAME = !!aff && cfg.trame !== false && o.trame !== false;
     if (aff) {
       if (aff.logo) await new Promise((ok) => { const im = new Image(); im.onload = () => { dimLogo = { width: Math.min(140, Math.round(32 * im.naturalWidth / im.naturalHeight)), height: 32 }; ok(); }; im.onerror = ok; im.src = aff.logo; });
       if (/^data:image\/png;base64,/.test(aff.logo || "")) { try { logoClient = Uint8Array.from(atob(aff.logo.split(",")[1]), (c) => c.charCodeAt(0)); } catch (e) { } }
@@ -149,10 +160,11 @@ const EXPORT = (() => {
       const L = [["Affaire", lib, "Client", aff.client], ["Site", aff.site, "Phase", aff.phase], ["N° de document", aff.doc, "Indice / date", [aff.indice, dt].filter(Boolean).join(" du ")],
         ["Réalisé", aff.realise, "Contrôlé", aff.controle], ["Approuvé", aff.approuve, "Outil", cfg.code + " – FIP Études"]].concat(aff.repere ? [["Repère", aff.repere, "", ""]] : []);
       const cel = (t, gras, w) => new TableCell({ width: { size: w, type: WidthType.PERCENTAGE }, shading: gras ? undefined : { type: ShadingType.CLEAR, fill: "EEF2F7", color: "auto" }, children: [new Paragraph({ children: [new TextRun({ text: String(t || "—"), size: 17, bold: !!gras, color: gras ? ENCRE : "5F6670" })] })] });
-      enfants.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: L.map((r) => new TableRow({ cantSplit: true, children: [cel(r[0], 0, 16), cel(r[1], 1, 34), cel(r[2], 0, 16), cel(r[3], 1, 34)] })) }));
-      enfants.push(new Paragraph({ text: "", spacing: { after: 120 } }));
+      if (!TRAME) { enfants.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: L.map((r) => new TableRow({ cantSplit: true, children: [cel(r[0], 0, 16), cel(r[1], 1, 34), cel(r[2], 0, 16), cel(r[3], 1, 34)] })) }));
+        enfants.push(new Paragraph({ text: "", spacing: { after: 120 } })); }
     }
-    const info = document.getElementById("phInfo"); if (info && !o.zones) enfants.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: net(info.textContent), size: 18, color: "5F6670" })] }));
+    if (!o.zones && !TRAME) enfants.splice(posTitre, 0, titreP());
+    const info = document.getElementById("phInfo"); if (info && !o.zones && !TRAME) enfants.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: net(info.textContent), size: 18, color: "5F6670" })] }));
     const donnees = o.zones ? [] : tableDonnees();
     if (donnees.length) {
       enfants.push(new Paragraph({ spacing: { before: 120, after: 80 }, border: { left: { style: BorderStyle.SINGLE, size: 18, color: "E30009", space: 6 } }, children: [new TextRun({ text: "DONNÉES D'ENTRÉE", bold: true, color: "114088", size: 22 })] }));
@@ -164,21 +176,64 @@ const EXPORT = (() => {
     for (const z of (o.zones || cfg.zones)()) { if (z) enfants.push(...await blocs(z.tagName === "TABLE" ? wrap(z) : z)); }
     function wrap(t) { const d = document.createElement("div"); d.appendChild(t.cloneNode(true)); return d; }
 
-    const doc = new D.Document({
-      creator: "FIP Études", title: titre, description: "Note de calcul générée par FIP Études",
-      styles: { default: { document: { run: { font: "Calibri", size: 20, color: ENCRE } } } },
-      sections: [{
+    const piedSimple = () => new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [
+      new TextRun({ text: "FIP Études – outil d'aide, résultats à vérifier par un ingénieur qualifié – page ", size: 14, color: "5F6670" }),
+      new TextRun({ children: [PageNumber.CURRENT], size: 14, color: "5F6670" }), new TextRun({ text: " / ", size: 14, color: "5F6670" }),
+      new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: "5F6670" })] })] });
+    const styles = { default: { document: { run: { font: TRAME ? "Arial" : "Calibri", size: 20, color: ENCRE } } },
+      paragraphStyles: [1, 2, 3].map((k) => ({ id: "Heading" + k, name: "Heading " + k, basedOn: "Normal", next: "Normal", quickFormat: true, run: { bold: true, color: "114088", size: [26, 22, 20][k - 1] }, paragraph: { spacing: { before: k === 1 ? 240 : 160, after: 80 }, keepNext: true } })) };
+    let sections;
+    if (!TRAME) sections = [{
         properties: { page: { margin: { top: 1000, bottom: 900, left: 900, right: 900 } } },
         headers: { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: "114088", space: 4 } }, children: [
           ...(logoClient ? [new ImageRun({ type: "png", data: logoClient, transformation: dimLogo }), new TextRun({ text: "   " })] : []),
           ...(logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 92, height: 32 } })] : []),
           new TextRun({ text: "   " + cfg.code + " – " + titre, size: 16, color: "5F6670" })] })] }) },
-        footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [
-          new TextRun({ text: "FIP Études – outil d'aide, résultats à vérifier par un ingénieur qualifié – page ", size: 14, color: "5F6670" }),
-          new TextRun({ children: [PageNumber.CURRENT], size: 14, color: "5F6670" }), new TextRun({ text: " / ", size: 14, color: "5F6670" }),
-          new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: "5F6670" })] })] }) },
+        footers: { default: piedSimple() },
         children: enfants,
-      }],
+      }];
+    else {
+      /* ---- trame FIP : page de garde (adresse FIP, client, logos, site, projet, titre, révisions, n° de document), en-tête et pied de page ---- */
+      const R = IDENT_REVS(aff).slice(-6), revEnCours = aff.indice ?? (R.length ? R[R.length - 1].rev : "0"), numDoc = aff.doc || aff.num || "", projetL = [aff.intitule || aff.num, aff.phase ? "Étude " + aff.phase : ""].filter(Boolean).join(" - ");
+      const bord = { style: BorderStyle.SINGLE, size: 6, color: "000000" }, B4 = { top: bord, bottom: bord, left: bord, right: bord }, rien = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }, B0 = { top: rien, bottom: rien, left: rien, right: rien };
+      const P = (t, f = {}, al = AlignmentType.CENTER, sp = {}) => new Paragraph({ alignment: al, spacing: { before: 0, after: 0, ...sp }, children: [new TextRun({ text: String(t ?? ""), size: 18, ...f })] });
+      const C = (enf, w, x = {}) => new TableCell({ width: { size: w, type: WidthType.PERCENTAGE }, borders: x.borders || B4, columnSpan: x.span, verticalAlign: x.va || VerticalAlign.CENTER, shading: x.fond ? { type: ShadingType.CLEAR, fill: x.fond, color: "auto" } : undefined, margins: { top: 40, bottom: 40, left: 80, right: 80 }, children: Array.isArray(enf) ? enf : [enf] });
+      const T = (rows, pc, W = 10306) => new Table({ width: { size: W, type: WidthType.DXA }, columnWidths: pc.map((x) => Math.round(W * x / 100)), layout: D.TableLayoutType ? D.TableLayoutType.FIXED : undefined, rows });
+      let dimCl = null; if (logoClient && aff.logo) dimCl = await new Promise((ok) => { const im = new Image(); im.onload = () => { const k = Math.min(240 / im.naturalWidth, 90 / im.naturalHeight); ok({ width: Math.round(im.naturalWidth * k), height: Math.round(im.naturalHeight * k) }); }; im.onerror = () => ok(null); im.src = aff.logo; });
+      const vide = (n) => Array.from({ length: n }, () => P(""));
+      const garde = [
+        T([new TableRow({ children: [
+            C([P("FIP", { bold: true, size: 20 }), P("13 Avenue du Maréchal Leclerc", { size: 16 }), P("77130 MONTEREAU FAULT YONNE", { size: 16 }), P("Tel : 01 64 22 77 26", { size: 16 }), P("Mail : contact@fipsas.fr", { size: 16 })], 35),
+            C(P(aff.client || "", { bold: true, size: 26 }), 30),
+            C(new Paragraph({ alignment: AlignmentType.CENTER, children: logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 180, height: 63 } })] : [new TextRun({ text: "FIP", bold: true, size: 40, color: "114088" })] }), 35)] }),
+          new TableRow({ height: { value: 7400, rule: HeightRule.ATLEAST }, children: [C([...vide(3), P(aff.site || "", { bold: true, size: 26 }), ...vide(4), P(projetL, { bold: true, size: 26 }), P("", {}, AlignmentType.CENTER, { after: 160 }), P(titre, { bold: true, italics: true, size: 26 }),
+            ...(aff.repere ? [P(aff.repere, { size: 20, color: "5F6670" }, AlignmentType.CENTER, { before: 80 })] : []), ...vide(3),
+            ...(logoClient && dimCl ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new ImageRun({ type: "png", data: logoClient, transformation: dimCl })] })] : []), ...vide(2)], 100, { span: 3, va: VerticalAlign.TOP })] })], [35, 30, 35]),
+        T([...[5, 4, 3, 2, 1, 0].map((k) => { const r = R[k] || {}; return new TableRow({ cantSplit: true, children: [C(P(r.rev ?? k, { size: 16 }, AlignmentType.LEFT), 8), C(P(r.desc || "", { size: 16 }, AlignmentType.LEFT), 36), C(P(r.par || "", { size: 16 }), 14), C(P(r.verif || (R[k] ? "-" : ""), { size: 16 }), 14), C(P(r.appr || (R[k] ? "-" : ""), { size: 16 }), 14), C(P(r.date || "", { size: 16 }), 14)] }); }),
+          new TableRow({ cantSplit: true, children: ["Révision", "Motif de l'émission", "Auteur", "Vérifié", "Approuvé", "Date"].map((t, i) => C(P(t, { size: 14 }), [8, 36, 14, 14, 14, 14][i], { fond: "EEF1F5" })) }),
+          new TableRow({ children: [C(P("Sans commentaire sous 10 jours calendaires, le document sera considéré approuvé.", { size: 16, bold: true, italics: true, color: "1F6FD1" }), 100, { span: 6 })] })], [8, 36, 14, 14, 14, 14]),
+        T([new TableRow({ children: [C(P("Ce document est un copyright et ne peut être reproduit sans la permission de FIP", { size: 14 }, AlignmentType.LEFT), 35, { va: VerticalAlign.TOP }),
+          C([P("Document", { size: 14 }, AlignmentType.LEFT), P(numDoc, { bold: true, size: 30 }, AlignmentType.CENTER, { before: 60, after: 60 })], 50),
+          C([P("Révision", { size: 14 }, AlignmentType.RIGHT), P(revEnCours, { bold: true, size: 30 }, AlignmentType.CENTER, { before: 60, after: 60 })], 15)] })], [35, 50, 15]),
+        P(cfg.code + " – généré par FIP Études " + (typeof CALC_VERSION !== "undefined" ? CALC_VERSION : "") + (/^(APS|APD)$/i.test(aff.phase || "") ? " – phase " + aff.phase + " : non valable pour exécution" : ""), { size: 14, color: "5F6670" }, AlignmentType.RIGHT, { before: 80 })];
+      const enTete = new Header({ children: [T([new TableRow({ children: [
+          C([P(aff.client || "", { size: 18 }, AlignmentType.LEFT), P(projetL, { size: 18 }, AlignmentType.LEFT)], 34, { borders: { ...B0, bottom: bord } }),
+          C([P(projetL, { size: 18 }), P(titre, { size: 18 })], 40, { borders: { ...B0, bottom: bord } }),
+          C(new Paragraph({ alignment: AlignmentType.RIGHT, children: logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 92, height: 32 } })] : [] }), 26, { borders: { ...B0, bottom: bord } })] })], [34, 40, 26], 10106)] });
+      const piedT = new Footer({ children: [T([new TableRow({ children: [
+          C(P("Rév : " + revEnCours, { size: 16 }, AlignmentType.LEFT), 25, { borders: { ...B0, top: bord } }),
+          C(P(numDoc, { size: 16 }), 50, { borders: { ...B0, top: bord } }),
+          C(new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: "Page ", size: 16 }), new TextRun({ children: [PageNumber.CURRENT], size: 16 }), new TextRun({ text: " de ", size: 16 }), new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 16 })] }), 25, { borders: { ...B0, top: bord } })] })], [25, 50, 25], 10106)] });
+      const corps = [];
+      if (nbTitres >= 3) corps.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: "Table des matières", bold: true, size: 30 })] }),
+        new D.TableOfContents("Table des matières", { hyperlink: true, headingStyleRange: "1-2" }), new Paragraph({ pageBreakBefore: true, children: [] }));
+      const marges = { margin: { top: 1100, bottom: 900, left: 900, right: 900, header: 400, footer: 400 } };
+      sections = [{ properties: { page: { margin: { top: 700, bottom: 700, left: 800, right: 800 } } }, children: garde },
+        { properties: { page: marges }, headers: { default: enTete }, footers: { default: piedT }, children: corps.concat(enfants) }];
+    }
+    const doc = new D.Document({
+      creator: "FIP Études", title: titre, description: "Note de calcul générée par FIP Études", styles, features: TRAME ? { updateFields: true } : undefined,
+      sections,
     });
     telecharger(await D.Packer.toBlob(doc), o.fichier ? propre(o.fichier) + "_" + new Date().toISOString().slice(0, 10) + ".docx" : nomFichier("docx"));
   }

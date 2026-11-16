@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.54"></script>
+<script src="../commun/auth.js?v=2.55"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.54">
-<script src="../commun/apps.js?v=2.54"></script>
-<script src="../commun/data/profils.js?v=2.54"></script>
-<script src="../commun/barres3d.js?v=2.54"></script>
-<script src="../commun/acier.js?v=2.54"></script>
-<script src="../commun/data/tuyauterie.js?v=2.54"></script>
-<script src="../commun/charges.js?v=2.54"></script>
-<script src="../commun/coefvent.js?v=2.54"></script>
-<script src="../commun/tendues.js?v=2.54"></script>
-<script src="../commun/portique.js?v=2.54"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.55">
+<script src="../commun/apps.js?v=2.55"></script>
+<script src="../commun/data/profils.js?v=2.55"></script>
+<script src="../commun/barres3d.js?v=2.55"></script>
+<script src="../commun/acier.js?v=2.55"></script>
+<script src="../commun/data/tuyauterie.js?v=2.55"></script>
+<script src="../commun/charges.js?v=2.55"></script>
+<script src="../commun/coefvent.js?v=2.55"></script>
+<script src="../commun/tendues.js?v=2.55"></script>
+<script src="../commun/portique.js?v=2.55"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -84,7 +84,7 @@
 <tr><td>Base de données</td><td>Profilés (schémas et notations), tubes, matériaux, aciers, coefficients ψ, limites de flèche, c<sub>f</sub> des profilés.</td></tr></table>
 <h3>Données et sorties</h3>
 <ul><li>Les données sont enregistrées dans le <b>navigateur du poste</b> (aucun serveur) : exporter le cahier en .json pour archiver ou transmettre.</li>
-<li>Sorties : Word (.docx), Excel (.xlsx), PDF (impression), DXF R12 (plans). La trame Word FIP remplacera la mise en page générique.</li></ul>
+<li>Sorties : Word (.docx), Excel (.xlsx), PDF (impression), DXF R12 (plans). Depuis 2.55 : <b>trame Word FIP</b> (page de garde : adresse FIP, client, site, projet et phase, titre, logo du client, tableau des révisions 0 à 5, mention « Sans commentaire sous 10 jours calendaires, le document sera considéré approuvé », copyright, N° de document et révision ; en-tête client / projet / titre / logo FIP ; pied « Rév », N° de document, « Page x de y » ; sommaire Word sur les titres de niveaux 1 et 2, mis à jour à l'ouverture) dès qu'une identification existe ; <b>gabarit FIP A3</b> des plans (cadre, cartouche et révisions repris du gabarit AutoCAD FIP, blocs DXF à attributs).</li></ul>
 </article>
 
 <article class="card" id="conv"><div class="theme">Généralités</div><h2>3. Conventions, unités et coefficients</h2>
@@ -147,7 +147,8 @@
 <h3 id="nh">6.7 NH – Note d'hypothèses</h3>
 <p>Sections communes ajoutées en 2.43 : <b>documents de référence</b> (plans, CCTP, notes, rapports, fiches fabricants, mails ; type, référence, désignation, indice, date, émetteur), saisis dans NH et repris dans les notes de calcul S1 et du cahier (préambule unique pour le cahier) ; <b>tableau des unités et conventions</b> (m, mm, kN, kN·m, kN/m, kN/m², kN/m³, kg/m³, MPa, m/s², °, °C ; 1 kN = 100 daN ; 1 kN/m² = 100 daN/m² = 1 kPa ; g = 9,81 m/s² ; repère et signes des efforts pour S1). Module commun : <code>commun/notes.js</code>.</p>
 <p>NH n'effectue pas de calcul : il assemble les données enregistrées par C1 (résultats vent, neige, séisme et synthèse), G1 et Q1, les hypothèses générales (durée d'utilisation NF EN 1990 Tab. 2.1(NF), classe de conséquences Annexe B, matériaux, γ<sub>M</sub>) et les combinaisons de la NF EN 1990 (éq. 6.10, 6.11b, 6.12b, 6.14b à 6.16b ; ψ Tab. A1.1 + AN). Trois modèles : simplifiée (rédigée), classique (tableaux et schémas), complète (plus le détail des calculs C1 et des formules G1 / Q1). Contrôle : vérifier la date des sources affichée et que le site de C1 est celui de l'affaire.</p>
-<p class="ref">Références : NF EN 1990/NA, NF EN 1991-1-1/NA (Tab. 6.2(NF), 6.4, 6.10(NF), 6.12(NF), Annexe A), NF EN ISO 14122-2 et -3.</p>
+<p><b>Garde-corps industriels (2.55, valeurs contrôlées sur les textes)</b> : NF E 85-015 §7.3.2.1 : F<sub>min,ser</sub> = 300·L (N, L entraxe maxi des montants en m) soit q = 0,3 kN/m, flèche en charge &lt; 30 mm, résiduelle ≤ 3 mm ; §7.3.2.2 : F<sub>ult</sub> = γ<sub>M1</sub> × 1,5 × F<sub>min,ser</sub> avec γ<sub>M1</sub> = 1,15 à défaut, soit 1,725 F<sub>min,ser</sub> = 0,518 kN/m ; ruine &gt; 1,25 F<sub>ult</sub> à l'essai ; §7.3.4 (vérification par le calcul) : flèche ≤ 30 mm sous 1,2 F<sub>min,ser</sub> et comportement élastique sous 1,2 F<sub>ult</sub> = 2,07 F<sub>min,ser</sub> = 0,621 kN/m. Machines spéciales : NF EN ISO 14122-3 §8.2.2 : F<sub>U</sub> = 300 N/m × L, F<sub>S</sub> = γ F<sub>U</sub> avec γ = 1,75 (acier, aluminium) soit 525 N/m × L. Escaliers et paliers industriels (NF E 85-015 §5.1.2.1) : 2 kN/m² et 1 kN sur 100 × 100 mm (1,5 kN/m² pour un accès occasionnel à une seule personne de front) ; marches §5.1.2.2 : 1,5 kN sur 100 × 100 mm (deux charges espacées de 600 mm si l'emmarchement ≥ 1 200 mm) ; flèche du limon ≤ L/300. Passerelles et plates-formes industrielles courantes : NF E 85-014, non intégrée (valeurs à vérifier). <b>Exemple</b> : entraxe 1,5 m → F<sub>min,ser</sub> = 450 N, F<sub>ult</sub> = 776 N, vérification élastique sous 1,2 F<sub>ult</sub> = 932 N.</p>
+<p class="ref">Références : NF EN 1990/NA, NF EN 1991-1-1/NA (Tab. 6.2(NF), 6.4, 6.10(NF), 6.12(NF), Annexe A), NF E 85-015 (§5.1.2, §7.3.2, §7.3.4), NF EN ISO 14122-2 et -3 (§8.2.2).</p>
 </article>
 
 <article class="card" id="t1"><div class="theme">T1 – Tuyauterie</div><h2>7. T1 – Portée admissible des tuyauteries</h2>
@@ -232,6 +233,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 </article>
 
 <article class="card" id="rc"><div class="theme">Rapports de calcul</div><h2>10 quater. RC – Rapport de calcul</h2>
+<p><b>Plan (2.55)</b> aligné sur la trame FIP des notes de calcul : 1 Introduction ; 2 Objectif du document ; 3 Règlements utilisés (déduits des modules employés et des catégories Q1) ; 4 Documents de référence ; 5 Unités ; 6 Caractéristiques des matériaux (E = 210 000, G ≈ 81 000 N/mm², ν = 0,3, α = 12·10⁻⁶ K⁻¹, ρ = 7 850 kg/m³ ; f<sub>y</sub> / f<sub>u</sub> S235 235/360, S275 275/430, S355 355/490 N/mm² pour t ≤ 40 mm, NF EN 1993-1-1 Tab. 3.1 ; S390GD 390/460 si pannes formées à froid) ; 7 Logiciels ; 8 Hypothèses de charge (8.1 permanentes, 8.2 exploitation, 8.3 climatiques, 8.4 sismiques) ; 9 Critères de vérification ; 10 Modèles de calculs ; 11 Chargements ; 12 Combinaisons (6.10, 6.12b, 6.14b) ; 13 Résultats (globaux, barres, supports, assemblages, descentes de charges) ; 14 Conclusion ; 15 Annexes. Modèle simplifié : sans 5, 6, 7, 11, 12. Les titres internes des instantanés (A1, AS1, notes de supports) sont rétrogradés hors sommaire.</p>
 <p>RC n'effectue pas de calcul : il assemble les résultats enregistrés par les modules dans ce navigateur – A1 (synthèse, critères et taux, instantané des cartes de résultats à chaque calcul : <code>fip.a1.res</code>), cahier de supportage (types, profilés, quantités, taux), AS1 (attaches ajoutées : <code>fip.rc.as1</code>), hypothèses (C1, G1, Q1) – avec l'identification du module (IDENT) et les documents de référence (NH). Modèles : simplifié (synthèses et taux), complet (détail des vérifications) ou au choix. Contrôle : vérifier la date de chaque source et qu'elle correspond à l'ouvrage.</p>
 <p>Notes détaillées des supports types : produites dans RC par le moteur S1 (iframe), une par type (configuration la plus sollicitée) ou par configuration, simplifiées ou complètes (mêmes options que l'ancien bouton du cahier) ; le cahier conserve plans, BOM et DXF.</p>
 </article>
@@ -265,7 +267,8 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 <li><b>Traits</b> (ISO 128) : fort 0,5 mm, fin 0,25 mm, axes en trait mixte fin, pièces voisines (tuyauteries) en trait mixte fin à deux tirets ; cotation ISO 129 ; écritures 2,5 / 3,5 mm.</li>
 <li><b>Mention de phase</b> : bandeau « NON VALABLE POUR EXÉCUTION – PHASE APS/APD » en tête du bloc cartouche, phase rappelée au cartouche ; sur A3, bandeau et tableaux passent à gauche de la nomenclature si l'échelle y gagne.</li>
 <li><b>Cotes données</b> : géométrie du support et positionnement des tuyauteries ; platines, fixations et altimétrie hors planche (note de chevillage, plan d'implantation).</li>
-<li><b>DXF</b> : R12 ASCII, mm à l'échelle 1:1 de la feuille, code page ANSI 1252, calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE ; cotes non associatives.</li></ul>
+<li><b>DXF</b> : R12 ASCII, mm à l'échelle 1:1 de la feuille, code page ANSI 1252, calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE ; cotes non associatives.</li>
+<li><b>Gabarit FIP A3</b> (2.55, <code>commun/data/gabarit-a3.js</code>, extrait du gabarit AutoCAD FIP) : cadre 420 × 297 avec marges de 10 mm et repères A–H / 1–6, cartouche 180 × 70 mm en bas à droite, tableau des révisions 180 × 42 mm au-dessus, logo FIP (hachures converties en triangles pleins). Attributs : CLIENT1 (client), CLIENT2 (site), TITRE1 à 3 (titre coupé à 30 caractères), PROJET (N° d'affaire), DOC (code des plans, PLN par défaut), LOT, CHRONO, PAGE (rang du type dans le cahier), REV (indice), BON-POUR, ECHELLE ; DESCRIPTION, PAR, VERIFIE, APPROUVE, DATE 0 à 4 (5 dernières révisions). DXF : blocs FIP-FORMAT-A3, CARTOUCHE-FIP, REVISION-FIP, LOGOS-FIP (noms compatibles R12 ; les noms d'origine contiennent espaces et points) insérés avec ATTRIB, modifiables par ATTEDIT. Contrôle : DXF relu par ezdxf (audit sans erreur ni correction). L'A4 conserve un cartouche simplifié.</li></ul>
 </article>
 
 <article class="card" id="ndc"><div class="theme">Sorties</div><h2>14. Notes de calcul</h2>
@@ -292,6 +295,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.55</td><td>Q1, NH, S1, CS, RC, A1, AS1, export Word</td><td>Garde-corps : NF E 85-015 (cas général industriel, valeurs contrôlées : 0,3 kN/m, ELU 1,725, calcul élastique sous 1,2 F<sub>ult</sub>) et NF EN ISO 14122-3 (machines spéciales, 1,75) de nouveau distinguées ; escaliers et paliers industriels NF E 85-015 §5.1.2.1. Plans : gabarit FIP A3 (cadre, cartouche, révisions, logo) en blocs DXF à attributs. Word : trame FIP (page de garde avec logos FIP et client, révisions, en-tête, pied de page, sommaire). Identification : lot, motif, bon pour, logo client, historique des révisions. RC : plan aligné sur la trame FIP (§1 à §15).</td><td>Aucun calcul modifié ; valeur par défaut des garde-corps inchangée (0,3 kN/m) ; mise en page des plans A3 et des notes Word modifiée.</td></tr>
 <tr><td>2.54</td><td>Accueil, RC</td><td>Fichier projet (commun/projet.js) : export / import en un seul .json de toutes les données d'affaire du navigateur (clés fip.*, hors préférences d'affichage), nouveau projet ; échange projeteur ↔ calculateur.</td><td>Aucun.</td></tr>
 <tr><td>2.53</td><td>RC, cahier</td><td>Notes de calcul détaillées des supports déplacées du cahier vers le Rapport de calcul (section dédiée, options identiques, génération à l'export) ; le cahier garde plans, BOM et DXF, avec un lien vers RC.</td><td>Aucun (même moteur S1).</td></tr>
 <tr><td>2.52</td><td>RC (nouvel outil), NH, A1, AS1, accueil</td><td>Famille « Rapports de calcul » (NH déplacée) ; RC Rapport de calcul : hypothèses, ossature A1, supportage, assemblages, descente de charges, synthèse des taux, simplifié / complet / au choix ; A1 enregistre un instantané de ses résultats ; AS1 : « Ajouter au rapport de calcul ».</td><td>Aucun (présentation).</td></tr>
@@ -368,7 +372,9 @@ function tests(){
     ajout('G1 – DN100 sch 40 plein d\'eau : G en service','g·[π/4(D²−dᵢ²)ρ + π/4·dᵢ²·1000]',r1.qServ,qw,'kN/m'); ajout('Idem : surcharge d\'épreuve (ρ_f = ρ_eau)','0',r1.qEp,0,'kN/m');
     ajout('G1 – DN100 sch 40 au gaz : Q_ép','q_eau − q_vide',r2.qEp,qw-qv,'kN/m');
     ajout('G1 – DN100 gazole 840 kg/m³ + calo 50 mm à 100 kg/m³ : Q_ép (eau complète)','π/4·dᵢ²·1000·g',r3.qEp,a(di)*1000*9.81/1000,'kN/m');
-    ajout('Q1 – α_A catégorie B, A = 20 m²','0,77 + 3,5/20 (AN §6.3.1.2(10))',CH.alphaA('B',20),0.945,''); ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
+    ajout('Q1 – α_A catégorie B, A = 20 m²','0,77 + 3,5/20 (AN §6.3.1.2(10))',CH.alphaA('B',20),0.945,'');
+    { const g=CH.GARDE_CORPS.find(c=>c.c==='E85'), L=1.5; ajout('Q1 – garde-corps industriel NF E 85-015 : F_min,ser, entraxe 1,5 m','300·L N (§7.3.2.1)',g.q*L*1000,450,'N'); ajout('Idem : F_ult = γM1 × 1,5 × F_min,ser (γM1 = 1,15)','§7.3.2.2',1.15*1.5*g.q*L*1000,776.25,'N');
+      const e=CH.CAT_Q.find(c=>c.c==='ESC-I'); ajout('Q1 – escalier industriel NF E 85-015 : q_k','2 kN/m² (§5.1.2.1)',e.qk,2,'kN/m²'); ajout('Idem : Q_k sur 100 × 100 mm','1 kN (§5.1.2.1)',e.Qk,1,'kN'); } ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
     ajout('Idem : calorifuge compris dans q vide','q_vide(tube) + π/4((D+100)²−D²)·100·g',r3.qVide,qv+(a(D+100)-a(D))*100*9.81/1000,'kN/m'); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
@@ -376,6 +382,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.54"></script>
+<script src="../commun/replier.js?v=2.55"></script>
 </body>
 </html>
