@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.48"></script>
+<script src="../commun/auth.js?v=2.54"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.48">
-<script src="../commun/apps.js?v=2.48"></script>
-<script src="../commun/data/profils.js?v=2.48"></script>
-<script src="../commun/barres3d.js?v=2.48"></script>
-<script src="../commun/acier.js?v=2.48"></script>
-<script src="../commun/data/tuyauterie.js?v=2.48"></script>
-<script src="../commun/charges.js?v=2.48"></script>
-<script src="../commun/coefvent.js?v=2.48"></script>
-<script src="../commun/tendues.js?v=2.48"></script>
-<script src="../commun/portique.js?v=2.48"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.54">
+<script src="../commun/apps.js?v=2.54"></script>
+<script src="../commun/data/profils.js?v=2.54"></script>
+<script src="../commun/barres3d.js?v=2.54"></script>
+<script src="../commun/acier.js?v=2.54"></script>
+<script src="../commun/data/tuyauterie.js?v=2.54"></script>
+<script src="../commun/charges.js?v=2.54"></script>
+<script src="../commun/coefvent.js?v=2.54"></script>
+<script src="../commun/tendues.js?v=2.54"></script>
+<script src="../commun/portique.js?v=2.54"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -214,9 +214,10 @@ Barres : section (6.2.6, 6.2.8, 6.2.9 classes 1-2 ; 6.42 classe 3) ; stabilité 
 Maintiens : option « pannes et bracons efficaces » (lignes de pannes reliées à la poutre au vent) ; sinon L<sub>cr,z</sub> = L<sub>LT</sub> = espacement des nœuds de la poutre au vent ; bracons tous les n cours de pannes → L<sub>LT,inf</sub> = n·a<br>Poteaux PRS à inertie variable : h(z) = h<sub>pied</sub> + (h<sub>tête</sub> − h<sub>pied</sub>)·z/H, 8 tronçons à section constante ; alerte si h<sub>pied</sub> &gt; 300 mm (pied articulé, critère de Lescouarch)<br>Pannes SADEF (base ZED, SIGMA, caractéristiques brutes, S390GD) : flèche avec I<sub>y</sub> brut ; ELU M<sub>Ed</sub> ≤ W<sub>eff</sub>·f<sub>yb</sub> (NF EN 1993-1-3 §6.1.4.1) et M<sub>Ed</sub> ≤ χ<sub>LT</sub>·W<sub>eff</sub>·f<sub>yb</sub> au soulèvement (§10.1.4.2), W<sub>eff</sub> et χ<sub>LT</sub> saisis (données SADEF), ou charges admissibles SADEF<br>Bracons : abscisses des cours de pannes équipés (option usuelle : 2<sup>e</sup> cours depuis la rive basse + faîtage) ; L<sub>LT</sub> de la semelle inférieure = intervalle entre maintiens (nœuds de tête, bracons) contenant la section, limité à la zone comprimée<br>
 Séisme (NF EN 1998-1 + AN, DCL) : S<sub>d</sub>(T) §3.2.2.5 (β = 0,2) ; transversal : m = (ΣV<sub>G</sub> + ψ<sub>2</sub>·ΣV<sub>S</sub>)/g, T<sub>1</sub> = 2π·√(m/K), F<sub>b</sub> = S<sub>d</sub>(T<sub>1</sub>)·m en tête (λ = 1) ; combinaison 6.12b G + ψ<sub>2</sub>·S ± E ; θ = q/α<sub>cr</sub> : θ ≤ 0,1 négligé, sinon × 1/(1 − θ), θ &gt; 0,3 hors domaine (§4.4.2.2) ; longitudinal : plateau × m × n<sub>portiques</sub>/n<sub>PAV</sub><br>
 Contreventement : vent longitudinal F = q<sub>p</sub>·2,0·(surfaces du portique de pignon) + c<sub>fr</sub>·q<sub>p</sub>·2·A au-delà de min(2b ; 4h) (§7.5), réparti sur n<sub>PAV</sub> ; stabilisation q<sub>d</sub> = Σ N<sub>Ed</sub>·8·(e<sub>0</sub> + δ<sub>q</sub>)/L², e<sub>0</sub> = α<sub>m</sub>·L/500, α<sub>m</sub> = √(0,5·(1 + 1/m)), N<sub>Ed</sub> = M/(h − t<sub>f</sub>) + N/2 (§5.3.3), δ<sub>q</sub> itérée (flexion des membrures + cisaillement des diagonales) ; PAV : V = q·L/2, diagonale N = V·d/e, membrures ± q·L²/(8e) ; palée en croix : n croix pour θ ≤ 60°, N = V/cos θ, poteau ± V·H/e ; cadre : M<sub>z</sub> = V·H/2 par poteau, δ = (V/2)·H³/(3·E·I<sub>z</sub>) ; tirants ronds N<sub>Rd</sub> = min(A·f<sub>y</sub> ; 0,9·A<sub>s</sub>·f<sub>u</sub>/γ<sub>M2</sub>), cornières min(A·f<sub>y</sub> ; β<sub>2</sub>·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub>), β<sub>2</sub> = 0,5<br>
-Cours de pannes : 1<sup>er</sup> cours en rive, cours de faîtage décalés de ±d (0,2 m), n = ⌈(L<sub>r</sub> − d)/a<sub>max</sub>⌉ intervalles égaux ; poutre au vent : nœuds tous les j cours (j diviseur de n)<br>
+Cours de pannes : 1<sup>er</sup> cours décalé de d<sub>r</sub> depuis la rive, cours de faîtage décalés de ±d<sub>f</sub> (0,2 m), n = ⌈(L<sub>r</sub> − d<sub>f</sub> − d<sub>r</sub>)/a<sub>max</sub>⌉ intervalles égaux (ou n imposé) ; poutre au vent : n<sub>p</sub> panneaux par rampant, n<sub>p</sub> diviseur de n (nœuds tous les n/n<sub>p</sub> cours, dans l'axe des pannes) ; bracons usuels : 1<sup>er</sup> cours après la rive basse + faîtage<br>
 Bandeau : panneau surélevé c<sub>f</sub> = 1,8 (NF EN 1991-1-4 §7.4.3) : q = c<sub>f</sub>·q<sub>p</sub>·e sur la hauteur du bandeau en tête de poteau ; poids g<sub>bardage</sub>·e ; pourtour : + c<sub>f</sub>·q<sub>p</sub>·L·h<sub>b</sub> au vent longitudinal ; lisses : mêmes vérifications que les pannes, vent selon l'axe fort, poids selon l'axe faible (suspentes), W<sub>el,z</sub> si W<sub>pl,z</sub> absent et interaction linéaire (α = 1) pour les U<br>
 Diagonales en cornière : capacité de l'attache par défaut (AS1 : 2 M16 8.8, gousset 8 mm S235)<br>
+Descente de charges : nœuds repérés A<sub>i</sub> / B<sub>i</sub> (files × portiques) ; portiques courants (k<sub>c</sub>) et de pignon (k<sub>rive</sub> = réaction d'appui d'extrémité de la panne continue / (q·e), 0,5 si isostatique) calculés séparément ; pieds de palée : H<sub>Y</sub> = V (croix, pied de la diagonale tendue) ou V/2 (cadre), V = ±H<sub>Y</sub>·H/e<br>
 Optimisation : dichotomie dans la famille (masse croissante), traverse puis poteaux (2 passes), puis pannes ; critère : tous les taux du membre ≤ 1<br>
 Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</sub>/M<sub>pl,y</sub>)² + M<sub>z</sub>/M<sub>pl,z</sub> ≤ 1 (6.41), M<sub>z</sub> = q<sub>t</sub>·(L/(n<sub>l</sub> + 1))²/8 ; soulèvement : M<sub>y</sub>/(χ<sub>LT</sub>·M<sub>pl,y</sub>) + M<sub>z</sub>/M<sub>pl,z</sub> ≤ 1, L<sub>LT</sub> = espacement des liernes ; SADEF : q<sub>Ed</sub> / q<sub>adm</sub> du catalogue</div>
 <p><b>Exemples de contrôle</b> (tests en direct, chapitre 16) : portique rectangulaire bi-articulé, charge uniforme q : poussée H = q·L²/(4·h·(2k + 3)), k = (I<sub>traverse</sub>/I<sub>poteau</sub>)·(h/L) (Kleinlogel) ; panne continue sur 5 travées égales : M<sub>appui</sub> = 0,105·q·L², réaction intermédiaire maximale 1,132·q·L.</p>
@@ -228,6 +229,11 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 Section brute A·f<sub>y</sub>/γ<sub>M0</sub> ; nette : cornière §3.10.3 (1 boulon : 2(e<sub>2</sub> − d<sub>0</sub>/2)·t·f<sub>u</sub>/γ<sub>M2</sub> ; 2 : β<sub>2</sub> 0,4 → 0,7 ; ≥ 3 : β<sub>3</sub> 0,5 → 0,7, p<sub>1</sub>/d<sub>0</sub> de 2,5 à 5), UPN 0,9·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub><br>
 Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</sub>·d·t/γ<sub>M2</sub> (Tab. 3.4), cornières : n/√(1/F<sub>b,∥</sub>² + (β·n/F<sub>b,⊥</sub>)²) ; bloc §3.10.2 : 0,5·f<sub>u</sub>·A<sub>nt</sub>/γ<sub>M2</sub> + f<sub>y</sub>·A<sub>nv</sub>/(√3·γ<sub>M0</sub>) (excentré) ; gousset : l<sub>g</sub> par diffusion à 30°</div>
 <p><b>Validation</b> : exemples du classeur BE CM (double cornière 50×5, 2 M12 8.8 ; 2 UPN 200, 2 × 3 M24 8.8) reproduits à 0,1 % près (chapitre 16) ; seules différences : axe neutre non arrondi (14,04 mm au lieu de 14 mm).</p>
+</article>
+
+<article class="card" id="rc"><div class="theme">Rapports de calcul</div><h2>10 quater. RC – Rapport de calcul</h2>
+<p>RC n'effectue pas de calcul : il assemble les résultats enregistrés par les modules dans ce navigateur – A1 (synthèse, critères et taux, instantané des cartes de résultats à chaque calcul : <code>fip.a1.res</code>), cahier de supportage (types, profilés, quantités, taux), AS1 (attaches ajoutées : <code>fip.rc.as1</code>), hypothèses (C1, G1, Q1) – avec l'identification du module (IDENT) et les documents de référence (NH). Modèles : simplifié (synthèses et taux), complet (détail des vérifications) ou au choix. Contrôle : vérifier la date de chaque source et qu'elle correspond à l'ouvrage.</p>
+<p>Notes détaillées des supports types : produites dans RC par le moteur S1 (iframe), une par type (configuration la plus sollicitée) ou par configuration, simplifiées ou complètes (mêmes options que l'ancien bouton du cahier) ; le cahier conserve plans, BOM et DXF.</p>
 </article>
 
 <article class="card" id="p2"><div class="theme">P2 – Poteau</div><h2>10. P2 – Poteau comprimé et fléchi</h2>
@@ -286,6 +292,12 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.54</td><td>Accueil, RC</td><td>Fichier projet (commun/projet.js) : export / import en un seul .json de toutes les données d'affaire du navigateur (clés fip.*, hors préférences d'affichage), nouveau projet ; échange projeteur ↔ calculateur.</td><td>Aucun.</td></tr>
+<tr><td>2.53</td><td>RC, cahier</td><td>Notes de calcul détaillées des supports déplacées du cahier vers le Rapport de calcul (section dédiée, options identiques, génération à l'export) ; le cahier garde plans, BOM et DXF, avec un lien vers RC.</td><td>Aucun (même moteur S1).</td></tr>
+<tr><td>2.52</td><td>RC (nouvel outil), NH, A1, AS1, accueil</td><td>Famille « Rapports de calcul » (NH déplacée) ; RC Rapport de calcul : hypothèses, ossature A1, supportage, assemblages, descente de charges, synthèse des taux, simplifié / complet / au choix ; A1 enregistre un instantané de ses résultats ; AS1 : « Ajouter au rapport de calcul ».</td><td>Aucun (présentation).</td></tr>
+<tr><td>2.51</td><td>Cahier, S1</td><td>Pictogramme du type de support dans le cahier (en-tête du type, listing, fiches) ; choix du type par galerie illustrée pour les types à calculer, transmis à S1 (commun/pictos-s1.js).</td><td>Aucun (présentation).</td></tr>
+<tr><td>2.50</td><td>A1</td><td>Repérage des pieds de poteaux (files A / B × portiques 1 à n, plan) et descente de charges par nœud : portiques courants, portiques de pignon (part de charge de rive), pieds de palée (efforts longitudinaux) ; affichage cas simples / enveloppe ELU / les deux ; résultats enregistrés pour le futur module de note de calcul.</td><td>Nouvelles sorties (portiques de pignon et palées) ; portique courant inchangé.</td></tr>
+<tr><td>2.49</td><td>A1, AS1</td><td>Carte d'identification (trame) dans les modules (commun/ident.js, cartouche Word) ; A1 : décalage du 1<sup>er</sup> cours depuis la rive, nombre d'intervalles et de panneaux de poutre au vent au choix (nœuds dans l'axe des pannes), bracons usuels au 1<sup>er</sup> cours, valeurs des charges sur le schéma, schémas des pannes et lisses, carte « Règles de conception et alertes » ; AS1 : alertes de conception (pinces maxi, trusquinage, âme du UPN, gousset, 1 boulon).</td><td>A1 : positions des pannes et des bracons modifiées (décalage de rive 0,2 m par défaut).</td></tr>
 <tr><td>2.48</td><td>AS1 (nouvel outil), A1, accueil</td><td>AS1 Barres tendues boulonnées (classeur BE CM, famille « Assemblages »), reliée à A1 ; A1 : cours de faîtage décalés (±0,2 m) et espacement maxi, bandeau de bardage (panneau surélevé c<sub>f</sub> = 1,8) et lisses, symboles 3D de la poutre au vent et des palées (croix, cadre avec contre-poteaux), bouton d'optimisation, attache des diagonales en cornière vérifiée ; W<sub>el,z</sub> pour les U sans W<sub>pl,z</sub>.</td><td>A1 : espacement des pannes recalculé (≤ maxi), diagonales en cornière limitées par l'attache ; pannes en U : interaction linéaire.</td></tr>
 <tr><td>2.47</td><td>A1</td><td>Séisme (transversal par force latérale, longitudinal sur le contreventement, P-Δ par θ) ; contreventement : poutre au vent (panneaux sur les cours de pannes, 30° à 60°), palée en croix (1 à 4 niveaux selon l'angle) ou en cadre, stabilisation §5.3.3 ; bracons « usuels » (2<sup>e</sup> cours + faîtage) et longueur de déversement entre maintiens ; cotes sur les vues 2D et 3D.</td><td>Nouveaux critères (contreventement, séisme) ; longueur de déversement de la traverse modifiée quand des bracons sont définis.</td></tr>
 <tr><td>2.46</td><td>A1, base de données</td><td>Pannes SADEF (base ZED / SIGMA du catalogue 2023) ; poteaux PRS à inertie variable (pied ≤ 300 mm) ; bracons tous les n cours de pannes ; option d'efficacité des maintiens (pannes reliées ou non à la poutre au vent) ; vue 3D.</td><td>Nouvelles options ; résultats inchangés pour les données existantes (bracons ressaisis en nombre de cours de pannes).</td></tr>
@@ -364,6 +376,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.48"></script>
+<script src="../commun/replier.js?v=2.54"></script>
 </body>
 </html>

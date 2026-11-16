@@ -10,10 +10,11 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.48";
+const CALC_VERSION = "v2.54";
 
 const CALC_CATEGORIES = [
-  { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes, d'exploitation et note d'hypothèses de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
+  { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
+  { id: "rap", nom: "Rapports de calcul", sousTitre: "Note d'hypothèses et rapport de calcul de l'ouvrage (ossature, supportage, assemblages, descentes de charges) · simplifiés, complets ou au choix, Word / PDF", couleur: "#e30009", marqueur: "■" },
   { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
   { id: "acier", nom: "Structure acier – éléments et ossatures", sousTitre: "Poutres et poteaux, portiques de toitures isolées (auvents) : prédimensionnement APS/APD · NF EN 1990, NF EN 1991-1-3 / 1-4, NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
   { id: "asm", nom: "Assemblages", sousTitre: "Attaches boulonnées des barres tendues (cornières, UPN) ; reliées aux outils d'ossature (diagonales de contreventement de A1) · NF EN 1993-1-8 + AN, méthodes CTICM", couleur: "#e30009", marqueur: "▲" },
@@ -305,11 +306,28 @@ const CALC_APPS = [
 </svg>`,
   },
   {
+    code: "RC",
+    titre: "Rapport de calcul",
+    description: "Rapport de l'ouvrage : hypothèses, ossature (A1), supportage (synthèse et notes détaillées par support), assemblages (AS1), descentes de charges, synthèse des taux ; simplifié, complet ou au choix ; identification et cartouche ; Word / PDF.",
+    url: "rapport-calcul/",
+    categorie: "rap",
+    normes: ["NF EN 1990", "NF EN 1993-1-1 / 1-8"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="130" y="10" width="140" height="178" fill="#fff" stroke="#8a929c"/><rect x="130" y="10" width="140" height="22" fill="#114088"/><text x="200" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">RAPPORT DE CALCUL</text>
+  ${["1. Hypothèses","2. Ossature A1","3. Supportage","4. Assemblages","5. Descentes de charges","6. Synthèse des taux"].map((t, i) => `<rect x="140" y="${42 + i * 24}" width="4" height="12" fill="#e30009"/><text x="150" y="${52 + i * 24}" font-size="9" fill="#171a1e">${t}</text>`).join("")}
+  <g font-size="11" font-weight="700"><rect x="20" y="40" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="58" text-anchor="middle" fill="#114088">A1</text><rect x="20" y="84" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="102" text-anchor="middle" fill="#114088">CS</text><rect x="20" y="128" width="60" height="26" rx="4" fill="#dfe9f2"/><text x="50" y="146" text-anchor="middle" fill="#114088">AS1</text></g>
+  <path d="M80,53 L128,80 M80,97 L128,97 M80,141 L128,114" stroke="#e30009" stroke-width="1.6" fill="none"/>
+  <g font-size="10" font-weight="700" fill="#fff"><rect x="300" y="60" width="70" height="24" rx="3" fill="#2b579a"/><text x="335" y="76" text-anchor="middle">Word</text><rect x="300" y="100" width="70" height="24" rx="3" fill="#e30009"/><text x="335" y="116" text-anchor="middle">PDF</text></g>
+</svg>`,
+  },
+  {
     code: "NH",
     titre: "Note d'hypothèses",
     description: "Rassemble C1, G1, Q1 et les hypothèses générales (durée d'utilisation, classe de conséquences, matériaux) ; combinaisons ; note simplifiée, classique ou complète, Word ou PDF.",
     url: "note-hypotheses/",
-    categorie: "clim",
+    categorie: "rap",
     normes: ["NF EN 1990 + AN"],
     statut: "ok",
     vignette: `

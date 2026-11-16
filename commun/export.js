@@ -140,14 +140,14 @@ const EXPORT = (() => {
     const titre = o.titre || cfg.titre;
     if (!o.zones) enfants.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }));
     // cartouche d'affaire (cahier de supportage) — provisoire, en attendant la trame Word FIP
-    let aff = null; if (!o.zones) try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }
+    let aff = cfg.affaire ? cfg.affaire() : null; if (!aff && !o.zones) try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }   // cfg.affaire : identification saisie dans le module (IDENT)
     let logoClient = null, dimLogo = { width: 64, height: 32 };
     if (aff) {
       if (aff.logo) await new Promise((ok) => { const im = new Image(); im.onload = () => { dimLogo = { width: Math.min(140, Math.round(32 * im.naturalWidth / im.naturalHeight)), height: 32 }; ok(); }; im.onerror = ok; im.src = aff.logo; });
       if (/^data:image\/png;base64,/.test(aff.logo || "")) { try { logoClient = Uint8Array.from(atob(aff.logo.split(",")[1]), (c) => c.charCodeAt(0)); } catch (e) { } }
       const dt = aff.date ? new Date(aff.date).toLocaleDateString("fr-FR") : "", lib = [aff.num, aff.intitule].filter(Boolean).join(" – ");
       const L = [["Affaire", lib, "Client", aff.client], ["Site", aff.site, "Phase", aff.phase], ["N° de document", aff.doc, "Indice / date", [aff.indice, dt].filter(Boolean).join(" du ")],
-        ["Réalisé", aff.realise, "Contrôlé", aff.controle], ["Approuvé", aff.approuve, "Outil", cfg.code + " – FIP Études"]];
+        ["Réalisé", aff.realise, "Contrôlé", aff.controle], ["Approuvé", aff.approuve, "Outil", cfg.code + " – FIP Études"]].concat(aff.repere ? [["Repère", aff.repere, "", ""]] : []);
       const cel = (t, gras, w) => new TableCell({ width: { size: w, type: WidthType.PERCENTAGE }, shading: gras ? undefined : { type: ShadingType.CLEAR, fill: "EEF2F7", color: "auto" }, children: [new Paragraph({ children: [new TextRun({ text: String(t || "—"), size: 17, bold: !!gras, color: gras ? ENCRE : "5F6670" })] })] });
       enfants.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: L.map((r) => new TableRow({ cantSplit: true, children: [cel(r[0], 0, 16), cel(r[1], 1, 34), cel(r[2], 0, 16), cel(r[3], 1, 34)] })) }));
       enfants.push(new Paragraph({ text: "", spacing: { after: 120 } }));

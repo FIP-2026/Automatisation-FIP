@@ -67,6 +67,14 @@ const TENDUES = (() => {
     if (e2 < 1.2 * d0) alertes.push(`e<sub>2</sub> = ${e2} &lt; 1,2·d<sub>0</sub> = ${fmtN(1.2 * d0, 0)} mm`);
     if (o.type === "U" && nr > 1 && (o.p2 || 0) < 2.4 * d0) alertes.push(`p<sub>2</sub> &lt; 2,4·d<sub>0</sub> = ${fmtN(2.4 * d0, 0)} mm`);
     if (o.tg > 0 && (o.e1g < 1.2 * d0 || o.e2g < 1.2 * d0)) alertes.push("pinces du gousset &lt; 1,2·d<sub>0</sub>");
+    if (e1 > 4 * t + 40) alertes.push(`e<sub>1</sub> &gt; 4t + 40 = ${fmtN(4 * t + 40, 0)} mm (corrosion, Tab. 3.3)`);
+    if (n > 1 && p1 > Math.min(14 * t, 200)) alertes.push(`p<sub>1</sub> &gt; min(14t ; 200) = ${fmtN(Math.min(14 * t, 200), 0)} mm`);
+    if (n === 1) alertes.push("attache à un seul boulon : déconseillée pour une barre de contreventement principale (rotation, excentricité) ; prévoir au moins 2 boulons");
+    if (o.type !== "U") { const w = p.h - e2, wmin = t + (p.r || 0) + d; if (w < wmin) alertes.push(`trusquinage ${fmtN(w, 0)} mm &lt; t + r + d ≈ ${fmtN(wmin, 0)} mm : boulon trop gros pour l'aile (rondelle, clé)`); }
+    else { const plat = p.h - 2 * (p.tf + (p.r || 0)), occ = (o.p2 || 0) * (nr - 1) + 2 * d; if (occ > plat) alertes.push(`files de boulons (${fmtN(occ, 0)} mm avec rondelles) plus larges que la partie plane de l'âme (${fmtN(plat, 0)} mm)`); }
+    if (o.tg > 0 && o.tg < 6) alertes.push("gousset d'épaisseur &lt; 6 mm : déconseillé");
+    if (o.tg > 0 && nb === 1 && o.tg < t) alertes.push(`gousset (${o.tg} mm) plus mince que la barre (${t} mm)`);
+    if (surd) alertes.push("trous surdimensionnés : pression diamétrale réduite (× 0,8), glissement possible");
     const NRd = Math.min(...L.map((l) => l.R));
     return { lignes: L, NRd, d0, surd, alertes, gouv: L.reduce((a, l) => (l.r > a.r ? l : a)) };
   }
