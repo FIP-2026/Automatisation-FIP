@@ -366,6 +366,8 @@ const PORTIQUE = (() => {
     const ap = (D.aPanne || 1.5) * Math.cos(Gm.alpha), nb = D.nbCours || Math.max(1, Math.round(Gm.Lr / (D.aPanne || 1.5)));
     const Lh = Gm.bi ? L / 2 : L; let best = null;                     // nœuds sur les cours de pannes : nombre de panneaux par rampant diviseur du nombre d'intervalles
     for (let nr = 1; nr <= nb; nr++) { if (nb % nr) continue; const ax = (nb / nr) * ap, th = Math.atan(e / ax) * 180 / Math.PI, sc = Math.abs(th - 45) + (th < 30 || th > 60 ? 100 : 0); if (!best || sc < best.sc) best = { nr, j: nb / nr, ax, th, sc }; }
+    let choixKo = false; if (cv.nrPan) { if (nb % cv.nrPan === 0) { const ax = (nb / cv.nrPan) * ap; best = { nr: cv.nrPan, j: nb / cv.nrPan, ax, th: Math.atan(e / ax) * 180 / Math.PI }; } else choixKo = true; }
+    const divs = []; for (let nr = 1; nr <= nb; nr++) if (nb % nr === 0) divs.push(nr);
     const nPan = best.nr * (Gm.bi ? 2 : 1), d = Math.hypot(best.ax, e);
     const dg = resDiag(cv.diag || { type: "rond", d: 20 }, cv.nuanceDiag || "S235"), pv = cv.palee || "croix";
     // 5. efforts dans la PAV (poutre sur 2 appuis de portée L, charge répartie), δq par itération (flexion des membrures + cisaillement des diagonales)
@@ -381,7 +383,7 @@ const PORTIQUE = (() => {
     else txtM = "panne SADEF : vérifier la panne montante (compression + flexion) avec SADEF";
     lignes.push({ n: "Poutre au vent – montant (panne de rive)", ref: "§6.3.1 + interaction simplifiée", val: `N<sub>Ed</sub> = ${fmtN(Vmax, 1)} kN`, lim: txtM, r: rMont || 0, comb: "" });
     // palée de stabilité (long-pans, travées contreventées) : effort en tête H = V (réaction de la PAV)
-    const Hp = Vmax, out = { FW, Fpig, Ffr, lfr, FE, qd, dq, e0, m, Nf, best, nPan, d, dg, Nd, Nch, Vmax, nPav, pv };
+    const Hp = Vmax, out = { divs, choixKo, nb, FW, Fpig, Ffr, lfr, FE, qd, dq, e0, m, Nf, best, nPan, d, dg, Nd, Nch, Vmax, nPav, pv };
     if (pv === "croix") { let nc = 1; while (Math.atan(Gm.H / nc / e) * 180 / Math.PI > 60 && nc < 4) nc++; const th = Math.atan(Gm.H / nc / e), Ndp = Hp / Math.cos(th);
       out.nc = nc; out.thP = th * 180 / Math.PI; out.Ndp = Ndp; out.Ncol = Hp * Gm.H / e;
       lignes.push({ n: `Palée en croix (${nc} niveau${nc > 1 ? "x" : ""}) – diagonale tendue`, ref: "§6.2.3 ; angle " + fmtN(out.thP, 0) + "°", val: `N<sub>Ed</sub> = ${fmtN(Ndp, 1)} kN`, lim: `${dg.n} : N<sub>Rd</sub> = ${fmtN(dg.NRd, 1)} kN`, r: Ndp / dg.NRd, comb: "" });

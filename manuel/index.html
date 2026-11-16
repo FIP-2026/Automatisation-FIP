@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.48"></script>
+<script src="../commun/auth.js?v=2.49"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.48">
-<script src="../commun/apps.js?v=2.48"></script>
-<script src="../commun/data/profils.js?v=2.48"></script>
-<script src="../commun/barres3d.js?v=2.48"></script>
-<script src="../commun/acier.js?v=2.48"></script>
-<script src="../commun/data/tuyauterie.js?v=2.48"></script>
-<script src="../commun/charges.js?v=2.48"></script>
-<script src="../commun/coefvent.js?v=2.48"></script>
-<script src="../commun/tendues.js?v=2.48"></script>
-<script src="../commun/portique.js?v=2.48"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.49">
+<script src="../commun/apps.js?v=2.49"></script>
+<script src="../commun/data/profils.js?v=2.49"></script>
+<script src="../commun/barres3d.js?v=2.49"></script>
+<script src="../commun/acier.js?v=2.49"></script>
+<script src="../commun/data/tuyauterie.js?v=2.49"></script>
+<script src="../commun/charges.js?v=2.49"></script>
+<script src="../commun/coefvent.js?v=2.49"></script>
+<script src="../commun/tendues.js?v=2.49"></script>
+<script src="../commun/portique.js?v=2.49"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -214,7 +214,7 @@ Barres : section (6.2.6, 6.2.8, 6.2.9 classes 1-2 ; 6.42 classe 3) ; stabilité 
 Maintiens : option « pannes et bracons efficaces » (lignes de pannes reliées à la poutre au vent) ; sinon L<sub>cr,z</sub> = L<sub>LT</sub> = espacement des nœuds de la poutre au vent ; bracons tous les n cours de pannes → L<sub>LT,inf</sub> = n·a<br>Poteaux PRS à inertie variable : h(z) = h<sub>pied</sub> + (h<sub>tête</sub> − h<sub>pied</sub>)·z/H, 8 tronçons à section constante ; alerte si h<sub>pied</sub> &gt; 300 mm (pied articulé, critère de Lescouarch)<br>Pannes SADEF (base ZED, SIGMA, caractéristiques brutes, S390GD) : flèche avec I<sub>y</sub> brut ; ELU M<sub>Ed</sub> ≤ W<sub>eff</sub>·f<sub>yb</sub> (NF EN 1993-1-3 §6.1.4.1) et M<sub>Ed</sub> ≤ χ<sub>LT</sub>·W<sub>eff</sub>·f<sub>yb</sub> au soulèvement (§10.1.4.2), W<sub>eff</sub> et χ<sub>LT</sub> saisis (données SADEF), ou charges admissibles SADEF<br>Bracons : abscisses des cours de pannes équipés (option usuelle : 2<sup>e</sup> cours depuis la rive basse + faîtage) ; L<sub>LT</sub> de la semelle inférieure = intervalle entre maintiens (nœuds de tête, bracons) contenant la section, limité à la zone comprimée<br>
 Séisme (NF EN 1998-1 + AN, DCL) : S<sub>d</sub>(T) §3.2.2.5 (β = 0,2) ; transversal : m = (ΣV<sub>G</sub> + ψ<sub>2</sub>·ΣV<sub>S</sub>)/g, T<sub>1</sub> = 2π·√(m/K), F<sub>b</sub> = S<sub>d</sub>(T<sub>1</sub>)·m en tête (λ = 1) ; combinaison 6.12b G + ψ<sub>2</sub>·S ± E ; θ = q/α<sub>cr</sub> : θ ≤ 0,1 négligé, sinon × 1/(1 − θ), θ &gt; 0,3 hors domaine (§4.4.2.2) ; longitudinal : plateau × m × n<sub>portiques</sub>/n<sub>PAV</sub><br>
 Contreventement : vent longitudinal F = q<sub>p</sub>·2,0·(surfaces du portique de pignon) + c<sub>fr</sub>·q<sub>p</sub>·2·A au-delà de min(2b ; 4h) (§7.5), réparti sur n<sub>PAV</sub> ; stabilisation q<sub>d</sub> = Σ N<sub>Ed</sub>·8·(e<sub>0</sub> + δ<sub>q</sub>)/L², e<sub>0</sub> = α<sub>m</sub>·L/500, α<sub>m</sub> = √(0,5·(1 + 1/m)), N<sub>Ed</sub> = M/(h − t<sub>f</sub>) + N/2 (§5.3.3), δ<sub>q</sub> itérée (flexion des membrures + cisaillement des diagonales) ; PAV : V = q·L/2, diagonale N = V·d/e, membrures ± q·L²/(8e) ; palée en croix : n croix pour θ ≤ 60°, N = V/cos θ, poteau ± V·H/e ; cadre : M<sub>z</sub> = V·H/2 par poteau, δ = (V/2)·H³/(3·E·I<sub>z</sub>) ; tirants ronds N<sub>Rd</sub> = min(A·f<sub>y</sub> ; 0,9·A<sub>s</sub>·f<sub>u</sub>/γ<sub>M2</sub>), cornières min(A·f<sub>y</sub> ; β<sub>2</sub>·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub>), β<sub>2</sub> = 0,5<br>
-Cours de pannes : 1<sup>er</sup> cours en rive, cours de faîtage décalés de ±d (0,2 m), n = ⌈(L<sub>r</sub> − d)/a<sub>max</sub>⌉ intervalles égaux ; poutre au vent : nœuds tous les j cours (j diviseur de n)<br>
+Cours de pannes : 1<sup>er</sup> cours décalé de d<sub>r</sub> depuis la rive, cours de faîtage décalés de ±d<sub>f</sub> (0,2 m), n = ⌈(L<sub>r</sub> − d<sub>f</sub> − d<sub>r</sub>)/a<sub>max</sub>⌉ intervalles égaux (ou n imposé) ; poutre au vent : n<sub>p</sub> panneaux par rampant, n<sub>p</sub> diviseur de n (nœuds tous les n/n<sub>p</sub> cours, dans l'axe des pannes) ; bracons usuels : 1<sup>er</sup> cours après la rive basse + faîtage<br>
 Bandeau : panneau surélevé c<sub>f</sub> = 1,8 (NF EN 1991-1-4 §7.4.3) : q = c<sub>f</sub>·q<sub>p</sub>·e sur la hauteur du bandeau en tête de poteau ; poids g<sub>bardage</sub>·e ; pourtour : + c<sub>f</sub>·q<sub>p</sub>·L·h<sub>b</sub> au vent longitudinal ; lisses : mêmes vérifications que les pannes, vent selon l'axe fort, poids selon l'axe faible (suspentes), W<sub>el,z</sub> si W<sub>pl,z</sub> absent et interaction linéaire (α = 1) pour les U<br>
 Diagonales en cornière : capacité de l'attache par défaut (AS1 : 2 M16 8.8, gousset 8 mm S235)<br>
 Optimisation : dichotomie dans la famille (masse croissante), traverse puis poteaux (2 passes), puis pannes ; critère : tous les taux du membre ≤ 1<br>
@@ -286,6 +286,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.49</td><td>A1, AS1</td><td>Carte d'identification (trame) dans les modules (commun/ident.js, cartouche Word) ; A1 : décalage du 1<sup>er</sup> cours depuis la rive, nombre d'intervalles et de panneaux de poutre au vent au choix (nœuds dans l'axe des pannes), bracons usuels au 1<sup>er</sup> cours, valeurs des charges sur le schéma, schémas des pannes et lisses, carte « Règles de conception et alertes » ; AS1 : alertes de conception (pinces maxi, trusquinage, âme du UPN, gousset, 1 boulon).</td><td>A1 : positions des pannes et des bracons modifiées (décalage de rive 0,2 m par défaut).</td></tr>
 <tr><td>2.48</td><td>AS1 (nouvel outil), A1, accueil</td><td>AS1 Barres tendues boulonnées (classeur BE CM, famille « Assemblages »), reliée à A1 ; A1 : cours de faîtage décalés (±0,2 m) et espacement maxi, bandeau de bardage (panneau surélevé c<sub>f</sub> = 1,8) et lisses, symboles 3D de la poutre au vent et des palées (croix, cadre avec contre-poteaux), bouton d'optimisation, attache des diagonales en cornière vérifiée ; W<sub>el,z</sub> pour les U sans W<sub>pl,z</sub>.</td><td>A1 : espacement des pannes recalculé (≤ maxi), diagonales en cornière limitées par l'attache ; pannes en U : interaction linéaire.</td></tr>
 <tr><td>2.47</td><td>A1</td><td>Séisme (transversal par force latérale, longitudinal sur le contreventement, P-Δ par θ) ; contreventement : poutre au vent (panneaux sur les cours de pannes, 30° à 60°), palée en croix (1 à 4 niveaux selon l'angle) ou en cadre, stabilisation §5.3.3 ; bracons « usuels » (2<sup>e</sup> cours + faîtage) et longueur de déversement entre maintiens ; cotes sur les vues 2D et 3D.</td><td>Nouveaux critères (contreventement, séisme) ; longueur de déversement de la traverse modifiée quand des bracons sont définis.</td></tr>
 <tr><td>2.46</td><td>A1, base de données</td><td>Pannes SADEF (base ZED / SIGMA du catalogue 2023) ; poteaux PRS à inertie variable (pied ≤ 300 mm) ; bracons tous les n cours de pannes ; option d'efficacité des maintiens (pannes reliées ou non à la poutre au vent) ; vue 3D.</td><td>Nouvelles options ; résultats inchangés pour les données existantes (bracons ressaisis en nombre de cours de pannes).</td></tr>
@@ -364,6 +365,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.48"></script>
+<script src="../commun/replier.js?v=2.49"></script>
 </body>
 </html>
