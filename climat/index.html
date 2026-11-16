@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.55"></script>
+<script src="../commun/auth.js?v=2.56"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — C1 Charges climatiques et sismiques</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
@@ -12,11 +12,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../commun/lib/leaflet/leaflet.css">
 <script src="../commun/lib/leaflet/leaflet.js"></script>
-<script src="data/zonage.js?v=2.55"></script>
-<script src="data/communes.js?v=2.55"></script>
-<script src="data/departements.js?v=2.55"></script>
-<script src="../commun/coefvent.js?v=2.55"></script>
-<script src="../commun/charges.js?v=2.55"></script>
+<script src="data/zonage.js?v=2.56"></script>
+<script src="data/communes.js?v=2.56"></script>
+<script src="data/departements.js?v=2.56"></script>
+<script src="../commun/coefvent.js?v=2.56"></script>
+<script src="../commun/charges.js?v=2.56"></script>
 <style>
 :root{
   --fip-bleu:#114088; --fip-bleu-fonce:#0b2d63; --fip-rouge:#e30009; --fip-ciel:#0098db;
@@ -209,7 +209,7 @@ svg text{font-family:inherit}
   </div>
 
   <div class="tabs noprint" id="tabs">
-    <button data-p="p-vent" class="on">Vent</button><button data-p="p-neige">Neige</button><button data-p="p-seisme">Séisme</button><button data-p="p-cv">Coefficients vent</button><button data-p="p-cpx">Complexes (G1)</button><button data-p="p-syn">Synthèse</button>
+    <button data-p="p-vent" class="on">Vent</button><button data-p="p-neige">Neige</button><button data-p="p-seisme">Séisme</button><button data-p="p-cv">Coefficients vent</button><button data-p="p-syn">Synthèse</button>
   </div>
 
   <!-- ======== VENT ======== -->
@@ -285,7 +285,7 @@ svg text{font-family:inherit}
     <div>
       <div class="card"><h2>Action sismique — arrêté du 22/10/2010 + NF EN 1998-1 + AN</h2><div id="seismeRes"></div></div>
       <div class="card"><h2>Spectres de réponse horizontal et vertical (η = 1, amortissement 5 %)</h2><div id="seismeGraph"></div></div>
-      <div class="card"><h2>Éléments non structuraux — F<sub>a</sub> = S<sub>a</sub>·W<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub> (EN 1998-1 §4.3.5.2)</h2><div id="seismeFa"></div></div>
+      <div class="card"><h2>Éléments non structuraux — F<sub>a</sub> = S<sub>a</sub>·W<sub>a</sub>·γ<sub>a</sub>/q<sub>a</sub> (EN 1998-1 §4.3.5.2)</h2><div id="seismeFa"></div><div id="cpxG1" style="margin-top:8px"></div></div>
     </div>
   </div></section>
 
@@ -331,12 +331,6 @@ svg text{font-family:inherit}
       </div><div id="cvMi"></div></div>
   </section>
 
-  <!-- ======== COMPLEXES ======== -->
-  <section class="panel" id="p-cpx">
-    <div class="card"><h2>Complexes de couverture, bardage et planchers → G1 Charges permanentes</h2>
-      <div class="msg info">Les complexes (couverture, bardage, planchers, divers) sont désormais saisis dans l'outil <a href="../charges-permanentes/"><b>G1 Charges permanentes</b></a> ; les charges d'exploitation des planchers dans <a href="../charges-exploitation/"><b>Q1</b></a> ; la note d'hypothèses complète se génère dans <a href="../note-hypotheses/"><b>NH</b></a>.</div>
-      <div id="cpxG1"></div></div>
-  </section>
 
   <!-- ======== SYNTHÈSE ======== -->
   <section class="panel" id="p-syn"><div id="syn"></div></section>
@@ -692,7 +686,7 @@ function renderSeisme(Z,E){
   // Fa
   const inp=(k,n,v,st)=>`<input id="fa_${n}_${k}" type="number" step="${st}" value="${$('fa_'+n+'_'+k)?.value??v}" style="width:70px">`;
   let t=`<table class="cpx"><tr><th>Élément</th><th class="n">W<sub>a</sub> (kN/m²)</th><th>z/H</th><th>T<sub>a</sub>/T<sub>1</sub></th><th>q<sub>a</sub></th><th>γ<sub>a</sub></th><th class="n">S<sub>a</sub></th><th class="n">F<sub>a</sub> (kN/m²)</th></tr>`;
-  E.fa.forEach(x=>{t+=`<tr><td>${x.k==='bard'?'Bardage':'Couverture'} (onglet Complexes)</td><td class="n">${f(x.W,3)}</td><td>${inp(x.k,'zH',1,.1)}</td><td>${inp(x.k,'TaT',1,.1)}</td><td>${inp(x.k,'qa',2,.5)}</td><td>${inp(x.k,'ga',1,.1)}</td><td class="n">${f(x.Sa,3)}</td><td class="n"><b>${f(x.Fa,4)}</b></td></tr>`});
+  E.fa.forEach(x=>{t+=`<tr><td>${x.k==='bard'?'Bardage':'Couverture'} (complexe G1)</td><td class="n">${f(x.W,3)}</td><td>${inp(x.k,'zH',1,.1)}</td><td>${inp(x.k,'TaT',1,.1)}</td><td>${inp(x.k,'qa',2,.5)}</td><td>${inp(x.k,'ga',1,.1)}</td><td class="n">${f(x.Sa,3)}</td><td class="n"><b>${f(x.Fa,4)}</b></td></tr>`});
   t+=`</table><div class="note">S<sub>a</sub> = α·S·[3(1+z/H)/(1+(1−T<sub>a</sub>/T<sub>1</sub>)²) − 0,5] ≥ α·S (éq. 4.24) ; q<sub>a</sub> = 2,0 pour façades/cloisons (Tab. 4.4) ; γ<sub>a</sub> = 1,0 (§4.3.5.3) ; z/H = 1 et T<sub>a</sub>/T<sub>1</sub> = 1 (enveloppe) → S<sub>a</sub> = 5,5·α·S. Hypothèses à justifier selon l'élément (fixations comprises).</div>`;
   const foc=document.activeElement?.id; $('seismeFa').innerHTML=t;
   document.querySelectorAll('#seismeFa input').forEach(i=>i.oninput=render);
@@ -717,7 +711,7 @@ function graphSpectre(E){
 }
 
 function renderCpxG1(cc,cb){
-  $('cpxG1').innerHTML=`<table><tr><th>Complexe repris de G1 (forces sismiques F<sub>a</sub>, onglet Séisme)</th><th class="n">g (kN/m²)</th></tr><tr><td>Couverture : ${cc.nom?esc(cc.nom):'<i>aucun complexe de couverture dans G1</i>'}</td><td class="n">${f(cc.tot,3)}</td></tr><tr><td>Bardage : ${cb.nom?esc(cb.nom):'<i>aucun complexe de bardage dans G1</i>'}</td><td class="n">${f(cb.tot,3)}</td></tr></table>`;
+  $('cpxG1').innerHTML=`<table><tr><th>Complexe repris de <a href="../charges-permanentes/">G1 Charges permanentes</a> (poids W<sub>a</sub> des forces sismiques F<sub>a</sub>)</th><th class="n">g (kN/m²)</th></tr><tr><td>Couverture : ${cc.nom?esc(cc.nom):'<i>aucun complexe de couverture dans G1</i>'}</td><td class="n">${f(cc.tot,3)}</td></tr><tr><td>Bardage : ${cb.nom?esc(cb.nom):'<i>aucun complexe de bardage dans G1</i>'}</td><td class="n">${f(cb.tot,3)}</td></tr></table>`;
 }
 
 /* ---------- synthèse ---------- */
@@ -933,7 +927,7 @@ function init(){
   initManu();
   document.querySelectorAll('.act').forEach(b=>b.onclick=()=>{document.querySelectorAll('.act').forEach(x=>x.classList.toggle('on',x===b));S.couche=b.dataset.l;render();});
   document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p));});
-  document.querySelectorAll('main .card input, main .card select, #alt').forEach(el=>{ if(!el.closest('#p-cpx')) el.addEventListener('input',render); });
+  document.querySelectorAll('main .card input, main .card select, #alt').forEach(el=>{ el.addEventListener('input',render); });
   $('coMode').addEventListener('change',()=>{ if($('coMode').value==='p1'&&(!S.oro||S.oro.err)) calcOro(); render(); }); $('coCalc').onclick=calcOro;
   // recherche
   $('q').addEventListener('input',()=>{clearTimeout(tmr);const v=$('q').value.trim();if(v.length<3){res=[];afficherSugg();return}
@@ -959,12 +953,12 @@ $('versS1').onclick=()=>{
   catch(e){alert('Stockage indisponible sur ce navigateur.');}
 };
 </script>
-<script src="../commun/cahier.js?v=2.55"></script>
+<script src="../commun/cahier.js?v=2.56"></script>
 <script>CAHIER.remplir({affaire:'affaire',auteur:'realise'});</script>
-<script src="../commun/replier.js?v=2.55"></script>
-<script src="../commun/aide.js?v=2.55"></script>
-<script src="aide-c1.js?v=2.55"></script>
-<script src="../commun/export.js?v=2.55"></script>
+<script src="../commun/replier.js?v=2.56"></script>
+<script src="../commun/aide.js?v=2.56"></script>
+<script src="aide-c1.js?v=2.56"></script>
+<script src="../commun/export.js?v=2.56"></script>
 <script>EXPORT.init({code:'C1',titre:'Charges climatiques et sismiques',
   zones:()=>[...document.querySelectorAll('#syn > .card')].concat(['ventRes','neigeRes','neigeToit','seismeRes','seismeGraph','seismeFa'].map(id=>document.getElementById(id).closest('.card'))),
   donnees:()=>[document.querySelector('.panneau'),...document.querySelectorAll('main .card')],

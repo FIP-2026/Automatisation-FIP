@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.55"></script>
+<script src="../commun/auth.js?v=2.56"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.55">
-<script src="../commun/acier.js?v=2.55"></script>
-<script src="../commun/cahier.js?v=2.55"></script>
-<script src="../commun/pictos-s1.js?v=2.55"></script>
-<script src="../commun/notes.js?v=2.55"></script>
-<script src="../commun/ident.js?v=2.55"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.55"></script>
-<script src="../commun/dessin.js?v=2.55"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.56">
+<script src="../commun/acier.js?v=2.56"></script>
+<script src="../commun/cahier.js?v=2.56"></script>
+<script src="../commun/pictos-s1.js?v=2.56"></script>
+<script src="../commun/notes.js?v=2.56"></script>
+<script src="../commun/ident.js?v=2.56"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.56"></script>
+<script src="../commun/dessin.js?v=2.56"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -113,7 +113,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.55"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.56"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -123,7 +123,7 @@
     <div id="rGestion"></div>
   </div>
   <div class="card noprint" id="cSorties"><h2>Plans DXF et notes de calcul</h2>
-    <div class="actions"><button type="button" class="sec" id="dxfCS" title="Une planche par support type, côte à côte dans un seul fichier (DXF R12, mm, calques ISO)">⬇ Plans DXF</button> <a href="../rapport-calcul/"><button type="button" style="background:#2b579a;border-color:#2b579a">📘 Notes de calcul → Rapport de calcul (RC)</button></a></div>
+    <div class="actions"><button type="button" class="sec" id="dxfCS" title="Un folio par support type : une présentation par folio (cartouche en espace papier, vues en espace objet), DXF 2000, mm, calques ISO">⬇ Plans DXF</button> <a href="../rapport-calcul/"><button type="button" style="background:#2b579a;border-color:#2b579a">📘 Notes de calcul → Rapport de calcul (RC)</button></a></div>
     <div class="note">Plans DXF au format choisi dans « Présentation des plans types » (A3 par défaut), avec tableau des configurations et DDC si une section DDC est cochée. Les notes de calcul détaillées des supports types (simplifiées ou complètes, une par type ou par configuration) sont produites dans le <b>Rapport de calcul</b>, avec l'ossature et les assemblages de l'ouvrage.</div></div>
   <div id="ndcHorsCS" aria-hidden="true" style="position:absolute;left:-12000px;top:0;width:760px;background:#fff"></div>
   <div class="card" id="secCart"><h2>Identification</h2><div id="rCartouche"></div></div>
@@ -257,9 +257,9 @@ async function notesCS(){
 $('dxfCS').onclick=()=>occupe($('dxfCS'),async()=>{ const L=typesS1(); if(!L.length) throw new Error('aucun support type calculé');
   if(K.aRecalc||L.some(T=>T.configs.some(c=>!c.resume))) await recalculer(false);
   const A=await moteur(), md=(K.rapport.plans&&K.rapport.plans!=='schema')?K.rapport.plans:'A3', pages=[];
-  for(const T of L){ $('etat').innerHTML=`<div class="msg info">⏳ Plan ${h(T.nom)}…</div>`; A.charger(T.etat); A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})}); pages.push({svg:A.plancheVec(argsPlanche(T,A,md))}); }
+  for(const T of L){ $('etat').innerHTML=`<div class="msg info">⏳ Plan ${h(T.nom)}…</div>`; A.charger(T.etat); A.appliquerCotes({...T.cotes0,...(T.configs[0].cotes||{})}); pages.push({svg:A.plancheVec(argsPlanche(T,A,md)),nom:`F${String(K.types.indexOf(T)+1).padStart(2,'0')} ${T.nom}`}); }
   $('etat').innerHTML=''; const o=DESSIN.dxf(pages), a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([o],{type:'application/dxf'}));
-  a.download=`Plans_${String(K.affaire.doc||K.affaire.num||'cahier').replace(/[^\w-]+/g,'_')}_${md}.dxf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); });
+  a.download=DESSIN.nomFichierPlans(cartPlan(K.affaire,L[0]||{})); document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); });
 const occupe=async(b,fn)=>{ b.disabled=true; try{ await fn(); }catch(e){ alert('Calcul impossible : '+e.message); } finally{ b.disabled=false; } };
 $('recalc').onclick=()=>occupe($('recalc'),()=>recalculer(false));
 $('genFiches').onclick=()=>occupe($('genFiches'),()=>recalculer(true));
@@ -451,10 +451,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=2.55"></script>
-<script src="../commun/aide.js?v=2.55"></script>
-<script src="aide-cs.js?v=2.55"></script>
-<script src="../commun/export.js?v=2.55"></script>
+<script src="../commun/replier.js?v=2.56"></script>
+<script src="../commun/aide.js?v=2.56"></script>
+<script src="aide-cs.js?v=2.56"></script>
+<script src="../commun/export.js?v=2.56"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>
