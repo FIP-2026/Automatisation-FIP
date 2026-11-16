@@ -289,7 +289,7 @@ const PORTIQUE = (() => {
     const r = Barres3D.resoudre({ noeuds: N, barres: B, appuis: app, reparties: B.map((_, b) => ({ b, q: [0, 0, -1] })) });
     let Mt = 0, Ma = 0; r.elems.forEach((el) => [0, el.L / 2, el.L].forEach((s) => { const M = Barres3D.interne(el, s)[4]; Mt = Math.min(Mt, M); Ma = Math.max(Ma, M); }));
     const Rmax = Math.max(...Array.from({ length: n + 1 }, (_, t) => r.reactions[t * nE][2])) / e, wMax = Math.max(...N.map((_, k) => -r.depl(k)[2]));
-    const coef = { mTrav: -Mt / (e * e), mApp: Ma / (e * e), kR: cont ? Rmax : 1, w: wMax * Ek * (sec.Iy * 1e-8) / e ** 4 };
+    const coef = { mTrav: -Mt / (e * e), mApp: Ma / (e * e), kR: cont ? Rmax : 1, kEnd: cont ? r.reactions[0][2] / e : 0.5, w: wMax * Ek * (sec.Iy * 1e-8) / e ** 4 };   // kEnd : part reprise par le portique de pignon
     // charges sur la panne (kN/m) : normale (flexion forte) et tangentielle (flexion faible, reprise par les liernes)
     const gp = (D.gCouv + (D.gDiv || 0)) * a + (P.prof ? P.prof.m : P.m || 0) * g0 / 1000, s = D.neige && D.neige.sk ? 0.8 * D.neige.Ce * D.neige.Ct * D.neige.sk * a * ca + (D.neige.maj || 0) * a * ca : 0;
     const cw = Ccl || { max: 0, min: 0 }, qp = D.vent ? D.vent.qp || 0 : 0, wD = cw.max * qp * a, wU = cw.min * qp * a;
