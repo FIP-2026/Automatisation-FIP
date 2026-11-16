@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.48"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — AS1 Barres tendues boulonnées</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.48">
+<script src="../commun/apps.js?v=2.48"></script>
+<script src="../commun/cahier.js?v=2.48"></script>
+<script src="../commun/data/profils.js?v=2.48"></script>
+<script src="../commun/acier.js?v=2.48"></script>
+<script src="../commun/tendues.js?v=2.48"></script>
+<style>.fig svg{width:100%;max-width:560px;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">AS1</span>Barres tendues boulonnées – cornières et UPN</h1>
+    <div class="sub">NF EN 1993-1-1 §6.2.3 · NF EN 1993-1-8 + AN §3.5, §3.6.1, §3.10.2, §3.10.3 · compléments CTICM (excentricité, diffusion à 30°)</div>
+  </div>
+  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+</header>
+<main>
+<section id="form">
+  <div class="card"><div id="aff" class="note"></div><div id="origine"></div></div>
+  <div class="card" id="cBarre"><h2>Barre</h2>
+    <div class="row3"><div><label>Type</label><select id="type"><option value="L">Cornière(s)</option><option value="U">UPN</option></select></div><div><label>Section</label><select id="prof"></select></div><div><label>Nombre</label><select id="nb"><option value="1">1 (simple)</option><option value="2">2 (jumelés, gousset entre)</option></select></div></div>
+    <div class="row"><div><label>Nuance</label><select id="nuance"><option>S235</option><option>S275</option><option>S355</option></select></div><div><label>Effort de traction N<sub>Ed</sub> (kN)</label><input id="NEd" type="number" step="0.5" value="40"></div></div></div>
+  <div class="card" id="cBoul"><h2>Boulons</h2>
+    <div class="row3"><div><label>Diamètre</label><select id="boulon"></select></div><div><label>Classe</label><select id="classe"></select></div><div><label>Jeu dans les trous (mm)</label><input id="jeu" type="number" step="1" value="2"></div></div>
+    <div class="row3"><div><label>Boulons par file (n)</label><input id="n" type="number" min="1" step="1" value="2"></div><div id="wNr"><label>Nombre de files (UPN)</label><input id="nr" type="number" min="1" step="1" value="2"></div><div><label>Plan de cisaillement dans le filetage</label><select id="filete"><option value="1">oui</option><option value="0">non</option></select></div></div>
+    <div class="row3"><div><label>e<sub>1</sub> pince longitudinale (mm)</label><input id="e1" type="number" value="35"></div><div><label>p<sub>1</sub> entraxe (mm)</label><input id="p1" type="number" value="50"></div><div><label id="le2">e<sub>2</sub> pince transversale (mm)</label><input id="e2" type="number" value="27"></div></div>
+    <div class="row" id="wP2"><div><label>p<sub>2</sub> entre files (mm)</label><input id="p2" type="number" value="100"></div><div></div></div></div>
+  <div class="card" id="cGou"><h2>Gousset</h2>
+    <div class="row3"><div><label>Épaisseur (mm, 0 = non vérifié)</label><input id="tg" type="number" value="8"></div><div><label>e<sub>1</sub> gousset (mm)</label><input id="e1g" type="number" value="35"></div><div><label>e<sub>2</sub> gousset (mm)</label><input id="e2g" type="number" value="35"></div></div>
+    <div class="row"><div><label>Nuance du gousset</label><select id="nuG"><option>S235</option><option>S275</option><option>S355</option></select></div><div></div></div></div>
+</section>
+<section id="res">
+  <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong>AS1 – Barre tendue boulonnée</strong><br><span id="phInfo"></span></div>
+  <div class="card" id="rSyn"></div>
+  <div class="card"><h2>Schéma de l'attache</h2><div id="rSch" class="fig"></div></div>
+  <div class="card"><h2>Vérifications</h2><div id="rVer"></div></div>
+  <div class="card"><h2>Méthode et références</h2><div id="rMeth"></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id), f=fmtN, h=escH, num=(id,d=0)=>{const v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:d;};
+$('boulon').innerHTML=Object.keys(TENDUES.BOULONS).map(k=>`<option ${k==='M16'?'selected':''}>${k}</option>`).join('');
+$('classe').innerHTML=Object.keys(TENDUES.CLASSES).map(k=>`<option ${k==='8.8'?'selected':''}>${k}</option>`).join('');
+const remplir=()=>{ const t=$('type').value; $('prof').innerHTML=PROFILS.filter(p=>t==='L'?p.f==='L':p.f==='UPN').map(p=>`<option>${p.n}</option>`).join(''); $('wNr').hidden=t!=='U'; $('wP2').hidden=t!=='U'; $('le2').innerHTML=t==='L'?'e<sub>2</sub> pince transversale, depuis le bord libre de l\'aile (mm)':'e<sub>2</sub> pince transversale (mm)'; };
+remplir(); $('prof').value='L 60x60x6'; $('type').addEventListener('change',()=>{ remplir(); calc(); });
+(()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:null; $('aff').innerHTML=K&&(K.num||K.intitule)?`Affaire : <b>${h(CAHIER.libAffaire(K))}</b>`:'Affaire : renseigner l\'identification dans le <a href="../cahier/">cahier de supportage</a>.'; })();
+// reprise depuis A1 (diagonale de contreventement)
+try{ const o=JSON.parse(localStorage.getItem('fip.as1.pre')); if(o&&Date.now()-o.t<36e5){ $('type').value=o.type||'L'; remplir(); if(o.prof) $('prof').value=o.prof; if(o.NEd) $('NEd').value=+o.NEd.toFixed(2); if(o.nuance) $('nuance').value=o.nuance; $('origine').innerHTML=`<div class="msg info" style="margin-top:6px">Données reprises de ${h(o.src||'A1')} : ${h(o.prof)}, N<sub>Ed</sub> = ${f(o.NEd,1)} kN. <a href="../auvent/">← retour</a></div>`; localStorage.removeItem('fip.as1.pre'); } }catch(e){}
+function schema(o,R){ const W=640,H=230; let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif" font-size="11">`;
+  const x0=60,y0=70,sc=Math.min(2.2,300/(o.e1+(o.n-1)*o.p1+60)), Lb=(o.e1+(o.n-1)*o.p1+40)*sc, hb=(o.type==='L'?o.prof.h:o.prof.h)*sc*0.9;
+  s+=`<polygon points="${x0-20},${y0-30} ${x0+Lb*0.55},${y0-30} ${x0+Lb+70},${y0+hb/2} ${x0+Lb*0.55},${y0+hb+30} ${x0-20},${y0+hb+30}" fill="#eef1f5" stroke="#8a929c"/><text x="${x0-14}" y="${y0-36}" fill="#5f6670">gousset t = ${o.tg} mm</text>`;
+  s+=`<rect x="${x0+20}" y="${y0}" width="${Lb+160}" height="${hb}" fill="#cfd8e3" stroke="#171a1e"/><text x="${x0+Lb+110}" y="${y0+hb/2+4}" fill="#171a1e" font-weight="700">${h(o.prof.n)}${o.nb>1?' ×2':''}</text>`;
+  const nr=o.type==='U'?Math.max(1,o.nr):1, yL=r=>o.type==='U'?y0+hb/2+(r-(nr-1)/2)*o.p2*sc:y0+hb-o.e2*sc;
+  for(let r=0;r<nr;r++) for(let k=0;k<o.n;k++){ const xb=x0+20+Lb-(o.e1+k*o.p1)*sc+20; s+=`<circle cx="${xb}" cy="${yL(r)}" r="${Math.max(3,o.d0/2*sc)}" fill="#fff" stroke="#e30009" stroke-width="1.6"/>`; }
+  const xe=x0+20+Lb+20; s+=`<line x1="${xe+120}" y1="${y0+hb/2}" x2="${xe+175}" y2="${y0+hb/2}" stroke="#e30009" stroke-width="2.4"/><path d="M${xe+175},${y0+hb/2-5} l9,5 l-9,5z" fill="#e30009"/><text x="${xe+120}" y="${y0+hb/2-8}" fill="#e30009" font-weight="700">N = ${f(o.NEd,1)} kN</text>`;
+  s+=`<text x="${x0}" y="${H-30}" fill="#5f6670">${o.n*nr} ${o.boulon} ${o.classe} · d<tspan font-size="8" dy="2">0</tspan><tspan dy="-2"> = ${R.d0} mm${R.surd?' (surdimensionné)':''} · e₁ = ${o.e1}, p₁ = ${o.p1}, e₂ = ${o.e2}${o.type==='U'&&nr>1?', p₂ = '+o.p2:''} mm</tspan></text><text x="${x0}" y="${H-12}" fill="#5f6670">capacité de l'attache N<tspan font-size="8" dy="2">Rd</tspan><tspan dy="-2"> = ${f(R.NRd,1)} kN</tspan></text>`;
+  return s+'</svg>'; }
+function calc(){
+  const o={type:$('type').value,prof:profil($('prof').value),nb:+$('nb').value,nuance:$('nuance').value,NEd:num('NEd',0),boulon:$('boulon').value,classe:$('classe').value,n:Math.max(1,Math.round(num('n',2))),nr:Math.max(1,Math.round(num('nr',1))),
+    jeu:num('jeu',2),filete:$('filete').value==='1',e1:num('e1',35),p1:num('p1',50),e2:num('e2',27),p2:num('p2',100),tg:num('tg',8),e1g:num('e1g',35),e2g:num('e2g',35),nuanceG:$('nuG').value};
+  try{ const R=TENDUES.calculer(o); o.d0=R.d0; const L=R.lignes; L.forEach(l=>l.gov=l===R.gouv);
+    $('rSyn').innerHTML=`<h2>Synthèse</h2><div style="font-size:18px;font-weight:800;color:${R.gouv.r<=1?'#1d7a36':'#c0141c'}">${R.gouv.r<=1?'✔ ATTACHE VÉRIFIÉE':'✘ ATTACHE NON VÉRIFIÉE'} – taux maxi ${f(R.gouv.r*100,0)} %</div><div class="note">Capacité N<sub>Rd</sub> = ${f(R.NRd,1)} kN – critère : ${R.gouv.n}</div>${R.alertes.length?`<div class="msg warn">Dispositions constructives (Tab. 3.3) : ${R.alertes.join(' ; ')}.</div>`:''}`;
+    $('rSch').innerHTML=schema(o,R); $('rVer').innerHTML=barresRatios(L)+alerteTaux(L);
+    $('phInfo').textContent=`${o.prof.n}${o.nb>1?' ×2':''} · ${o.n*(o.type==='U'?o.nr:1)} ${o.boulon} ${o.classe} · N = ${f(o.NEd,1)} kN · ${new Date().toLocaleDateString('fr-FR')}`;
+    $('rMeth').innerHTML=`<ul><li>Boulons : F<sub>v,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> par plan, γ<sub>M2</sub> = 1,25 ; cornières : réduction CTICM 1/√(1 + (n·β)²), β = 6·e/(n(n + 1)·p<sub>1</sub>), e = distance trusquinage – axe neutre ; × 0,85 pour M12/M14 avec 2 mm de jeu (§3.6.1(5)).</li>
+      <li>Section nette d'une cornière attachée par une aile : §3.10.3, β<sub>2</sub> (2 boulons) ou β<sub>3</sub> (≥ 3) interpolés sur p<sub>1</sub>/d<sub>0</sub> ; UPN : 0,9·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub>.</li>
+      <li>Pression diamétrale (Tab. 3.4) combinée avec l'effort perpendiculaire dû à l'excentricité (cornières) ; trous surdimensionnés × 0,8.</li>
+      <li>Cisaillement de bloc §3.10.2 : 0,5·f<sub>u</sub>·A<sub>nt</sub>/γ<sub>M2</sub> + f<sub>y</sub>·A<sub>nv</sub>/(√3·γ<sub>M0</sub>) (excentré) ou f<sub>u</sub>·A<sub>nt</sub>/γ<sub>M2</sub> + … (centré).</li>
+      <li>Gousset : largeur efficace par diffusion à 30° (CTICM), section brute et nette, pression diamétrale, bloc.</li>
+      <li>Méthode reprise du classeur « Calculette assemblages boulonnés » (BE CM) et vérifiée sur ses deux exemples (écarts ≤ 0,1 %, manuel technique chapitre 16).</li></ul>`;
+  }catch(err){ $('rSyn').innerHTML=`<div class="msg bad">Calcul impossible : ${h(err.message)}</div>`; }
+}
+document.querySelectorAll('#form input, #form select').forEach(el=>el.addEventListener('input',calc));
+calc();
+</script>
+<script src="../commun/replier.js?v=2.48"></script>
+<script src="../commun/export.js?v=2.48"></script>
+<script>EXPORT.init({code:'AS1',titre:'Barre tendue boulonnée',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],nom:()=>document.getElementById('prof').value});</script>
+<script src="../commun/aide.js?v=2.48"></script>
+<script>AIDE.init({titre:"Aide – AS1 Barres tendues boulonnées",manuel:"as1",intro:"AS1 vérifie l'attache boulonnée d'une barre tendue (cornière simple ou jumelée attachée par une aile, UPN par l'âme) sur un gousset : boulons, section brute et nette, pression diamétrale, cisaillement de bloc, gousset. Méthode du classeur BE CM, conforme à la NF EN 1993-1-8.",
+  etapes:[{t:"Barre",html:"Type, section, nombre (2 = cornières ou UPN jumelés de part et d'autre du gousset, boulons en double cisaillement), nuance et effort de traction.",cible:"#cBarre"},
+    {t:"Boulons",html:"Diamètre, classe, jeu, nombre par file, pinces e<sub>1</sub>, e<sub>2</sub> et entraxe p<sub>1</sub> (p<sub>2</sub> entre files pour les UPN). Pour une cornière, e<sub>2</sub> est mesurée depuis le bord libre de l'aile : la ligne de trusquinage est à (aile − e<sub>2</sub>) du talon.",cible:"#cBoul"},
+    {t:"Gousset",html:"Épaisseur, pinces et nuance ; 0 pour ne pas le vérifier.",cible:"#cGou"}],
+  faq:[{q:"Pourquoi une réduction sur le cisaillement des boulons ?",r:"La ligne de boulons d'une cornière n'est pas sur son axe neutre : le moment d'excentricité ajoute aux boulons un effort perpendiculaire (méthode CTICM : facteur 1/√(1 + (n·β)²))."},
+    {q:"Lien avec A1 ?",r:"Dans A1 (auvent), les diagonales en cornière du contreventement sont vérifiées avec une attache par défaut (2 M16 8.8, gousset 8 mm) ; le bouton « Détailler l'attache dans AS1 » ouvre AS1 avec la section et l'effort."}]});</script>
+</body>
+</html>

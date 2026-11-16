@@ -4,24 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.47"></script>
+<script src="../commun/auth.js?v=2.48"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — A1 Toiture isolée (auvent)</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.47">
-<script src="../commun/apps.js?v=2.47"></script>
-<script src="../commun/cahier.js?v=2.47"></script>
-<script src="../commun/data/profils.js?v=2.47"></script>
-<script src="../commun/data/tuyauterie.js?v=2.47"></script>
-<script src="../commun/data/sadef.js?v=2.47"></script>
-<script src="../commun/acier.js?v=2.47"></script>
-<script src="../commun/coefvent.js?v=2.47"></script>
-<script src="../commun/barres3d.js?v=2.47"></script>
-<script src="../commun/charges.js?v=2.47"></script>
-<script src="../commun/notes.js?v=2.47"></script>
-<script src="../commun/portique.js?v=2.47"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.48">
+<script src="../commun/apps.js?v=2.48"></script>
+<script src="../commun/cahier.js?v=2.48"></script>
+<script src="../commun/data/profils.js?v=2.48"></script>
+<script src="../commun/data/tuyauterie.js?v=2.48"></script>
+<script src="../commun/data/sadef.js?v=2.48"></script>
+<script src="../commun/acier.js?v=2.48"></script>
+<script src="../commun/coefvent.js?v=2.48"></script>
+<script src="../commun/barres3d.js?v=2.48"></script>
+<script src="../commun/charges.js?v=2.48"></script>
+<script src="../commun/notes.js?v=2.48"></script>
+<script src="../commun/tendues.js?v=2.48"></script>
+<script src="../commun/portique.js?v=2.48"></script>
 <style>
   .prs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .fig svg{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}
@@ -53,6 +54,7 @@
   <div class="card" id="cProf"><h2>Profilés (S235 à S355)</h2>
     <div class="row"><div><label>Nuance</label><select id="nuance"><option>S235</option><option>S275</option><option selected>S355</option></select></div><div></div></div>
     <div id="sCol"></div><div id="sTra"></div>
+    <button type="button" class="sec noprint" id="opti" style="margin-top:8px;width:100%">⚙ Optimiser : profilés laminés les plus légers (taux ≤ 100 %)</button><div id="optiMsg" class="note"></div>
     <label class="chk" style="margin-top:6px"><input type="checkbox" id="jarret" checked> Jarrets aux nœuds de tête (longueur 10 % de la portée)</label>
     <div class="row"><div><label>Hauteur ajoutée par le jarret au nu du poteau (mm)</label><input id="hj" type="number" step="10" placeholder="= h traverse"></div><div><label>Longueur L<sub>j</sub> (m)</label><input id="Lj" disabled></div></div></div>
 
@@ -65,7 +67,7 @@
 
   <div class="card" id="cPan"><h2>Pannes</h2>
     <div class="row"><div><label>Type</label><select id="pType"><option value="lam">Profilé laminé (vérifié)</option><option value="sadef">Profil mince SADEF (charge admissible du catalogue)</option></select></div>
-      <div><label>Espacement le long du rampant (m)</label><input id="aPanne" type="number" step="0.1" value="1.6"></div></div>
+      <div><label>Espacement maxi le long du rampant (m)</label><input id="aPanne" type="number" step="0.1" value="1.6"></div><div><label>Cours de faîtage : décalage de part et d'autre du faîtage (m)</label><input id="dFait" type="number" step="0.05" value="0.2"></div></div>
     <div id="pLam" class="row"><div><label>Famille</label><select id="pFam"></select></div><div><label>Profilé</label><select id="pProf"></select></div></div>
     <div id="pSad" hidden><div class="row"><div><label>Profil SADEF</label><select id="sProf"></select></div><div><label>Caractéristiques brutes</label><input id="sCar" disabled></div></div>
       <div class="row3"><div><label>W<sub>eff,y</sub> (cm³)</label><input id="sWeff" type="number" step="0.1" placeholder="sur demande SADEF"></div><div><label>χ<sub>LT</sub> soulèvement</label><input id="sChi" type="number" step="0.05" placeholder="§10.1.4"></div><div></div></div>
@@ -83,6 +85,13 @@
     <h3>Vent</h3>
     <div class="row3"><div><label>q<sub>p</sub>(z<sub>e</sub>) (kN/m²)</label><input id="qp" type="number" step="0.01" value="0.6"></div><div><label>Obstruction φ (0 vide – 1 encombré)</label><input id="phi" type="number" step="0.1" min="0" max="1" value="0"></div><div><label>c<sub>f</sub> des poteaux</label><input id="cfCol" type="number" step="0.1" value="2"></div></div>
     <div id="srcC" class="note"></div></div>
+
+  <div class="card" id="cBand"><h2>Bandeau de bardage (fermeture partielle)</h2>
+    <div class="row3"><div><label>Bandeau</label><select id="band"><option value="0">aucun</option><option value="lp">long-pans</option><option value="tour">pourtour (long-pans et pignons)</option></select></div>
+      <div><label>Hauteur depuis la rive (m)</label><input id="hb" type="number" step="0.1" value="2"></div><div><label>Bardage + accessoires (kN/m²)</label><input id="gb" type="number" step="0.01" value="0.10"></div></div>
+    <div class="row3" id="wLis"><div><label>Lisses : famille</label><select id="lFam"><option>UPE</option><option>UPN</option><option>IPE</option><option value="SADEF">SADEF</option></select></div><div><label>Profilé</label><select id="lProf"></select></div><div><label>Espacement (m)</label><input id="al" type="number" step="0.1" value="1.0"></div></div>
+    <div class="row" id="wLis2"><div><label>Suspentes / liernes de lisses</label><select id="lLi"><option value="0">aucune</option><option value="1" selected>à mi-portée</option><option value="2">aux tiers</option></select></div><div><label>W<sub>eff</sub> SADEF (cm³)</label><input id="lWeff" type="number" step="0.1" placeholder="si SADEF"></div></div>
+    <div class="note">Bandeau traité comme un panneau surélevé (NF EN 1991-1-4 §7.4.3, c<sub>f</sub> = 1,8, pression ou dépression) : charge horizontale sur la hauteur du bandeau en tête de poteau, lisses en flexion (vent) et en flexion d'axe faible (poids du bardage, repris par les suspentes). Augmenter l'obstruction φ de la toiture si le bandeau gêne l'écoulement sous l'auvent.</div></div>
 
   <div class="card" id="cCv"><h2>Contreventement et séisme</h2>
     <div class="row3"><div><label>Travées contreventées</label><select id="nPav"><option value="1">1 (une poutre au vent)</option><option value="2" selected>2 (une à chaque extrémité)</option></select></div>
@@ -110,7 +119,7 @@
   <div class="card"><h2>Enveloppe ELU des moments et déformée ELS</h2><div id="rDiag" class="fig"></div></div>
   <div class="card"><h2>Stabilité globale du portique (NF EN 1993-1-1 §5.2, §5.3)</h2><div id="rStab"></div></div>
   <div class="card"><h2>Vérifications des barres</h2><div id="rVer"></div></div>
-  <div class="card"><h2>Pannes</h2><div id="rPan"></div></div>
+  <div class="card"><h2>Pannes et lisses</h2><div id="rPan"></div><div id="rLis"></div></div>
   <div class="card"><h2>Contreventement longitudinal (poutre au vent, palées)</h2><div id="rCv" class="fig"></div></div>
   <div class="card"><h2>Descente de charges aux pieds de poteaux</h2><div id="rDdc"></div></div>
   <div class="card"><h2>Hypothèses, références et limites</h2><div id="rHyp"></div></div>
@@ -127,11 +136,13 @@ function blocProf(id,titre,def,fams=FAM){ $(id).innerHTML=`<h3>${titre}</h3><div
   const remplir=()=>{ const fa=q('fam').value; q('prof').innerHTML=PROFILS.filter(p=>p.f===fa).map(p=>`<option>${p.n}</option>`).join(''); document.querySelector(`[data-r="${id}"][data-z="lam"]`).hidden=/^PRS/.test(fa); document.querySelector(`[data-r="${id}"][data-z="prs"]`).hidden=!/^PRS/.test(fa); document.querySelector(`[data-r="${id}"][data-z="var"]`).hidden=fa!=='PRS variable'; };
   q('fam').value=def[0]; remplir(); if(def[1]) q('prof').value=def[1]; q('fam').addEventListener('change',()=>{remplir();calc();});
   return { lire:()=>{ const fa=q('fam').value; return /^PRS/.test(fa)?PORTIQUE.sectionI(+q('h').value,+q('b').value,+q('tw').value,+q('tf').value):profil(q('prof').value); },
+    fam:()=>q('fam').value, choisir:n=>{ q('prof').value=n; },
     variable:()=>q('fam').value==='PRS variable'?{h0:+q('h0').value,h1:+q('h').value,b:+q('b').value,tw:+q('tw').value,tf:+q('tf').value}:null,
     etat:()=>({fam:q('fam').value,prof:q('prof').value,h:q('h').value,b:q('b').value,tw:q('tw').value,tf:q('tf').value,h0:q('h0').value}),
     charger:o=>{ if(!o) return; q('fam').value=o.fam; remplir(); ['prof','h','b','tw','tf','h0'].forEach(k=>{ if(o[k]!=null) q(k).value=o[k]; }); } };
 }
 const SC=blocProf('sCol','Poteaux',['IPE','IPE 360'],['IPE','HEA','HEB','PRS','PRS variable']), ST=blocProf('sTra','Traverse',['IPE','IPE 330']);
+const remplirL=()=>{ const fa=$('lFam').value; $('lProf').innerHTML=(fa==='SADEF'?SADEF.LISTE:PROFILS.filter(p=>p.f===fa)).map(p=>`<option>${p.n}</option>`).join(''); }; remplirL(); $('lProf').value='UPE 140'; $('lFam').addEventListener('change',()=>{ remplirL(); calc(); });
 $('dCorn').innerHTML=PROFILS.filter(p=>p.f==='L').map(p=>`<option>${p.n}</option>`).join(''); if(profil('L 60x60x6')) $('dCorn').value='L 60x60x6';
 $('sProf').innerHTML=['ZED','SIGMA'].map(fa=>`<optgroup label="${fa}">${SADEF.LISTE.filter(p=>p.f===fa).map(p=>`<option>${p.n}</option>`).join('')}</optgroup>`).join(''); $('sProf').value='Z 200x2';
 $('pFam').innerHTML=['IPE','UPE','UPN','HEA'].map(x=>`<option>${x}</option>`).join('');
@@ -151,7 +162,7 @@ function repC1(){ const C=CH.lire('C'), r=C&&C.res; let t=[];
   $('srcC').innerHTML=t.length?'Repris : '+t.join(' ; ')+(C?` (C1 du ${new Date(C.date).toLocaleDateString('fr-FR')}). Vérifier que z<sub>e</sub> correspond à la hauteur de l'auvent.`:''):'C1 / G1 non renseignés dans ce navigateur : valeurs saisies.'; }
 $('repC1').onclick=()=>{ CPX=remplirG(); repC1(); calc(); };
 /* ---------- état ---------- */
-const CH_IDS=['type','L','H','p','e','nP','nuance','hj','maintCol','nBrac','aPav','pType','aPanne','pFam','pProf','sProf','sWeff','sChi','sqD','sqU','sqS','liernes','nPav','palee','cfr','dType','dRond','dCorn','dNu','ag','sS','sq','TB','TC','TD','gSel','gCouv','gDiv','qH','sk','Ce','Ct','maj','sAd','alt','qp','phi','cfCol','wL','hH','wPanne'];
+const CH_IDS=['type','L','H','p','e','nP','nuance','hj','maintCol','nBrac','aPav','pType','aPanne','dFait','pFam','pProf','sProf','sWeff','sChi','sqD','sqU','sqS','liernes','band','hb','gb','lFam','lProf','al','lLi','lWeff','nPav','palee','cfr','dType','dRond','dCorn','dNu','ag','sS','sq','TB','TC','TD','gSel','gCouv','gDiv','qH','sk','Ce','Ct','maj','sAd','alt','qp','phi','cfCol','wL','hH','wPanne'];
 function sauver(){ try{ localStorage.setItem(CLE,JSON.stringify({v:Object.fromEntries(CH_IDS.map(k=>[k,$(k).value])),jar:$('jarret').checked,eff:$('maintEff').checked,seis:$('seis').checked,col:SC.etat(),tra:ST.etat()})); }catch(e){} }
 function charger(){ try{ const o=JSON.parse(localStorage.getItem(CLE)); if(!o) return false; SC.charger(o.col); ST.charger(o.tra); if(o.v.pFam){ $('pFam').value=o.v.pFam; remplirP(); }
   CH_IDS.forEach(k=>{ if(o.v[k]!=null) $(k).value=o.v[k]; }); $('jarret').checked=!!o.jar; if(o.eff!=null) $('maintEff').checked=o.eff; if(o.seis!=null) $('seis').checked=o.seis; return true; }catch(e){ return false; } }
@@ -162,9 +173,13 @@ function donnees(){
     jarret:$('jarret').checked,Lj:0.1*L,hj:$('hj').value===''?tra.h:num('hj',tra.h),maintCol:+$('maintCol').value,lBas:0,nBrac:$('nBrac').value,maintEff:$('maintEff').checked,aPav:num('aPav',3.2),aPanne:a,colVar:SC.variable(),
     gCouv:num('gCouv',0),gDiv:num('gDiv',0),qH:+$('qH').value,neige:{sk:num('sk',0),Ce:num('Ce',1),Ct:num('Ct',1),maj:num('maj',0),sAd:num('sAd',0),alt1000:$('alt').value==='1'},
     vent:{qp:num('qp',0),phi:Math.min(1,Math.max(0,num('phi',0)))},seisme:{on:$('seis').checked,ag:num('ag',0),S:num('sS',1),q:num('sq',1.5),TB:num('TB',0.05),TC:num('TC',0.25),TD:num('TD',2.5)},
+    band:$('band').value==='0'?null:{tour:$('band').value==='tour',hb:num('hb',2),g:num('gb',0.1),cf:1.8,al:num('al',1),liernes:+$('lLi').value,lisse:$('lFam').value==='SADEF'?{type:'sadef',prof:SADEF.profil($('lProf').value),Weff:num('lWeff',0)}:{type:'lam',prof:profil($('lProf').value)}},
     cv:{nPav:+$('nPav').value,palee:$('palee').value,cfr:+$('cfr').value,nuanceDiag:$('dNu').value,diag:$('dType').value==='rond'?{type:'rond',d:+$('dRond').value}:{type:'L',prof:profil($('dCorn').value)}},cfCol:num('cfCol',2),wL:num('wL',200),hH:num('hH',150),wPanne:num('wPanne',200),liernes:+$('liernes').value,
     panne:pType==='lam'?{type:'lam',prof:pr}:{type:'sadef',prof:SADEF.profil($('sProf').value),Weff:num('sWeff',0),chiU:num('sChi',0),qD:num('sqD',0),qU:num('sqU',0),qS:num('sqS',0)}};
-  D.gPannes=D.panne.prof.m*9.81/1000/a;
+  // cours de pannes : 1er cours en rive, cours de faîtage décalés de part et d'autre du faîtage (bi-pente), intervalles égaux ≤ espacement maxi
+  { const bi=D.type==='bi', Lr=bi?Math.hypot(L/2,D.p/100*L/2):Math.hypot(L,D.p/100*L), off=bi?Math.max(0,num('dFait',0.2)):0, nb=Math.max(1,Math.ceil((Lr-off)/a-1e-9));
+    D.offFait=off; D.nbCours=nb; D.aPanne=(Lr-off)/nb; }
+  D.gPannes=D.panne.prof.m*9.81/1000/D.aPanne;
   if(D.colVar) D.col={...D.col,n:`PRS variable ${D.colVar.h0}→${D.colVar.h1}×${D.colVar.b}×${D.colVar.tw}×${D.colVar.tf}`};
   return D;
 }
@@ -174,8 +189,8 @@ function cPannes(D){ const a=Math.atan(D.p/100)*180/Math.PI;
   const T=CV.toitIsolee2(a,D.vent.phi); return {max:Math.max(...T.max.slice(1)),min:Math.min(...T.min.slice(1)),src:'Tab. 7.7, c<sub>p,net</sub> zones A à D : valeur extrême'}; }
 /* ---------- dessins ---------- */
 /* cours de pannes le long de chaque rampant (espacement réel = rampant / nombre d'intervalles) et bracons */
-function cours(D,Gm){ const nb=Math.max(1,Math.round(Gm.Lr/D.aPanne)), Lh=Gm.bi?Gm.L/2:Gm.L, out=[];
-  for(let r=0;r<(Gm.bi?2:1);r++) for(let k=0;k<=nb;k++){ if(Gm.bi&&r===1&&k===nb) continue; const u=k/nb; out.push({x:r===0?u*Lh:Gm.L-u*Lh,k,r,nb}); }
+function cours(D,Gm){ const nb=D.nbCours||Math.max(1,Math.round(Gm.Lr/D.aPanne)), ca=Math.cos(Gm.alpha), out=[];
+  for(let r=0;r<(Gm.bi?2:1);r++) for(let k=0;k<=nb;k++){ const u=k*D.aPanne*ca; if(Gm.bi&&r===1&&k===nb&&!(D.offFait>0)) continue; out.push({x:r===0?u:Gm.L-u,k,r,nb}); }
   return out; }
 function bracons(D,Gm){ const n=D.nBrac, C=cours(D,Gm); if(!n||n==='0') return [];
   if(n==='u'){ const nb=C[0].nb, ks=Gm.bi?[2,nb]:[2,nb-2,Math.round(nb/2)]; return [...new Set(C.filter(c=>ks.includes(c.k)&&c.k>0&&c.k<=nb&&c.x>1e-6&&c.x<Gm.L-1e-6).map(c=>+c.x.toFixed(4)))]; }
@@ -197,7 +212,7 @@ function dessin(A,opt){ const Gm=A.Gm, W=700, Hs=340, m=95, sc=Math.min((W-2*m)/
   s+=`<text x="${X(Gm.bi?Gm.L/4:Gm.L/2)}" y="${Y(Gm.zT(Gm.bi?Gm.L/4:Gm.L/2))-26}" text-anchor="middle" fill="#114088" font-weight="700">pente ${f(Gm.pt*100,1)} % (${f(Gm.alpha*180/Math.PI,1)}°)</text>`;
   if(opt&&opt.D){ const C=cours(opt.D,Gm), B=bracons(opt.D,Gm); C.forEach(c=>{ const z=Gm.zT(c.x); s+=`<line x1="${X(c.x)}" y1="${Y(z)-3}" x2="${X(c.x)}" y2="${Y(z)-9}" stroke="#5f6670" stroke-width="2"/>`; });
     B.forEach(x=>{ const z=Gm.zT(x); s+=`<line x1="${X(x)}" y1="${Y(z)}" x2="${X(x)+8}" y2="${Y(z)+14}" stroke="#7a5af8" stroke-width="1.6"/>`; });
-    s+=`<text x="${X(0)}" y="${Hs-6}" fill="#5f6670" font-size="10">Cours de pannes : ${C[0].nb} intervalles de ${f(Gm.Lr/C[0].nb,2)} m par rampant${B.length?` · bracons (violet) à x = ${B.map(x=>f(x,2)).join(' ; ')} m`:''}</text>`; }
+    s+=`<text x="${X(0)}" y="${Hs-6}" fill="#5f6670" font-size="10">Cours de pannes : ${C[0].nb} intervalles de ${f(opt.D.aPanne,2)} m par rampant${opt.D.offFait?` + cours de faîtage à ±${f(opt.D.offFait,2)} m`:''}${B.length?` · bracons (violet) à x = ${B.map(x=>f(x,2)).join(' ; ')} m`:''}</text>`; }
   return s+'</svg>'; }
 function svgCas(A,id){ const c=A.C[id]; if(!c) return ()=>''; return (X,Y,sc)=>{ let s=''; const all=c.V.map(o=>({b:o.b,q:[0,0,o.q[2]]})).concat(c.Hz.map(o=>({b:o.b,q:[o.q[0],0,0]})));
   const tot={}; all.forEach(o=>{ const t=tot[o.b]||(tot[o.b]=[0,0]); t[0]+=o.q[0]; t[1]+=o.q[2]; });
@@ -225,30 +240,41 @@ function svgDiag(A,V){ const Gm=A.Gm, K=V.comb, env=Gm.B.map((b,k)=>{ const L=Ba
       s+=`<text x="${Math.min(W0-40,Math.max(40,X(x)+v*k*R.R[2][0]))}" y="${Y(z)-v*k*R.R[2][2]+(v>0?-4:12)}" font-size="10" text-anchor="middle" font-weight="700" fill="${v>0?'#c0141c':'#114088'}">${f(v,1)} kNm</text>`; });
     return s+`<text x="10" y="16" font-size="11" font-weight="700" fill="#114088">Enveloppe ELU de M<tspan font-size="8" dy="2">y</tspan><tspan dy="-2"> (côté fibre tendue) · déformée ELS (vert, amplifiée)</tspan></text><text x="10" y="30" font-size="9.5" fill="#5f6670">déformée : ${cc.nom.replace(/<[^>]+>/g,'')}</text>`; }}); }
 /* ---------- vue 3D (axonométrie) ---------- */
-function vue3D(A,D){ const Gm=A.Gm, nP=D.nP, e=D.e, Lt=(nP-1)*e, c30=Math.cos(Math.PI/6), s30=0.5;
+function vue3D(A,D,CV){ const Gm=A.Gm, nP=D.nP, e=D.e, Lt=(nP-1)*e, c30=Math.cos(Math.PI/6), s30=0.5;
   const P3=(x,y,z)=>[x*c30-y*c30*0.55, -z-x*s30-y*s30*0.55];
   const pts=[]; for(let i=0;i<nP;i++) [[0,0],[0,Gm.H],[Gm.L,0],[Gm.L,Gm.hD],[Gm.bi?Gm.L/2:Gm.L,Gm.Hd]].forEach(([x,z])=>pts.push(P3(x,i*e,z)));
   const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]), W=700, H=380, m=30, sc=Math.min((W-2*m)/(Math.max(...xs)-Math.min(...xs)),(H-2*m-30)/(Math.max(...ys)-Math.min(...ys)));
   const T=(x,y,z)=>{ const p=P3(x,y,z); return [m+(p[0]-Math.min(...xs))*sc, m+20+(p[1]-Math.min(...ys))*sc]; }, L=(a,b,col,w,da)=>`<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${col}" stroke-width="${w}"${da?` stroke-dasharray="${da}"`:''}/>`;
   let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif" font-size="11">`;
   // pannes (le long de y) : positions le long du rampant
-  const zT=Gm.zT, posP=[]; const nRamp=Gm.bi?2:1, Lh=Gm.bi?Gm.L/2:Gm.L, nb=Math.max(1,Math.round(Gm.Lr/D.aPanne));
-  for(let r=0;r<nRamp;r++) for(let k=0;k<=nb;k++){ const u=k/nb, x=r===0?u*Lh:Gm.L-u*Lh; if(Gm.bi&&r===1&&k===nb) continue; posP.push({x,k}); }
+  const zT=Gm.zT, posP=cours(D,Gm);
   for(let i=nP-1;i>=0;i--){ const y=i*e;
     // bracons
     (D.bracX||[]).forEach(x=>{ const zb=zT(x)-D.tra.h/1000; s+=L(T(x,y-0.9,zT(x)),T(x,y,zb),'#7a5af8',2)+L(T(x,y+0.9,zT(x)),T(x,y,zb),'#7a5af8',2); });
     s+=L(T(0,y,0),T(0,y,Gm.H),'#114088',3)+L(T(Gm.L,y,0),T(Gm.L,y,Gm.hD),'#114088',3);
     const X=Gm.X; for(let k=0;k<X.length-1;k++) s+=L(T(X[k],y,zT(X[k])),T(X[k+1],y,zT(X[k+1])),'#e30009',Gm.Lj&&(Math.min(X[k],Gm.L-X[k])<Gm.Lj-1e-6)?4:2.5);
     if(i<nP-1) posP.forEach(({x})=>{ s+=L(T(x,y,zT(x)+0.02),T(x,y+e,zT(x)+0.02),'#5f6670',1); }); }
+  // bandeau : lisses sur les long-pans (et pignons si pourtour)
+  if(D.band){ const nl=Math.max(1,Math.ceil(D.band.hb/D.band.al)); [[0,Gm.H],[Gm.L,Gm.hD]].forEach(([x,hh])=>{ for(let k=0;k<=nl;k++){ const z=hh-k*D.band.hb/nl; s+=L(T(x,0,z),T(x,Lt,z),'#1d7a36',1.2); } });
+    if(D.band.tour) [0,Lt].forEach(y=>{ for(let k=0;k<=nl;k++){ const zz=k*D.band.hb/nl; s+=L(T(0,y,Gm.H-zz),T(Gm.L,y,Gm.hD-zz),'#1d7a36',1); } }); }
+  // contreventement : poutres au vent (croix en toiture) et palées (long-pans) dans les travées contreventées
+  if(CV){ const baies=CV.nPav>1&&nP>2?[0,nP-2]:[0], nd=posP.filter(c=>c.k%CV.best.j===0||c.k===c.nb).map(c=>c.x).sort((u,v)=>u-v), col='#7a5af8';
+    baies.forEach(bi=>{ const y0=bi*e, y1=y0+e;
+      for(let k=0;k<nd.length-1;k++){ const a=nd[k], b=nd[k+1]; s+=L(T(a,y0,zT(a)+0.05),T(b,y1,zT(b)+0.05),col,1.3)+L(T(a,y1,zT(a)+0.05),T(b,y0,zT(b)+0.05),col,1.3); }
+      [[0,Gm.H],[Gm.L,Gm.hD]].forEach(([x,hh])=>{
+        if(CV.pv==='croix'){ for(let k=0;k<CV.nc;k++){ const z0=hh*k/CV.nc, z1=hh*(k+1)/CV.nc; s+=L(T(x,y0,z0),T(x,y1,z1),col,1.3)+L(T(x,y0,z1),T(x,y1,z0),col,1.3); if(k>0) s+=L(T(x,y0,z0),T(x,y1,z0),'#5f6670',1.2,'4 2'); } }
+        else { s+=L(T(x,y0+0.25,0),T(x,y0+0.25,hh),col,2.2)+L(T(x,y1-0.25,0),T(x,y1-0.25,hh),col,2.2)+L(T(x,y0,hh-0.35),T(x,y1,hh-0.35),col,2.2); }
+        s+=L(T(x,y0,hh),T(x,y1,hh),'#5f6670',1.6); }); });
+    s+=`<text x="${W-10}" y="${H-22}" text-anchor="end" fill="${col}" font-size="10">violet : poutre${baies.length>1?'s':''} au vent et palées ${CV.pv==='croix'?`en croix (${CV.nc} niveau${CV.nc>1?'x':''})`:'en cadre (contre-poteaux et sablière encastrés)'}</text>`; }
   // cotes : portée, longueur, entraxe, hauteur
   const cot=(a,b,t,dx,dy)=>{ const m2=[(a[0]+b[0])/2+dx,(a[1]+b[1])/2+dy]; return L(a,b,'#5f6670',0.8)+`<circle cx="${a[0]}" cy="${a[1]}" r="1.8" fill="#5f6670"/><circle cx="${b[0]}" cy="${b[1]}" r="1.8" fill="#5f6670"/><text x="${m2[0]}" y="${m2[1]}" text-anchor="middle" fill="#5f6670" font-size="10.5">${t}</text>`; };
   s+=cot(T(0,-1.2,0),T(Gm.L,-1.2,0),`L = ${f(Gm.L,2)} m`,0,16);
   s+=cot(T(-1.2,0,0),T(-1.2,Lt,0),`${nP-1} × ${f(e,2)} = ${f(Lt,2)} m`,-30,12);
   s+=cot(T(Gm.L+1.2,0,0),T(Gm.L+1.2,0,Gm.hD),`${f(Gm.hD,2)} m`,26,0);
   // légende
-  const lg=[[`Poteaux : ${D.colVar?`PRS variable ${D.colVar.h0}→${D.colVar.h1}×${D.colVar.b}×${D.colVar.tw}×${D.colVar.tf}`:D.col.n}`,'#114088'],[`Traverses : ${D.tra.n}${D.jarret?` + jarrets ${f(0.1*D.L,2)} m`:''}`,'#e30009'],[`Pannes : ${D.panne.prof.n} tous les ${f(D.aPanne,2)} m`,'#5f6670']].concat((D.bracX||[]).length?[[`Bracons : x = ${D.bracX.map(x=>f(x,2)).join(' ; ')} m`,'#7a5af8']]:[]);
+  const lg=[[`Poteaux : ${D.colVar?`PRS variable ${D.colVar.h0}→${D.colVar.h1}×${D.colVar.b}×${D.colVar.tw}×${D.colVar.tf}`:D.col.n}`,'#114088'],[`Traverses : ${D.tra.n}${D.jarret?` + jarrets ${f(0.1*D.L,2)} m`:''}`,'#e30009'],[`Pannes : ${D.panne.prof.n} tous les ${f(D.aPanne,2)} m`,'#5f6670']].concat(D.band?[[`Lisses : ${D.band.lisse.prof.n} (bandeau ${f(D.band.hb,2)} m)`,'#1d7a36']]:[]).concat((D.bracX||[]).length?[[`Bracons : x = ${D.bracX.map(x=>f(x,2)).join(' ; ')} m`,'#7a5af8']]:[]);
   s+=lg.map(([t,c],i)=>`<rect x="10" y="${10+i*16}" width="14" height="4" fill="${c}"/><text x="30" y="${15+i*16}" fill="#171a1e">${h(t)}</text>`).join('');
-  return s+`<text x="${W-10}" y="${H-8}" text-anchor="end" fill="#5f6670" font-size="10">${nP} portiques · entraxe ${f(e,2)} m · longueur ${f(Lt,2)} m · contreventement non représenté</text></svg>`; }
+  return s+`<text x="${W-10}" y="${H-8}" text-anchor="end" fill="#5f6670" font-size="10">${nP} portiques · entraxe ${f(e,2)} m · longueur ${f(Lt,2)} m</text></svg>`; }
 /* ---------- schéma du contreventement : plan de la travée contreventée et élévation de la palée ---------- */
 function svgCv(A,CV){ const Gm=A.Gm, e=A.D.e, W=700, H=230, sx=Math.min(330/Gm.L,150/e), X0=20, Y0=40;
   let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif" font-size="10.5"><text x="${X0}" y="16" font-weight="700" fill="#114088">Poutre au vent (vue en plan de la travée contreventée)</text>`;
@@ -267,7 +293,7 @@ function svgCv(A,CV){ const Gm=A.Gm, e=A.D.e, W=700, H=230, sx=Math.min(330/Gm.L
 /* ---------- calcul ---------- */
 let A=null, V=null, PP=null;
 function calc(){
-  sauver(); $('Lj').value=f(0.1*num('L',15),2); $('pLam').hidden=$('pType').value!=='lam'; $('pSad').hidden=$('pType').value!=='sadef'; $('rowPav').hidden=$('maintEff').checked; $('dRondW').hidden=$('dType').value!=='rond'; $('dCornW').hidden=$('dType').value==='rond'; { const sp=SADEF.profil($('sProf').value); $('sCar').value=sp?`${f(sp.m,2)} kg/m · I_y ${f(sp.Iy,0)} cm⁴ · W_y ${f(sp.Wy,1)} cm³`:''; }
+  sauver(); $('Lj').value=f(0.1*num('L',15),2); $('pLam').hidden=$('pType').value!=='lam'; $('pSad').hidden=$('pType').value!=='sadef'; ['wLis','wLis2'].forEach(i=>$(i).hidden=$('band').value==='0'); $('rowPav').hidden=$('maintEff').checked; $('dRondW').hidden=$('dType').value!=='rond'; $('dCornW').hidden=$('dType').value==='rond'; { const sp=SADEF.profil($('sProf').value); $('sCar').value=sp?`${f(sp.m,2)} kg/m · I_y ${f(sp.Iy,0)} cm⁴ · W_y ${f(sp.Wy,1)} cm³`:''; }
   const D=donnees(), nP=D.nP; $('cont').value=nP>=4?`continues sur ${nP-1} travées (≥ 4 portiques)`:'sur deux appuis (≤ 3 portiques)';
   const dom=[]; if(D.L>20) dom.push('portée > 20 m'); if(D.e>12) dom.push('entraxe > 12 m'); if(D.p>15) dom.push('pente > 15 %'); if(D.p<0) dom.push('pente négative');
   $('dom').innerHTML=dom.length?`<div class="msg warn" style="margin-top:6px">Hors domaine de l'outil : ${dom.join(', ')}.</div>`:'';
@@ -276,8 +302,8 @@ function calc(){
     D.bracX=bracons(D,PORTIQUE.geometrie(D));
     const Cp=cPannes(D); PP=PORTIQUE.pannes(D,Cp); D.kc=PP.kR;
     A=PORTIQUE.analyser(D); V=PORTIQUE.verifier(A);
-    const CV=PORTIQUE.contreventement(A,V,PP);
-    const L=V.lignes.concat(PP.lignes,CV.lignes); const gov=L.reduce((a,l)=>l.r>a.r?l:a,{r:0}); L.forEach(l=>l.gov=l===gov);
+    const CV=PORTIQUE.contreventement(A,V,PP), LS=PORTIQUE.lisses(D);
+    const L=V.lignes.concat(PP.lignes,CV.lignes,LS?LS.lignes:[]); const gov=L.reduce((a,l)=>l.r>a.r?l:a,{r:0}); L.forEach(l=>l.gov=l===gov);
     const masse=A.Gm.B.reduce((s,b,k)=>s+A.S[k].m*Barres3D.repere(A.Gm.N,{i:b.i,j:b.j}).L,0);
     const cm=V.global.cMin;
     $('rSyn').innerHTML=`<h2>Synthèse</h2><div style="font-size:18px;font-weight:800;color:${gov.r<=1&&!cm?.horsDomaine?'#1d7a36':'#c0141c'}">${gov.r<=1?'✔ PORTIQUE VÉRIFIÉ':'✘ PORTIQUE NON VÉRIFIÉ'} – taux maxi ${f(gov.r*100,0)} %</div>
@@ -289,7 +315,7 @@ function calc(){
       ${D.lBas<=0&&(V.stab.tra||{}).comprime==='inférieure'?'<div class="msg warn">Déversement gouverné par la semelle inférieure sans bracon : prévoir des bracons anti-déversement.</div>':''}${D.colVar&&D.colVar.h0>300?'<div class="msg warn">Pied de poteau de hauteur &gt; 300 mm : l\'hypothèse de pied articulé (critère de Lescouarch) n\'est plus garantie.</div>':''}${D.maintEff?'':'<div class="msg info">Pannes non reliées au contreventement : maintiens de la traverse aux seuls nœuds de la poutre au vent.</div>'}`;
     $('casAff').innerHTML=Object.values(A.C).map(c=>`<option value="${c.id}">${c.nom.replace(/<[^>]+>/g,'')}</option>`).join(''); afficherCas();
     $('rCas').innerHTML=`<table><tr><th>Cas</th><th>Nature</th><th>Charges sur la traverse (kN/m, par m de rampant)</th></tr>`+Object.values(A.C).map(c=>{ const v=c.V.concat(c.Hz).map(o=>Math.hypot(...o.q)); return `<tr><td>${c.id}</td><td>${c.nom}</td><td>${v.length?`${f(Math.min(...v),2)} à ${f(Math.max(...v),2)}`:'—'}</td></tr>`; }).join('')+`</table><div class="note">Charges appliquées au portique courant, majorées du coefficient de continuité des pannes ${f(PP.kR,3)} (réaction d'appui intermédiaire maximale / q·e). Vent : ${D.type==='mono'?'répartition CNC2M (c<sub>1</sub> sur 0,1·d, puis c<sub>2</sub> → c<sub>3</sub>)':'c<sub>f</sub> par versant, Tab. 7.7, fig. 7.17'} ; poteaux : c<sub>f</sub> = ${f(D.cfCol,1)} × hauteur de section.</div>`;
-    $('rDiag').innerHTML=svgDiag(A,V); $('r3d').innerHTML=vue3D(A,D);
+    $('rDiag').innerHTML=svgDiag(A,V); $('r3d').innerHTML=vue3D(A,D,CV);
     const K=V.comb, nAmp=K.ELU.filter(c=>c.amp>1).length;
     $('rStab').innerHTML=`<table><tr><td>Raideur latérale K (1 kN en tête)</td><td class="n">${f(A.K,1)} kN/m</td><td class="ref">analyse élastique au 1<sup>er</sup> ordre</td></tr>
       <tr><td>α<sub>cr</sub> minimal = K·h / V<sub>Ed</sub></td><td class="n"><b>${cm?f(cm.acr,2):'—'}</b></td><td class="ref">§5.2.1(4)B, éq. (5.2) ; combinaison ${cm?cm.nom.replace(/<[^>]+>/g,''):''}</td></tr>
@@ -299,6 +325,7 @@ function calc(){
       <tr><td>Validité de la formule de α<sub>cr</sub></td><td class="n">${V.global.valide?'oui':'<b style="color:#c0141c">non</b>'}</td><td class="ref">§5.2.1(4)B NOTE 2B : λ̄<sub>traverse</sub> = ${V.validAcr?f(V.validAcr.lam,3):'—'} &lt; 0,3·√(A·f<sub>y</sub>/N<sub>Ed</sub>) ; pente ≤ 26°</td></tr></table>
       <div class="note">${K.ELU.length} combinaisons ELU (6.10, γ<sub>G</sub> = 1,35 / 1,00, γ<sub>Q</sub> = 1,5${A.C.SA?' ; accidentelle 6.11b avec s<sub>Ad</sub>':''}), ${K.CAR.length} combinaisons ELS caractéristiques. Flambement dans le plan avec la longueur d'épure (L<sub>cr,y</sub> = H ou longueur du rampant), les effets de déplacement latéral étant intégrés à l'analyse globale amplifiée.</div>`;
     $('rVer').innerHTML=barresRatios(V.lignes)+alerteTaux(V.lignes);
+    $('rLis').innerHTML=LS?`<h3>Lisses du bandeau (${h(D.band.lisse.prof.n)}, espacement ${f(D.band.al,2)} m, hauteur ${f(D.band.hb,2)} m${D.band.tour?', pourtour':', long-pans'})</h3>`+barresRatios(LS.lignes)+(D.band.tour?'<div class="note">Bandeau de pignon : les lisses de pignon sont portées par des potelets (à prévoir, non vérifiés ici) ; leur effort s\'ajoute au vent longitudinal du contreventement.</div>':''):'';
     $('rCv').innerHTML=svgCv(A,CV)+barresRatios(CV.lignes)+`<table><tr><td>Vent longitudinal : traînée du portique de pignon (c<sub>f</sub> = 2,0)</td><td class="n">${f(CV.Fpig,2)} kN</td><td class="ref">§7.6, §7.7</td></tr>
       <tr><td>Frottement sur les deux faces, au-delà de min(2b ; 4h) (longueur ${f(CV.lfr,2)} m)</td><td class="n">${f(CV.Ffr,2)} kN</td><td class="ref">§7.5, Tab. 7.10, c<sub>fr</sub> = ${f(D.cv.cfr,2)}</td></tr>
       <tr><td>Effort de vent par poutre au vent (${CV.nPav} travée${CV.nPav>1?'s':''} contreventée${CV.nPav>1?'s':''})</td><td class="n"><b>${f(CV.FW,2)} kN</b></td><td class="ref">caractéristique</td></tr>
@@ -306,6 +333,7 @@ function calc(){
       ${A.sis?`<tr><td>Séisme longitudinal (plateau, masse de ${D.nP} portiques / ${CV.nPav})</td><td class="n">${f(CV.FE,2)} kN</td><td class="ref">NF EN 1998-1 §4.3.3.2</td></tr>`:''}
       <tr><td>Poutre au vent : ${CV.nPan} panneaux de ${f(CV.best.ax,2)} m (tous les ${CV.best.j} cours de pannes), diagonales à ${f(CV.best.th,0)}°, longueur ${f(CV.d,2)} m</td><td class="n">membrures (traverses) : ±${f(CV.Nch,1)} kN</td><td class="ref">angle visé 30° à 60°</td></tr>
       ${CV.pv==='croix'?`<tr><td>Palée en croix : ${CV.nc} niveau${CV.nc>1?'x':''} (angle ${f(CV.thP,0)}°)${CV.nc>1?', buton intermédiaire comprimé '+f(CV.Vmax,1)+' kN':''}</td><td class="n">poteau de palée : ±${f(CV.Ncol,1)} kN</td><td class="ref">à cumuler avec les efforts du portique ; soulèvement des pieds</td></tr>`:''}</table>
+      ${CV.dg.as1?`<div class="actions noprint"><button type="button" class="sec" onclick="ouvrirAS1()">🔩 Détailler l'attache des diagonales dans AS1</button></div>`:''}
       <div class="note">Hypothèses : diagonales tendues seules (croix), efforts des membrures reportés sur les traverses de la travée contreventée (à cumuler), lignes de pannes continues jusqu'à la poutre au vent. Phase APS/APD – valeurs non valables pour exécution.</div>`;
     $('rPan').innerHTML=barresRatios(PP.lignes)+`<div class="note">${D.panne.type==='lam'?h(D.panne.prof.n):'SADEF '+h(D.panne.prof.n)} – entraxe ${f(D.e,2)} m, ${PP.cont?`continues sur ${PP.n} travées : M<sub>appui</sub> = ${f(PP.coef.mApp,3)}·q·L², M<sub>travée</sub> = ${f(PP.coef.mTrav,3)}·q·L²`:'sur deux appuis : M = q·L²/8'} ; charges par panne (espacement ${f(D.aPanne,2)} m) : G = ${f(PP.gp,3)}, S = ${f(PP.s,3)}, W↓ = ${f(PP.wD,3)}, W↑ = ${f(PP.wU,3)} kN/m ; vent : ${Cp.src}. Couverture fixée sur la semelle supérieure (maintien latéral sous charge descendante).</div>`;
     const E=V.ddc;
@@ -324,16 +352,36 @@ function calc(){
       ${typeof NOTES!=='undefined'?`<h3>Unités</h3>${NOTES.unites('s1')}`:''}`;
   }catch(err){ $('rSyn').innerHTML=`<div class="msg bad">Calcul impossible : ${h(err.message)}</div>`; console.error(err); }
 }
+/* ---------- optimisation : recherche dichotomique, alternée traverse / poteaux, puis pannes ---------- */
+const pause=()=>new Promise(r=>setTimeout(r,0));
+function evaluer(){ const D=donnees(); D.bracX=bracons(D,PORTIQUE.geometrie(D)); const Cp=cPannes(D), P=PORTIQUE.pannes(D,Cp); D.kc=P.kR;
+  const A0=PORTIQUE.analyser(D), V0=PORTIQUE.verifier(A0), C0=PORTIQUE.contreventement(A0,V0,P), r=(re)=>Math.max(0,...V0.lignes.concat(C0.lignes).filter(l=>re.test(l.n)).map(l=>l.r));
+  return { col:Math.max(r(/^Poteaux/),r(/cadre/)), tra:Math.max(r(/^Traverse|^Jarrets/)), pan:Math.max(0,...P.lignes.map(l=>l.r)), hors:V0.comb.ELU.some(c=>c.horsDomaine) }; }
+async function dicho(liste,poser,crit){ let lo=0, hi=liste.length-1, best=null;
+  poser(liste[hi]); await pause(); if(crit(evaluer())>1) return null;
+  while(lo<=hi){ const mi=(lo+hi)>>1; poser(liste[mi]); $('optiMsg').textContent=`… essai ${liste[mi]}`; await pause(); if(crit(evaluer())<=1){ best=liste[mi]; hi=mi-1; } else lo=mi+1; }
+  return best; }
+$('opti').onclick=async()=>{ const b=$('opti'); b.disabled=true; const msg=[];
+  try{ const famC=SC.fam(), famT=ST.fam(), lis=fa=>PROFILS.filter(p=>p.f===fa).sort((a,c)=>a.m-c.m).map(p=>p.n);
+    if(/^PRS/.test(famC)||/^PRS/.test(famT)) msg.push('PRS : non optimisés (saisir les dimensions).');
+    for(let it=0;it<2;it++){
+      if(!/^PRS/.test(famT)){ const t=await dicho(lis(famT),n=>ST.choisir(n),r=>r.tra); if(t) ST.choisir(t); else { msg.push(`aucune traverse ${famT} ne convient`); break; } }
+      if(!/^PRS/.test(famC)){ const c=await dicho(lis(famC),n=>SC.choisir(n),r=>r.col); if(c) SC.choisir(c); else { msg.push(`aucun poteau ${famC} ne convient`); break; } } }
+    if($('pType').value==='lam'){ const pl=lis($('pFam').value); const pn=await dicho(pl,n=>{$('pProf').value=n;},r=>r.pan); if(pn) $('pProf').value=pn; else msg.push('aucune panne de la famille ne convient'); }
+    calc(); $('optiMsg').innerHTML=`Proposition : poteaux ${h(SC.lire().n)}, traverse ${h(ST.lire().n)}${$('pType').value==='lam'?', pannes '+h($('pProf').value):''}. ${msg.join(' ')} À valider (assemblages, gabarits, disponibilité).`;
+  }catch(err){ $('optiMsg').textContent='Optimisation impossible : '+err.message; } finally{ b.disabled=false; } };
+function ouvrirAS1(){ if(!A) return; const D=A.D, CV=PORTIQUE.contreventement(A,V,PP), N=Math.max(CV.Nd,CV.Ndp||0);
+  try{ localStorage.setItem('fip.as1.pre',JSON.stringify({t:Date.now(),type:'L',prof:D.cv.diag.prof.n,NEd:N,nuance:D.cv.nuanceDiag,src:'A1 – diagonale de contreventement'})); }catch(e){} location.href='../barres-tendues/'; }
 function afficherCas(){ if(!A) return; $('rMod').innerHTML=dessin(A,{svg:svgCas(A,$('casAff').value),D:A.D}); }
 $('casAff').addEventListener('change',afficherCas);
 const ok=charger(); if(!ok){ repC1(); } else { $('srcC').innerHTML='Valeurs enregistrées dans ce navigateur ; « Reprendre C1 et G1 » pour actualiser.'; }
 document.querySelectorAll('#form input, #form select').forEach(el=>el.addEventListener('change',()=>{ if(el.id==='casAff') return; calc(); }));
 calc();
 </script>
-<script src="../commun/replier.js?v=2.47"></script>
-<script src="../commun/export.js?v=2.47"></script>
+<script src="../commun/replier.js?v=2.48"></script>
+<script src="../commun/export.js?v=2.48"></script>
 <script>EXPORT.init({code:'A1',titre:'Toiture isolée (auvent) – prédimensionnement',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],nom:()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:{}; return K.doc||K.num||'auvent'; }});</script>
-<script src="../commun/aide.js?v=2.47"></script>
+<script src="../commun/aide.js?v=2.48"></script>
 <script>AIDE.init({titre:"Aide – A1 Toiture isolée (auvent)",manuel:"a1",intro:"A1 prédimensionne le portique courant d'une toiture isolée (auvent, préau, abri) à une travée, mono ou bi-pente, à pieds articulés, avec jarrets : charges de G1 et C1, combinaisons NF EN 1990, analyse élastique avec α<sub>cr</sub>, imperfections et amplification (§5.2, §5.3), vérifications NF EN 1993-1-1, pannes, flèches et descente de charges (phase APS/APD).",
   etapes:[{t:"Géométrie",html:"Mono ou bi-pente, portée (≤ 20 m), hauteur des poteaux, pente (≤ 15 %), entraxe (≤ 12 m) et nombre de portiques (≥ 4 : pannes continues).",cible:"#cGeo"},
     {t:"Profilés",html:"Familles IPE, HEA, HEB ou PRS (h, b, t<sub>w</sub>, t<sub>f</sub>) pour les poteaux et la traverse, nuance, jarrets (longueur 0,1·L, hauteur ajoutée au nu du poteau).",cible:"#cProf"},
@@ -342,6 +390,9 @@ calc();
     {t:"Contreventement et séisme",html:"Nombre de travées contreventées (poutres au vent), palée en croix (nombre de croix choisi pour un angle ≤ 60°) ou en cadre, diagonales (ronds filetés ou cornières), frottement ; séisme repris de C1 (a<sub>g</sub>, S, T<sub>B</sub>, T<sub>C</sub>, T<sub>D</sub>), q = 1,5 (DCL).",cible:"#cCv"},
     {t:"Charges",html:"« Reprendre C1 et G1 » : q<sub>p</sub>, neige et couverture. Obstruction φ sous l'auvent (0 = vide, 1 = stockage contre une rive).",cible:"#cCh"}],
   faq:[{q:"Les pannes et les bracons maintiennent-ils vraiment la traverse ?",r:"Un maintien n'est efficace que s'il est ancré à un point fixe. Les pannes maintiennent la semelle supérieure si leur ligne est reliée au contreventement de toiture (poutre au vent), directement ou par continuité jusqu'à la travée contreventée, l'effort de maintien transitant par la panne (NF EN 1993-1-1 §5.3.3, §6.3.5.2 ; Annexe BB). Un bracon maintient la semelle inférieure en torsion seulement si la panne à laquelle il est fixé est elle-même tenue latéralement. Sans liaison au contreventement, seuls les nœuds de la poutre au vent comptent : décocher l'option."},
+    {q:"Optimiser les profilés ?",r:"Le bouton cherche, par dichotomie dans la famille choisie (laminés), la traverse puis les poteaux les plus légers dont tous les critères restent ≤ 100 %, deux fois de suite, puis les pannes. Les PRS ne sont pas optimisés. Résultat à valider (assemblages, gabarits, disponibilité)."},
+    {q:"Cours de pannes au faîtage ?",r:"En bi-pente, deux cours de faîtage, un de chaque côté, décalés du faîtage (0,2 m par défaut) ; les autres cours sont répartis à intervalles égaux, au plus égaux à l'espacement maxi saisi, depuis la rive."},
+    {q:"Bandeau et lisses ?",r:"Le bandeau (long-pans ou pourtour, hauteur depuis la rive) est un panneau surélevé (NF EN 1991-1-4 §7.4.3, c<sub>f</sub> = 1,8) : charge horizontale en tête des poteaux, poids du bardage, lisses vérifiées en flexion (vent), en flexion d'axe faible (poids, suspentes) et au déversement sous dépression. En pourtour, le bandeau de pignon s'ajoute au vent longitudinal du contreventement."},
     {q:"Comment est dimensionnée la poutre au vent ?",r:"Poutre treillis dans le plan de la toiture, de portée L entre les deux long-pans, de hauteur l'entraxe ; nœuds sur les cours de pannes, nombre de panneaux choisi pour des diagonales entre 30° et 60° (au plus près de 45°). Charges : vent longitudinal (traînée du portique de pignon + frottement §7.5) réparti entre les travées contreventées, forces de stabilisation des traverses q<sub>d</sub> (§5.3.3, avec flèche δ<sub>q</sub> itérée) ou séisme longitudinal (plateau du spectre). Diagonales tendues seules ; les traverses en sont les membrures."},
     {q:"Une ou deux croix dans la palée ?",r:"Le nombre de croix superposées est le plus petit donnant un angle des diagonales ≤ 60° sur l'horizontale (avec un buton intermédiaire). Le cadre (sablière encastrée sur les poteaux) fait travailler les poteaux en flexion d'axe faible : vérifier aussi le déplacement."},
     {q:"Séisme : comment est-il pris en compte ?",r:"Transversal : force F<sub>b</sub> = S<sub>d</sub>(T<sub>1</sub>)·m en tête (m = G + ψ<sub>2</sub>·S, T<sub>1</sub> = 2π√(m/K)), combinaison 6.12b, effets P-Δ par θ = q/α<sub>cr</sub> (NF EN 1998-1 §4.4.2.2). Longitudinal : plateau du spectre × masse reprise par chaque travée contreventée, appliqué à la poutre au vent et à la palée. Comportement peu dissipatif (DCL, q ≤ 1,5)."},

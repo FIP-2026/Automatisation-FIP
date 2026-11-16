@@ -165,6 +165,13 @@ const FICHES = [
   <li><b>Forces de stabilisation</b> : en plus du vent, la poutre au vent retient les traverses qui tendent à déverser ; l'Eurocode fixe cet effort à partir d'un défaut de rectitude e<sub>0</sub> = α<sub>m</sub>·L/500.</li>
   <li><b>Séisme longitudinal</b> : toute la masse du bâtiment est ramenée aux travées contreventées.</li></ul>`,
   refs: "NF EN 1993-1-1 §5.3.3 ; NF EN 1991-1-4 §7.5 (frottement) ; NF EN 1998-1 §4.3.3.2 ; NF EN 1993-1-8 §3.10.3 (cornières).", calc: "A1" },
+{ id: "tendues", theme: "Calcul acier", titre: "Cornières et UPN tendus boulonnés",
+  bref: "Une barre tendue casse rarement en pleine section : c'est l'attache qui limite. Trous (section nette), boulons, pression sur les trous, arrachement d'un bloc de matière et gousset sont tous à vérifier.",
+  corps: `<ul><li><b>Cornière attachée par une aile</b> : l'effort passe par la ligne de boulons, pas par le centre de gravité ; cette excentricité réduit la section nette efficace (β<sub>2</sub>, β<sub>3</sub>) et charge les boulons de travers.</li>
+  <li><b>Pinces et entraxes</b> : trop faibles, la tôle se déchire devant le boulon (pression diamétrale) ou un bloc s'arrache.</li>
+  <li><b>Gousset</b> : l'effort se diffuse à environ 30° de part et d'autre de la file de boulons ; la largeur utile en dépend.</li>
+  <li><b>Cornières jumelées</b> de part et d'autre du gousset : les boulons travaillent sur deux plans de cisaillement.</li></ul>`,
+  refs: "NF EN 1993-1-1 §6.2.3 ; NF EN 1993-1-8 §3.5 (Tab. 3.3), §3.6.1 (Tab. 3.4), §3.10.2, §3.10.3 ; CTICM.", calc: "AS1, A1" },
 { id: "deplacements", theme: "Calcul acier", titre: "Flèches et déplacements (ELS)",
   bref: "Même résistant, un élément trop souple pose problème : tuyau qui fait des points bas, bardage qui fissure, vibrations. On limite donc les déformations.",
   corps: `<div class="form">Poutre sur 2 appuis, charge répartie : f = 5·q·L⁴ / (384·E·I) &nbsp; Console : f = q·L⁴ / (8·E·I)</div>
