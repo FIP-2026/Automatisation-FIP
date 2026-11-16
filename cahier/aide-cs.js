@@ -4,7 +4,7 @@ AIDE.init({
   manuel: "cs",
   intro: "Le cahier regroupe tous les supports de l'affaire : types (ST-01…), configurations (ST-01.1, ST-01.2… : même support, cotes différentes), supports spéciaux (SPE-1…), nomenclature et descentes de charges.",
   etapes: [
-    { t: "Renseigner l'affaire", html: "Numéro, client, document, indice, réalisé / contrôlé / approuvé, logo du client. Ces champs se reportent dans toutes les calculettes et dans le cartouche Word.", cible: "#a_num" },
+    { t: "Renseigner l'affaire", html: "Numéro, client, site, document, lot, indice et motif de l'émission, bon pour, réalisé / vérifié / approuvé, logo du client ; « 📌 Archiver l'indice » conserve l'historique des révisions. Ces champs se reportent dans les calculettes, la trame FIP des exports Word (page de garde, tableau des révisions, en-tête, pied de page) et le cartouche FIP des plans A3.", cible: "#a_num" },
     { t: "Ajouter des supports", html: "« ➕ Type calculé (S1) » ouvre S1 : y dessiner le support puis « Ajouter au cahier ». « ➕ Type à calculer » réserve un repère et une quantité. « ➕ Support spécial » sert aux supports dessinés à part (arbre de Noël…).", cible: "#cGestion" },
     { t: "Créer des configurations", html: "Le bouton ⧉ d'une ligne crée une configuration : modifier seulement les cotes (en mm). Une cote sur fond jaune est propre à la configuration.", cible: "#rGestion" },
     { t: "Paramètres communs", html: "Taux cible, règles de conception, climat C1 : ils s'appliquent à tous les supports. « ⟳ Recalculer tout » met les résultats à jour.", cible: "#params" },
@@ -23,6 +23,7 @@ AIDE.init({
     { q: "Plans schématiques ou dessin industriel ?", r: "Schématiques : vues cotées en lettres et perspective, pratiques pour un cahier de consultation. Dessin industriel : une planche par type, vues orthogonales à l'échelle (projection européenne), perspective, tableau des configurations, nomenclature, cartouche ; la phase (APS/APD) figure au cartouche et dans le bandeau « non valable pour exécution », les platines et fixations renvoient à la note de chevillage." },
     { q: "Quelle configuration pour la note de calcul ?", r: "Par défaut, la plus sollicitée de chaque type (taux maxi) : une note par type. « Toutes les configurations » sort une note par configuration (ST-01.1, ST-01.2…)." },
     { q: "Comment ouvrir le DXF ?", r: "AutoCAD (ou tout logiciel DAO) ouvre le DXF R12 directement : planches côte à côte dans l'espace objet, en mm à l'échelle de la feuille, calques ISO. « Enregistrer sous » DWG si besoin." },
+    { q: "Le cartouche des plans ?", r: "En A3, gabarit FIP (repris du gabarit AutoCAD) : cadre avec repères A–H / 1–6, cartouche (Client, Titre, Projet . Doc . Lot . Chrono . Page . Rev, Bon pour, Échelle) et tableau des révisions 0 à 4. Projet = N° d'affaire, Doc = code des plans (PLN par défaut), Page = rang du type dans le cahier, Rev = indice. Dans le DXF : blocs FIP-FORMAT-A3, CARTOUCHE-FIP et REVISION-FIP à attributs (noms compatibles R12), modifiables par ATTEDIT / EATTEDIT. L'A4 garde un cartouche simplifié." },
     { q: "Où sont enregistrées les données ?", r: "Dans le navigateur de ce poste. Pour les garder ou les transmettre, exporter le fichier .json (et l'importer sur l'autre poste)." },
   ],
   bulles: {

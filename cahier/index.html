@@ -4,18 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.54"></script>
+<script src="../commun/auth.js?v=2.55"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.54">
-<script src="../commun/acier.js?v=2.54"></script>
-<script src="../commun/cahier.js?v=2.54"></script>
-<script src="../commun/pictos-s1.js?v=2.54"></script>
-<script src="../commun/notes.js?v=2.54"></script>
-<script src="../commun/dessin.js?v=2.54"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.55">
+<script src="../commun/acier.js?v=2.55"></script>
+<script src="../commun/cahier.js?v=2.55"></script>
+<script src="../commun/pictos-s1.js?v=2.55"></script>
+<script src="../commun/notes.js?v=2.55"></script>
+<script src="../commun/ident.js?v=2.55"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.55"></script>
+<script src="../commun/dessin.js?v=2.55"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -66,9 +68,12 @@
     <div class="row3"><div><label>N° de document</label><input id="a_doc" data-a="doc"></div><div><label>Indice</label><input id="a_indice" data-a="indice"></div><div><label>Date</label><input id="a_date" type="date" data-a="date"></div></div>
     <div class="row"><div><label>Phase</label><select id="a_phase" data-a="phase"><option>APS</option><option>APD</option></select></div><div><label>Réalisé par</label><input id="a_realise" data-a="realise"></div></div>
     <div class="row"><div><label>Contrôlé par</label><input id="a_controle" data-a="controle"></div><div><label>Approuvé par</label><input id="a_approuve" data-a="approuve"></div></div>
+    <div class="row3"><div><label>Lot</label><input id="a_lot" data-a="lot"></div><div><label>Motif de l'émission (indice en cours)</label><input id="a_motif" data-a="motif" placeholder="Création du document"></div><div><label>Bon pour</label><select id="a_bonPour" data-a="bonPour"><option>CONSULTATION</option><option>APPROBATION</option><option>INFORMATION</option><option>EXÉCUTION</option></select></div></div>
+    <div class="row"><div><label>Code « Doc » des plans (cartouche)</label><input id="a_codePlan" data-a="codePlan" placeholder="PLN"></div><div><label>Chrono des plans</label><input id="a_chronoPlan" data-a="chronoPlan" placeholder="01"></div></div>
+    <div id="aRevs"></div>
     <label>Logo du client (PNG / JPG, repris dans les exports Word)</label>
     <div class="row noprint" style="align-items:center"><input type="file" id="logoFic" accept="image/png,image/jpeg"><div><img id="logoImg" class="logoAff" alt="" hidden> <button class="sec" id="logoSup" type="button" hidden>✕</button></div></div>
-    <div class="note">Ces informations remplissent automatiquement les champs « Affaire », « Rédacteur », « N° de note » des calculettes et le cartouche des exports Word.</div>
+    <div class="note">Ces informations remplissent automatiquement les champs « Affaire », « Rédacteur », « N° de note » des calculettes, la trame FIP des exports Word (page de garde, révisions, en-tête, pied de page) et le cartouche FIP des plans A3 (Projet = N° d'affaire, Doc, Lot, Chrono, Page = n° du type, Rev = indice).</div>
   </div>
 
   <div class="card">
@@ -108,7 +113,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.54"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.55"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -148,12 +153,14 @@ const sec=k=>!!(K.rapport.sec||{})[k];
 const prochain=(pref,pad)=>{ let n=1; const nom=i=>pref+(pad?String(i).padStart(2,'0'):i); while(K.types.some(t=>t.nom===nom(n))) n++; return nom(n); };
 
 /* ---------------- affaire ---------------- */
+/* champs du cartouche FIP A3 (gabarit) : Projet . Doc . Lot . Chrono . Page . Rev + révisions */
+const cartPlan=(a,T)=>({client1:a.client||'',client2:a.site||'',projet:a.num||'00-000',doc:a.codePlan||'PLN',lot:a.lot||'',chrono:a.chronoPlan||'01',page:String(K.types.indexOf(T)+1).padStart(2,'0'),rev:a.indice||'0',bonPour:a.bonPour||'CONSULTATION',revisions:IDENT.revisions(a)});
 function afficherAffaire(){
   document.querySelectorAll('[data-a]').forEach(el=>{ el.value=K.affaire[el.dataset.a]||''; });
   document.querySelectorAll('[data-g]').forEach(el=>{ el.value=K.reglages[el.dataset.g]??''; });
   $('logoImg').hidden=$('logoSup').hidden=!K.affaire.logo; if(K.affaire.logo) $('logoImg').src=K.affaire.logo;
 }
-document.querySelectorAll('[data-a]').forEach(el=>el.addEventListener('input',()=>{ K.affaire[el.dataset.a]=el.value; enr(); cartouche(); }));
+document.querySelectorAll('[data-a]').forEach(el=>el.addEventListener('input',()=>{ K.affaire[el.dataset.a]=el.value; enr(); cartouche(); if(/^(indice|motif|realise|controle|approuve|date)$/.test(el.dataset.a)) majRevs(); }));
 document.querySelectorAll('[data-g]').forEach(el=>el.addEventListener('change',()=>{ K.reglages[el.dataset.g]=el.type==='number'?Math.max(0,+el.value||0):el.value; enr(); tout(); }));
 $('logoFic').onchange=e=>{ const fi=e.target.files[0]; if(!fi) return; const r=new FileReader();
   r.onload=()=>{ const img=new Image(); img.onload=()=>{ const k=Math.min(1,300/img.width,120/img.height), c=document.createElement('canvas');
@@ -161,6 +168,7 @@ $('logoFic').onchange=e=>{ const fi=e.target.files[0]; if(!fi) return; const r=n
       K.affaire.logo=c.toDataURL('image/png'); enr(); afficherAffaire(); cartouche(); }; img.src=r.result; };
   r.readAsDataURL(fi); };
 $('logoSup').onclick=()=>{ K.affaire.logo=''; $('logoFic').value=''; enr(); afficherAffaire(); cartouche(); };
+let majRevs=()=>{}; function initRevs(){ majRevs=IDENT.editeurRevs($('aRevs'),()=>K.affaire,(a,champs)=>{ K.affaire=a; enr(); if(champs) afficherAffaire(); cartouche(); }); }
 function cartouche(){
   const a=K.affaire, n=K.types.reduce((s,T)=>s+qteT(T),0);
   const L=[['Affaire',CAHIER.libAffaire(a)||'—','Client',a.client||'—'],['Site',a.site||'—','Phase',a.phase||'—'],['N° de document',a.doc||'—','Indice / date',`${a.indice||'—'} du ${a.date?new Date(a.date).toLocaleDateString('fr-FR'):'—'}`],['Réalisé',a.realise||'—','Contrôlé',a.controle||'—'],['Approuvé',a.approuve||'—','Contenu',`${K.types.length} type(s), ${n} support(s)`]];
@@ -229,7 +237,7 @@ async function recalculer(avecImages){
 }
 function argsPlanche(T,A,md){
     const a=K.affaire, defs=A.cotes().filter(d=>d.id!=='zsol'), avecDDC=sec('ddcType')||sec('ddcConf')||sec('ddcCas')||sec('recap');
-    return {indus:true,format:md,cartouche:{affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
+    return {indus:true,format:md,cartouche:{...cartPlan(a,T),affaire:CAHIER.libAffaire(a)||'',client:[a.client,a.site].filter(Boolean).join(' – '),titre:`Support type ${T.nom}${T.designation?' – '+T.designation:''}`,date:a.date?new Date(a.date).toLocaleDateString('fr-FR'):'',indice:a.indice||'',dessine:a.realise||'',verifie:a.controle||'',plan:[a.doc,T.nom].filter(Boolean).join('-')},
       ddc:avecDDC?envType(T):null,phase:a.phase||'APS',tableau:{titre:'Tableau des configurations (cotes en mm)',cols:['Repère',...defs.map(d=>d.l),'Qté'],rows:T.configs.map(c=>[repere(T,c),...defs.map(d=>{ const v=(c.cotes||{})[d.id]??(T.cotes0||{})[d.id]; return v==null?'—':f(v*1000,0); }),String(+c.qte||0)])}};
 }
 /* ---------- sorties : notes de calcul et plans DXF ---------- */
@@ -438,15 +446,15 @@ $('impJson').onchange=e=>{ const fi=e.target.files[0]; if(!fi) return; const r=n
 $('nouveau').onclick=()=>{ if(!confirm('Effacer le cahier actuel (affaire, paramètres et supports) ? Pensez à l\'exporter en .json avant.')) return; K=CAHIER.vide(); enr(); IMG={}; demarrer(); };
 
 const CFG={code:'CS',titre:'Cahier de supportage',zones:()=>[...document.querySelectorAll('#res > .card:not(.noprint):not([hidden]), #rTypes > .card')],donnees:()=>[],avant:async()=>{ await preparer(); },nom:()=>K.affaire.num||K.affaire.intitule};
-function demarrer(){ afficherAffaire(); afficherOpts(); afficherParams(); tout(); }
+function demarrer(){ afficherAffaire(); majRevs(); afficherOpts(); afficherParams(); tout(); }
 window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); demarrer(); } });
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
-demarrer();
+initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=2.54"></script>
-<script src="../commun/aide.js?v=2.54"></script>
-<script src="aide-cs.js?v=2.54"></script>
-<script src="../commun/export.js?v=2.54"></script>
+<script src="../commun/replier.js?v=2.55"></script>
+<script src="../commun/aide.js?v=2.55"></script>
+<script src="aide-cs.js?v=2.55"></script>
+<script src="../commun/export.js?v=2.55"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>

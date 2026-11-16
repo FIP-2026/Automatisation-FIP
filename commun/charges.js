@@ -92,17 +92,22 @@ const CH = (() => {
     ["E2", "E2 – usage industriel (valeur du projet)", null, null, "projet", 1.0, 0.9, 0.8, "§6.3.2.3 : charges définies par le projet (process, équipements, chariots)"],
     ["F", "F – circulation et stationnement, véhicules ≤ 30 kN", 2.3, 15, "2 × 100 × 100 mm", 0.7, 0.7, 0.6, "Tab. 6.8(NF) – effets dynamiques couverts jusqu'à 20 km/h ; αA, αn applicables"],
     ["G", "G – circulation et stationnement, véhicules 30 à 160 kN", 5.0, 90, "2 × 200 × 200 mm", 0.7, 0.5, 0.3, "Tab. 6.8(NF) – effets dynamiques couverts jusqu'à 10 km/h ; véhicules lourds à spécifier pour le projet (AN 1.1(5))"],
-    ["PASS", "Passerelle, plate-forme industrielle (NF EN ISO 14122-2)", 2.0, 1.5, "200 × 200 mm", 0.7, 0.7, 0.6, "NF EN ISO 14122-2 §4.2 (minimum ; à majorer selon l'exploitation) ; ψ assimilés à C"],
+    ["PASS", "Passerelle, plate-forme industrielle (NF EN ISO 14122-2)", 2.0, 1.5, "200 × 200 mm", 0.7, 0.7, 0.6, "NF EN ISO 14122-2 §4.2 (minimum ; à majorer selon l'exploitation) ; passerelles industrielles hors machines : NF E 85-014 (non intégrée, valeurs à vérifier) ; ψ assimilés à C"],
+    ["ESC-I", "Escalier et palier industriels – NF E 85-015", 2.0, 1.0, "100 × 100 mm", 0.7, 0.7, 0.6, "NF E 85-015 §5.1.2.1 ; marches : 1,5 kN sur 100 × 100 mm (§5.1.2.2) ; flèche du limon ≤ L/300 ; ψ assimilés à C"],
+    ["ESC-I1", "Escalier industriel d'accès occasionnel, une seule personne de front – NF E 85-015", 1.5, 1.0, "100 × 100 mm", 0.7, 0.7, 0.6, "NF E 85-015 §5.1.2.1 (valeurs réduites) ; marches §5.1.2.2 ; ψ assimilés à C"],
     ["H-et", "H – toiture inaccessible sauf entretien, pente < 15 % avec étanchéité", 0.8, 1.5, "sur 10 m² (q) ; 50 × 50 mm (Q)", 0, 0, 0, "Tab. 6.10(NF) ; q et Q non simultanés ; non cumulée avec neige et vent (AN)"],
     ["H", "H – autre toiture inaccessible sauf entretien", 0, 1.5, "50 × 50 mm", 0, 0, 0, "Tab. 6.10(NF) ; non cumulée avec neige et vent (AN)"],
     ["ND", "Catégorie non spécifiée (utilisation future inconnue) → D1", 5.0, 5.0, "50 × 50 mm", 0.7, 0.7, 0.6, "AN §6.3.1.2(1) : valeurs de D1 ; vérifier la compatibilité une fois l'usage connu"],
     ["I-pays", "I – toiture accessible avec aménagement paysager", 3.0, null, "projet", 0.7, 0.7, 0.6, "AN §6.3.4.1 : minimum recommandé 3 kN/m² (Qk selon l'usage)"],
     ["perso", "Valeur du projet (cahier des charges)", null, null, "projet", 0.7, 0.7, 0.6, "Cahier des charges du maître d'ouvrage"],
   ].map(([c, n, qk, Qk, aire, p0, p1, p2, ref, verif]) => ({ c, n, qk, Qk, aire, psi: [p0, p1, p2], ref, verif: !!verif }));
-  /* charges horizontales sur garde-corps et parois : Tab. 6.12(NF) (valeurs à vérifier sur l'AN), industrie NF EN ISO 14122-3 */
+  /* charges horizontales sur garde-corps et parois : Tab. 6.12(NF) ; industrie NF E 85-015 §7.3.2 (vérifié) ; machines spéciales NF EN ISO 14122-3 §8.2.2 (vérifié) */
   const GARDE_CORPS = [
     ["A", "Catégorie A (habitation)", 0.6, "Tab. 6.12(NF)"], ["B", "Catégories B et C1", 0.6, "Tab. 6.12(NF)"], ["C", "Catégories C2 à C4 et D", 1.0, "Tab. 6.12(NF)"], ["C5", "Catégorie C5 (foules)", 3.0, "Tab. 6.12(NF)"], ["E", "Catégorie E (stockage) – minimum", 2.0, "Tab. 6.12(NF) NOTE 1 : valeur minimale selon la destination"],
-    ["P01", "Garde-corps de bâtiment – NF P 01-012 (valeur de la norme à saisir)", null, "NF P 01-012", true], ["ISO", "Garde-corps industriel / accès aux machines – NF E 85-015 et NF EN ISO 14122-3 (30 daN/m)", 0.3, "NF E 85-015 (renvoi NF EN ISO 14122-3) : 30 daN/m", true], ["perso", "Valeur du projet", null, "Cahier des charges"],
+    ["P01", "Garde-corps de bâtiment – NF P 01-012 (valeur de la norme à saisir)", null, "NF P 01-012", true],
+    ["E85", "Garde-corps industriel – NF E 85-015 (30 daN/m)", 0.3, "NF E 85-015 §7.3.2.1 : Fmin,ser = 300·L N (flèche < 30 mm, résiduelle ≤ 3 mm) ; §7.3.2.2 : Fult = γM1 × 1,5 × Fmin,ser = 1,725 Fmin,ser (γM1 = 1,15 à défaut) ; §7.3.4 (calcul) : flèche ≤ 30 mm sous 1,2 Fmin,ser, comportement élastique sous 1,2 Fult"],
+    ["ISO", "Accès aux machines (machine spéciale) – NF EN ISO 14122-3 (30 daN/m)", 0.3, "NF EN ISO 14122-3 §8.2.2 : FU = 300 N/m × L (flèche ≤ 30 mm) ; FS = 1,75 FU = 525 N/m × L"],
+    ["perso", "Valeur du projet", null, "Cahier des charges"],
   ].map(([c, n, q, ref, verif]) => ({ c, n, q, ref, verif: !!verif }));
   /* AN §6.3.1.2(10) et (11) : coefficients de réduction (non simultanés, AN §6.2) */
   const ALPHA_A = ["A", "A-esc", "A-bal", "B", "C3", "D1", "F"], ALPHA_N = { A: [0.5, 1.36], "A-esc": [0.5, 1.36], "A-bal": [0.5, 1.36], B: [0.7, 0.8], F: [0.7, 0.8] };
@@ -203,7 +208,7 @@ const CH = (() => {
           + (niv === "complet" ? `<p class="pied">Cloisons mobiles (§6.3.1.2(8)) : poids propre ≤ 1,0 / 2,0 / 3,0 kN/m → charge uniforme équivalente 0,5 / 0,8 / 1,2 kN/m². Coefficients de réduction (AN, non simultanés) : surface α<sub>A</sub> = 0,77 + A<sub>0</sub>/A ≤ 1,0, A<sub>0</sub> = 3,5 m², catégories A, B, C3, D1, F seulement (AN §6.3.1.2(10)) ; nombre d'étages n &gt; 2 : α<sub>n</sub> = 0,5 + 1,36/n (A), 0,7 + 0,8/n (B, F) (AN §6.3.1.2(11)). α<sub>A</sub> appliqué uniquement aux zones dont l'aire est renseignée. Coefficients ψ : NF EN 1990 Tab. A1.1 + AN.</p>` : "")
           + (niv !== "simple" ? schemaQ() : ""); }
     if (gc.length) { h += `<h3>Charges horizontales sur garde-corps et parois</h3>` + (niv === "simple" ? `<ul>${gc.map((x) => `<li>${esc(x.nom)} : <b>${fx(+x.q, 2)} kN/m</b> à la hauteur de la main courante (${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")})</li>`).join("")}</ul>` :
-      T(["Garde-corps / paroi", "Catégorie", "q<sub>k</sub> (kN/m)", "Référence"], gc.map((x) => `<tr><td>${esc(x.nom)}</td><td>${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")}</td><td class="n"><b>${fx(+x.q, 2)}</b></td><td class="pied">${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).ref || "")}${(GARDE_CORPS.find((k) => k.c === x.cat) || {}).verif ? " – valeur à confirmer sur la norme" : ""}</td></tr>`))); }
+      T(["Garde-corps / paroi", "Catégorie", "q<sub>k</sub> (kN/m)", "Référence"], gc.map((x) => `<tr><td>${esc(x.nom)}</td><td>${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).n || "")}</td><td class="n"><b>${fx(+x.q, 2)}</b></td><td class="pied">${esc((GARDE_CORPS.find((k) => k.c === x.cat) || {}).ref || "")}${(GARDE_CORPS.find((k) => k.c === x.cat) || {}).verif ? " – valeur à saisir selon la norme" : ""}</td></tr>`))); }
     return h;
   }
   /* tableau de référence : valeurs surfaciques q_k (kN/m²), ponctuelles Q_k (kN) et linéiques des garde-corps (kN/m) */
@@ -213,7 +218,7 @@ const CH = (() => {
       CAT_Q.filter((c) => c.c !== "perso").map((c) => `<tr><td>${esc(c.n)}</td><td class="n"><b>${v(c.qk, 1)}</b></td><td class="n"><b>${v(c.Qk, 1)}</b></td><td>${esc(c.aire)}</td><td class="n">${c.psi.map((p) => fx(p, 1)).join(" / ")}</td><td class="pied">${esc(c.ref)}</td></tr>`).join("") + `</table>
       <p class="pied">q<sub>k</sub> et Q<sub>k</sub> ne sont pas simultanés (§6.3.1.2(5)) : q<sub>k</sub> pour les effets d'ensemble (poutres, poteaux, fondations), Q<sub>k</sub> pour les effets locaux (platelage, caillebotis, solives), à la position la plus défavorable. Cloisons mobiles (§6.3.1.2(8)) : + 0,5 / 0,8 / 1,2 kN/m² (poids propre ≤ 1 / 2 / 3 kN/m). Réduction α<sub>A</sub> = 0,77 + 3,5/A ≤ 1 (A, B, C3, D1, F ; AN §6.3.1.2(10)).</p>
       <h3>Charges linéiques horizontales sur garde-corps et parois</h3><table class="bd"><tr><th>Usage</th><th class="n">q<sub>k</sub> (kN/m)</th><th>Référence</th></tr>` +
-      GARDE_CORPS.filter((c) => c.c !== "perso").map((c) => `<tr><td>${esc(c.n)}</td><td class="n"><b>${c.q == null ? "norme" : fx(c.q, 2)}</b></td><td class="pied">${esc(c.ref)}${c.verif ? " – à confirmer sur le texte" : ""}</td></tr>`).join("") + `</table><p class="pied">Appliquée à la hauteur de la main courante, sans dépasser 1,20 m (§6.4).</p>`;
+      GARDE_CORPS.filter((c) => c.c !== "perso").map((c) => `<tr><td>${esc(c.n)}</td><td class="n"><b>${c.q == null ? "norme" : fx(c.q, 2)}</b></td><td class="pied">${esc(c.ref)}${c.verif ? " – à saisir selon le texte" : ""}</td></tr>`).join("") + `</table><p class="pied">Appliquée à la hauteur de la main courante, sans dépasser 1,20 m (§6.4).</p>`;
   }
   function schemaQ() {
     let s = `<svg viewBox="0 0 640 140" style="width:100%;max-width:640px" font-family="Inter,Arial,sans-serif" font-size="12"><path d="M30,100 L250,100 L300,60 L80,60z" fill="#eef1f5" stroke="#4a525c"/>`;
