@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.56"></script>
+<script src="../commun/auth.js?v=2.57"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.56">
-<script src="../commun/apps.js?v=2.56"></script>
-<script src="../commun/data/profils.js?v=2.56"></script>
-<script src="../commun/barres3d.js?v=2.56"></script>
-<script src="../commun/acier.js?v=2.56"></script>
-<script src="../commun/data/tuyauterie.js?v=2.56"></script>
-<script src="../commun/charges.js?v=2.56"></script>
-<script src="../commun/coefvent.js?v=2.56"></script>
-<script src="../commun/tendues.js?v=2.56"></script>
-<script src="../commun/portique.js?v=2.56"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.57">
+<script src="../commun/apps.js?v=2.57"></script>
+<script src="../commun/data/profils.js?v=2.57"></script>
+<script src="../commun/barres3d.js?v=2.57"></script>
+<script src="../commun/acier.js?v=2.57"></script>
+<script src="../commun/data/tuyauterie.js?v=2.57"></script>
+<script src="../commun/charges.js?v=2.57"></script>
+<script src="../commun/coefvent.js?v=2.57"></script>
+<script src="../commun/tendues.js?v=2.57"></script>
+<script src="../commun/portique.js?v=2.57"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -254,6 +254,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="cs"><div class="theme">CS – Cahier de supportage</div><h2>12. CS – Cahier de supportage</h2>
 <ul><li><b>Type</b> = un support S1 (profilés, tuyauteries, actions) ; <b>configuration</b> = même type avec cotes différentes (H, L, h, a<sub>i</sub>…). Chaque configuration est recalculée par le moteur S1 (page S1 chargée en arrière-plan, mêmes formules).</li>
+<li><b>Schéma coté (2.57)</b> : pour chaque type calculé, vues de face et de côté en lettres (mêmes vues que les plans schématiques), générées automatiquement par le moteur S1 sur la 1<sup>re</sup> configuration et enregistrées avec le type ; légende des cotes (lettre, libellé) ; la lettre de la case active du tableau est surlignée sur le schéma. Repliable, état mémorisé.</li>
 <li><b>Enveloppe de DDC d'un type</b> : pour chaque appui et chaque composante, valeur de plus grande valeur absolue sur toutes les combinaisons et toutes les configurations (non concomitante, prudente).</li>
 <li><b>Statut</b> : le plus défavorable des configurations (non vérifié &gt; non calculé &gt; taux élevé &gt; conforme).</li>
 <li><b>Nomenclature (BOM)</b> : profilés × longueurs × quantités ; chevilles (forfait par platine) ; majoration accessoires (platines, goussets, soudures) en % de la masse des profilés.</li>
@@ -295,6 +296,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.57</td><td>CS</td><td>Schéma coté de chaque type (vues en lettres + légende) au-dessus du tableau des configurations, avec mise en évidence de la cote en cours de saisie.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.56</td><td>S1, CS, C1</td><td>Plans DXF en version 2000 : une présentation par folio (cartouche, révisions, tableaux et notes en espace papier ; vues en vraie grandeur en espace objet, fenêtre à l'échelle du folio) ; blocs du gabarit sous leurs noms d'origine ; fichier nommé d'après le n° de document du cartouche suivi de la révision. C1 : onglet « Complexes (G1) » supprimé (rappel des complexes G1 sous les forces F<sub>a</sub> de l'onglet Séisme).</td><td>Aucun calcul modifié ; structure du fichier DXF modifiée.</td></tr>
 <tr><td>2.55</td><td>Q1, NH, S1, CS, RC, A1, AS1, export Word</td><td>Garde-corps : NF E 85-015 (cas général industriel, valeurs contrôlées : 0,3 kN/m, ELU 1,725, calcul élastique sous 1,2 F<sub>ult</sub>) et NF EN ISO 14122-3 (machines spéciales, 1,75) de nouveau distinguées ; escaliers et paliers industriels NF E 85-015 §5.1.2.1. Plans : gabarit FIP A3 (cadre, cartouche, révisions, logo) en blocs DXF à attributs. Word : trame FIP (page de garde avec logos FIP et client, révisions, en-tête, pied de page, sommaire). Identification : lot, motif, bon pour, logo client, historique des révisions. RC : plan aligné sur la trame FIP (§1 à §15).</td><td>Aucun calcul modifié ; valeur par défaut des garde-corps inchangée (0,3 kN/m) ; mise en page des plans A3 et des notes Word modifiée.</td></tr>
 <tr><td>2.54</td><td>Accueil, RC</td><td>Fichier projet (commun/projet.js) : export / import en un seul .json de toutes les données d'affaire du navigateur (clés fip.*, hors préférences d'affichage), nouveau projet ; échange projeteur ↔ calculateur.</td><td>Aucun.</td></tr>
@@ -383,6 +385,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.56"></script>
+<script src="../commun/replier.js?v=2.57"></script>
 </body>
 </html>

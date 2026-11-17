@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.56"></script>
+<script src="../commun/auth.js?v=2.57"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.56">
-<script src="../commun/acier.js?v=2.56"></script>
-<script src="../commun/cahier.js?v=2.56"></script>
-<script src="../commun/pictos-s1.js?v=2.56"></script>
-<script src="../commun/notes.js?v=2.56"></script>
-<script src="../commun/ident.js?v=2.56"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.56"></script>
-<script src="../commun/dessin.js?v=2.56"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.57">
+<script src="../commun/acier.js?v=2.57"></script>
+<script src="../commun/cahier.js?v=2.57"></script>
+<script src="../commun/pictos-s1.js?v=2.57"></script>
+<script src="../commun/notes.js?v=2.57"></script>
+<script src="../commun/ident.js?v=2.57"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.57"></script>
+<script src="../commun/dessin.js?v=2.57"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -28,6 +28,10 @@
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:5px 10px;font-size:12px}
   .typeBloc{border:1px solid var(--line);border-left:4px solid var(--fip-bleu);border-radius:6px;padding:8px 10px;margin:10px 0;background:#fbfcfd}
   .typeBloc.spe{border-left-color:#7a5d00}
+  .typeBloc details.schema{margin-top:6px}.typeBloc details.schema>summary{cursor:pointer;font-size:13px;color:var(--fip-bleu);font-weight:600}
+  .schVues{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;margin-top:4px}.schVues>div:not(.schLeg){flex:0 1 300px;max-width:340px;background:#fff;border:1px solid var(--line);border-radius:4px}
+  .schVues svg{width:100%;height:auto;display:block}.schLeg{flex:1 1 220px;display:flex;flex-direction:column;gap:3px;font-size:12.5px}
+  .schLeg span.on{background:#fff1a8;border-radius:3px}.schVues text.surbrille{fill:#e30009!important;font-weight:700;font-size:15px}
   .typeBloc .tete{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .typeBloc .tete input{width:auto;padding:3px 6px}
   .typeBloc table{margin-top:6px}.typeBloc td input{padding:3px 5px;font-size:12px}
@@ -113,7 +117,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.56"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.57"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -209,15 +213,36 @@ function invalider(T){ (T?[T]:K.types).forEach(t=>{ if(t.kind==='s1'&&t.etat) t.
 
 /* ---------------- moteur S1 (iframe même origine) ---------------- */
 let api=null;
+/* ---------- schéma coté (lettres) de chaque type, pour remplir les configurations sans ouvrir S1 ---------- */
+let moteurOccupe=false, schemaEnCours=false; const SCH_ESSAI=new Set(); const SCH_OUVERT=new Set(); try{ JSON.parse(localStorage.getItem('fip.replie.cs.schemas')||'[]').forEach(x=>SCH_OUVERT.add(x)); }catch(e){}
+async function schemasManquants(){
+  if(schemaEnCours) return; const L=K.types.filter(T=>T.kind==='s1'&&T.etat&&!(T.vues&&T.vues.face)&&!SCH_ESSAI.has(T.id)); if(!L.length) return;
+  if(moteurOccupe){ setTimeout(schemasManquants,1000); return; }
+  schemaEnCours=true;
+  try{ const A=await moteur();
+    for(const T of L){ if(moteurOccupe) break; SCH_ESSAI.add(T.id);
+      A.charger(T.etat); A.appliquerCotes({...(T.cotes0||{}),...(T.configs[0].cotes||{})});
+      if(!T.cotesDef) T.cotesDef=A.cotes(); if(!T.cotes0) T.cotes0=A.cotesValeurs();
+      const v=A.vues(); T.vues={...(T.vues||{}),face:v.face,cote:v.cote}; }
+    enr(); gestion(); }
+  catch(e){ console.warn('schémas cotés',e); }
+  finally{ schemaEnCours=false; } }
+function blocSchema(T,ti,defs){
+  if(T.kind==='spe') return '';
+  const v=T.vues||{}, ouvert=!SCH_OUVERT.has('x'+T.id);
+  const leg=defs.map(d=>`<span data-leg="${h(d.l)}"><b>${h(d.l)}</b> : ${h(d.lib||'')}</span>`).join('');
+  return `<details class="schema" data-sch="${T.id}" ${ouvert?'open':''}><summary>📐 Schéma coté du type ${h(T.nom)} – les lettres correspondent aux colonnes du tableau</summary>
+    <div class="schVues">${v.face?`<div>${v.face}</div><div>${v.cote||''}</div>`:`<div class="note">${T.etat?'⏳ Schéma en cours de génération (moteur S1)…':'Type à calculer : le schéma apparaîtra une fois le type créé dans S1.'}</div>`}<div class="schLeg">${leg}<div class="note">Valeurs de cotes en mm. Cliquer dans une case du tableau met la lettre correspondante en évidence sur le schéma.</div></div></div></details>`; }
 function moteur(){
   if(api) return Promise.resolve(api);
   return new Promise((ok,ko)=>{ const fr=$('iframeS1'), t0=Date.now();
-    fr.src='../supports/?moteur=1&v=2.54';
+    fr.src='../supports/?moteur=1&v='+encodeURIComponent(typeof CALC_VERSION!=='undefined'?CALC_VERSION:'');
     const att=()=>{ try{ const w=fr.contentWindow; if(w&&w.S1API&&w.document.readyState==='complete'){ api=w.S1API; return ok(api);} }catch(e){ return ko(e); }
       if(Date.now()-t0>20000) return ko(new Error('S1 ne répond pas')); setTimeout(att,150); };
     setTimeout(att,300); });
 }
-async function recalculer(avecImages){
+async function recalculer(avecImages){ moteurOccupe=true; try{ return await recalculer0(avecImages); } finally{ moteurOccupe=false; setTimeout(schemasManquants,300); } }
+async function recalculer0(avecImages){
   const L=K.types.filter(T=>T.kind==='s1'&&T.etat); if(!L.length){ K.aRecalc=false; enr(); tout(); return; }
   const A=await moteur(), nTot=L.reduce((s,T)=>s+T.configs.length,0); let i=0;
   for(const T of L){
@@ -284,7 +309,7 @@ function choisirType(el){ const ti=+el.dataset.tpk, T=K.types[ti]; document.quer
   pop.innerHTML=Object.keys(PICTOS_S1).map(k=>`<button type="button" data-k="${k}" class="${T.typeS1===k?'on':''}">${PICTOS_S1[k]}${h(NOMS_S1[k])}</button>`).join('');
   pop.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; T.typeS1=b.dataset.k; if(!T.designation) T.designation=''; pop.remove(); enr(); tout(); });
   document.body.appendChild(pop); setTimeout(()=>document.addEventListener('click',function f(e){ if(!pop.contains(e.target)){ pop.remove(); document.removeEventListener('click',f); } }),0); }
-function gestion(){
+function gestion(){ setTimeout(schemasManquants,200);
   if(!K.types.length){ $('rGestion').innerHTML='<div class="msg info">Cahier vide. « ➕ Type calculé (S1) » : créer le support dans S1 puis « Ajouter au cahier ». « ➕ Type à calculer » : réserver un type et ses quantités, à calculer plus tard. « ➕ Support spécial » : support dessiné à part, compté dans la BOM.</div>'; etatRecalc(); return; }
   $('rGestion').innerHTML=K.types.map((T,ti)=>{
     const spe=T.kind==='spe', defs=T.cotesDef||[], r=resumeT(T);
@@ -301,7 +326,7 @@ function gestion(){
     const ddcM=spe?`<details ${T.ddc?.length?'open':''}><summary>Descente de charges saisie (ex. issue de Robot) — par support unitaire</summary><table><tr><th>Appui / nœud</th>${thC}<th></th></tr>`+
       (T.ddc||[]).map((a,ai)=>`<tr><td><input data-dl="${ti}|${ai}" value="${h(a.lib)}"></td>${a.v.map((x,k)=>`<td><input data-dv="${ti}|${ai}|${k}" type="number" step="any" value="${x}" style="width:64px"></td>`).join('')}<td class="act"><button class="sec" type="button" data-ddel="${ti}|${ai}" style="color:var(--bad)">✕</button></td></tr>`).join('')+
       `</table><button class="sec" type="button" data-dadd="${ti}" style="padding:2px 8px;font-size:12px">＋ appui</button></details>`:'';
-    return `<div class="typeBloc ${spe?'spe':''}">${tete}${tab}${ddcM}</div>`; }).join('')+
+    return `<div class="typeBloc ${spe?'spe':''}" data-tb="${ti}">${tete}${blocSchema(T,ti,defs)}${tab}${ddcM}</div>`; }).join('')+
     `<div class="note">Cotes en mm ; une cote sur fond jaune est propre à la configuration (sinon valeur du type). Une modification de cote rend la configuration « à recalculer ». Pour changer profilé, tuyauterie ou actions : ✎ S1 sur le type (commun à toutes ses configurations).</div>`;
   const ix=s=>s.split('|').map((x,i)=>i<2?+x:x), on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,()=>fn(el)));
   on('[data-tpk]','click',el=>choisirType(el));
@@ -328,6 +353,14 @@ function gestion(){
   on('[data-ddel]','click',el=>{ const [ti,ai]=ix(el.dataset.ddel); K.types[ti].ddc.splice(ai,1); enr(); tout(); });
   etatRecalc();
 }
+/* schéma coté : lettre de la case active en évidence ; état ouvert / replié mémorisé */
+$('rGestion').addEventListener('focusin',e=>{ const el=e.target.closest('[data-cote]'); const bl=e.target.closest('.typeBloc'); if(!bl) return;
+  bl.querySelectorAll('.surbrille').forEach(t=>t.classList.remove('surbrille')); bl.querySelectorAll('.schLeg span.on').forEach(t=>t.classList.remove('on')); if(!el) return;
+  const [ti,,id]=el.dataset.cote.split('|'), d=(K.types[+ti].cotesDef||[]).find(x=>x.id===id); if(!d) return;
+  bl.querySelectorAll('.schVues text').forEach(t=>{ if(t.textContent.trim()===d.l||t.textContent.trim().startsWith(d.l+' ')) t.classList.add('surbrille'); });
+  bl.querySelectorAll(`.schLeg span[data-leg="${CSS.escape(d.l)}"]`).forEach(t=>t.classList.add('on')); });
+$('rGestion').addEventListener('toggle',e=>{ const d=e.target.closest&&e.target.closest('details.schema'); if(!d) return; const k='x'+d.dataset.sch; if(d.open) SCH_OUVERT.delete(k); else SCH_OUVERT.add(k);
+  try{ localStorage.setItem('fip.replie.cs.schemas',JSON.stringify([...SCH_OUVERT])); }catch(err){} },true);
 function etatRecalc(){
   const n=K.types.filter(T=>T.kind==='s1'&&T.etat).reduce((s,T)=>s+T.configs.filter(c=>!c.resume).length,0), nc=K.types.filter(T=>T.kind==='s1'&&!T.etat).length;
   $('etat').innerHTML=(n?`<div class="msg jaune">${n} configuration(s) à recalculer (cotes ou paramètres modifiés) : cliquer « ⟳ Recalculer tout ».</div>`:'')+(nc?`<div class="msg info">${nc} type(s) non calculé(s) : comptés dans le listing, à calculer dans S1 (✎ S1) pour obtenir profilés, BOM et DDC.</div>`:'');
@@ -451,10 +484,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=2.56"></script>
-<script src="../commun/aide.js?v=2.56"></script>
-<script src="aide-cs.js?v=2.56"></script>
-<script src="../commun/export.js?v=2.56"></script>
+<script src="../commun/replier.js?v=2.57"></script>
+<script src="../commun/aide.js?v=2.57"></script>
+<script src="aide-cs.js?v=2.57"></script>
+<script src="../commun/export.js?v=2.57"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>
