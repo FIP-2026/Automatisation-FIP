@@ -228,10 +228,11 @@ const DESSIN = (() => {
     const vues = place ? place.map((r) => r.V) : spec.vues.map((v) => ({ ...VUES[v.id], ...v }));
     if (!ech) { ech = 100; const k = 10; vues.forEach((V) => { V.mg = V.mg || { g: 18, d: 18, h: 24, b: 18 }; if (V.u0 == null) { V.u0 = 0; V.u1 = 1; V.v0 = 0; V.v1 = 1; } V.mu = V.mu || ((t) => t); V.mv = V.mv || ((t) => t); V.iu = V.iu || []; V.iv = V.iv || []; }); place = vues.map((V, i) => ({ V, x: zx0 + 20 + i * 120, y: zy0 + 20, w: (V.u1 - V.u0) * k, h: (V.v1 - V.v0) * k })); }
     const k = 1000 / ech;
-    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}">`;
+    // data-echelle / data-zone : échelle des vues et zone de dessin (fenêtre de présentation du DXF) ; data-ep : élément de l'espace papier
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}" data-echelle="${ech}" data-zone="${zx0} ${zy0} ${zx1} ${zy1}">`;
     s += `<rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/>`;
     if (!GAB) { s += `<rect data-c="CADRE" x="${zx0}" y="${zy0}" width="${zx1 - zx0}" height="${zy1 - zy0}" fill="none" stroke="#000" stroke-width="0.7"/>`;
-      [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; }); }   // repères de centrage
+      [[PW / 2, 0, PW / 2, zy0], [PW / 2, PH, PW / 2, zy1], [0, PH / 2, zx0, PH / 2], [PW, PH / 2, zx1, PH / 2]].forEach(([a, b, c, d]) => { s += `<line data-c="CADRE" x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#000" stroke-width="0.7"/>`; }); }   // repères de centrage
     if (spec.statut) { const T = { x0: ZT.x0, y0: ZT.y0, x1: ZT.x0 + ZT.w, y1: ZT.y0 + hTp - 2 }, ph = spec.statut.phase || "APS/APD";   // bandeau encadré (pas de filigrane)
       s += `<g data-c="CARTOUCHE"><rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
         txt((T.x0 + T.x1) / 2, T.y0 + 1.6 + TH.b1, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: TH.b1, b: 1 }) +
@@ -318,7 +319,7 @@ const DESSIN = (() => {
     }
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;
     if (GAB) {   // gabarit FIP A3 : cadre, cartouche et révisions (blocs à attributs dans le DXF)
-      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH) + `<g data-c="TEXTE">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
+      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH) + `<g data-c="TEXTE" data-ep="1">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
       return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
     }
     // cartouche provisoire (A4)
@@ -336,114 +337,178 @@ const DESSIN = (() => {
     // symbole de la méthode E (ISO 5456-2)
     const sx = xc + w1 / 2 - 8, sy = yc + 30; s += `<path d="M${sx},${sy - 2} L${sx + 7},${sy - 3.5} L${sx + 7},${sy + 3.5} L${sx},${sy + 2}Z" fill="none" ${STY.fin}/><circle cx="${sx + 13}" cy="${sy}" r="3.5" fill="none" ${STY.fin}/><circle cx="${sx + 13}" cy="${sy}" r="2" fill="none" ${STY.fin}/>`;
     s += `<line x1="${sx - 1}" y1="${sy}" x2="${sx + 17.5}" y2="${sy}" ${STY.axe}/>`;
-    s += `</g><g data-c="TEXTE">`;
+    s += `</g><g data-c="TEXTE" data-ep="1">`;
     s += lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("");   // notes à gauche du cartouche
     s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche simplifié A4 – le gabarit FIP est en A3", { a: "end", h: 2 }) + "</g>";
     return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
   }
   /* =====================================================================
-     EXPORT DXF (AutoCAD R12, ASCII, mm) depuis une ou plusieurs planches vectorielles (spec.vecteur = true)
-     Calques ISO : CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE
-     Planches côte à côte dans l'espace objet (échelle 1:1 de la feuille, cotes en texte).
+     EXPORT DXF 2000 (AC1015, ASCII, mm) depuis une ou plusieurs planches vectorielles (spec.vecteur = true)
+     Une présentation (layout A3/A4) par folio : cadre, cartouche FIP (blocs à attributs), tableaux, nomenclature et notes
+     dans l'espace papier ; vues (géométrie, cotes, repères) dans l'espace objet en vraie grandeur (mm), vues par une
+     fenêtre à l'échelle du folio (1:éch). Folios côte à côte dans l'espace objet.
+     pages : [{ svg, nom }] — nom = nom de la présentation (ex. « F01 ST-01 »).
+     Calques ISO : CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE, FENETRES (non imprimé)
      ===================================================================== */
   const CALQUES = { "0": [7, "CONTINUOUS"], CADRE: [7, "CONTINUOUS"], CONTOUR: [7, "CONTINUOUS"], FIN: [9, "CONTINUOUS"], AXES: [1, "CENTER"], CACHE: [6, "DASHED"], PIECES_VOISINES: [8, "PHANTOM"],
-    COTES: [3, "CONTINUOUS"], REPERES: [4, "CONTINUOUS"], TEXTE: [7, "CONTINUOUS"], OUVRAGE: [8, "CONTINUOUS"], CARTOUCHE: [7, "CONTINUOUS"], FILIGRANE: [9, "CONTINUOUS"] };
+    COTES: [3, "CONTINUOUS"], REPERES: [4, "CONTINUOUS"], TEXTE: [7, "CONTINUOUS"], OUVRAGE: [8, "CONTINUOUS"], CARTOUCHE: [7, "CONTINUOUS"], FILIGRANE: [9, "CONTINUOUS"], FENETRES: [8, "CONTINUOUS", 1] };
   const TIRETS = { "8 1.5 1 1.5": "AXES", "10 1.5 1 1.5 1 1.5": "PIECES_VOISINES", "3 1.5": "CACHE" };
   const CP1252 = "€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–—˜™š›œ\u009DžŸ";
-  const ASCII = { "\u202F": " ", "\u00A0": " ", "\u2009": " ", "≈": "~", "≤": "<=", "≥": ">=", "→": "->", "−": "-", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "²": "2", "³": "3", "⁴": "4" };
-  const encTexte = (t) => [...String(t).replace(/[\u202F\u00A0\u2009≈≤≥→−₀-₉⁴]/g, (c) => ASCII[c] || c).replace(/Ø/g, "%%c").replace(/±/g, "%%p").replace(/°/g, "%%d")].map((c) => { const k = c.codePointAt(0); if (k < 128 || (k >= 160 && k < 256) || CP1252.includes(c)) return c; return "\\U+" + k.toString(16).toUpperCase().padStart(4, "0"); }).join("");
+  const ASCII = { " ": " ", " ": " ", " ": " ", "≈": "~", "≤": "<=", "≥": ">=", "→": "->", "−": "-", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "²": "2", "³": "3", "⁴": "4" };
+  const encTexte = (t) => [...String(t).replace(/[   ≈≤≥→−₀-₉⁴]/g, (c) => ASCII[c] || c).replace(/Ø/g, "%%c").replace(/±/g, "%%p").replace(/°/g, "%%d")].map((c) => { const k = c.codePointAt(0); if (k < 128 || (k >= 160 && k < 256) || CP1252.includes(c)) return c; return "\\U+" + k.toString(16).toUpperCase().padStart(4, "0"); }).join("");
   function enOctets(str) { const out = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) { const c = str[i], k = c.charCodeAt(0), j = CP1252.indexOf(c); out[i] = k < 128 || (k >= 160 && k < 256) ? k : j >= 0 ? 128 + j : 63; } return out; }
+  const nomPres = (t) => String(t).replace(/[<>\/\\":;?*|,=`]/g, "-").slice(0, 60);
   function dxf(pages) {
-    const E = [], inserts = [], nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +v.toFixed(4));
-    const ligne = (L, x1, y1, x2, y2) => E.push(`0\nLINE\n8\n${L}\n10\n${nb(x1)}\n20\n${nb(y1)}\n30\n0\n11\n${nb(x2)}\n21\n${nb(y2)}\n31\n0`);
-    let ox = 0;
-    pages.forEach((pg) => {
+    const nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +(+v).toFixed(4));
+    /* ---- 1. lecture des planches : entités { sp: 'M' (objet) | 'P' (papier), f: folio, t: type, L: calque, d: données } ---- */
+    const ENT = [], FOL = [];
+    let oxm = 0;
+    pages.forEach((pg, f) => {
       const doc = new DOMParser().parseFromString(pg.svg, "image/svg+xml"), root = doc.documentElement, vb = root.getAttribute("viewBox").split(/\s+/).map(Number), PH = vb[3], PW = vb[2];
-      const X = (x) => ox + x, Y = (y) => PH - y, masques = [], segs = [];
+      const k = +root.getAttribute("data-echelle") || 1, Z = (root.getAttribute("data-zone") || `0 0 ${PW} ${PH}`).split(/\s+/).map(Number);
+      const fo = { nom: nomPres(pg.nom || "Folio " + String(f + 1).padStart(2, "0")), PW, PH, k, oxm, Z, ins: [] }; FOL.push(fo);
+      // transformations : papier (mm de feuille, y vers le haut) ; objet (vraie grandeur = feuille × échelle, folio décalé)
+      const T = { P: (p) => [p[0], PH - p[1]], M: (p) => [oxm + p[0] * k, (PH - p[1]) * k] }, K = { P: 1, M: k };
+      const masques = [], segs = [];
       const calque = (el, parent) => el.getAttribute("data-c") || TIRETS[(el.getAttribute("stroke-dasharray") || "").trim()] || parent || (+el.getAttribute("stroke-width") >= 0.5 ? "CONTOUR" : "FIN");
-      const seg = (L, a, b) => segs.push({ L, a, b });
-      const solide = (L, P) => { const p = P.slice(0, 4); while (p.length < 4) p.push(p[p.length - 1]); E.push(`0\nSOLID\n8\n${L}\n` + [p[0], p[1], p[3], p[2]].map((q, i) => `1${i}\n${nb(X(q[0]))}\n2${i}\n${nb(Y(q[1]))}\n3${i}\n0`).join("\n")); };
-      const chemin = (d) => { const T = d.match(/[MLHVZmlhvz]|-?\d*\.?\d+(?:e-?\d+)?/g) || [], polys = []; let cur = null, x = 0, y = 0, i = 0, cmd = "M";
-        while (i < T.length) { if (/[A-Za-z]/.test(T[i])) cmd = T[i++]; if (/[Zz]/.test(cmd)) { if (cur) { cur.ferme = true; } cmd = "M"; continue; }
-          const n = () => +T[i++];
+      const add = (sp, t, L, d) => ENT.push({ sp, f, t, L, d });
+      const seg = (sp, L, a, b) => segs.push({ sp, L, a, b });
+      const chemin = (d) => { const Tk = d.match(/[MLHVZmlhvz]|-?\d*\.?\d+(?:e-?\d+)?/g) || [], polys = []; let cur = null, x = 0, y = 0, i = 0, cmd = "M";
+        while (i < Tk.length) { if (/[A-Za-z]/.test(Tk[i])) cmd = Tk[i++]; if (/[Zz]/.test(cmd)) { if (cur) { cur.ferme = true; } cmd = "M"; continue; }
+          const n = () => +Tk[i++];
           if (cmd === "M") { x = n(); y = n(); cur = { pts: [[x, y]] }; polys.push(cur); cmd = "L"; } else if (cmd === "m") { x += n(); y += n(); cur = { pts: [[x, y]] }; polys.push(cur); cmd = "l"; }
           else if (cmd === "L") { x = n(); y = n(); cur.pts.push([x, y]); } else if (cmd === "l") { x += n(); y += n(); cur.pts.push([x, y]); }
           else if (cmd === "H") { x = n(); cur.pts.push([x, y]); } else if (cmd === "h") { x += n(); cur.pts.push([x, y]); }
           else if (cmd === "V") { y = n(); cur.pts.push([x, y]); } else if (cmd === "v") { y += n(); cur.pts.push([x, y]); } else i++; }
         return polys; };
-      const marche = (el, L) => {
+      const marche = (el, L, sp) => {
         for (const n of el.children) {
           const tag = n.tagName.toLowerCase(), c = calque(n, L);
           if (["defs", "pattern", "image", "title"].includes(tag)) continue;
-          if (tag === "g" && n.getAttribute("data-gabarit")) { const V = {}; n.querySelectorAll("[data-att]").forEach((t) => { V[t.getAttribute("data-att")] = t.textContent; }); inserts.push({ x: ox, V }); continue; }   // gabarit FIP : blocs + attributs
-          if (tag === "g") { marche(n, n.getAttribute("data-c") || L); continue; }
-          const at = (k) => +n.getAttribute(k) || 0, fill = n.getAttribute("fill") || "", stroke = n.getAttribute("stroke");
-          if (tag === "line") seg(c, [at("x1"), at("y1")], [at("x2"), at("y2")]);
-          else if (tag === "polyline" || tag === "polygon") { const P = n.getAttribute("points").trim().split(/\s+/).map((q) => q.split(",").map(Number)); P.forEach((p, i) => { if (i) seg(c, P[i - 1], p); }); if (tag === "polygon") seg(c, P[P.length - 1], P[0]); }
+          if (tag === "g" && n.getAttribute("data-gabarit")) { const V = {}; n.querySelectorAll("[data-att]").forEach((t) => { V[t.getAttribute("data-att")] = t.textContent; }); fo.ins.push(V); continue; }   // gabarit FIP : blocs + attributs (papier)
+          const spN = sp === "P" || n.getAttribute("data-ep") || ["CARTOUCHE", "CADRE"].includes(n.getAttribute("data-c")) ? "P" : "M";
+          if (tag === "g") { marche(n, n.getAttribute("data-c") || L, spN); continue; }
+          const at = (q) => +n.getAttribute(q) || 0, fill = n.getAttribute("fill") || "", stroke = n.getAttribute("stroke");
+          if (tag === "line") seg(spN, c, [at("x1"), at("y1")], [at("x2"), at("y2")]);
+          else if (tag === "polyline" || tag === "polygon") { const P = n.getAttribute("points").trim().split(/\s+/).map((q) => q.split(",").map(Number)); P.forEach((p, i) => { if (i) seg(spN, c, P[i - 1], p); }); if (tag === "polygon") seg(spN, c, P[P.length - 1], P[0]); }
           else if (tag === "rect") { const x = at("x"), y = at("y"), w = at("width"), h = at("height");
             if (n.getAttribute("data-masque")) { masques.push([x, y, x + w, y + h]); continue; }
-            if (/^url/.test(fill)) { for (let t = -h; t < w; t += 3) { const a = [x + Math.max(t, 0), y + h - Math.max(-t, 0)], L2 = Math.min(w - Math.max(t, 0), h - Math.max(-t, 0)); if (L2 > 0.2) seg("OUVRAGE", a, [a[0] + L2, a[1] - L2]); } }
-            if (stroke && stroke !== "none") [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach(([a, b, cc, d]) => seg(c, [a, b], [cc, d])); }
-          else if (tag === "circle") { const r = at("r"); if (fill === "#000" && r < 1) { E.push(`0\nCIRCLE\n8\n${c}\n10\n${nb(X(at("cx")))}\n20\n${nb(Y(at("cy")))}\n30\n0\n40\n${nb(r)}`); continue; }
-            if ((stroke && stroke !== "none") || fill === "#000") E.push(`0\nCIRCLE\n8\n${c}\n10\n${nb(X(at("cx")))}\n20\n${nb(Y(at("cy")))}\n30\n0\n40\n${nb(r)}`); }
+            if (/^url/.test(fill)) { for (let t = -h; t < w; t += 3) { const a = [x + Math.max(t, 0), y + h - Math.max(-t, 0)], L2 = Math.min(w - Math.max(t, 0), h - Math.max(-t, 0)); if (L2 > 0.2) seg(spN, "OUVRAGE", a, [a[0] + L2, a[1] - L2]); } }
+            if (stroke && stroke !== "none") [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach(([a, b, cc, d]) => seg(spN, c, [a, b], [cc, d])); }
+          else if (tag === "circle") { if ((stroke && stroke !== "none") || fill === "#000") { const p = T[spN]([at("cx"), at("cy")]); add(spN, "CIRCLE", c, { p, r: at("r") * K[spN] }); } }
           else if (tag === "path") { const P = chemin(n.getAttribute("d") || "");
-            if (fill === "#000") P.forEach((p) => solide(c, p.pts));
-            else if (stroke && stroke !== "none") P.forEach((p) => { p.pts.forEach((q, i) => { if (i) seg(c, p.pts[i - 1], q); }); if (p.ferme) seg(c, p.pts[p.pts.length - 1], p.pts[0]); }); }
-          else if (tag === "text") { const t = n.textContent; if (!t.trim()) continue; const h = at("font-size") * 0.72, an = n.getAttribute("text-anchor"), j = an === "middle" ? 1 : an === "end" ? 2 : 0;
-            const m = /rotate\(\s*(-?[\d.]+)/.exec(n.getAttribute("transform") || ""), rot = m ? -+m[1] : 0, x = X(at("x")), y = Y(at("y")), lay = n.getAttribute("fill-opacity") && +n.getAttribute("fill-opacity") < 0.5 ? "FILIGRANE" : c;
-            const m2 = /rotate\(\s*(-?[\d.]+)/.exec(n.getAttribute("transform") || "");
-            E.push(`0\nTEXT\n8\n${lay === "CONTOUR" || lay === "FIN" ? "TEXTE" : lay}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}\n50\n${nb(rot)}\n7\nISO\n72\n${j}` + (j ? `\n11\n${nb(x)}\n21\n${nb(y)}\n31\n0` : "")); }
+            if (fill === "#000") P.forEach((p) => { const q = p.pts.slice(0, 4); while (q.length < 4) q.push(q[q.length - 1]); add(spN, "SOLID", c, { q: [q[0], q[1], q[3], q[2]].map(T[spN]) }); });
+            else if (stroke && stroke !== "none") P.forEach((p) => { p.pts.forEach((q, i) => { if (i) seg(spN, c, p.pts[i - 1], q); }); if (p.ferme) seg(spN, c, p.pts[p.pts.length - 1], p.pts[0]); }); }
+          else if (tag === "text") { const t = n.textContent; if (!t.trim()) continue; const an = n.getAttribute("text-anchor"), ha = an === "middle" ? 1 : an === "end" ? 2 : 0;
+            const m = /rotate\(\s*(-?[\d.]+)/.exec(n.getAttribute("transform") || ""), lay = n.getAttribute("fill-opacity") && +n.getAttribute("fill-opacity") < 0.5 ? "FILIGRANE" : c;
+            add(spN, "TEXT", lay === "CONTOUR" || lay === "FIN" ? "TEXTE" : lay, { p: T[spN]([at("x"), at("y")]), h: at("font-size") * 0.72 * K[spN], t, rot: m ? -+m[1] : 0, ha, va: 0 }); }
         }
       };
-      marche(root, null);
+      marche(root, null, "M");
       // découpe par les bandes des vues interrompues (géométrie seulement, pas les cotes ni les repères)
       const coupe = (a, b, M) => { let t0 = 0, t1 = 1; const dx = b[0] - a[0], dy = b[1] - a[1], p = [-dx, dx, -dy, dy], q = [a[0] - M[0], M[2] - a[0], a[1] - M[1], M[3] - a[1]];
         for (let i = 0; i < 4; i++) { if (Math.abs(p[i]) < 1e-12) { if (q[i] <= 0) return [[a, b]]; continue; } const r = q[i] / p[i]; if (p[i] < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r); }
         if (t0 >= t1 - 1e-9) return [[a, b]]; const P = (t) => [a[0] + dx * t, a[1] + dy * t], out = []; if (t0 > 1e-9) out.push([a, P(t0)]); if (t1 < 1 - 1e-9) out.push([P(t1), b]); return out; };
       // fusion des segments colinéaires jointifs (arêtes découpées par le tri des faces), suppression des fragments < 0,3 mm
       const groupes = new Map();
-      segs.forEach((s) => { let a = s.a, b = s.b; if (b[0] < a[0] - 1e-9 || (Math.abs(b[0] - a[0]) < 1e-9 && b[1] < a[1])) [a, b] = [b, a];
+      segs.forEach((sg) => { let a = sg.a, b = sg.b; if (b[0] < a[0] - 1e-9 || (Math.abs(b[0] - a[0]) < 1e-9 && b[1] < a[1])) [a, b] = [b, a];
         const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 1e-6) return; const ux = dx / L, uy = dy / L, ang = Math.round(Math.atan2(uy, ux) * 2000), off = Math.round((a[1] * ux - a[0] * uy) * 200);
-        const k = s.L + "|" + ang + "|" + off; (groupes.get(k) || groupes.set(k, { L: s.L, ux, uy, ls: [] }).get(k)).ls.push([a[0] * ux + a[1] * uy, b[0] * ux + b[1] * uy, a, b]); });
-      const fusion = [];
-      groupes.forEach((G) => { G.ls.sort((p, q) => p[0] - q[0]); let cur = null;
-        G.ls.forEach((l) => { if (cur && l[0] <= cur[1] + 0.05) { if (l[1] > cur[1]) { cur[1] = l[1]; cur[3] = l[3]; } } else { if (cur) fusion.push({ L: G.L, a: cur[2], b: cur[3] }); cur = l.slice(); } });
-        if (cur) fusion.push({ L: G.L, a: cur[2], b: cur[3] }); });
-      fusion.forEach((s) => { let L = [[s.a, s.b]]; if (!["COTES", "REPERES", "CARTOUCHE", "TEXTE", "CADRE"].includes(s.L)) masques.forEach((M) => { L = L.flatMap(([a, b]) => coupe(a, b, M)); });
-        L.forEach(([a, b]) => { const lg = Math.hypot(b[0] - a[0], b[1] - a[1]); if (lg > (s.L === "CONTOUR" ? 0.3 : 1e-4)) ligne(s.L, X(a[0]), Y(a[1]), X(b[0]), Y(b[1])); }); });
-      ox += PW + 40;
+        const kk = sg.sp + "|" + sg.L + "|" + ang + "|" + off; (groupes.get(kk) || groupes.set(kk, { sp: sg.sp, L: sg.L, ls: [] }).get(kk)).ls.push([a[0] * ux + a[1] * uy, b[0] * ux + b[1] * uy, a, b]); });
+      groupes.forEach((G) => { G.ls.sort((p, q) => p[0] - q[0]); let cur = null; const fus = [];
+        G.ls.forEach((l) => { if (cur && l[0] <= cur[1] + 0.05) { if (l[1] > cur[1]) { cur[1] = l[1]; cur[3] = l[3]; } } else { if (cur) fus.push([cur[2], cur[3]]); cur = l.slice(); } });
+        if (cur) fus.push([cur[2], cur[3]]);
+        fus.forEach(([a0, b0]) => { let L = [[a0, b0]]; if (G.sp === "M" && !["COTES", "REPERES", "TEXTE"].includes(G.L)) masques.forEach((M) => { L = L.flatMap(([a, b]) => coupe(a, b, M)); });
+          L.forEach(([a, b]) => { const lg = Math.hypot(b[0] - a[0], b[1] - a[1]); if (lg > (G.L === "CONTOUR" ? 0.3 : 1e-4)) add(G.sp, "LINE", G.L, { a: T[G.sp](a), b: T[G.sp](b) }); }); }); });
+      oxm += (PW + 40) * k;
     });
-    // gabarit FIP A3 : définitions de blocs (noms compatibles R12) et insertions avec attributs (modifiables dans AutoCAD : ATTEDIT / EATTEDIT)
-    const NOMS = { F: "FIP-FORMAT-A3", C: "CARTOUCHE-FIP", R: "REVISION-FIP" }, BL = [];
-    const txtDxf = (o, L, x, y, h, ha, va, t, att, def) => { const al = ha || va ? `\n11\n${nb(x)}\n21\n${nb(y)}\n31\n0` : "";
-      if (o === "TEXT") return `0\nTEXT\n8\n${L}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}\n7\nISO\n72\n${ha}${al}\n73\n${va}`;
-      return `0\n${o}\n8\n${L}\n10\n${nb(x)}\n20\n${nb(y)}\n30\n0\n40\n${nb(h)}\n1\n${encTexte(t)}` + (o === "ATTDEF" ? `\n3\n${att}` : "") + `\n2\n${att}\n70\n0\n7\nISO\n72\n${ha}${al}\n74\n${va}`; };
-    if (inserts.length && typeof GABARIT_A3 !== "undefined") {
-      const G = GABARIT_A3, logo = [];
-      G.C.logo.forEach((g) => g.tri.forEach((t) => { logo.push(`0\nSOLID\n8\n0\n62\n${g.aci}\n10\n${t[0]}\n20\n${t[1]}\n30\n0\n11\n${t[2]}\n21\n${t[3]}\n31\n0\n12\n${t[4]}\n22\n${t[5]}\n32\n0\n13\n${t[4]}\n23\n${t[5]}\n33\n0`); }));
-      BL.push(`0\nBLOCK\n8\n0\n2\nLOGOS-FIP\n70\n0\n10\n0\n20\n0\n30\n0\n3\nLOGOS-FIP\n${logo.join("\n")}\n0\nENDBLK\n8\n0`);
-      for (const k of ["F", "C", "R"]) {
-        const B = G[k], e = [];
-        B.l.forEach((l) => e.push(`0\nLINE\n8\n0\n10\n${l[0]}\n20\n${l[1]}\n30\n0\n11\n${l[2]}\n21\n${l[3]}\n31\n0`));
-        B.c.forEach((c) => e.push(`0\nCIRCLE\n8\n0\n10\n${c[0]}\n20\n${c[1]}\n30\n0\n40\n${c[2]}`));
-        B.r.forEach((r) => e.push(`0\nSOLID\n8\n0\n10\n${r[0]}\n20\n${r[1]}\n30\n0\n11\n${r[0] + r[2]}\n21\n${r[1]}\n31\n0\n12\n${r[0]}\n22\n${r[1] + r[3]}\n32\n0\n13\n${r[0] + r[2]}\n23\n${r[1] + r[3]}\n33\n0`));
-        B.t.forEach((t) => e.push(txtDxf("TEXT", "0", t[0], t[1], t[2], t[3], t[4], t[5])));
-        B.m.forEach((m) => { const n = m[3].length; m[3].forEach((l, i) => e.push(txtDxf("TEXT", "0", m[0], m[1] - (i - (n - 1) / 2) * m[2] * 2, m[2], 1, 2, l))); });
-        B.a.forEach((a) => e.push(txtDxf("ATTDEF", "0", a[2], a[3], a[4], a[5], a[6], a[1], a[0])));
-        if (B.logo) e.push(`0\nINSERT\n8\n0\n2\nLOGOS-FIP\n10\n0\n20\n0\n30\n0`);
-        BL.push(`0\nBLOCK\n8\n0\n2\n${NOMS[k]}\n70\n${B.a.length ? 2 : 0}\n10\n0\n20\n0\n30\n0\n3\n${NOMS[k]}\n${e.join("\n")}\n0\nENDBLK\n8\n0`);
-      }
-      inserts.forEach(({ x, V }) => { for (const k of ["F", "C", "R"]) { const B = G[k], X = x + B.o[0], Y = B.o[1];
-        E.push(`0\nINSERT\n8\nCARTOUCHE\n${B.a.length ? "66\n1\n" : ""}2\n${NOMS[k]}\n10\n${nb(X)}\n20\n${nb(Y)}\n30\n0`);
-        if (B.a.length) { B.a.forEach((a) => E.push(txtDxf("ATTRIB", "CARTOUCHE", X + a[2], Y + a[3], a[4], a[5], a[6], V[a[0]] ?? a[1], a[0]))); E.push(`0\nSEQEND\n8\nCARTOUCHE`); } } });
-    }
-    const lt = (n, d, p) => `0\nLTYPE\n2\n${n}\n70\n0\n3\n${d}\n72\n65\n73\n${p.length}\n40\n${p.reduce((a, b) => a + Math.abs(b), 0)}` + p.map((v) => `\n49\n${v}`).join("");
-    const H = `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1009\n9\n$INSBASE\n10\n0\n20\n0\n30\n0\n9\n$EXTMIN\n10\n0\n20\n0\n30\n0\n9\n$EXTMAX\n10\n${ox}\n20\n300\n30\n0\n9\n$LTSCALE\n40\n1\n9\n$DWGCODEPAGE\n3\nANSI_1252\n0\nENDSEC`;
-    const T = `0\nSECTION\n2\nTABLES\n0\nTABLE\n2\nLTYPE\n70\n4\n${lt("CONTINUOUS", "Solid line", [])}\n${lt("CENTER", "Axe ISO ____ . ____", [8, -1.5, 0.5, -1.5])}\n${lt("DASHED", "Cache ISO __ __", [3, -1.5])}\n${lt("PHANTOM", "Pieces voisines ____ . . ____", [10, -1.5, 0.5, -1.5, 0.5, -1.5])}\n0\nENDTAB\n` +
-      `0\nTABLE\n2\nLAYER\n70\n${Object.keys(CALQUES).length}\n` + Object.entries(CALQUES).map(([n, [c, l]]) => `0\nLAYER\n2\n${n}\n70\n0\n62\n${c}\n6\n${l}`).join("\n") + `\n0\nENDTAB\n` +
-      `0\nTABLE\n2\nSTYLE\n70\n1\n0\nSTYLE\n2\nISO\n70\n0\n40\n0\n41\n0.85\n50\n0\n71\n0\n42\n2.5\n3\narial.ttf\n4\n\n0\nENDTAB\n0\nENDSEC`;
-    const BS = BL.length ? `0\nSECTION\n2\nBLOCKS\n${BL.join("\n")}\n0\nENDSEC\n` : "";
-    return enOctets(`${H}\n${T}\n${BS}0\nSECTION\n2\nENTITIES\n${E.join("\n")}\n0\nENDSEC\n0\nEOF\n`);
+    /* ---- 2. écriture DXF 2000 : poignées, tables, blocs, entités, objets ---- */
+    let hs = 0x20; const H = () => (hs++).toString(16).toUpperCase();
+    const hT = { VPORT: H(), LTYPE: H(), LAYER: H(), STYLE: H(), VIEW: H(), UCS: H(), APPID: H(), DIMSTYLE: H(), BLOCK_RECORD: H() };
+    const hDict = H(), hGroup = H(), hLay = H(), hMls = H(), hMlsStd = H(), hPlot = H(), hPsn = H(), hPh = H();
+    const brM = H(), layM = H(), blkM = [H(), H()];
+    FOL.forEach((fo, i) => { fo.br = H(); fo.lay = H(); fo.blk = [H(), H()]; fo.nomBloc = i === 0 ? "*Paper_Space" : "*Paper_Space" + (i - 1); });
+    const GB = typeof GABARIT_A3 !== "undefined" && FOL.some((fo) => fo.ins.length);
+    const NOMS = { F: "FIP - FORMAT A3", C: "CARTOUCHE.FIP.AUTOCAD", R: "Révision", LOGO: "LOGOS FIP" }, BLK = {};   // noms du gabarit AutoCAD FIP (DXF 2000 : noms longs admis)
+    if (GB) ["LOGO", "F", "C", "R"].forEach((k2) => { BLK[k2] = { br: H(), blk: [H(), H()] }; });
+    const out = [], w = (s) => out.push(s);
+    const ent0 = (t, h, own, L, papier, x = "") => `0\n${t}\n5\n${h}\n330\n${own}\n100\nAcDbEntity\n${papier ? "67\n1\n" : ""}8\n${L}${x}`;
+    const P3 = (c, p) => `\n${c}\n${nb(p[0])}\n${c + 10}\n${nb(p[1])}\n${c + 20}\n0`;
+    const texte = (d, o = "TEXT", att = "", def = "") => `\n100\nAcDbText${P3(10, d.p)}\n40\n${nb(d.h)}\n1\n${encTexte(d.t)}\n50\n${nb(d.rot || 0)}\n7\nISO\n72\n${d.ha || 0}${d.ha || d.va ? P3(11, d.p) : ""}` +
+      (o === "TEXT" ? `\n100\nAcDbText\n73\n${d.va || 0}` : o === "ATTDEF" ? `\n100\nAcDbAttributeDefinition\n3\n${att}\n2\n${att}\n70\n0\n74\n${d.va || 0}` : `\n100\nAcDbAttribute\n2\n${att}\n70\n0\n74\n${d.va || 0}`);
+    const entite = (e, own, papier) => {
+      const h = H(), d = e.d, col = e.col ? `\n62\n${e.col}` : "";
+      if (e.t === "LINE") return ent0("LINE", h, own, e.L, papier, col) + `\n100\nAcDbLine${P3(10, d.a)}${P3(11, d.b)}`;
+      if (e.t === "CIRCLE") return ent0("CIRCLE", h, own, e.L, papier, col) + `\n100\nAcDbCircle${P3(10, d.p)}\n40\n${nb(d.r)}`;
+      if (e.t === "SOLID") return ent0("SOLID", h, own, e.L, papier, col) + `\n100\nAcDbTrace${P3(10, d.q[0])}${P3(11, d.q[1])}${P3(12, d.q[2])}${P3(13, d.q[3])}`;
+      if (e.t === "TEXT") return ent0("TEXT", h, own, e.L, papier) + texte(d);
+      if (e.t === "ATTDEF") return ent0("ATTDEF", h, own, e.L, papier) + texte(d, "ATTDEF", d.tag);
+      if (e.t === "INSERT") { let s = ent0("INSERT", h, own, e.L, papier) + `\n100\nAcDbBlockReference${d.att && d.att.length ? "\n66\n1" : ""}\n2\n${d.nom}${P3(10, d.p)}`;
+        if (d.att && d.att.length) { d.att.forEach((a) => { s += "\n" + ent0("ATTRIB", H(), own, e.L, papier) + texte(a, "ATTRIB", a.tag); }); s += "\n" + ent0("SEQEND", H(), h, e.L, papier); }
+        return s; }
+      if (e.t === "VIEWPORT") return ent0("VIEWPORT", h, own, "FENETRES", papier) + `\n100\nAcDbViewport${P3(10, d.c)}\n40\n${nb(d.w)}\n41\n${nb(d.h)}\n68\n${d.st}\n69\n${d.id}\n12\n${nb(d.vc[0])}\n22\n${nb(d.vc[1])}\n13\n0\n23\n0\n14\n10\n24\n10\n15\n10\n25\n10\n16\n0\n26\n0\n36\n1\n17\n0\n27\n0\n37\n0\n42\n50\n43\n0\n44\n0\n45\n${nb(d.vh)}\n50\n0\n51\n0\n72\n100\n90\n${d.fl}\n1\n\n281\n0\n71\n0\n74\n0\n110\n0\n120\n0\n130\n0\n111\n1\n121\n0\n131\n0\n112\n0\n122\n1\n132\n0\n79\n0\n146\n0`;
+      return "";
+    };
+    // entités de l'espace papier de chaque folio : fenêtre générale (id 1), fenêtre des vues (id 2), gabarit, cartouche et tableaux
+    const papier = FOL.map((fo, i) => {
+      const L = [], [x0, y0, x1, y1] = fo.Z, cx = (x0 + x1) / 2, cy = fo.PH - (y0 + y1) / 2, hz = y1 - y0;
+      L.push({ t: "VIEWPORT", d: { c: [fo.PW / 2, fo.PH / 2], w: fo.PW * 1.1, h: fo.PH * 1.1, st: 1, id: 1, vc: [fo.PW / 2, fo.PH / 2], vh: fo.PH * 1.1, fl: 557088 } });
+      L.push({ t: "VIEWPORT", d: { c: [cx, cy], w: x1 - x0, h: hz, st: 2, id: 2, vc: [fo.oxm + cx * fo.k, cy * fo.k], vh: hz * fo.k, fl: 49248 } });   // 49248 = 32768 + 16384 (zoom verrouillé) + 96 (icône SCU)
+      if (GB) fo.ins.forEach((V) => ["F", "C", "R"].forEach((k2) => { const B = GABARIT_A3[k2], X = B.o[0], Y = B.o[1];
+        L.push({ t: "INSERT", L: "CARTOUCHE", d: { nom: NOMS[k2], p: [X, Y], att: B.a.map((a) => ({ tag: a[0], p: [X + a[2], Y + a[3]], h: a[4], ha: a[5], va: a[6], t: V[a[0]] ?? a[1] })) } }); }));
+      ENT.filter((e) => e.sp === "P" && e.f === i).forEach((e) => L.push(e));
+      return L; });
+    const modele = ENT.filter((e) => e.sp === "M");
+    // définitions des blocs du gabarit (coordonnées locales, point de base en bas à droite comme le gabarit AutoCAD)
+    const defBloc = {};
+    if (GB) { const G = GABARIT_A3;
+      defBloc.LOGO = G.C.logo.flatMap((g) => g.tri.map((t) => ({ t: "SOLID", L: "0", col: g.aci, d: { q: [[t[0], t[1]], [t[2], t[3]], [t[4], t[5]], [t[4], t[5]]] } })));
+      ["F", "C", "R"].forEach((k2) => { const B = G[k2], E2 = [];
+        B.l.forEach((l) => E2.push({ t: "LINE", L: "0", d: { a: [l[0], l[1]], b: [l[2], l[3]] } }));
+        B.c.forEach((c) => E2.push({ t: "CIRCLE", L: "0", d: { p: [c[0], c[1]], r: c[2] } }));
+        B.r.forEach((r) => E2.push({ t: "SOLID", L: "0", d: { q: [[r[0], r[1]], [r[0] + r[2], r[1]], [r[0], r[1] + r[3]], [r[0] + r[2], r[1] + r[3]]] } }));
+        B.t.forEach((t) => E2.push({ t: "TEXT", L: "0", d: { p: [t[0], t[1]], h: t[2], ha: t[3], va: t[4], t: t[5] } }));
+        B.m.forEach((m) => { const n = m[3].length; m[3].forEach((l, i) => E2.push({ t: "TEXT", L: "0", d: { p: [m[0], m[1] - (i - (n - 1) / 2) * m[2] * 2], h: m[2], ha: 1, va: 2, t: l } })); });
+        B.a.forEach((a) => E2.push({ t: "ATTDEF", L: "0", d: { tag: a[0], p: [a[2], a[3]], h: a[4], ha: a[5], va: a[6], t: a[1] } }));
+        if (B.logo) E2.push({ t: "INSERT", L: "0", d: { nom: NOMS.LOGO, p: [0, 0] } });
+        defBloc[k2] = E2; }); }
+    // --- TABLES
+    const tab = (n, h, recs, x = "") => `0\nTABLE\n2\n${n}\n5\n${h}\n330\n0\n100\nAcDbSymbolTable\n70\n${recs.length}${x}\n${recs.join("\n")}${recs.length ? "\n" : ""}0\nENDTAB`;
+    const rec = (t, h, own, sub, x) => `0\n${t}\n5\n${h}\n330\n${own}\n100\nAcDbSymbolTableRecord\n100\n${sub}${x}`;
+    const lt = (n, d, p) => rec("LTYPE", H(), hT.LTYPE, "AcDbLinetypeTableRecord", `\n2\n${n}\n70\n0\n3\n${d}\n72\n65\n73\n${p.length}\n40\n${p.reduce((a, b) => a + Math.abs(b), 0)}` + p.map((v) => `\n49\n${v}\n74\n0`).join(""));
+    const tables = [
+      tab("VPORT", hT.VPORT, [rec("VPORT", H(), hT.VPORT, "AcDbViewportTableRecord", "\n2\n*Active\n70\n0\n10\n0\n20\n0\n11\n1\n21\n1\n12\n210\n22\n148.5\n13\n0\n23\n0\n14\n10\n24\n10\n15\n10\n25\n10\n16\n0\n26\n0\n36\n1\n17\n0\n27\n0\n37\n0\n40\n300\n41\n1.414\n42\n50\n43\n0\n44\n0\n50\n0\n51\n0\n71\n0\n72\n1000\n73\n1\n74\n3\n75\n0\n76\n0\n77\n0\n78\n0\n281\n0\n65\n0\n146\n0")]),
+      tab("LTYPE", hT.LTYPE, [lt("ByBlock", "", []), lt("ByLayer", "", []), lt("Continuous", "Solid line", []), lt("CENTER", "Axe ISO ____ . ____", [8, -1.5, 0.5, -1.5]), lt("DASHED", "Cache ISO __ __", [3, -1.5]), lt("PHANTOM", "Pieces voisines ____ . . ____", [10, -1.5, 0.5, -1.5, 0.5, -1.5])]),
+      tab("LAYER", hT.LAYER, [["Defpoints", [7, "CONTINUOUS", 1]], ...Object.entries(CALQUES)].map(([n, [c, l, np]]) => rec("LAYER", H(), hT.LAYER, "AcDbLayerTableRecord", `\n2\n${n}\n70\n0\n62\n${c}\n6\n${l === "CONTINUOUS" ? "Continuous" : l}${np ? "\n290\n0" : ""}\n370\n-3\n390\n${hPh}`))),
+      tab("STYLE", hT.STYLE, [rec("STYLE", H(), hT.STYLE, "AcDbTextStyleTableRecord", "\n2\nStandard\n70\n0\n40\n0\n41\n1\n50\n0\n71\n0\n42\n2.5\n3\ntxt\n4\n"), rec("STYLE", H(), hT.STYLE, "AcDbTextStyleTableRecord", "\n2\nISO\n70\n0\n40\n0\n41\n0.85\n50\n0\n71\n0\n42\n2.5\n3\narial.ttf\n4\n")]),
+      tab("VIEW", hT.VIEW, []), tab("UCS", hT.UCS, []),
+      tab("APPID", hT.APPID, [rec("APPID", H(), hT.APPID, "AcDbRegAppTableRecord", "\n2\nACAD\n70\n0")]),
+      tab("DIMSTYLE", hT.DIMSTYLE, [`0\nDIMSTYLE\n105\n${H()}\n330\n${hT.DIMSTYLE}\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n2\nStandard\n70\n0\n40\n1\n41\n2.5\n42\n0.625\n43\n3.75\n44\n1.25\n140\n2.5\n141\n2.5\n147\n0.625`], "\n100\nAcDbDimStyleTable"),
+      tab("BLOCK_RECORD", hT.BLOCK_RECORD, [rec("BLOCK_RECORD", brM, hT.BLOCK_RECORD, "AcDbBlockTableRecord", `\n2\n*Model_Space\n340\n${layM}`),
+        ...FOL.map((fo) => rec("BLOCK_RECORD", fo.br, hT.BLOCK_RECORD, "AcDbBlockTableRecord", `\n2\n${fo.nomBloc}\n340\n${fo.lay}`)),
+        ...Object.keys(BLK).map((k2) => rec("BLOCK_RECORD", BLK[k2].br, hT.BLOCK_RECORD, "AcDbBlockTableRecord", `\n2\n${NOMS[k2]}\n340\n0`))])];
+    // --- BLOCKS
+    const bloc = (nom, br, hh, corps, fl = 0) => `0\nBLOCK\n5\n${hh[0]}\n330\n${br}\n100\nAcDbEntity\n8\n0\n100\nAcDbBlockBegin\n2\n${nom}\n70\n${fl}\n10\n0\n20\n0\n30\n0\n3\n${nom}\n1\n${corps}\n0\nENDBLK\n5\n${hh[1]}\n330\n${br}\n100\nAcDbEntity\n8\n0\n100\nAcDbBlockEnd`;
+    const blocs = [bloc("*Model_Space", brM, blkM, ""), ...FOL.map((fo, i) => bloc(fo.nomBloc, fo.br, fo.blk, i === 0 ? "" : "\n" + papier[i].map((e) => entite(e, fo.br, true)).join("\n")))];
+    if (GB) ["LOGO", "F", "C", "R"].forEach((k2) => blocs.push(bloc(NOMS[k2], BLK[k2].br, BLK[k2].blk, "\n" + defBloc[k2].map((e) => entite(e, BLK[k2].br, false)).join("\n"), defBloc[k2].some((e) => e.t === "ATTDEF") ? 2 : 0)));
+    // --- ENTITIES : espace objet + présentation active (1er folio)
+    const ents = modele.map((e) => entite(e, brM, false)).concat(FOL.length ? papier[0].map((e) => entite(e, FOL[0].br, true)) : []);
+    // --- OBJECTS
+    const plot = (nom) => `\n100\nAcDbPlotSettings\n1\n\n2\nNone\n4\n${nom}\n6\n\n40\n0\n41\n0\n42\n0\n43\n0\n44\n0\n45\n0\n46\n0\n47\n0\n48\n0\n49\n0\n140\n0\n141\n0\n142\n1\n143\n1\n70\n688\n72\n1\n73\n0\n74\n5\n7\n\n75\n16\n76\n0\n77\n2\n78\n300\n147\n1\n148\n0\n149\n0`;
+    const layout = (h, nom, ordre, br, vp, W, Hh) => `0\nLAYOUT\n5\n${h}\n330\n${hLay}${plot(W > 300 ? "ISO_full_bleed_A3_(420.00_x_297.00_MM)" : "ISO_full_bleed_A4_(297.00_x_210.00_MM)")}\n100\nAcDbLayout\n1\n${nom}\n70\n1\n71\n${ordre}\n10\n0\n20\n0\n11\n${W}\n21\n${Hh}\n12\n0\n22\n0\n32\n0\n14\n0\n24\n0\n34\n0\n15\n${W}\n25\n${Hh}\n35\n0\n146\n0\n13\n0\n23\n0\n33\n0\n16\n1\n26\n0\n36\n0\n17\n0\n27\n1\n37\n0\n76\n1\n330\n${br}` + (vp ? `\n331\n${vp}` : "");
+    const dict = (h, own, E2, x = "") => `0\nDICTIONARY\n5\n${h}\n330\n${own}\n100\nAcDbDictionary\n281\n1${E2.map(([n, r]) => `\n3\n${n}\n350\n${r}`).join("")}${x}`;
+    const objets = [dict(hDict, 0, [["ACAD_GROUP", hGroup], ["ACAD_LAYOUT", hLay], ["ACAD_MLINESTYLE", hMls], ["ACAD_PLOTSETTINGS", hPlot], ["ACAD_PLOTSTYLENAME", hPsn]]),
+      dict(hGroup, hDict, []), dict(hLay, hDict, [["Model", layM], ...FOL.map((fo) => [fo.nom, fo.lay])]), dict(hMls, hDict, [["Standard", hMlsStd]]), dict(hPlot, hDict, []),
+      `0\nACDBDICTIONARYWDFLT\n5\n${hPsn}\n330\n${hDict}\n100\nAcDbDictionary\n281\n1\n3\nNormal\n350\n${hPh}\n100\nAcDbDictionaryWithDefault\n340\n${hPh}`,
+      `0\nACDBPLACEHOLDER\n5\n${hPh}\n330\n${hPsn}`,
+      `0\nMLINESTYLE\n5\n${hMlsStd}\n330\n${hMls}\n100\nAcDbMlineStyle\n2\nStandard\n70\n0\n3\n\n62\n256\n51\n90\n52\n90\n71\n2\n49\n0.5\n62\n256\n6\nBYLAYER\n49\n-0.5\n62\n256\n6\nBYLAYER`,
+      layout(layM, "Model", 0, brM, null, 420, 297), ...FOL.map((fo, i) => layout(fo.lay, fo.nom, i + 1, fo.br, null, fo.PW, fo.PH))];
+    const corps = `0\nSECTION\n2\nCLASSES\n0\nCLASS\n1\nACDBDICTIONARYWDFLT\n2\nAcDbDictionaryWithDefault\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nACDBPLACEHOLDER\n2\nAcDbPlaceHolder\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nLAYOUT\n2\nAcDbLayout\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nENDSEC\n` +
+      `0\nSECTION\n2\nTABLES\n${tables.join("\n")}\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n${blocs.join("\n")}\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n${ents.join("\n")}${ents.length ? "\n" : ""}0\nENDSEC\n0\nSECTION\n2\nOBJECTS\n${objets.join("\n")}\n0\nENDSEC\n0\nEOF\n`;
+    const W0 = FOL.length ? FOL[0].PW : 420, H0 = FOL.length ? FOL[0].PH : 297;
+    const entete = `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1015\n9\n$ACADMAINTVER\n70\n6\n9\n$DWGCODEPAGE\n3\nANSI_1252\n9\n$INSBASE\n10\n0\n20\n0\n30\n0\n9\n$EXTMIN\n10\n0\n20\n0\n30\n0\n9\n$EXTMAX\n10\n${nb(oxm)}\n20\n${nb(H0 * Math.max(1, ...FOL.map((f2) => f2.k)))}\n30\n0\n9\n$LIMMIN\n10\n0\n20\n0\n9\n$LIMMAX\n10\n${W0}\n20\n${H0}\n9\n$LTSCALE\n40\n1\n9\n$PSLTSCALE\n70\n1\n9\n$TEXTSTYLE\n7\nISO\n9\n$CLAYER\n8\n0\n9\n$DIMSTYLE\n2\nStandard\n9\n$EXTNAMES\n290\n1\n9\n$HANDSEED\n5\n${(hs + 1).toString(16).toUpperCase()}\n9\n$TILEMODE\n70\n0\n9\n$INSUNITS\n70\n4\n9\n$MEASUREMENT\n70\n1\n9\n$PLIMMIN\n10\n0\n20\n0\n9\n$PLIMMAX\n10\n${W0}\n20\n${H0}\n9\n$PEXTMIN\n10\n0\n20\n0\n30\n0\n9\n$PEXTMAX\n10\n${W0}\n20\n${H0}\n30\n0\n0\nENDSEC\n`;
+    return enOctets(entete + corps);
   }
-  return { prisme, boite, cylindre, cercle, planche, dxf, VUES, FORMATS };
+  /* nom de fichier des plans : n° de document du cartouche (Projet-Doc-Lot-Chrono) suivi de la révision */
+  const nomFichierPlans = (K = {}) => String([K.projet || "00-000", K.doc || "PLN", K.lot, K.chrono || "01"].filter(Boolean).join("-") + "_Rev" + (K.rev ?? "0")).replace(/[^\w.-]+/g, "_") + ".dxf";
+  return { prisme, boite, cylindre, cercle, planche, dxf, nomFichierPlans, VUES, FORMATS };
 })();
