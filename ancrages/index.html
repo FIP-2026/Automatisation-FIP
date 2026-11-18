@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.65"></script>
+<script src="../commun/auth.js?v=2.66"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AN1 Ancrages</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.65">
+<link rel="stylesheet" href="../commun/calc.css?v=2.66">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/apps.js?v=2.65"></script>
-<script src="../commun/data/profils.js?v=2.65"></script>
-<script src="../commun/ident.js?v=2.65"></script>
-<script src="../commun/chevilles.js?v=2.65"></script>
-<script src="../commun/cbfem.js?v=2.65"></script>
-<script src="../commun/export.js?v=2.65"></script>
+<script src="../commun/apps.js?v=2.66"></script>
+<script src="../commun/data/profils.js?v=2.66"></script>
+<script src="../commun/ident.js?v=2.66"></script>
+<script src="../commun/chevilles.js?v=2.66"></script>
+<script src="../commun/cbfem.js?v=2.66"></script>
+<script src="../commun/export.js?v=2.66"></script>
 <style>
   /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
   main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
@@ -61,7 +61,7 @@
   @media (max-width:1200px){main.app{grid-template-columns:280px minmax(0,1fr)}.res{grid-column:1/3}.bas{grid-column:1/3}}
   @media (max-width:820px){main.app{grid-template-columns:1fr}.res,.bas{grid-column:1}.pan{max-height:none}.vue{height:380px}}
   .impr{display:none}
-  @media print{.pan{max-height:none}.onglets,.presets,.vue{display:none!important}.impr{display:block;break-inside:avoid}table.cmb button,#addC,#cCmb .actions{display:none!important}#imprPlan svg{width:100%;height:auto}#note{display:none}}
+  @media print{.pan{max-height:none}.onglets,.presets,.vue{display:none!important}.impr{display:block;break-inside:avoid}table.cmb button,#addC,#cCmb .actions{display:none!important}#imprPlan svg,#imprCb svg{width:100%;height:auto}#imprCb img{max-width:100%}#imprCb h3,#imprCb h5{break-after:avoid}#imprCb img,#imprCb svg{break-inside:avoid}#imprCb .figCb{break-before:page;break-inside:avoid}#imprCb .figCb img{max-height:46vh;display:block;margin:0 auto}#imprCb .figCb svg{max-height:44vh}#note{display:none}}
 </style>
 </head>
 <body>
@@ -170,7 +170,7 @@
     <table class="cmb" id="tCmb"></table>
     <div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" id="addC">➕ Combinaison</button> <button type="button" class="sec" id="bImport" title="Reprise des réactions d'appui d'une platine de S1 ou des pieds de poteaux de A1">⇩ Importer depuis S1 / A1</button></div>
   </section>
-  <section class="card bas impr" id="cImpr" style="margin:0"><h2>Plan coté et perspective</h2><div id="imprPlan"></div><img id="impr3d" alt="" style="max-width:100%;margin-top:8px"></section>
+  <section class="card bas impr" id="cImpr" style="margin:0"><h2>Plan coté et perspective</h2><div id="imprPlan"></div><img id="impr3d" alt="" style="max-width:100%;margin-top:8px"><div id="imprCb"></div></section>
   <section class="card bas" id="cCoord" style="margin:0"><h2>Coordonnées des chevilles (mm, origine au centre de la platine)</h2>
     <table class="cmb" id="tCoord"></table>
   </section>
@@ -523,8 +523,11 @@ async function vue3D(){ const box=$('v3d'); if(box.hidden) return;
   const w=box.clientWidth,hh=box.clientHeight; V3.r.setSize(w,hh); V3.cam.aspect=w/hh; V3.cam.updateProjectionMatrix(); }
 /* ---- impression : plan coté 2D et perspective 3D ---- */
 function prepImpr(){ $('imprPlan').innerHTML=svgPlan(1000,640,false).s; try{ const u=capture3D(); if(u) $('impr3d').src=u; }catch(e){} }
-async function imprimer(){ if($('v3d').hidden){ $('v3d').hidden=false; await vue3D(); } prepImpr(); setTimeout(()=>window.print(),120); }
-window.addEventListener('beforeprint',prepImpr);
+async function imprimer(){ rendre(); const GEO=await geometrie(); $('imprPlan').innerHTML=GEO.plan; if(GEO.img) $('impr3d').src=GEO.img;
+  $('imprCb').innerHTML=$('meth').value==='cbfem'?htmlFigures(await figuresCb(kGov()),'','h3'):''; IMPR_PRET=true; setTimeout(()=>window.print(),150); }
+let IMPR_PRET=false;
+window.addEventListener('beforeprint',()=>{ if(!IMPR_PRET){ prepImpr(); $('imprCb').innerHTML=''; } });
+window.addEventListener('afterprint',()=>{ IMPR_PRET=false; });
 /* ---- rendu général ---- */
 let tR=null;
 function rendre(){ enr(); calculer(); tables(); regles(); resultats(); plan2D(); clearTimeout(tR); tR=setTimeout(()=>vue3D().catch(e=>{ $('v3d').innerHTML=`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${h(e.message)}</div>`; }),60); }
@@ -541,10 +544,24 @@ $('b2d').onclick=()=>{ $('v3d').hidden=true; $('v2d').hidden=false; $('outils2d'
 /* ---- note de calcul Word (trame FIP via EXPORT) ---- */
 const txt=id=>{ const e=$(id); return e.tagName==='SELECT'?(e.selectedIndex>=0?e.options[e.selectedIndex].text:''):e.value; };
 const tab=(L)=>`<table>${L.map(([a,b])=>`<tr><th style="text-align:left">${a}</th><td>${b}</td></tr>`).join('')}</table>`;
+/* figures CBFEM d'une combinaison : pour chaque champ, vue 3D déformée (légende incrustée) et plan 2D avec échelle */
+async function figuresCb(k){ const r=RES[k]; if(!r||!r.cb) return null; const F=r.cb, sv={a:actif,c:$('carte').value,hid:$('v3d').hidden}, out=[];
+  const modes=['sig'].concat(F.eplMax>0?['eps']:[],['w'],F.C>0?['p']:[]);
+  try{ actif=k; $('v3d').hidden=false; for(const m of modes){ $('carte').value=m; await vue3D(); const L=champ(F,m); out.push({m,titre:L.titre,note:L.note,img:capture3D(),svg:svgPlan(900,580,false).s}); } }
+  catch(e){ console.warn(e); }
+  finally{ actif=sv.a; $('carte').value=sv.c; $('v3d').hidden=sv.hid; try{ await vue3D(); }catch(e){} }
+  const inf=(V3&&V3.leg&&V3.leg.inf)||''; return {k,nom:C[k].nom,figs:out,amp:/×([0-9  ]+)/.exec(inf)}; }
+/* vue de géométrie seule (sans champ de résultats) */
+async function geometrie(){ const sv={c:$('carte').value,hid:$('v3d').hidden}; let img='', plan='';
+  try{ $('carte').value='non'; $('v3d').hidden=false; await vue3D(); img=capture3D(); plan=svgPlan(1000,640,false).s; }catch(e){}
+  finally{ $('carte').value=sv.c; $('v3d').hidden=sv.hid; try{ await vue3D(); }catch(e){} } return {img,plan}; }
+const kGov=()=>{ let g=-1; RES.forEach((r,k)=>{ if(r&&isFinite(r.uMax)&&(g<0||r.uMax>RES[g].uMax)) g=k; }); return g; };
+function htmlFigures(FG,num,nH){ if(!FG||!FG.figs.length) return ''; const ampT=FG.amp?` ; déformée amplifiée ×${FG.amp[1].trim()} (position initiale en tiretés)`:'';
+  return `<h2>${num}Résultats de la platine flexible (CBFEM)</h2><p>Combinaison ${FG.k===kGov()?'déterminante':'affichée'} « ${h(FG.nom)} »${ampT}. Échelle de couleurs : bleu = minimum, rouge = maximum de la légende ; violet = acier plastifié (σ = f<sub>y</sub>). Traction de chaque cheville indiquée sur la vue 3D.</p>`+
+    FG.figs.map((g,q)=>`<div class="figCb"><${nH}>${num?num.replace(/\. $/,'')+'.'+(q+1)+' ':''}${g.titre}</${nH}><p class="note">${g.note}</p><h5>Vue 3D</h5><img src="${g.img}" alt="${h(g.titre)} – vue 3D"><h5>Plan (vue de dessus)</h5>${g.svg}</div>`).join(''); }
 async function preparerNote(){
-  const hid=$('v3d').hidden; let img3='';
-  try{ if(hid){ $('v3d').hidden=false; await vue3D(); } img3=capture3D(); }catch(e){} finally{ if(hid){ $('v3d').hidden=true; } }
-  rendre(); const b=entree(), P=PROD[b.prod], i=P.diam.indexOf(b.diam), K=IDENT.lire(), complet=$('nivNote').value==='complet';
+  rendre(); const cbM0=$('meth').value==='cbfem', GEO=await geometrie(), img3=GEO.img, FG=cbM0?await figuresCb(kGov()):null;
+  const b=entree(), P=PROD[b.prod], i=P.diam.indexOf(b.diam), K=IDENT.lire(), complet=$('nivNote').value==='complet';
   const r0=RES.map((r,k)=>({r,k})).filter(o=>o.r&&isFinite(o.r.uMax)), gov=r0.length?r0.reduce((a,o)=>o.r.uMax>a.r.uMax?o:a):null, uG=gov?gov.r.uMax:NaN;
   const bord=k=>b.beton.bords[k]==null?'∞':f(b.beton.bords[k],0)+' mm', G=(RES[0]&&RES[0].g)||{}, sis=C.some(c=>c.sis);
   const inf=r=>r.inter?`<tr><td>Interaction acier</td><td>${h(r.inter.acier.ref)}</td><td></td><td></td><td class="n">${f(r.inter.acier.u*100,0)} %</td></tr><tr><td>Interaction béton</td><td>${h(r.inter.beton.ref)}</td><td></td><td></td><td class="n">${f(r.inter.beton.u*100,0)} %</td></tr>`:'';
@@ -565,7 +582,7 @@ async function preparerNote(){
       <h5>Efforts par cheville (${r.cb?'platine flexible, CBFEM':'platine rigide, §6.2.1'})</h5>${forces(r)}${platine(r)}<h5>Vérifications des chevilles (NF EN 1992-4)</h5>${modes(r)}
       ${(r.alertes||[]).map(t=>`<div class="msg warn">${h(t)}</div>`).join('')}${r.dls&&(r.dls.rN<1||r.dls.rV<1)?`<div class="msg warn">Réduction DLS (§C.6, éq. C.11) : ×${f(r.dls.rN,3)} (traction), ×${f(r.dls.rV,3)} (cisaillement).</div>`:''}
       ${det?`<h5>Valeurs intermédiaires</h5>${details(r)}`:''}`; };
-  const plan=svgPlan(1000,640,false).s;
+  const plan=GEO.plan;
   $('note').innerHTML=`<h1>Note de calcul – ancrage de platine (AN1)</h1>
   <div class="hors-trame"><p>${h(IDENT.libelle(K))}</p></div>
   <div class="msg warn">Prédimensionnement (phase ${h(K.phase||'APS')}) – non valable pour exécution. ${cbM?'Platine flexible (CBFEM) : efforts des chevilles hors du cadre strict de la NF EN 1992-4 §6.2.1.':'Platine supposée rigide (NF EN 1992-4 §6.2.1) : à justifier, ou à vérifier par une méthode tenant compte de sa souplesse (CBFEM).'}</div>
@@ -579,15 +596,16 @@ async function preparerNote(){
   ${sis?`<h3>2.4 Situation sismique (annexe C)</h3>${tab([['Catégorie de performance',h(txt('sCat'))+' (AN Tab. C1-1 à C1-3)'],['Option de calcul',h(txt('sOpt'))+' ; coefficient appliqué aux efforts : '+f(b.sis.amp,2)],['Déplacement admissible (DLS, §C.6)',h(txt('sDls'))+(b.sis.dls==='perso'?' : δ<sub>N,req</sub> = '+f(b.sis.dNreq,1)+' mm, δ<sub>V,req</sub> = '+f(b.sis.dVreq,1)+' mm':'')],['γ<sub>Ms</sub> de l\'acier',h(txt('sGa'))],['γ<sub>c</sub> du béton','1,3 (§C.4)']])}`:''}
   <h3>${sis?'2.5':'2.4'} Méthode</h3>${cbM?`<p>Platine flexible (CBFEM, méthode des éléments finis basée sur les composants) : la platine est une plaque épaisse (Reissner-Mindlin, quadrilatères MITC4) en acier élastique – parfaitement plastique (ε<sub>lim</sub> = 5 %, NF EN 1993-1-5 annexe C) ; le béton est un appui unilatéral (compression seule) ; les chevilles sont des ressorts en traction seule ; les parois du profilé imposent une section plane. Le cisaillement est réparti comme en platine rigide. Les résistances des chevilles sont celles de la NF EN 1992-4 + AN, dont le §6.2.1 suppose une platine rigide : leur emploi avec les efforts de la platine flexible relève du jugement de l'ingénieur.</p>${tab([['Raideur axiale des chevilles k<sub>a</sub>',f((RES.find(r=>r&&r.cb)||{cb:{ka:0}}).cb.ka/1000,0)+' kN/mm ('+($('kaMode').value==='perso'?'saisie':'automatique, calée sur des notes PROFIS – à vérifier')+')'],['Raideur du béton k<sub>c</sub> = E<sub>cm</sub>/h<sub>c</sub>',f(b.beton.Ecm*1000/Math.max(5,+$('hcVal').value||30),0)+' N/mm³ (h<sub>c</sub> = '+h($('hcVal').value)+' mm)'],['Platine',h($('tp').value)+' mm – '+h(nuN)+', f<sub>y</sub> = '+f(FY[nuN],0)+' N/mm², E = 210 000 N/mm², ν = 0,3']])}`:`<p>NF EN 1992-4 + AN, platine rigide (§6.2.1) : répartition linéaire des efforts, chevilles comprimées inactives, compression reprise par le béton sous la platine (rigidités : chevilles E<sub>s</sub>·A<sub>s</sub>, béton E<sub>cm</sub>).</p>`}<p>Interaction béton : éq. (7.55) ou (7.56), la plus favorable ; en séisme éq. (C.9).</p>
   <h2>3. Géométrie</h2>${tab([['Platine',f(b.plaque.lx,0)+' × '+f(b.plaque.ly,0)+' × '+h($('tp').value)+' mm – '+h(txt('nuP'))],['Profilé',$('pfam').value==='aucun'?'aucun':h($('pnom').value)+' – excentricité ('+f(PR.x,0)+' ; '+f(PR.y,0)+') mm, angle '+f(PR.a,0)+'°'],['Nombre de chevilles',A.length]])}
-  <h5>Plan coté (origine au centre de la platine)${cbM&&$('carte').value!=='non'?' – carte CBFEM de la combinaison « '+h((C[actif]||{}).nom||'')+' »':''}</h5>${plan}${img3?`<h5>Perspective</h5><img src="${img3}" alt="Perspective 3D">`:''}
+  <h5>Plan coté (origine au centre de la platine)</h5>${plan}${img3?`<h5>Perspective</h5><img src="${img3}" alt="Perspective 3D">`:''}
   <h2>4. Combinaisons de charges</h2><p>Efforts de calcul au centre du profilé (daN, daN·m) ; N &gt; 0 en traction. Transport au centre de la platine : M<sub>x</sub>' = M<sub>x</sub> + N·e<sub>y</sub> ; M<sub>y</sub>' = M<sub>y</sub> − N·e<sub>x</sub> ; M<sub>z</sub>' = M<sub>z</sub> + e<sub>x</sub>·V<sub>y</sub> − e<sub>y</sub>·V<sub>x</sub>.</p>
   <table><tr><th>Combinaison</th><th class="n">N</th><th class="n">V<sub>x</sub></th><th class="n">V<sub>y</sub></th><th class="n">M<sub>x</sub></th><th class="n">M<sub>y</sub></th><th class="n">M<sub>z</sub></th><th>Sismique</th></tr>${C.map(c=>`<tr><td>${h(c.nom)}</td>${['N','Vx','Vy','Mx','My','Mz'].map(k=>`<td class="n">${f(c[k],k[0]==='M'?2:1)}</td>`).join('')}<td>${c.sis?'oui':'non'}</td></tr>`).join('')}</table>
   <h2>5. Vérifications</h2>
   <table><tr><th>Combinaison</th><th>Mode déterminant</th><th class="n">Taux maxi</th></tr>${RES.map((r,k)=>{ if(!r||r.err) return `<tr><td>${h(C[k].nom)}</td><td colspan="2">calcul impossible</td></tr>`; const L=r.modes.filter(m=>!m.sans).map(m=>({l:m.lib,u:m.u})).concat(r.inter?[{l:'Interaction acier',u:r.inter.acier.u},{l:'Interaction béton',u:r.inter.beton.u}]:[]).concat(r.cb?[{l:'Platine (déformation plastique)',u:r.uPl}]:[]), m=L.reduce((a,x)=>x.u>a.u?x:a,{l:'—',u:0}); return `<tr><td>${h(C[k].nom)}</td><td>${m.l}</td><td class="n" style="color:${r.uMax>1?'#C62828':'#1B7F3B'}">${isFinite(r.uMax)?f(r.uMax*100,0)+' %':'non vérifiable'}</td></tr>`; }).join('')}</table>
   <p class="note">${complet?'Note complète : valeurs intermédiaires de toutes les combinaisons.':'Note simplifiée : valeurs intermédiaires de la combinaison déterminante seule.'}</p>
   ${RES.map((r,k)=>r?verif({r,k}):'').join('')}
-  <h2>6. Règles de conception et alertes</h2><ul>${$('regles').innerHTML}</ul>
-  <h2>7. Conclusion</h2>${gov?`<div class="msg ${uG>1?'bad':'ok'}">Taux maximal ${f(uG*100,0)} % (${h(C[gov.k].nom)}) : ancrage ${uG>1?'NON VÉRIFIÉ – à reprendre (voir pistes d\'amélioration des modes déterminants)':'vérifié'} selon la NF EN 1992-4 + AN, ${cbM?'avec les efforts de la platine flexible (CBFEM)':'sous l\'hypothèse d\'une platine rigide'}.</div>`:'<div class="msg bad">Aucune combinaison vérifiable.</div>'}
+  ${htmlFigures(FG,'6. ','h3')}
+  <h2>${FG&&FG.figs.length?7:6}. Règles de conception et alertes</h2><ul>${$('regles').innerHTML}</ul>
+  <h2>${FG&&FG.figs.length?8:7}. Conclusion</h2>${gov?`<div class="msg ${uG>1?'bad':'ok'}">Taux maximal ${f(uG*100,0)} % (${h(C[gov.k].nom)}) : ancrage ${uG>1?'NON VÉRIFIÉ – à reprendre (voir pistes d\'amélioration des modes déterminants)':'vérifié'} selon la NF EN 1992-4 + AN, ${cbM?'avec les efforts de la platine flexible (CBFEM)':'sous l\'hypothèse d\'une platine rigide'}.</div>`:'<div class="msg bad">Aucune combinaison vérifiable.</div>'}
   <p class="note">${cbM?'Platine flexible : raideur des chevilles à confirmer ; soudures, pression diamétrale et section du profilé à justifier par ailleurs.':'Hypothèse de platine rigide à justifier (épaisseur, raidisseurs) ; en cas de platine souple, les tractions des chevilles les plus chargées augmentent (effet de levier).'} Prédimensionnement – non valable pour exécution.</p>`;
 }
 /* ---- import depuis S1 / A1 (fip.an1.pre, moins d'une heure) ---- */
@@ -610,16 +628,16 @@ const PRE_PROF=lirePre();
 syncPR(); majSis(); majBeton(); majProfils(); if(PRE_PROF){ $('pnom').value=PRE_PROF; } majProduit();
 </script>
 <script>EXPORT.init({code:'AN1',titre:'Note de calcul – ancrage de platine',excel:false,avant:()=>preparerNote(),zones:()=>[$('note')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.repere||K.num||'ancrage'; }});</script>
-<script src="../commun/aide.js?v=2.65"></script>
+<script src="../commun/aide.js?v=2.66"></script>
 <script>AIDE.init({titre:"Aide – AN1 Ancrages",manuel:"an1",intro:"AN1 vérifie les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE : répartition des efforts en platine rigide, tous les modes de rupture en traction et en cisaillement, interactions, situation sismique (annexe C) et h_ef optimale. Prédimensionnement APS/APD : la platine rigide est une hypothèse à justifier, ou à contrôler avec la méthode CBFEM (platine flexible en éléments finis)",
   etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, température et pose, cheville (données de l'ETE), disposition, platine et profilé, méthode.",cible:"#pSaisie"},
     {t:"Vues",html:"Vue 3D cotée (rotation et zoom à la souris ; chaînes de cotes platine / chevilles, l<sub>x</sub>, l<sub>y</sub>, épaisseur h, distances aux bords finis en rouge ; SCU X/Y/Z placé hors de la platine) ou plan 2D coté (mêmes cotes, bords du béton : trait fort si fini, trait mixte si infini ou lointain) . Barre d'outils du plan 2D : « ↖ Sélection » (cliquer une cheville ou le profilé puis glisser, accrochage au quadrillage), « ＋ Chevilles » (clic pour poser), « ✕ Supprimer » ou touche Suppr, « ↺ / ↻ 90° » pour tourner le profilé.",cible:"#v3d"},
     {t:"Règles de conception",html:"Contrôles géométriques réels : domaine de la NF EN 1992-4 (rectangulaire ≤ 3×3), pinces sur la platine, entraxe et distance au bord minimaux (ETE), bord proche et espace annulaire.",cible:"#cRegles"},
     {t:"Profondeur et profilé",html:"h<sub>ef</sub> : « Saisie » (valeur imposée, dans la plage de l'ETE) ou « Optimale » (plus petite profondeur vérifiant tous les modes de rupture, calculée en phase 1, comme h<sub>ef,opti</sub> de PROFIS) ; h<sub>ef,limite</sub> = maximum de l'ETE. Profilé : excentricités X / Y et angle, ou déplacement et rotation dans le plan 2D.",cible:"#pSaisie"},
-    {t:"Platine flexible (CBFEM)",html:"« Méthode de calcul » → « CBFEM – platine flexible » : la platine est calculée en éléments finis (plaque épaisse, acier élasto-plastique), le béton en appui unilatéral, les chevilles en traction seule ; un profilé est nécessaire (ses parois appliquent les efforts). Résultats supplémentaires : contrainte σ<sub>Ed</sub> et déformation plastique ε<sub>pl</sub> de la platine (limite 5 %), pression sur le béton, effort en pied de paroi et gorge indicative des cordons, traction des chevilles en flexible et en rigide. Barre « Résultat » au-dessus des vues (combinaison cochée) : contrainte σ<sub>Ed</sub>, déformation plastique ε<sub>pl</sub>, déplacement vertical w ou pression sur le béton, avec échelle de couleurs chiffrée (bleu → rouge, violet : plastifié). Plan 2D : champ lissé et légende. Vue 3D : platine colorée et déformée (amplification « auto » ou ×1 à ×500, position initiale en tiretés), profilé et chevilles entraînés, traction de chaque cheville affichée, légende incrustée et reprise dans l'impression et la note Word. Raideur des chevilles automatique (à vérifier) ou saisie ; h<sub>c</sub> règle la raideur du béton. La méthode et ces réglages sont mémorisés avec la saisie. Les familles HEM, IPN, UPN, UPE et L sont disponibles (efforts au centre du rectangle enveloppe du profilé).",cible:"#meth"},
+    {t:"Platine flexible (CBFEM)",html:"« Méthode de calcul » → « CBFEM – platine flexible » : la platine est calculée en éléments finis (plaque épaisse, acier élasto-plastique), le béton en appui unilatéral, les chevilles en traction seule ; un profilé est nécessaire (ses parois appliquent les efforts). Résultats supplémentaires : contrainte σ<sub>Ed</sub> et déformation plastique ε<sub>pl</sub> de la platine (limite 5 %), pression sur le béton, effort en pied de paroi et gorge indicative des cordons, traction des chevilles en flexible et en rigide. Barre « Résultat » au-dessus des vues (combinaison cochée) : contrainte σ<sub>Ed</sub>, déformation plastique ε<sub>pl</sub>, déplacement vertical w ou pression sur le béton, avec échelle de couleurs chiffrée (bleu → rouge, violet : plastifié). Plan 2D : champ lissé et légende. Vue 3D : platine colorée et déformée (amplification « auto » ou ×1 à ×500, position initiale en tiretés), profilé et chevilles entraînés, traction de chaque cheville affichée, légende incrustée. Note Word et impression / PDF : chapitre « Résultats de la platine flexible (CBFEM) » pour la combinaison déterminante, avec pour chaque champ (σ<sub>Ed</sub>, ε<sub>pl</sub> s'il y a plastification, w, pression s'il y a contact) une vue 3D déformée et un plan avec échelle (une page par champ en PDF) ; la vue 3D garde l'orientation et l'amplification choisies à l'écran. Raideur des chevilles automatique (à vérifier) ou saisie ; h<sub>c</sub> règle la raideur du béton. La méthode et ces réglages sont mémorisés avec la saisie. Les familles HEM, IPN, UPN, UPE et L sont disponibles (efforts au centre du rectangle enveloppe du profilé).",cible:"#meth"},
     {t:"Résultats",html:"Taux par mode de rupture (efforts / résistance de calcul en daN), interactions acier et béton (Tab. 7.3 ou éq. C.9 en séisme), taux maxi de la combinaison cochée, alertes (catégorie sismique non couverte, réduction DLS). Cliquer un mode affiche ses valeurs intermédiaires (aires, ψ, τ, k…) et les pistes d'amélioration.",cible:"#pRes"},
     {t:"Séisme",html:"Cocher « sismique » sur la combinaison. Catégorie C1 / C2 (AN Tab. C1-1 à C1-3), calcul a1 en capacité ou a2 élastique, coefficient appliqué aux efforts (AN Fig. NA.1 : PROFIS ne l'applique pas), déplacement admissible DLS (3 mm selon la NF EN 1992-4 ; réduction δ_req/δ_eq de l'éq. C.11), α_gap (espace annulaire), α_eq (Tab. C.3), γ_c = 1,3.",cible:"#dSis"},
-    {t:"Impression et note Word",html:"« Imprimer / PDF » ajoute une section « Plan coté et perspective » : plan 2D coté (chaînes de cotes, distances aux bords) et vue 3D. « Word » produit la note de calcul sur la trame FIP (page de garde, révisions, sommaire, à partir de l'identification) : hypothèses, géométrie (plan coté et perspective), combinaisons, efforts par cheville, modes de rupture avec paragraphes, interactions, règles de conception et conclusion. Niveau « simplifiée » (valeurs intermédiaires de la combinaison déterminante) ou « complète » (toutes) dans « Méthode de calcul ».",cible:"#cCmb"},
+    {t:"Impression et note Word",html:"« Imprimer / PDF » ajoute une section « Plan coté et perspective » : plan 2D coté (chaînes de cotes, distances aux bords) et vue 3D, puis en CBFEM les figures des résultats (une page par champ). « Word » produit la note de calcul sur la trame FIP (page de garde, révisions, sommaire, à partir de l'identification) : hypothèses, géométrie (plan coté et perspective), combinaisons, efforts par cheville, modes de rupture avec paragraphes, interactions, règles de conception et conclusion. Niveau « simplifiée » (valeurs intermédiaires de la combinaison déterminante) ou « complète » (toutes) dans « Méthode de calcul ».",cible:"#cCmb"},
     {t:"Combinaisons et import",html:"Efforts au centre du profilé (daN, daN·m ; N &gt; 0 en traction) ; la combinaison cochée est affichée. Import : depuis S1 (carte « Fixations sur l'ouvrage » → « Vérifier les chevilles dans AN1 ») les réactions ELU et sismiques extrêmes de la platine, projetées dans ses axes (sol : X, Y, Z ; plafond : X, −Y, −Z ; mur : −X, Z, Y), et les 4 chevilles a<sub>1</sub> × a<sub>2</sub> ; depuis A1 (carte « Descente de charges aux pieds de poteaux » → « Vérifier l'ancrage des pieds dans AN1 ») les combinaisons ELU déterminantes de chaque pied et le profilé du poteau. Un bandeau rappelle la source, avec un lien de retour ; béton, bords et cheville restent à saisir.",cible:"#cCmb"}],
   faq:[{q:"Pourquoi les efforts importés de S1 ont-ils un signe inattendu ?",r:"AN1 travaille dans les axes de la platine, z sortant du béton : sous une platine de plafond, une charge descendante est une traction (N &gt; 0) ; sur un mur, y est vertical vers le haut et x = −X (vue de face). Le bandeau d'import rappelle la correspondance."},{q:"Rigide ou flexible ?",r:"La NF EN 1992-4 suppose une platine rigide (§6.2.1, répartition linéaire). Si elle ne l'est pas, les chevilles les plus chargées le sont davantage (effet de levier, bras de levier réduit). La méthode « CBFEM – platine flexible » le calcule : comparer la cheville la plus tendue en flexible et en rigide (rapport affiché). Un rapport proche de 1 justifie l'hypothèse rigide ; sinon épaissir la platine, rapprocher les chevilles des parois du profilé ou raidir."},
     {q:"Quelle confiance accorder au CBFEM de AN1 ?",r:"Le modèle (plaque MITC4, contact unilatéral, chevilles en traction seule, plasticité par rigidité sécante) est vérifié sur des cas théoriques et retrouve à 3 – 5 % la cheville la plus tendue de trois notes PROFIS. Le point sensible est la raideur des chevilles : PROFIS utilise des raideurs d'essais non publiées, AN1 une règle calée (E<sub>s</sub>·A<sub>s</sub>/(t + 4d) en scellement chimique, E<sub>s</sub>·A<sub>s</sub>/(2·h<sub>ef</sub>) en expansion) signalée « à vérifier » et modifiable. Une cheville plus raide augmente l'effet de levier : en cas de doute, tester une raideur double. Prédimensionnement, non valable pour exécution."},

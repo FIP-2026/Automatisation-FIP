@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.65"></script>
+<script src="../commun/auth.js?v=2.66"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.65">
-<script src="../commun/apps.js?v=2.65"></script>
-<script src="../commun/data/profils.js?v=2.65"></script>
-<script src="../commun/barres3d.js?v=2.65"></script>
-<script src="../commun/acier.js?v=2.65"></script>
-<script src="../commun/data/tuyauterie.js?v=2.65"></script>
-<script src="../commun/charges.js?v=2.65"></script>
-<script src="../commun/coefvent.js?v=2.65"></script>
-<script src="../commun/tendues.js?v=2.65"></script>
-<script src="../commun/portique.js?v=2.65"></script>
-<script src="../commun/chevilles.js?v=2.65"></script>
-<script src="../commun/cbfem.js?v=2.65"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.66">
+<script src="../commun/apps.js?v=2.66"></script>
+<script src="../commun/data/profils.js?v=2.66"></script>
+<script src="../commun/barres3d.js?v=2.66"></script>
+<script src="../commun/acier.js?v=2.66"></script>
+<script src="../commun/data/tuyauterie.js?v=2.66"></script>
+<script src="../commun/charges.js?v=2.66"></script>
+<script src="../commun/coefvent.js?v=2.66"></script>
+<script src="../commun/tendues.js?v=2.66"></script>
+<script src="../commun/portique.js?v=2.66"></script>
+<script src="../commun/chevilles.js?v=2.66"></script>
+<script src="../commun/cbfem.js?v=2.66"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -334,6 +334,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.66</td><td>AN1</td><td>Note Word et impression / PDF : chapitre « Résultats de la platine flexible (CBFEM) » pour la combinaison déterminante (contrainte σ<sub>Ed</sub>, déformation plastique si elle existe, déplacement w, pression si contact), chaque champ en vue 3D déformée et en plan avec échelle de couleurs ; la géométrie (chapitre 3) est désormais tracée sans champ de résultats.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.65</td><td>AN1</td><td>Méthode de calcul (rigide / CBFEM), réglages CBFEM (raideur, h<sub>c</sub>) et d'affichage (résultat, amplification, niveau de la note) mémorisés avec la saisie : ils ne reviennent plus à « platine rigide » au rechargement.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.64</td><td>AN1</td><td>Interface CBFEM : échelle de couleurs chiffrée (σ<sub>Ed</sub>, ε<sub>pl</sub>, w, pression) sur le plan 2D (champ interpolé aux nœuds) et la vue 3D (platine maillée colorée et déformée, amplification réglable, profilé et chevilles entraînés, traction des chevilles affichée) ; légende reprise dans l'impression et la note Word. Le moteur renvoie les valeurs aux nœuds (w, pression, rapport m<sub>eq</sub>/m<sub>y</sub> moyen des mailles voisines).</td><td>Aucun calcul modifié (affichage seulement).</td></tr>
 <tr><td>2.63</td><td>AN1</td><td>Phase 2 : platine flexible CBFEM (moteur <code>commun/cbfem.js</code> : plaque MITC4 élasto-plastique, béton unilatéral, chevilles en traction seule, profilé à section plane) ; contrainte et déformation plastique de la platine, pression sur le béton, effort en pied de paroi, comparaison flexible / rigide, carte sur le plan 2D, section dédiée dans la note Word ; familles HEM, IPN, UPN, UPE, L.</td><td>Méthode « platine rigide » inchangée. Nouvelle méthode au choix : tractions des chevilles majorées par l'effet de levier (ex. note V1 : taux 93 % en rigide, 136 % en flexible) ; raideur des chevilles à vérifier.</td></tr>
@@ -462,6 +463,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.65"></script>
+<script src="../commun/replier.js?v=2.66"></script>
 </body>
 </html>
