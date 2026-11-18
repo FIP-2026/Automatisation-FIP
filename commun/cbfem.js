@@ -167,6 +167,11 @@ const CBFEM = (() => {
     const elems = EL.map((e) => { const p = (pres[e.dl[0] / 3] + pres[e.dl[3] / 3] + pres[e.dl[6] / 3] + pres[e.dl[9] / 3]) / 4; if (p > pmax) pmax = p;
       return { x: X[e.i], y: Y[e.j], a: e.a, b: e.b, r: e.r, sig: Math.min(e.r, 1) * fy, epl: Math.max(0, e.r - 1) * fy / ES, p, w: (u[e.dl[0]] + u[e.dl[3]] + u[e.dl[6]] + u[e.dl[9]]) / 4 }; });
     let rmax = 0; elems.forEach((e) => { if (e.r > rmax) rmax = e.r; });
+    // champs aux nœuds de la grille (indice i·ny + j, indépendant de la numérotation) : w, pression, rapport r moyen des mailles voisines
+    const Wn = new Float64Array(nx * ny), Pn = new Float64Array(nx * ny), Rn = new Float64Array(nx * ny), cnt = new Float64Array(nx * ny);
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const n = nd(i, j); Wn[i * ny + j] = u[3 * n]; Pn[i * ny + j] = pres[n]; }
+    EL.forEach((e) => { [[e.i, e.j], [e.i + 1, e.j], [e.i + 1, e.j + 1], [e.i, e.j + 1]].forEach(([i, j]) => { Rn[i * ny + j] += e.r; cnt[i * ny + j]++; }); });
+    for (let k = 0; k < Rn.length; k++) Rn[k] /= cnt[k] || 1;
     // efforts linéiques en pied de paroi (N/mm, > 0 : la paroi tire la platine vers le haut)
     let qmax = 0, sprof = 0; const st = {};
     PT.forEach((p) => { let g = -u[W0] - p.y * u[T1] + p.x * u[T2]; for (const [n, c] of p.N) g += c * u[3 * n]; const k = p.iw + "_" + p.k; (st[k] = st[k] || { x: p.xm, y: p.ym, q: 0, t: p.t, iw: p.iw, k: p.k, ds: p.ds }).q += -kp * g / p.ds; });
@@ -175,7 +180,7 @@ const CBFEM = (() => {
     lin.forEach((s) => { const Rl = o.lissage || Math.max(10, 2.5 * s.t), v = lin.filter((z) => Math.hypot(z.x - s.x, z.y - s.y) <= Rl + 1e-6); let F = 0, L = 0; v.forEach((z) => { F += z.q * z.ds; L += z.ds; }); s.qm = F / L; if (Math.abs(s.qm) > qmax) qmax = Math.abs(s.qm); if (Math.abs(s.qm) / s.t > sprof) sprof = Math.abs(s.qm) / s.t; });
     let wmax = 0, wmin = 0; for (let n = 0; n < nn; n++) { if (u[3 * n] > wmax) wmax = u[3 * n]; if (u[3 * n] < wmin) wmin = u[3 * n]; }
     return { T, C, Ac, pmoy: Ac ? C / Ac : 0, Cx: C ? Cx / C : 0, Cy: C ? Cy / C : 0, pmax, sigMax: Math.min(rmax, 1) * fy, eplMax: Math.max(0, rmax - 1) * fy / ES, rmax, qmax, sprof, wmax, wmin,
-      elems, lin, X, Y, it, conv, nddl, h, fy, rot: [u[T1], u[T2]], w0: u[W0] };
+      elems, lin, X, Y, Wn, Pn, Rn, it, conv, nddl, h, fy, rot: [u[T1], u[T2]], w0: u[W0] };
   }
   /* ---------- contrôle de l'élément : bande console (longueur L, largeur b, épaisseur t, n éléments), charge P en bout → flèche ---------- */
   function consoleTest(L, b, t, n, P) {
