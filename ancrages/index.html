@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.64"></script>
+<script src="../commun/auth.js?v=2.65"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AN1 Ancrages</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.64">
+<link rel="stylesheet" href="../commun/calc.css?v=2.65">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/apps.js?v=2.64"></script>
-<script src="../commun/data/profils.js?v=2.64"></script>
-<script src="../commun/ident.js?v=2.64"></script>
-<script src="../commun/chevilles.js?v=2.64"></script>
-<script src="../commun/cbfem.js?v=2.64"></script>
-<script src="../commun/export.js?v=2.64"></script>
+<script src="../commun/apps.js?v=2.65"></script>
+<script src="../commun/data/profils.js?v=2.65"></script>
+<script src="../commun/ident.js?v=2.65"></script>
+<script src="../commun/chevilles.js?v=2.65"></script>
+<script src="../commun/cbfem.js?v=2.65"></script>
+<script src="../commun/export.js?v=2.65"></script>
 <style>
   /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
   main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
@@ -184,8 +184,11 @@ const BETON=[[12,15,27],[16,20,29],[20,25,30],[25,30,31],[30,37,33],[35,45,34],[
 const PROD=CHEV.PROD;
 /* ---- état ---- */
 let PR={x:0,y:0,a:0}, hefMode='saisie', outil='sel', sel=null, A=[{x:-90,y:-90},{x:90,y:-90},{x:-90,y:90},{x:90,y:90}], C=[{nom:'Combinaison 1',N:6393,Vx:25,Vy:91,Mx:171,My:47,Mz:0,sis:false}], actif=0, modeSel=null;
-try{ const s=JSON.parse(localStorage.getItem('fip.an1')); if(s&&s.A&&s.C){ A=s.A; C=s.C; if(s.PR) PR=s.PR; if(s.hefMode) hefMode=s.hefMode; } }catch(e){}
-const enr=()=>{ try{ localStorage.setItem('fip.an1',JSON.stringify({A,C,PR,hefMode})); }catch(e){} };
+/* réglages mémorisés avec la saisie : méthode de calcul et affichage des résultats CBFEM */
+const OPT_IDS=['meth','carte','ampDef','kaMode','kaVal','hcVal','nivNote'];
+try{ const s=JSON.parse(localStorage.getItem('fip.an1')); if(s&&s.A&&s.C){ A=s.A; C=s.C; if(s.PR) PR=s.PR; if(s.hefMode) hefMode=s.hefMode; }
+  if(s&&s.opt) OPT_IDS.forEach(k=>{ const el=$(k); if(el&&s.opt[k]!=null&&(el.tagName!=='SELECT'||[...el.options].some(o=>o.value===s.opt[k]))) el.value=s.opt[k]; }); }catch(e){}
+const enr=()=>{ try{ localStorage.setItem('fip.an1',JSON.stringify({A,C,PR,hefMode,opt:Object.fromEntries(OPT_IDS.map(k=>[k,$(k).value]))})); }catch(e){} };
 /* ---- remplissage des listes ---- */
 $('classe').innerHTML=BETON.map(([a,b])=>`<option value="${a}" ${a===25?'selected':''}>C${a}/${b}</option>`).join('');
 $('fam').innerHTML=Object.entries(PROD).map(([k,p])=>`<option value="${k}">${h(p.nom)} – ${p.eta}</option>`).join('');
@@ -532,7 +535,7 @@ $('hef').addEventListener('change',rendre); ['sCat','sOpt','sAmp','sDls','sDN','
 function majSis(){ $('rDls').style.display=$('sDls').value==='perso'?'':'none'; const o=$('sOpt').value, a=+$('sAmp').value||1;
   $('noteAmp').innerHTML=o==='a1'?(a===1?'⚠ a1 avec coefficient 1 : les efforts saisis doivent déjà être ceux du calcul en capacité (plastification de l\'élément ductile). À défaut, AN Fig. NA.1 : ×1,2·q<sub>a</sub> (q<sub>a</sub> = 2).':`Coefficient ${f(a,2)} appliqué (AN Fig. NA.1 : a1 sans calcul en capacité ×1,2·q<sub>a</sub>).`):'a2 élastique (AN Fig. NA.1) : ×1,5·q<sub>a</sub> en général, ×1,2·q<sub>a</sub> avec au moins 4 points de fixation (q<sub>a</sub> = 1). PROFIS n\'applique pas ce coefficient : il est à saisir ici.'; } $('fam').onchange=()=>{ $('hef').value=''; majProduit(); }; $('diam').onchange=()=>{ $('hef').value=''; majCheville(); }; $('cl').onchange=majCheville; $('classe').onchange=majBeton; $('pfam').onchange=majProfils;
 document.querySelectorAll('#presets button').forEach(b=>b.onclick=()=>preset(+b.dataset.p));
-$('carte').onchange=()=>{ plan2D(); vue3D(); }; $('ampDef').onchange=()=>vue3D();
+$('carte').onchange=()=>{ enr(); plan2D(); vue3D(); }; $('ampDef').onchange=()=>{ enr(); vue3D(); };
 $('b3d').onclick=()=>{ $('v3d').hidden=false; $('v2d').hidden=true; $('outils2d').hidden=true; $('b3d').classList.add('on'); $('b2d').classList.remove('on'); rendre(); };
 $('b2d').onclick=()=>{ $('v3d').hidden=true; $('v2d').hidden=false; $('outils2d').hidden=false; majSel(); $('b2d').classList.add('on'); $('b3d').classList.remove('on'); rendre(); };
 /* ---- note de calcul Word (trame FIP via EXPORT) ---- */
@@ -607,13 +610,13 @@ const PRE_PROF=lirePre();
 syncPR(); majSis(); majBeton(); majProfils(); if(PRE_PROF){ $('pnom').value=PRE_PROF; } majProduit();
 </script>
 <script>EXPORT.init({code:'AN1',titre:'Note de calcul – ancrage de platine',excel:false,avant:()=>preparerNote(),zones:()=>[$('note')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.repere||K.num||'ancrage'; }});</script>
-<script src="../commun/aide.js?v=2.64"></script>
+<script src="../commun/aide.js?v=2.65"></script>
 <script>AIDE.init({titre:"Aide – AN1 Ancrages",manuel:"an1",intro:"AN1 vérifie les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE : répartition des efforts en platine rigide, tous les modes de rupture en traction et en cisaillement, interactions, situation sismique (annexe C) et h_ef optimale. Prédimensionnement APS/APD : la platine rigide est une hypothèse à justifier, ou à contrôler avec la méthode CBFEM (platine flexible en éléments finis)",
   etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, température et pose, cheville (données de l'ETE), disposition, platine et profilé, méthode.",cible:"#pSaisie"},
     {t:"Vues",html:"Vue 3D cotée (rotation et zoom à la souris ; chaînes de cotes platine / chevilles, l<sub>x</sub>, l<sub>y</sub>, épaisseur h, distances aux bords finis en rouge ; SCU X/Y/Z placé hors de la platine) ou plan 2D coté (mêmes cotes, bords du béton : trait fort si fini, trait mixte si infini ou lointain) . Barre d'outils du plan 2D : « ↖ Sélection » (cliquer une cheville ou le profilé puis glisser, accrochage au quadrillage), « ＋ Chevilles » (clic pour poser), « ✕ Supprimer » ou touche Suppr, « ↺ / ↻ 90° » pour tourner le profilé.",cible:"#v3d"},
     {t:"Règles de conception",html:"Contrôles géométriques réels : domaine de la NF EN 1992-4 (rectangulaire ≤ 3×3), pinces sur la platine, entraxe et distance au bord minimaux (ETE), bord proche et espace annulaire.",cible:"#cRegles"},
     {t:"Profondeur et profilé",html:"h<sub>ef</sub> : « Saisie » (valeur imposée, dans la plage de l'ETE) ou « Optimale » (plus petite profondeur vérifiant tous les modes de rupture, calculée en phase 1, comme h<sub>ef,opti</sub> de PROFIS) ; h<sub>ef,limite</sub> = maximum de l'ETE. Profilé : excentricités X / Y et angle, ou déplacement et rotation dans le plan 2D.",cible:"#pSaisie"},
-    {t:"Platine flexible (CBFEM)",html:"« Méthode de calcul » → « CBFEM – platine flexible » : la platine est calculée en éléments finis (plaque épaisse, acier élasto-plastique), le béton en appui unilatéral, les chevilles en traction seule ; un profilé est nécessaire (ses parois appliquent les efforts). Résultats supplémentaires : contrainte σ<sub>Ed</sub> et déformation plastique ε<sub>pl</sub> de la platine (limite 5 %), pression sur le béton, effort en pied de paroi et gorge indicative des cordons, traction des chevilles en flexible et en rigide. Barre « Résultat » au-dessus des vues (combinaison cochée) : contrainte σ<sub>Ed</sub>, déformation plastique ε<sub>pl</sub>, déplacement vertical w ou pression sur le béton, avec échelle de couleurs chiffrée (bleu → rouge, violet : plastifié). Plan 2D : champ lissé et légende. Vue 3D : platine colorée et déformée (amplification « auto » ou ×1 à ×500, position initiale en tiretés), profilé et chevilles entraînés, traction de chaque cheville affichée, légende incrustée et reprise dans l'impression et la note Word. Raideur des chevilles automatique (à vérifier) ou saisie ; h<sub>c</sub> règle la raideur du béton. Les familles HEM, IPN, UPN, UPE et L sont disponibles (efforts au centre du rectangle enveloppe du profilé).",cible:"#meth"},
+    {t:"Platine flexible (CBFEM)",html:"« Méthode de calcul » → « CBFEM – platine flexible » : la platine est calculée en éléments finis (plaque épaisse, acier élasto-plastique), le béton en appui unilatéral, les chevilles en traction seule ; un profilé est nécessaire (ses parois appliquent les efforts). Résultats supplémentaires : contrainte σ<sub>Ed</sub> et déformation plastique ε<sub>pl</sub> de la platine (limite 5 %), pression sur le béton, effort en pied de paroi et gorge indicative des cordons, traction des chevilles en flexible et en rigide. Barre « Résultat » au-dessus des vues (combinaison cochée) : contrainte σ<sub>Ed</sub>, déformation plastique ε<sub>pl</sub>, déplacement vertical w ou pression sur le béton, avec échelle de couleurs chiffrée (bleu → rouge, violet : plastifié). Plan 2D : champ lissé et légende. Vue 3D : platine colorée et déformée (amplification « auto » ou ×1 à ×500, position initiale en tiretés), profilé et chevilles entraînés, traction de chaque cheville affichée, légende incrustée et reprise dans l'impression et la note Word. Raideur des chevilles automatique (à vérifier) ou saisie ; h<sub>c</sub> règle la raideur du béton. La méthode et ces réglages sont mémorisés avec la saisie. Les familles HEM, IPN, UPN, UPE et L sont disponibles (efforts au centre du rectangle enveloppe du profilé).",cible:"#meth"},
     {t:"Résultats",html:"Taux par mode de rupture (efforts / résistance de calcul en daN), interactions acier et béton (Tab. 7.3 ou éq. C.9 en séisme), taux maxi de la combinaison cochée, alertes (catégorie sismique non couverte, réduction DLS). Cliquer un mode affiche ses valeurs intermédiaires (aires, ψ, τ, k…) et les pistes d'amélioration.",cible:"#pRes"},
     {t:"Séisme",html:"Cocher « sismique » sur la combinaison. Catégorie C1 / C2 (AN Tab. C1-1 à C1-3), calcul a1 en capacité ou a2 élastique, coefficient appliqué aux efforts (AN Fig. NA.1 : PROFIS ne l'applique pas), déplacement admissible DLS (3 mm selon la NF EN 1992-4 ; réduction δ_req/δ_eq de l'éq. C.11), α_gap (espace annulaire), α_eq (Tab. C.3), γ_c = 1,3.",cible:"#dSis"},
     {t:"Impression et note Word",html:"« Imprimer / PDF » ajoute une section « Plan coté et perspective » : plan 2D coté (chaînes de cotes, distances aux bords) et vue 3D. « Word » produit la note de calcul sur la trame FIP (page de garde, révisions, sommaire, à partir de l'identification) : hypothèses, géométrie (plan coté et perspective), combinaisons, efforts par cheville, modes de rupture avec paragraphes, interactions, règles de conception et conclusion. Niveau « simplifiée » (valeurs intermédiaires de la combinaison déterminante) ou « complète » (toutes) dans « Méthode de calcul ».",cible:"#cCmb"},
