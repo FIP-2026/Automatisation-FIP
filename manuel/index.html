@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.66"></script>
+<script src="../commun/auth.js?v=2.67"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.66">
-<script src="../commun/apps.js?v=2.66"></script>
-<script src="../commun/data/profils.js?v=2.66"></script>
-<script src="../commun/barres3d.js?v=2.66"></script>
-<script src="../commun/acier.js?v=2.66"></script>
-<script src="../commun/data/tuyauterie.js?v=2.66"></script>
-<script src="../commun/charges.js?v=2.66"></script>
-<script src="../commun/coefvent.js?v=2.66"></script>
-<script src="../commun/tendues.js?v=2.66"></script>
-<script src="../commun/portique.js?v=2.66"></script>
-<script src="../commun/chevilles.js?v=2.66"></script>
-<script src="../commun/cbfem.js?v=2.66"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.67">
+<script src="../commun/apps.js?v=2.67"></script>
+<script src="../commun/data/profils.js?v=2.67"></script>
+<script src="../commun/barres3d.js?v=2.67"></script>
+<script src="../commun/acier.js?v=2.67"></script>
+<script src="../commun/data/tuyauterie.js?v=2.67"></script>
+<script src="../commun/charges.js?v=2.67"></script>
+<script src="../commun/coefvent.js?v=2.67"></script>
+<script src="../commun/tendues.js?v=2.67"></script>
+<script src="../commun/portique.js?v=2.67"></script>
+<script src="../commun/chevilles.js?v=2.67"></script>
+<script src="../commun/cbfem.js?v=2.67"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -243,7 +243,8 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <p><b>Données des ETE intégrées</b> : HAS-U 5.8 / 8.8 avec HIT-HY 200-A V3 (ETA-19/0601 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,5, k<sub>cr,N</sub> = 7,7, k<sub>ucr,N</sub> = 11,0, s<sub>cr,N</sub> = 3h<sub>ef</sub>, c<sub>cr,N</sub> = 1,5h<sub>ef</sub>, γ<sub>inst</sub> = 1,0 en trou sec ou humide, 1,4 en trou rempli d'eau) ; HST4 (ETA-21/0878 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,4, plages de h<sub>ef</sub>).</p>
 <p><b>Coefficients partiels retenus (NF EN 1992-4/NA Tab. 4.1)</b> : acier traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 ; acier cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 (f<sub>uk</sub> ≤ 800 N/mm² et f<sub>yk</sub>/f<sub>uk</sub> ≤ 0,8), sinon 1,5 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub>, γ<sub>c</sub> = 1,5 (accidentel 1,2, sismique 1,3) ; γ<sub>Msp</sub> = γ<sub>Mp</sub> = γ<sub>Mc</sub>. Interaction béton : éq. (7.55) ou (7.56), la plus favorable (pratique constatée dans PROFIS).</p>
 <p><b>Qualification prévue</b> : 5 notes PROFIS anonymisées (V1 à V5 : HAS-U M12, M16, M27 ; HST4 M16 ; béton fissuré et non fissuré) et exemples du guide Hilti chap. 6 ; recalculs déjà vérifiés à la main : N⁰<sub>Rk,c</sub> = 7,7 × √25 × 214<sup>1,5</sup> = 12 052 daN (V5), 12,7 × √25 × 105<sup>1,5</sup> = 6 832 daN (V4), ψ<sub>M,N</sub> = 2 − z/(1,5h<sub>ef</sub>) = 1,156 (V5).</p>
-<p><b>Note de calcul Word (2.62)</b> : bouton « Word » de l'en-tête, trame FIP (page de garde, révisions, sommaire) dès qu'une identification est saisie. Plan : 1. objet et références ; 2. hypothèses (béton, cheville et ETE, pose, séisme, méthode) ; 3. géométrie (plan coté et perspective) ; 4. combinaisons (efforts au centre du profilé, transport au centre de la platine) ; 5. vérifications : tableau récapitulatif, puis pour chaque combinaison efforts par cheville, modes de rupture (E<sub>d</sub>, R<sub>d</sub>, taux, paragraphe), interactions, alertes ; valeurs intermédiaires de la combinaison déterminante (note simplifiée) ou de toutes (note complète) ; 6. règles de conception ; 7. conclusion. Mention « non valable pour exécution ».</p>
+<p><b>Note de calcul (2.67)</b> : deux niveaux, sur le modèle PROFIS. Simplifiée : résultats globaux (taux maxi et mode déterminant de chaque combinaison, résumé des vérifications du cas dimensionnant), chevillage (cheville, ETE, béton, platine, profilé, méthode, plan coté, vue 3D), conclusion. Détaillée : objet, résultats globaux, hypothèses, géométrie, combinaisons, vérification du seul cas dimensionnant avec, pour chaque mode, la formule de la NF EN 1992-4 (7.1)–(7.3), (7.13)–(7.14), (7.23)–(7.24), (7.35), (7.39), (7.40)–(7.42), (7.54)–(7.56) ou (C.9), les variables et la comparaison E<sub>d</sub> / R<sub>d</sub> ; figures CBFEM, règles, conclusion. Le PDF reprend le même contenu.</p>
+<p><b>Note de calcul Word (2.62, remplacée)</b> : bouton « Word » de l'en-tête, trame FIP (page de garde, révisions, sommaire) dès qu'une identification est saisie. Plan : 1. objet et références ; 2. hypothèses (béton, cheville et ETE, pose, séisme, méthode) ; 3. géométrie (plan coté et perspective) ; 4. combinaisons (efforts au centre du profilé, transport au centre de la platine) ; 5. vérifications : tableau récapitulatif, puis pour chaque combinaison efforts par cheville, modes de rupture (E<sub>d</sub>, R<sub>d</sub>, taux, paragraphe), interactions, alertes ; valeurs intermédiaires de la combinaison déterminante (note simplifiée) ou de toutes (note complète) ; 6. règles de conception ; 7. conclusion. Mention « non valable pour exécution ».</p>
 <p><b>Import depuis S1 (2.62)</b> : carte « Fixations sur l'ouvrage », bouton « Vérifier les chevilles dans AN1 » par platine chevillée. Effort de l'ouvrage sur l'appui F = −R (axes globaux X le long des tuyauteries, Y, Z vertical), projeté dans les axes de la platine (x, y dans son plan, z sortant du béton, trièdre direct) : N = F·z (&gt; 0 en traction), V<sub>x</sub> = F·x, V<sub>y</sub> = F·y, M<sub>x</sub> = M·x, M<sub>y</sub> = M·y, M<sub>z</sub> = M·z, avec sol (x, y, z) = (X, Y, Z), plafond (X, −Y, −Z), mur (−X, Z, Y) : vue de face, y vers le haut (<code>CHEV.effortsPlatine</code>). kN → ×100 daN, kN·m → ×100 daN·m. Combinaisons transmises : parmi les ELU et, séparément, les sismiques, celles qui rendent extrêmes N, −N, |V|, |M<sub>x</sub>|, |M<sub>y</sub>|, |M<sub>z</sub>| et la traction estimée N/4 + |M<sub>x</sub>|/(2a<sub>2</sub>) + |M<sub>y</sub>|/(2a<sub>1</sub>). Chevilles : 4 aux angles a<sub>1</sub> × a<sub>2</sub> ; platine max(a + 80 ; 150) mm.</p>
 <p><b>Import depuis A1 (2.62)</b> : carte « Descente de charges aux pieds de poteaux », bouton « Vérifier l'ancrage des pieds dans AN1 ». Pour chaque pied (files A et B, portique courant et de pignon), combinaisons ELU donnant V<sub>min</sub>, V<sub>max</sub>, H<sub>max</sub>, H<sub>min</sub> (réactions complètes de la combinaison, amplification comprise) : N = −V (V &gt; 0 en compression), V<sub>x</sub> = H<sub>X</sub> (de A vers B), M = 0 (pieds articulés). Efforts longitudinaux des pieds de palée à ajouter manuellement. Profilé : poteau de A1 (platine agrandie à h + 100 × b + 100 mm au moins).</p>
 <h3>Platine flexible – CBFEM (2.63)</h3>
@@ -334,6 +335,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.67</td><td>AN1</td><td>Note de calcul sur le modèle PROFIS, deux niveaux (choix dans l'en-tête) : simplifiée (résultats globaux de toutes les combinaisons, chevillage avec plan coté et vue 3D, type de cheville, conclusion) ; détaillée (résultats globaux en tête, hypothèses, puis formules NF EN 1992-4, variables et vérifications du seul cas dimensionnant, figures CBFEM). « Imprimer / PDF » sort désormais la note (même contenu que Word) avec un en-tête d'identification.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.66</td><td>AN1</td><td>Note Word et impression / PDF : chapitre « Résultats de la platine flexible (CBFEM) » pour la combinaison déterminante (contrainte σ<sub>Ed</sub>, déformation plastique si elle existe, déplacement w, pression si contact), chaque champ en vue 3D déformée et en plan avec échelle de couleurs ; la géométrie (chapitre 3) est désormais tracée sans champ de résultats.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.65</td><td>AN1</td><td>Méthode de calcul (rigide / CBFEM), réglages CBFEM (raideur, h<sub>c</sub>) et d'affichage (résultat, amplification, niveau de la note) mémorisés avec la saisie : ils ne reviennent plus à « platine rigide » au rechargement.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.64</td><td>AN1</td><td>Interface CBFEM : échelle de couleurs chiffrée (σ<sub>Ed</sub>, ε<sub>pl</sub>, w, pression) sur le plan 2D (champ interpolé aux nœuds) et la vue 3D (platine maillée colorée et déformée, amplification réglable, profilé et chevilles entraînés, traction des chevilles affichée) ; légende reprise dans l'impression et la note Word. Le moteur renvoie les valeurs aux nœuds (w, pression, rapport m<sub>eq</sub>/m<sub>y</sub> moyen des mailles voisines).</td><td>Aucun calcul modifié (affichage seulement).</td></tr>
@@ -463,6 +465,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.66"></script>
+<script src="../commun/replier.js?v=2.67"></script>
 </body>
 </html>
