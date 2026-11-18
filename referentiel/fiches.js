@@ -17,6 +17,8 @@ const FICHES = [
   <tr><td>Recommandations CNC2M N0380 (2017)</td><td>Application de l'EN 1991-1-4 aux structures métalliques</td><td>C1</td></tr>
   <tr><td>NF EN 1993-1-1 + AN</td><td>Calcul des structures en acier : résistance, flambement, déversement, flèches</td><td>P1, P2, S1</td></tr>
   <tr><td>NF EN 1993-1-8 + AN</td><td>Assemblages : boulons, pinces, soudures</td><td>S1</td></tr>
+  <tr><td>NF EN 1992-4 + AN (déc. 2022)</td><td>Fixations dans le béton : chevilles mécaniques et chimiques, modes de rupture, coefficients partiels, séisme (catégories C1 / C2)</td><td>AN1</td></tr>
+  <tr><td>ETE (évaluations techniques européennes) des chevilles</td><td>Valeurs caractéristiques par produit : N<sub>Rk,s</sub>, k₁, adhérence τ<sub>Rk</sub>, γ<sub>inst</sub>, h<sub>ef</sub>, s<sub>min</sub>, c<sub>min</sub> (ex. ETA-19/0601 HIT-HY 200-A V3, ETA-21/0878 HST4)</td><td>AN1</td></tr>
   <tr><td>NF EN 1998-1 + AN, arrêté du 22/10/2010</td><td>Séisme : zonage, spectre, éléments non structuraux</td><td>C1, S1</td></tr>
   <tr><td>CODETI, NF EN 13480-3, ASME B31.3</td><td>Tuyauteries : contraintes admissibles, flexibilité</td><td>T1, S1</td></tr></table>
   <p>Une <b>Annexe nationale</b> ne réécrit pas la norme : elle choisit les « paramètres déterminés au niveau national » (valeurs de vent, coefficients partiels, cartes…). Quand l'AN dit « valeur recommandée », c'est la valeur proposée dans la norme européenne.</p>`,
@@ -189,6 +191,15 @@ const FICHES = [
   <li>Supports de tuyauterie : min(L/150 ; 5 mm) au point d'appui du tuyau (pratique, modifiable).</li>
   <li>Fréquence propre d'un plancher : ≥ 2,6 à 5 Hz selon l'usage (vibrations).</li></ul>`,
   refs: "NF EN 1993-1-1 §7.2 + AN (Tab. 7.1, §7.2.2, §7.2.3) ; NF EN 1990 A1.4.", calc: "P1, P2, S1" },
+{ id: "chevilles", theme: "Calcul acier", titre: "Chevilles dans le béton : modes de rupture et platine rigide",
+  bref: "Une cheville peut céder par l'acier, par arrachement d'un cône de béton, par glissement (adhérence de la résine), par fendage ou, en cisaillement, par effet de levier et rupture du bord. La NF EN 1992-4 vérifie chaque mode, avec une platine supposée rigide.",
+  corps: `<ul><li><b>Traction</b> : acier (N<sub>Rk,s</sub> de l'ETE), cône de béton (N⁰<sub>Rk,c</sub> = k₁·√f<sub>ck</sub>·h<sub>ef</sub><sup>1,5</sup>, k₁ = 7,7 en béton fissuré et 11,0 non fissuré pour les chevilles chimiques ; s<sub>cr,N</sub> = 3h<sub>ef</sub>), extraction-glissement (mécanique) ou rupture combinée par adhérence (chimique, τ<sub>Rk</sub> selon la température et la durée), fendage.</li>
+  <li><b>Cisaillement</b> : acier (avec ou sans bras de levier si la platine est décollée), effet de levier (k₈ × résistance en traction du béton), rupture du bord du béton.</li>
+  <li><b>Interaction</b> : acier (N/N<sub>Rd</sub>)² + (V/V<sub>Rd</sub>)² ≤ 1 ; béton β<sub>N</sub><sup>1,5</sup> + β<sub>V</sub><sup>1,5</sup> ≤ 1 ou (β<sub>N</sub> + β<sub>V</sub>)/1,2 ≤ 1.</li>
+  <li><b>Coefficients (AN Tab. 4.1)</b> : acier en traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 ; en cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 ; béton γ<sub>Mc</sub> = 1,5·γ<sub>inst</sub> (γ<sub>inst</sub> donné par l'ETE : 1,0 en trou sec, 1,4 en trou rempli d'eau pour une résine) ; sismique γ<sub>c</sub> = 1,3.</li>
+  <li><b>Platine rigide ou flexible</b> : la norme répartit les efforts linéairement, comme une section de béton armé. Une platine trop mince fléchit : les chevilles proches du profilé reprennent beaucoup plus (exemple réel : 1 480 daN au lieu de 330 daN avec l'hypothèse rigide). Les logiciels type CBFEM modélisent la platine en éléments finis.</li>
+  <li><b>Domaine de la norme</b> : groupes rectangulaires jusqu'à 3 × 3 ; près d'un bord, espace annulaire comblé pour le cisaillement. Au-delà, méthodes fabricant (Hilti / SOFA, fib bulletin 58).</li></ul>`,
+  refs: "NF EN 1992-4 §6.2.1, §7.2.1 à §7.2.3, Tab. 7.3 ; NF EN 1992-4/NA (déc. 2022) Tab. 4.1, annexe C ; ETE du produit.", calc: "AN1" },
 { id: "assemblages", theme: "Calcul acier", titre: "Boulons, tiges filetées, pinces, chevilles",
   bref: "Une fixation travaille en traction (arrachement) et en cisaillement (glissement). On vérifie chacune et leur combinaison ; les trous doivent être assez loin des bords.",
   corps: `<div class="form">F<sub>t,Rd</sub> = 0,9·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> &nbsp; F<sub>v,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> (α<sub>v</sub> = 0,6 pour 4.6, 5.6, 8.8)<br>

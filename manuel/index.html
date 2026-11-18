@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.57"></script>
+<script src="../commun/auth.js?v=2.58"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.57">
-<script src="../commun/apps.js?v=2.57"></script>
-<script src="../commun/data/profils.js?v=2.57"></script>
-<script src="../commun/barres3d.js?v=2.57"></script>
-<script src="../commun/acier.js?v=2.57"></script>
-<script src="../commun/data/tuyauterie.js?v=2.57"></script>
-<script src="../commun/charges.js?v=2.57"></script>
-<script src="../commun/coefvent.js?v=2.57"></script>
-<script src="../commun/tendues.js?v=2.57"></script>
-<script src="../commun/portique.js?v=2.57"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.58">
+<script src="../commun/apps.js?v=2.58"></script>
+<script src="../commun/data/profils.js?v=2.58"></script>
+<script src="../commun/barres3d.js?v=2.58"></script>
+<script src="../commun/acier.js?v=2.58"></script>
+<script src="../commun/data/tuyauterie.js?v=2.58"></script>
+<script src="../commun/charges.js?v=2.58"></script>
+<script src="../commun/coefvent.js?v=2.58"></script>
+<script src="../commun/tendues.js?v=2.58"></script>
+<script src="../commun/portique.js?v=2.58"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -225,6 +225,16 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <div class="lim">Non traités : assemblages (jarret, faîtage, pieds, ancrages), accumulations de neige, fermetures partielles (mur isolé), classe 4, voilement par cisaillement, résistance locale de l'âme aux nœuds, actions de montage. C<sub>my</sub> = 0,9 et C<sub>mLT</sub> forfaitaires ; pannes en vent : coefficient extrême de la toiture (prudent pour les pannes courantes).</div>
 </article>
 
+<article class="card" id="an1"><div class="theme">AN1 – Ancrages</div><h2>10 ter bis. AN1 – Ancrages d'une platine sur béton (maquette d'interface)</h2>
+<p><b>État (2.58)</b> : maquette d'interface. Actifs : saisie (béton NF EN 1992-1-1 Tab. 3.1, bords, température et pose, cheville, disposition, platine et profilé), vue 3D, plan 2D éditable (accrochage au quadrillage, ajout et retrait par double-clic), combinaisons, coordonnées, règles de conception. <b>Non branché</b> : résistances NF EN 1992-4 ; les taux affichés sont de démonstration.</p>
+<p><b>Efforts par cheville affichés</b> : répartition élastique N<sub>i</sub> = N/n + M<sub>x</sub>·y<sub>i</sub>/Σy² − M<sub>y</sub>·x<sub>i</sub>/Σx² (origine au centre du groupe), exacte pour une platine rigide lorsque toutes les chevilles sont tendues. <b>Contrôle</b> : 2×2 chevilles à ±90 mm, N = 6 393 daN, M<sub>x</sub> = 171 daN·m, M<sub>y</sub> = 47 daN·m → 1 253,8 / 992,7 / 2 203,8 / 1 942,7 daN, identiques à PROFIS sur le même cas. Avec une zone comprimée, la phase 1 appliquera la méthode de la section de béton armé (NF EN 1992-4 §6.2.1).</p>
+<p><b>Règles de conception actives</b> : domaine de la NF EN 1992-4 (groupe rectangulaire ≤ 3 × 3) ; pince sur la platine ≥ 1,2·d₀ (NF EN 1993-1-8 Tab. 3.3), d₀ = d + 1 / d + 2 / d + 3 selon le diamètre (NF EN 1992-4 Tab. 6.1) ; s<sub>min</sub> et c<sub>min</sub> HST4 (ETA-21/0878 Tab. B7, à confirmer selon h<sub>ef</sub> et h) ; bord à moins de max(10·h<sub>ef</sub> ; 60·d) sans espace annulaire comblé → traction seule couverte ; h ≥ 2·h<sub>ef</sub> (à vérifier avec h<sub>min</sub> de l'ETE) ; classe de béton hors C20/25–C50/60.</p>
+<p><b>Données des ETE intégrées</b> : HAS-U 5.8 / 8.8 avec HIT-HY 200-A V3 (ETA-19/0601 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,5, k<sub>cr,N</sub> = 7,7, k<sub>ucr,N</sub> = 11,0, s<sub>cr,N</sub> = 3h<sub>ef</sub>, c<sub>cr,N</sub> = 1,5h<sub>ef</sub>, γ<sub>inst</sub> = 1,0 en trou sec ou humide, 1,4 en trou rempli d'eau) ; HST4 (ETA-21/0878 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,4, plages de h<sub>ef</sub>).</p>
+<p><b>Coefficients partiels retenus (NF EN 1992-4/NA Tab. 4.1)</b> : acier traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 ; acier cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 (f<sub>uk</sub> ≤ 800 N/mm² et f<sub>yk</sub>/f<sub>uk</sub> ≤ 0,8), sinon 1,5 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub>, γ<sub>c</sub> = 1,5 (accidentel 1,2, sismique 1,3) ; γ<sub>Msp</sub> = γ<sub>Mp</sub> = γ<sub>Mc</sub>. Interaction béton : éq. (7.55) ou (7.56), la plus favorable (pratique constatée dans PROFIS).</p>
+<p><b>Qualification prévue</b> : 5 notes PROFIS anonymisées (V1 à V5 : HAS-U M12, M16, M27 ; HST4 M16 ; béton fissuré et non fissuré) et exemples du guide Hilti chap. 6 ; recalculs déjà vérifiés à la main : N⁰<sub>Rk,c</sub> = 7,7 × √25 × 214<sup>1,5</sup> = 12 052 daN (V5), 12,7 × √25 × 105<sup>1,5</sup> = 6 832 daN (V4), ψ<sub>M,N</sub> = 2 − z/(1,5h<sub>ef</sub>) = 1,156 (V5).</p>
+<div class="lim">Hors périmètre : méthode Hilti / SOFA (plus de 3 × 3 chevilles, dispositions circulaires, platines décollées), CBFEM (phase 2), fatigue, feu, rails insert.</div>
+</article>
+
 <article class="card" id="as1"><div class="theme">AS1 – Assemblages</div><h2>10 ter. AS1 – Barres tendues boulonnées (cornières, UPN)</h2>
 <div class="form">d<sub>0</sub> = d + jeu ; trous surdimensionnés si d<sub>0</sub> &gt; d<sub>0,normal</sub> (pression diamétrale × 0,8) ; F<sub>v,Rd</sub> = n·n<sub>files</sub>·n<sub>plans</sub>·α<sub>v</sub>·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> (× 0,85 M12/M14 jeu 2 mm) × 1/√(1 + (n·β)²) (cornières, CTICM), β = 6·e/(n(n + 1)·p<sub>1</sub>), e = (aile − e<sub>2</sub>) − axe neutre<br>
 Section brute A·f<sub>y</sub>/γ<sub>M0</sub> ; nette : cornière §3.10.3 (1 boulon : 2(e<sub>2</sub> − d<sub>0</sub>/2)·t·f<sub>u</sub>/γ<sub>M2</sub> ; 2 : β<sub>2</sub> 0,4 → 0,7 ; ≥ 3 : β<sub>3</sub> 0,5 → 0,7, p<sub>1</sub>/d<sub>0</sub> de 2,5 à 5), UPN 0,9·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub><br>
@@ -296,6 +306,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.58</td><td>AN1 (nouveau), accueil</td><td>Maquette d'interface du module Ancrages (platine sur béton, NF EN 1992-4 + AN) : saisie, vue 3D, plan 2D éditable, combinaisons, règles de conception, données des ETE HIT-HY 200-A V3 + HAS-U et HST4 ; famille « Assemblages » renommée « Assemblages et ancrages ».</td><td>Aucun calcul existant modifié ; taux AN1 de démonstration (calcul en phase 1).</td></tr>
 <tr><td>2.57</td><td>CS</td><td>Schéma coté de chaque type (vues en lettres + légende) au-dessus du tableau des configurations, avec mise en évidence de la cote en cours de saisie.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.56</td><td>S1, CS, C1</td><td>Plans DXF en version 2000 : une présentation par folio (cartouche, révisions, tableaux et notes en espace papier ; vues en vraie grandeur en espace objet, fenêtre à l'échelle du folio) ; blocs du gabarit sous leurs noms d'origine ; fichier nommé d'après le n° de document du cartouche suivi de la révision. C1 : onglet « Complexes (G1) » supprimé (rappel des complexes G1 sous les forces F<sub>a</sub> de l'onglet Séisme).</td><td>Aucun calcul modifié ; structure du fichier DXF modifiée.</td></tr>
 <tr><td>2.55</td><td>Q1, NH, S1, CS, RC, A1, AS1, export Word</td><td>Garde-corps : NF E 85-015 (cas général industriel, valeurs contrôlées : 0,3 kN/m, ELU 1,725, calcul élastique sous 1,2 F<sub>ult</sub>) et NF EN ISO 14122-3 (machines spéciales, 1,75) de nouveau distinguées ; escaliers et paliers industriels NF E 85-015 §5.1.2.1. Plans : gabarit FIP A3 (cadre, cartouche, révisions, logo) en blocs DXF à attributs. Word : trame FIP (page de garde avec logos FIP et client, révisions, en-tête, pied de page, sommaire). Identification : lot, motif, bon pour, logo client, historique des révisions. RC : plan aligné sur la trame FIP (§1 à §15).</td><td>Aucun calcul modifié ; valeur par défaut des garde-corps inchangée (0,3 kN/m) ; mise en page des plans A3 et des notes Word modifiée.</td></tr>
@@ -385,6 +396,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.57"></script>
+<script src="../commun/replier.js?v=2.58"></script>
 </body>
 </html>

@@ -10,14 +10,14 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.57";
+const CALC_VERSION = "v2.58";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
   { id: "rap", nom: "Rapports de calcul", sousTitre: "Note d'hypothèses et rapport de calcul de l'ouvrage (ossature, supportage, assemblages, descentes de charges) · simplifiés, complets ou au choix, Word / PDF", couleur: "#e30009", marqueur: "■" },
   { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
   { id: "acier", nom: "Structure acier – éléments et ossatures", sousTitre: "Poutres et poteaux, portiques de toitures isolées (auvents) : prédimensionnement APS/APD · NF EN 1990, NF EN 1991-1-3 / 1-4, NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
-  { id: "asm", nom: "Assemblages", sousTitre: "Attaches boulonnées des barres tendues (cornières, UPN) ; reliées aux outils d'ossature (diagonales de contreventement de A1) · NF EN 1993-1-8 + AN, méthodes CTICM", couleur: "#e30009", marqueur: "▲" },
+  { id: "asm", nom: "Assemblages et ancrages", sousTitre: "Attaches boulonnées des barres tendues (cornières, UPN) et ancrages des platines sur béton (chevilles mécaniques et chimiques) ; reliés aux outils d'ossature et de supportage · NF EN 1993-1-8 + AN, NF EN 1992-4 + AN, ETE", couleur: "#e30009", marqueur: "▲" },
   { id: "ress", nom: "Aide et ressources", sousTitre: "Pour comprendre et contrôler : manuel technique (mode d'emploi, formules, tests de validation), référentiel des normes vulgarisé, bases de données", couleur: "#e30009", marqueur: "◇" },
   { id: "avenir", nom: "À venir", sousTitre: "Emplacements réservés pour les prochaines calculettes", couleur: "#e30009", marqueur: "■" },
 ];
@@ -200,6 +200,25 @@ const CALC_APPS = [
   <path d="M70,80 Q60,60 50,80" fill="none" stroke="#e30009" stroke-width="1.4"/><text x="32" y="60" font-size="10" fill="#e30009" font-weight="700">M</text>
   <text x="200" y="120" font-size="12" text-anchor="middle" fill="#114088" font-weight="800">α<tspan font-size="9" dy="3">cr</tspan><tspan dy="-3"> · φ · 1/(1−1/α</tspan><tspan font-size="9" dy="3">cr</tspan><tspan dy="-3">)</tspan></text>
   <text x="200" y="140" font-size="10" text-anchor="middle" fill="#5f6670">toiture isolée · CNC2M / Tab. 7.7</text>
+</svg>`,
+  },
+  {
+    code: "AN1",
+    titre: "Ancrages – platine sur béton (maquette)",
+    description: "Maquette d'interface : béton (Tab. 3.1), bords, cheville (HAS-U + HIT-HY 200-A V3, HST4 ; données ETE), disposition éditable en plan 2D, platine et profilé, vue 3D, combinaisons, taux par mode de rupture NF EN 1992-4 et règles de conception. Calcul branché en phase 1.",
+    url: "ancrages/",
+    categorie: "asm",
+    normes: ["NF EN 1992-4 + AN", "ETE"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <polygon points="40,120 200,80 360,120 200,160" fill="#dcdcd6" stroke="#8a929c"/>
+  <polygon points="40,120 200,160 200,190 40,150" fill="#c9c9c4" stroke="#8a929c"/><polygon points="200,160 360,120 360,150 200,190" fill="#b8b8b2" stroke="#8a929c"/>
+  <polygon points="130,118 200,100 270,118 200,136" fill="#d8c96a" stroke="#6b6020"/>
+  <rect x="186" y="30" width="28" height="88" fill="#8d98a6" stroke="#171a1e"/>
+  <g fill="#e30009"><circle cx="160" cy="118" r="5"/><circle cx="240" cy="118" r="5"/><circle cx="200" cy="108" r="5"/><circle cx="200" cy="128" r="5"/></g>
+  <line x1="240" y1="20" x2="240" y2="70" stroke="#114088" stroke-width="3"/><path d="M233,20 l7,-12 l7,12z" fill="#114088"/>
+  <text x="250" y="45" font-size="12" fill="#114088" font-weight="700">N, M, V</text><text x="40" y="30" font-size="11" fill="#5f6670">NF EN 1992-4 · ETE</text>
 </svg>`,
   },
   {
