@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.58"></script>
+<script src="../commun/auth.js?v=2.59"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AN1 Ancrages (maquette)</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.58">
+<link rel="stylesheet" href="../commun/calc.css?v=2.59">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/apps.js?v=2.58"></script>
-<script src="../commun/data/profils.js?v=2.58"></script>
-<script src="../commun/ident.js?v=2.58"></script>
+<script src="../commun/apps.js?v=2.59"></script>
+<script src="../commun/data/profils.js?v=2.59"></script>
+<script src="../commun/ident.js?v=2.59"></script>
 <style>
   /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
   main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
@@ -50,7 +50,8 @@
   .regles li{margin:3px 0;font-size:12.5px}
   @media (max-width:1200px){main.app{grid-template-columns:280px minmax(0,1fr)}.res{grid-column:1/3}.bas{grid-column:1/3}}
   @media (max-width:820px){main.app{grid-template-columns:1fr}.res,.bas{grid-column:1}.pan{max-height:none}.vue{height:380px}}
-  @media print{.pan{max-height:none}.onglets,.presets{display:none}}
+  .impr{display:none}
+  @media print{.pan{max-height:none}.onglets,.presets,.vue{display:none!important}.impr{display:block;break-inside:avoid}table.cmb button,#addC,#cCmb .actions{display:none!important}#imprPlan svg{width:100%;height:auto}}
 </style>
 </head>
 <body>
@@ -61,7 +62,7 @@
     <h1><span class="code">AN1</span>Ancrages – platine sur béton (chevilles)</h1>
     <div class="sub">NF EN 1992-4 + AN (déc. 2022) · ETE des chevilles (ETA-19/0601 HIT-HY 200-A V3 + HAS-U, ETA-21/0878 HST4) · <b>maquette d'interface – calcul non branché</b></div>
   </div>
-  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+  <button onclick="imprimer()">🖨️ Imprimer / PDF</button>
 </header>
 <main class="app">
   <!-- =================== SAISIE =================== -->
@@ -131,6 +132,7 @@
     <table class="cmb" id="tCmb"></table>
     <div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" id="addC">➕ Combinaison</button> <button type="button" class="sec" disabled title="Phase 1 : reprise des réactions d'appui de S1 ou des pieds de poteau de A1">Importer depuis S1 / A1</button></div>
   </section>
+  <section class="card bas impr" id="cImpr" style="margin:0"><h2>Plan coté et perspective</h2><div id="imprPlan"></div><img id="impr3d" alt="" style="max-width:100%;margin-top:8px"></section>
   <section class="card bas" id="cCoord" style="margin:0"><h2>Coordonnées des chevilles (mm, origine au centre de la platine)</h2>
     <table class="cmb" id="tCoord"></table>
   </section>
@@ -222,26 +224,50 @@ function resultats(){ const F=efforts(), Nmax=Math.max(...F.map(x=>x.N));
   $('aideMode').innerHTML=modeSel&&AIDE_MODES[modeSel]?`<div class="aideMode"><b>${AIDE_MODES[modeSel][0]}</b><br>${AIDE_MODES[modeSel][1]}</div>`:'<div class="note" style="padding:6px 12px">Cliquer sur un mode de rupture : formule, référence et pistes d\'amélioration.</div>';
   $('tF').innerHTML=`<tr><th>#</th><th class="n">N (daN)</th><th class="n">V (daN)</th></tr>`+F.map((x,i)=>`<tr${x.N===Nmax&&Nmax>0?' style="background:var(--gov)"':''}><td>${i+1}</td><td class="n">${f(x.N,1)}</td><td class="n">${f(x.V,1)}</td></tr>`).join(''); }
 document.getElementById('pRes').addEventListener('click',e=>{ const m=e.target.closest('[data-m]'); if(m){ modeSel=m.dataset.m===modeSel?null:m.dataset.m; resultats(); } });
-/* ---- plan 2D éditable (SVG) ---- */
+/* ---- plan 2D coté (SVG) : bords du béton, platine, profilé, chevilles, cotes ; SCU hors de la platine ---- */
 let drag=null;
-function plan2D(){ const box=$('v2d'); if(box.hidden) return; const W=box.clientWidth||800, H=box.clientHeight||520, lx=+$('lx').value, ly=+$('ly').value;
-  const ext=Math.max(lx,ly)*1.6, k=Math.min(W,H)/ext, X=x=>W/2+x*k, Y=y=>H/2-y*k, pas=Math.max(1,+$('pas').value||5);
-  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial" font-size="11">`;
-  const gstep=pas*k<6?pas*Math.ceil(6/(pas*k)):pas; for(let x=-ext;x<=ext;x+=gstep) s+=`<line x1="${X(x)}" y1="0" x2="${X(x)}" y2="${H}" stroke="#eef1f5"/>`; for(let y=-ext;y<=ext;y+=gstep) s+=`<line x1="0" y1="${Y(y)}" x2="${W}" y2="${Y(y)}" stroke="#eef1f5"/>`;
+function bordsFinis(){ const o={}; [['cxp','+X'],['cxm','−X'],['cyp','+Y'],['cym','−Y']].forEach(([k])=>{ o[k]=document.querySelector(`[data-inf="${k}"]`).checked?null:+$(k).value; }); return o; }
+function svgPlan(W,H,edit){ const lx=+$('lx').value, ly=+$('ly').value, B=bordsFinis(), m=Math.max(lx,ly), lim=3.2*m, pas=Math.max(1,+$('pas').value||5);
+  // emprise du dessin : bords finis proches dessinés ; bords lointains ou infinis : béton coupé (trait mixte) à 0,8·platine
+  const vis=(k,def)=>B[k]!=null&&B[k]<=lim?B[k]:def, xmax=vis('cxp',lx*.85), xmin=-vis('cxm',lx*.85), ymax=vis('cyp',ly*.85), ymin=-vis('cym',ly*.85);
+  const mg={g:95,d:95,h:70,b:70}, k=Math.min((W-mg.g-mg.d)/(xmax-xmin),(H-mg.h-mg.b)/(ymax-ymin)), ox=mg.g+((W-mg.g-mg.d)-(xmax-xmin)*k)/2, oy=mg.h+((H-mg.h-mg.b)-(ymax-ymin)*k)/2;
+  const X=x=>ox+(x-xmin)*k, Y=y=>oy+(ymax-y)*k, n0=v=>f(v,0);
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial" font-size="11" style="background:#fff">`;
+  // béton (gris) + quadrillage
+  s+=`<rect x="${X(xmin)}" y="${Y(ymax)}" width="${(xmax-xmin)*k}" height="${(ymax-ymin)*k}" fill="#e7e7e3"/>`;
+  if(edit){ const gs=pas*k<6?pas*Math.ceil(6/(pas*k)):pas; for(let x=Math.ceil(xmin/gs)*gs;x<=xmax;x+=gs) s+=`<line x1="${X(x)}" y1="${Y(ymax)}" x2="${X(x)}" y2="${Y(ymin)}" stroke="#f3f3f0"/>`; for(let y=Math.ceil(ymin/gs)*gs;y<=ymax;y+=gs) s+=`<line x1="${X(xmin)}" y1="${Y(y)}" x2="${X(xmax)}" y2="${Y(y)}" stroke="#f3f3f0"/>`; }
+  const bordT=(k2,x1,y1,x2,y2)=>B[k2]!=null&&B[k2]<=lim?`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#171a1e" stroke-width="2.5"/>`:`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8a929c" stroke-dasharray="10 3 2 3"/>`;
+  s+=bordT('cxp',X(xmax),Y(ymax),X(xmax),Y(ymin))+bordT('cxm',X(xmin),Y(ymax),X(xmin),Y(ymin))+bordT('cyp',X(xmin),Y(ymax),X(xmax),Y(ymax))+bordT('cym',X(xmin),Y(ymin),X(xmax),Y(ymin));
+  // platine, profilé
   s+=`<rect x="${X(-lx/2)}" y="${Y(ly/2)}" width="${lx*k}" height="${ly*k}" fill="#f5efbf" stroke="#8a7d2a"/>`;
   const p=PROFILS.find(q=>q.n===$('pnom').value);
   if(p){ if(/^(HE|IP)/.test(p.f)){ const b=p.b,hh=p.h,tw=p.tw,tf=p.tf; s+=`<path d="M${X(-hh/2)},${Y(b/2)} h${tf*k} v${(b/2-tw/2)*k} h${(hh-2*tf)*k} v${-(b/2-tw/2)*k} h${tf*k} v${b*k} h${-tf*k} v${-(b/2-tw/2)*k} h${-(hh-2*tf)*k} v${(b/2-tw/2)*k} h${-tf*k}z" fill="#9aa4b1" stroke="#171a1e"/>`; }
     else if(p.f==='CHS') s+=`<circle cx="${X(0)}" cy="${Y(0)}" r="${p.h/2*k}" fill="none" stroke="#171a1e" stroke-width="${Math.max(1,p.t*k)}"/>`;
     else s+=`<rect x="${X(-p.b/2)}" y="${Y(p.h/2)}" width="${p.b*k}" height="${p.h*k}" fill="none" stroke="#171a1e" stroke-width="${Math.max(1,p.t*k)}"/>`; }
+  // origine (centre de la platine) : petit repère discret
+  s+=`<g stroke="#114088" stroke-width="1"><circle cx="${X(0)}" cy="${Y(0)}" r="4" fill="none"/><line x1="${X(0)-7}" y1="${Y(0)}" x2="${X(0)+7}" y2="${Y(0)}"/><line x1="${X(0)}" y1="${Y(0)-7}" x2="${X(0)}" y2="${Y(0)+7}"/></g>`;
   const F=efforts(), Nmax=Math.max(...F.map(x=>x.N),1);
-  A.forEach((a,i)=>{ s+=`<g data-i="${i}" style="cursor:move"><circle cx="${X(a.x)}" cy="${Y(a.y)}" r="${Math.max(6,8)}" fill="${F[i].N>0?`rgba(227,0,9,${.35+.65*F[i].N/Nmax})`:'#1d8a3a'}" stroke="#fff" stroke-width="2"/><text x="${X(a.x)+10}" y="${Y(a.y)-10}" fill="#114088" font-weight="700">${i+1}</text></g>`; });
-  // cotes : entraxes et pinces (selon X et Y)
-  const xs=[...new Set(A.map(a=>a.x))].sort((a,b)=>a-b), ys=[...new Set(A.map(a=>a.y))].sort((a,b)=>a-b), yb=Y(-ly/2)+22, xg=X(-lx/2)-22;
-  const cx=[-lx/2,...xs,lx/2]; cx.forEach((v,j)=>{ if(j){ const a=cx[j-1]; s+=`<line x1="${X(a)}" y1="${yb}" x2="${X(v)}" y2="${yb}" stroke="#5f6670"/><text x="${(X(a)+X(v))/2}" y="${yb-4}" text-anchor="middle" fill="#5f6670">${f(v-a,0)}</text>`; } s+=`<line x1="${X(v)}" y1="${yb-5}" x2="${X(v)}" y2="${yb+5}" stroke="#5f6670"/>`; });
-  const cy=[-ly/2,...ys,ly/2]; cy.forEach((v,j)=>{ if(j){ const a=cy[j-1]; s+=`<line x1="${xg}" y1="${Y(a)}" x2="${xg}" y2="${Y(v)}" stroke="#5f6670"/><text x="${xg-4}" y="${(Y(a)+Y(v))/2}" text-anchor="end" fill="#5f6670">${f(v-a,0)}</text>`; } s+=`<line x1="${xg-5}" y1="${Y(v)}" x2="${xg+5}" y2="${Y(v)}" stroke="#5f6670"/>`; });
-  s+=`<g transform="translate(24,${H-24})"><line x1="0" y1="0" x2="34" y2="0" stroke="#e30009" stroke-width="2"/><text x="38" y="4" fill="#e30009">X</text><line x1="0" y1="0" x2="0" y2="-34" stroke="#1d8a3a" stroke-width="2"/><text x="-4" y="-38" fill="#1d8a3a">Y</text></g></svg>`;
-  box.innerHTML=s; const svg=box.querySelector('svg');
-  const pt=e=>{ const r=svg.getBoundingClientRect(); return {x:Math.round(((e.clientX-r.left)*W/r.width-W/2)/k/pas)*pas, y:Math.round((H/2-(e.clientY-r.top)*H/r.height)/k/pas)*pas}; };
+  A.forEach((a,i)=>{ s+=`<g data-i="${i}" style="cursor:${edit?'move':'default'}"><circle cx="${X(a.x)}" cy="${Y(a.y)}" r="8" fill="${F[i].N>0?`rgba(227,0,9,${.35+.65*F[i].N/Nmax})`:'#1d8a3a'}" stroke="#fff" stroke-width="2"/><text x="${X(a.x)+10}" y="${Y(a.y)-10}" fill="#114088" font-weight="700">${i+1}</text></g>`; });
+  // cotes : chaîne platine/chevilles (bas, gauche) ; distances aux bords (haut, droite)
+  const xs=[...new Set(A.map(a=>a.x))].sort((a,b)=>a-b), ys=[...new Set(A.map(a=>a.y))].sort((a,b)=>a-b);
+  const coteH=(xa,xb,yy,t,c='#5f6670')=>`<line x1="${X(xa)}" y1="${yy}" x2="${X(xb)}" y2="${yy}" stroke="${c}"/><line x1="${X(xa)}" y1="${yy-5}" x2="${X(xa)}" y2="${yy+5}" stroke="${c}"/><line x1="${X(xb)}" y1="${yy-5}" x2="${X(xb)}" y2="${yy+5}" stroke="${c}"/><text x="${(X(xa)+X(xb))/2}" y="${yy-4}" text-anchor="middle" fill="${c}">${t}</text>`;
+  const coteV=(ya,yb,xx,t,c='#5f6670')=>`<line x1="${xx}" y1="${Y(ya)}" x2="${xx}" y2="${Y(yb)}" stroke="${c}"/><line x1="${xx-5}" y1="${Y(ya)}" x2="${xx+5}" y2="${Y(ya)}" stroke="${c}"/><line x1="${xx-5}" y1="${Y(yb)}" x2="${xx+5}" y2="${Y(yb)}" stroke="${c}"/><text x="${xx-5}" y="${(Y(ya)+Y(yb))/2}" text-anchor="middle" fill="${c}" transform="rotate(-90 ${xx-5} ${(Y(ya)+Y(yb))/2})">${t}</text>`;
+  const yb1=Y(ymin)+22, yb2=Y(ymin)+44, xg1=X(xmin)-24, xg2=X(xmin)-48;
+  const cx=[-lx/2,...xs,lx/2]; cx.forEach((v,j)=>{ if(j) s+=coteH(cx[j-1],v,yb1,n0(v-cx[j-1])); }); s+=coteH(-lx/2,lx/2,yb2,`l<tspan font-size="8" dy="2">x</tspan><tspan dy="-2"> = ${n0(lx)}</tspan>`,'#114088');
+  const cy=[-ly/2,...ys,ly/2]; cy.forEach((v,j)=>{ if(j) s+=coteV(cy[j-1],v,xg1,n0(v-cy[j-1])); }); s+=coteV(-ly/2,ly/2,xg2,`l<tspan font-size="8" dy="2">y</tspan><tspan dy="-2"> = ${n0(ly)}</tspan>`,'#114088');
+  const rouge='#c0141c', yh=Y(ymax)-22, xd=X(xmax)+24;
+  const bordCote=(k2,lab)=>{ const v=B[k2]; if(v==null) return `<text ${({cxp:`x="${X(xmax)-4}" y="${Y(0)-6}" text-anchor="end"`,cxm:`x="${X(xmin)+4}" y="${Y(0)-6}"`,cyp:`x="${X(0)+6}" y="${Y(ymax)+14}"`,cym:`x="${X(0)+6}" y="${Y(ymin)-6}"`})[k2]} fill="#8a929c">${lab} : ∞</text>`;
+    const far=v>lim, t=`c<tspan font-size="8" dy="2">${lab}</tspan><tspan dy="-2"> = ${n0(k2==='cxp'?v-Math.max(...xs):k2==='cxm'?v+Math.min(...xs):k2==='cyp'?v-Math.max(...ys):v+Math.min(...ys))}${far?' (bord coupé)':''}</tspan>`;
+    if(k2==='cxp') return coteH(Math.max(...xs),xmax,yh,t,rouge); if(k2==='cxm') return coteH(xmin,Math.min(...xs),yh,t,rouge);
+    if(k2==='cyp') return coteV(Math.max(...ys),ymax,xd+18,t,rouge); return coteV(ymin,Math.min(...ys),xd+18,t,rouge); };
+  s+=bordCote('cxp','+X')+bordCote('cxm','−X')+bordCote('cyp','+Y')+bordCote('cym','−Y');
+  // SCU hors de la platine (coin inférieur gauche du dessin)
+  s+=`<g transform="translate(18,${H-16})"><line x1="0" y1="0" x2="34" y2="0" stroke="#e30009" stroke-width="2"/><path d="M34,-4 l8,4 l-8,4z" fill="#e30009"/><text x="45" y="4" fill="#e30009" font-weight="700">X</text><line x1="0" y1="0" x2="0" y2="-34" stroke="#1d8a3a" stroke-width="2"/><path d="M-4,-34 l4,-8 l4,8z" fill="#1d8a3a"/><text x="-4" y="-46" fill="#1d8a3a" font-weight="700">Y</text><text x="10" y="-14" fill="#5f6670" font-size="9">SCU – origine ⊕ au centre de la platine</text></g></svg>`;
+  return {s,X,Y,k,xmin,ymax,ox,oy};
+}
+function plan2D(){ const box=$('v2d'); if(box.hidden) return; const W=box.clientWidth||800, H=box.clientHeight||520, pas=Math.max(1,+$('pas').value||5);
+  const P=svgPlan(W,H,true), {X,Y,k,xmin,ymax,ox,oy}=P; box.innerHTML=P.s; const svg=box.querySelector('svg');
+  const pt=e=>{ const r=svg.getBoundingClientRect(), sx=(e.clientX-r.left)*W/r.width, sy=(e.clientY-r.top)*H/r.height; return {x:Math.round(((sx-ox)/k+xmin)/pas)*pas, y:Math.round((ymax-(sy-oy)/k)/pas)*pas}; };
   svg.onpointerdown=e=>{ const g=e.target.closest('[data-i]'); if(g){ drag=+g.dataset.i; svg.setPointerCapture(e.pointerId); } };
   svg.onpointermove=e=>{ if(drag==null) return; const p2=pt(e); A[drag].x=p2.x; A[drag].y=p2.y; const c=svg.querySelector(`[data-i="${drag}"] circle`), t=svg.querySelector(`[data-i="${drag}"] text`); c.setAttribute('cx',X(p2.x)); c.setAttribute('cy',Y(p2.y)); t.setAttribute('x',X(p2.x)+10); t.setAttribute('y',Y(p2.y)-10); };
   svg.onpointerup=()=>{ if(drag!=null){ drag=null; rendre(); } };
@@ -276,9 +302,32 @@ async function vue3D(){ const box=$('v3d'); if(box.hidden) return;
     const ec=new T.Mesh(new T.CylinderGeometry(d*.9,d*.9,d*.8,6),new T.MeshLambertMaterial({color:'#555'})); ec.rotation.x=Math.PI/2; ec.position.set(a.x,a.y,tp+d*.4); sc.add(ec); });
   // effort normal (flèche)
   const c=C[actif]||C[0]; if(c&&c.N){ const dir=new T.Vector3(0,0,c.N>0?1:-1), o=new T.Vector3(0,0,tp+Hp+(c.N>0?20:Hp*.6)); sc.add(new T.ArrowHelper(dir,o,Hp*.5,0x114088,40,20)); }
+  // cotes 3D (traits + étiquettes) et SCU hors de la platine
+  const lab=(txt,pos,col='#114088',sc0)=>{ const cv=document.createElement('canvas'); cv.width=512; cv.height=96; const g=cv.getContext('2d'); g.font='bold 64px Inter,Arial'; g.fillStyle=col; g.textAlign='center'; g.textBaseline='middle'; g.fillText(txt,256,48);
+    const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),depthTest:false,transparent:true})); const k2=sc0||Math.max(lx,ly)*.13; sp.scale.set(k2*5.33,k2,1); sp.position.copy(pos); sp.renderOrder=10; sc.add(sp); };
+  const seg=(a,b,col)=>{ const g=new T.BufferGeometry().setFromPoints([a,b]); const l=new T.Line(g,new T.LineBasicMaterial({color:col,depthTest:false})); l.renderOrder=9; sc.add(l); };
+  const cote3=(a,b,n,off,txt,col='#5f6670',tl)=>{ const o=n.clone().multiplyScalar(off), A1=a.clone().add(o), B1=b.clone().add(o); seg(a,A1.clone().add(n.clone().multiplyScalar(8)),col); seg(b,B1.clone().add(n.clone().multiplyScalar(8)),col); seg(A1,B1,col);
+    lab(txt,A1.clone().add(B1).multiplyScalar(.5).add(n.clone().multiplyScalar(Math.max(lx,ly)*(tl?.05:.08))),col,tl?Math.max(lx,ly)*.095:undefined); };
+  const V=(x,y,z)=>new T.Vector3(x,y,z), xs=[...new Set(A.map(a=>a.x))].sort((a,b)=>a-b), ys=[...new Set(A.map(a=>a.y))].sort((a,b)=>a-b), z0=tp+1, om=Math.max(lx,ly)*.12;
+  const chX=[-lx/2,...xs,lx/2]; chX.forEach((v,j)=>{ if(j&&v-chX[j-1]>0.5) cote3(V(chX[j-1],-ly/2,z0),V(v,-ly/2,z0),V(0,-1,0),om,f(v-chX[j-1],0),'#5f6670',1); });
+  cote3(V(-lx/2,-ly/2,z0),V(lx/2,-ly/2,z0),V(0,-1,0),om*2.8,'lx = '+f(lx,0),'#114088');
+  const chY=[-ly/2,...ys,ly/2]; chY.forEach((v,j)=>{ if(j&&v-chY[j-1]>0.5) cote3(V(lx/2,chY[j-1],z0),V(lx/2,v,z0),V(1,0,0),om,f(v-chY[j-1],0),'#5f6670',1); });
+  cote3(V(lx/2,-ly/2,z0),V(lx/2,ly/2,z0),V(1,0,0),om*2.8,'ly = '+f(ly,0),'#114088');
+  cote3(V(xp,-ym,-hb),V(xp,-ym,0),V(1,0,0),om,'h = '+f(hb,0),'#114088');
+  const Bf=bordsFinis(), rg='#c0141c';
+  if(Bf.cxp!=null) cote3(V(Math.max(...xs),ys[ys.length-1],0),V(xp,ys[ys.length-1],0),V(0,1,0),ly/2-ys[ys.length-1]+om,'c = '+f(Bf.cxp-Math.max(...xs),0),rg);
+  if(Bf.cxm!=null) cote3(V(-xm,ys[ys.length-1],0),V(Math.min(...xs),ys[ys.length-1],0),V(0,1,0),ly/2-ys[ys.length-1]+om,'c = '+f(Bf.cxm+Math.min(...xs),0),rg);
+  if(Bf.cyp!=null) cote3(V(xs[0],Math.max(...ys),0),V(xs[0],yp,0),V(-1,0,0),lx/2+xs[0]+om,'c = '+f(Bf.cyp-Math.max(...ys),0),rg);
+  if(Bf.cym!=null) cote3(V(xs[0],-ym,0),V(xs[0],Math.min(...ys),0),V(-1,0,0),lx/2+xs[0]+om,'c = '+f(Bf.cym+Math.min(...ys),0),rg);
+  { const L=Math.max(lx,ly)*.45, o=V(-lx/2-om*3,-ly/2-om*3.5,0); [[V(1,0,0),0xe30009,'X'],[V(0,1,0),0x1d8a3a,'Y'],[V(0,0,1),0x114088,'Z']].forEach(([d,c,t])=>{ sc.add(new T.ArrowHelper(d,o,L,c,L*.18,L*.09)); lab(t,o.clone().add(d.clone().multiplyScalar(L*1.18)),'#'+c.toString(16).padStart(6,'0'),Math.max(lx,ly)*.08); });
+    lab('SCU',o.clone().add(V(0,0,-L*.3)),'#5f6670',Math.max(lx,ly)*.06); }
   V3.sc=sc; const sz=Math.max(xp+xm,yp+ym,hb+Hp);
   if(V3.prem){ V3.cam.position.set(sz*1.15,-sz*1.45,sz*.95); V3.ctl.target.set(0,0,Hp*.15); V3.prem=false; }
   const w=box.clientWidth,hh=box.clientHeight; V3.r.setSize(w,hh); V3.cam.aspect=w/hh; V3.cam.updateProjectionMatrix(); }
+/* ---- impression : plan coté 2D et perspective 3D ---- */
+function prepImpr(){ $('imprPlan').innerHTML=svgPlan(1000,640,false).s; try{ if(V3&&V3.r){ V3.r.render(V3.sc,V3.cam); $('impr3d').src=V3.r.domElement.toDataURL('image/png'); } }catch(e){} }
+async function imprimer(){ if($('v3d').hidden){ $('v3d').hidden=false; await vue3D(); } prepImpr(); setTimeout(()=>window.print(),120); }
+window.addEventListener('beforeprint',prepImpr);
 /* ---- rendu général ---- */
 let tR=null;
 function rendre(){ enr(); tables(); regles(); resultats(); plan2D(); clearTimeout(tR); tR=setTimeout(()=>vue3D().catch(e=>{ $('v3d').innerHTML=`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${h(e.message)}</div>`; }),60); }
@@ -292,12 +341,13 @@ $('b2d').onclick=()=>{ $('v3d').hidden=true; $('v2d').hidden=false; $('b2d').cla
 IDENT.init({cible:'cIdent',cle:'AN1',repere:'Platine P1'});
 majBeton(); majProfils(); majProduit();
 </script>
-<script src="../commun/aide.js?v=2.58"></script>
+<script src="../commun/aide.js?v=2.59"></script>
 <script>AIDE.init({titre:"Aide – AN1 Ancrages (maquette)",manuel:"an1",intro:"AN1 vérifiera les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE. Cette version est une MAQUETTE D'INTERFACE : géométrie, vues et règles de conception sont actives, mais les efforts et taux sont fictifs.",
   etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, température et pose, cheville (données de l'ETE), disposition, platine et profilé, méthode.",cible:"#pSaisie"},
-    {t:"Vues",html:"Vue 3D (rotation et zoom à la souris) ou plan 2D : glisser une cheville pour la déplacer (accrochage au quadrillage), double-clic pour en ajouter ou en retirer.",cible:"#v3d"},
+    {t:"Vues",html:"Vue 3D cotée (rotation et zoom à la souris ; chaînes de cotes platine / chevilles, l<sub>x</sub>, l<sub>y</sub>, épaisseur h, distances aux bords finis en rouge ; SCU X/Y/Z placé hors de la platine) ou plan 2D coté (mêmes cotes, bords du béton : trait fort si fini, trait mixte si infini ou lointain) : glisser une cheville pour la déplacer (accrochage au quadrillage), double-clic pour en ajouter ou en retirer.",cible:"#v3d"},
     {t:"Règles de conception",html:"Contrôles géométriques réels : domaine de la NF EN 1992-4 (rectangulaire ≤ 3×3), pinces sur la platine, entraxe et distance au bord minimaux (ETE), bord proche et espace annulaire.",cible:"#cRegles"},
     {t:"Résultats",html:"Taux par mode de rupture (fictifs dans la maquette). Cliquer un mode affiche sa formule, son paragraphe et les pistes d'amélioration.",cible:"#pRes"},
+    {t:"Impression",html:"« Imprimer / PDF » ajoute une section « Plan coté et perspective » : plan 2D coté (chaînes de cotes, distances aux bords) et vue 3D.",cible:"#cCmb"},
     {t:"Combinaisons",html:"Efforts au centre de la platine ; la combinaison cochée est affichée. L'import depuis S1 et A1 viendra en phase 1.",cible:"#cCmb"}],
   faq:[{q:"Rigide ou flexible ?",r:"La NF EN 1992-4 suppose une platine rigide (§6.2.1, répartition linéaire). Si elle ne l'est pas, les chevilles les plus chargées le sont davantage (effet de levier, bras de levier réduit) : c'est l'objet du CBFEM (phase 2)."},
     {q:"Quels coefficients partiels ?",r:"AN Tab. 4.1 : acier en traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 (1,5 pour 5.8 et 8.8 ; 1,4 pour HST4 selon l'ETE) ; acier en cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub> avec γ<sub>c</sub> = 1,5 (1,3 en sismique)."},
