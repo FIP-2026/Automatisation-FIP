@@ -4,26 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.61"></script>
+<script src="../commun/auth.js?v=2.62"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — A1 Toiture isolée (auvent)</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.61">
-<script src="../commun/apps.js?v=2.61"></script>
-<script src="../commun/cahier.js?v=2.61"></script>
-<script src="../commun/data/profils.js?v=2.61"></script>
-<script src="../commun/data/tuyauterie.js?v=2.61"></script>
-<script src="../commun/data/sadef.js?v=2.61"></script>
-<script src="../commun/acier.js?v=2.61"></script>
-<script src="../commun/coefvent.js?v=2.61"></script>
-<script src="../commun/barres3d.js?v=2.61"></script>
-<script src="../commun/charges.js?v=2.61"></script>
-<script src="../commun/notes.js?v=2.61"></script>
-<script src="../commun/ident.js?v=2.61"></script>
-<script src="../commun/tendues.js?v=2.61"></script>
-<script src="../commun/portique.js?v=2.61"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.62">
+<script src="../commun/apps.js?v=2.62"></script>
+<script src="../commun/cahier.js?v=2.62"></script>
+<script src="../commun/data/profils.js?v=2.62"></script>
+<script src="../commun/data/tuyauterie.js?v=2.62"></script>
+<script src="../commun/data/sadef.js?v=2.62"></script>
+<script src="../commun/acier.js?v=2.62"></script>
+<script src="../commun/coefvent.js?v=2.62"></script>
+<script src="../commun/barres3d.js?v=2.62"></script>
+<script src="../commun/charges.js?v=2.62"></script>
+<script src="../commun/notes.js?v=2.62"></script>
+<script src="../commun/ident.js?v=2.62"></script>
+<script src="../commun/tendues.js?v=2.62"></script>
+<script src="../commun/portique.js?v=2.62"></script>
 <style>
   .prs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .fig svg{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}
@@ -428,6 +428,16 @@ $('opti').onclick=async()=>{ const b=$('opti'); b.disabled=true; const msg=[];
   }catch(err){ $('optiMsg').textContent='Optimisation impossible : '+err.message; } finally{ b.disabled=false; } };
 function ouvrirAS1(){ if(!A) return; const D=A.D, CV=PORTIQUE.contreventement(A,V,PP), N=Math.max(CV.Nd,CV.Ndp||0);
   try{ localStorage.setItem('fip.as1.pre',JSON.stringify({t:Date.now(),type:'L',prof:D.cv.diag.prof.n,NEd:N,nuance:D.cv.nuanceDiag,src:'A1 – diagonale de contreventement'})); }catch(e){} location.href='../barres-tendues/'; }
+/* ---------- vers AN1 : combinaisons ELU déterminantes de chaque pied (V mini, V maxi, H maxi, H mini) ----------
+   N (daN, > 0 en traction) = −100·V ; V_x (daN) = 100·H_X (effort de l'ouvrage sur l'appui, de A vers B) ; pieds articulés : M = 0 */
+function ouvrirAN1(){ if(!DDC) return; const {A,V,D}=DDC, C=[], grp=[[A,V,'courant']]; if(DDC.end) grp.push([DDC.end.A,DDC.end.V,'pignon']);
+  const r1=x=>Math.round(x*10)/10;
+  grp.forEach(([AA,VV,lib])=>AA.Gm.pieds.forEach((nd,i)=>{ const e=VV.ddc.env[i], fl=i?'B':'A';
+    [...new Set([e.cVmin,e.cVmax,e.cHmax,e.cHmin])].forEach(n=>{ const c=VV.comb.ELU.find(x=>x.nom===n); if(!c) return; const [hh,v]=PORTIQUE.reactions(AA,c,nd);
+      C.push({nom:`${fl} ${lib} – ${String(n).replace(/<[^>]+>/g,'')}`,N:r1(-v*100),Vx:r1(-hh*100),Vy:0,Mx:0,My:0,Mz:0,sis:/sism/i.test(c.situation||'')}); }); }));
+  try{ localStorage.setItem('fip.an1.pre',JSON.stringify({t:Date.now(),src:'A1 – pieds de poteaux',srcCourt:'A1',retour:'../auvent/',profil:D.col.n,C,
+    info:'Pieds articulés (M = 0), x transversal (file A → B), y longitudinal ; efforts longitudinaux des pieds de palée (H<sub>Y</sub>, V ±) à ajouter le cas échéant'})); }catch(e){}
+  location.href='../ancrages/'; }
 /* ---------- descente de charges par nœud de pied de poteau ----------
    repérage : files A (x = 0) et B (x = L), portiques 1 à n (y = (i − 1)·e) ; portiques de pignon calculés avec la part de charge
    des pannes reprise en rive (k_rive), portiques courants avec k_c ; palées dans les travées contreventées (efforts longitudinaux) */
@@ -451,7 +461,7 @@ function ddcAfficher(){ if(!DDC) return; const {A,V,CV,D,PP}=DDC, mode=$('ddcMod
     <tr><td>V maxi (compression)</td>${VV.ddc.env.map(e=>`<td class="n"><b>${f(e.Vmax,1)}</b></td>`).join('')}</tr><tr><td>V mini (soulèvement si &lt; 0)</td>${VV.ddc.env.map(e=>`<td class="n"><b>${f(e.Vmin,1)}</b></td>`).join('')}</tr>
     <tr><td>|H<sub>X</sub>| maxi</td>${VV.ddc.env.map(e=>`<td class="n"><b>${f(Math.max(e.Hmax,-e.Hmin),1)}</b></td>`).join('')}</tr></table>`;
   const bloc=(VV,titre,noeuds)=>`<h3>${titre} : ${noeuds}</h3>`+(mode!=='elu'?tCas(VV,titre):'')+(mode!=='cas'?tEnv(VV,titre):'');
-  let h_=`<div class="msg warn">Prédimensionnement (phase APS/APD) – valeurs non valables pour exécution. Efforts exercés par l'ouvrage sur ses appuis (kN) : V &gt; 0 compression, H<sub>X</sub> &gt; 0 de A vers B, H<sub>Y</sub> longitudinal.</div>`+sv;
+  let h_=`<div class="msg warn">Prédimensionnement (phase APS/APD) – valeurs non valables pour exécution. Efforts exercés par l'ouvrage sur ses appuis (kN) : V &gt; 0 compression, H<sub>X</sub> &gt; 0 de A vers B, H<sub>Y</sub> longitudinal.</div>`+sv+`<div class="actions noprint"><button type="button" class="sec" onclick="ouvrirAN1()">⚓ Vérifier l'ancrage des pieds dans AN1</button></div>`;
   if(courants.length) h_+=bloc(V,'Portiques courants',`${lst(courants,'A')} ; ${lst(courants,'B')}`);
   if(Ve) h_+=bloc(Ve,`Portiques de pignon (part ${f(PP.coef.kEnd,3)}·q·e)`,`${lst(pignons,'A')} ; ${lst(pignons,'B')}`);
   // longitudinal : palées
@@ -468,10 +478,10 @@ const ok=charger(); if(!ok){ repC1(); } else { $('srcC').innerHTML='Valeurs enre
 document.querySelectorAll('#form input, #form select').forEach(el=>el.addEventListener('change',()=>{ if(el.id==='casAff') return; calc(); }));
 calc();
 </script>
-<script src="../commun/replier.js?v=2.61"></script>
-<script src="../commun/export.js?v=2.61"></script>
+<script src="../commun/replier.js?v=2.62"></script>
+<script src="../commun/export.js?v=2.62"></script>
 <script>EXPORT.init({code:'A1',titre:'Toiture isolée (auvent) – prédimensionnement',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.num||'auvent'; }});</script>
-<script src="../commun/aide.js?v=2.61"></script>
+<script src="../commun/aide.js?v=2.62"></script>
 <script>AIDE.init({titre:"Aide – A1 Toiture isolée (auvent)",manuel:"a1",intro:"A1 prédimensionne le portique courant d'une toiture isolée (auvent, préau, abri) à une travée, mono ou bi-pente, à pieds articulés, avec jarrets : charges de G1 et C1, combinaisons NF EN 1990, analyse élastique avec α<sub>cr</sub>, imperfections et amplification (§5.2, §5.3), vérifications NF EN 1993-1-1, pannes, flèches et descente de charges (phase APS/APD).",
   etapes:[{t:"Identification",html:"Champs de la trame (affaire, client, repère, n° de note, indice, phase, réalisé / contrôlé / approuvé), saisis dans le module et repris dans le cartouche de la note ; bouton de reprise de l'affaire enregistrée.",cible:"#cIdent"},
     {t:"Géométrie",html:"Mono ou bi-pente, portée (≤ 20 m), hauteur des poteaux, pente (≤ 15 %), entraxe (≤ 12 m) et nombre de portiques (≥ 4 : pannes continues).",cible:"#cGeo"},
@@ -480,7 +490,7 @@ calc();
     {t:"Pannes",html:"Profilé laminé (vérifié : flexion déviée, déversement au soulèvement, flèche) ou profil SADEF ZED / SIGMA de la base (masse et inertie brute du catalogue ; résistance avec W<sub>eff</sub> et χ<sub>LT</sub> fournis par SADEF, ou leurs charges admissibles) ; espacement, liernes.",cible:"#cPan"},
     {t:"Contreventement et séisme",html:"Nombre de travées contreventées (poutres au vent), palée en croix (nombre de croix choisi pour un angle ≤ 60°) ou en cadre, diagonales (ronds filetés ou cornières), frottement ; séisme repris de C1 (a<sub>g</sub>, S, T<sub>B</sub>, T<sub>C</sub>, T<sub>D</sub>), q = 1,5 (DCL).",cible:"#cCv"},
     {t:"Charges",html:"« Reprendre C1 et G1 » : q<sub>p</sub>, neige et couverture. Obstruction φ sous l'auvent (0 = vide, 1 = stockage contre une rive).",cible:"#cCh"}],
-  faq:[{q:"Les pannes et les bracons maintiennent-ils vraiment la traverse ?",r:"Un maintien n'est efficace que s'il est ancré à un point fixe. Les pannes maintiennent la semelle supérieure si leur ligne est reliée au contreventement de toiture (poutre au vent), directement ou par continuité jusqu'à la travée contreventée, l'effort de maintien transitant par la panne (NF EN 1993-1-1 §5.3.3, §6.3.5.2 ; Annexe BB). Un bracon maintient la semelle inférieure en torsion seulement si la panne à laquelle il est fixé est elle-même tenue latéralement. Sans liaison au contreventement, seuls les nœuds de la poutre au vent comptent : décocher l'option."},
+  faq:[{q:"Comment vérifier les chevilles des pieds de poteaux ?",r:"Carte « Descente de charges aux pieds de poteaux » → « ⚓ Vérifier l'ancrage des pieds dans AN1 » : AN1 reçoit, pour chaque pied (files A et B, portiques courant et de pignon), les combinaisons ELU donnant V mini (soulèvement), V maxi, H maxi et H mini, avec N = −V (traction positive), V<sub>x</sub> = H<sub>X</sub> et M = 0 (pieds articulés), ainsi que le profilé du poteau. Les efforts longitudinaux des pieds de palée sont à ajouter dans AN1."},{q:"Les pannes et les bracons maintiennent-ils vraiment la traverse ?",r:"Un maintien n'est efficace que s'il est ancré à un point fixe. Les pannes maintiennent la semelle supérieure si leur ligne est reliée au contreventement de toiture (poutre au vent), directement ou par continuité jusqu'à la travée contreventée, l'effort de maintien transitant par la panne (NF EN 1993-1-1 §5.3.3, §6.3.5.2 ; Annexe BB). Un bracon maintient la semelle inférieure en torsion seulement si la panne à laquelle il est fixé est elle-même tenue latéralement. Sans liaison au contreventement, seuls les nœuds de la poutre au vent comptent : décocher l'option."},
     {q:"Optimiser les profilés ?",r:"Le bouton cherche, par dichotomie dans la famille choisie (laminés), la traverse puis les poteaux les plus légers dont tous les critères restent ≤ 100 %, deux fois de suite, puis les pannes. Les PRS ne sont pas optimisés. Résultat à valider (assemblages, gabarits, disponibilité)."},
     {q:"Cours de pannes : décalages et nombre ?",r:"Le 1<sup>er</sup> cours est décalé de la rive (0,2 m par défaut) ; en bi-pente, deux cours de faîtage, un de chaque côté, décalés du faîtage (0,2 m). Entre les deux, intervalles égaux : nombre automatique (espacement ≤ maxi) ou imposé par le sélecteur."},
     {q:"Nombre de panneaux de la poutre au vent ?",r:"Le sélecteur ne propose que les nombres de panneaux qui tombent sur les cours de pannes (diviseurs du nombre d'intervalles) : les nœuds de la poutre au vent sont ainsi dans l'axe des pannes. « Auto » retient l'angle le plus proche de 45° ; les règles de conception signalent un angle hors de 30° à 60°."},

@@ -243,6 +243,17 @@ const CHEV = (() => {
     for (let hef = a; hef <= b; hef += pas) { if (combs.every((c) => verifier({ ...base, hef, comb: c }).uMax <= 1)) return hef; }
     return null;
   }
-  return { PROD, AS, verifier, repartition, aireUnion, hefOpti, gammas };
+  /* axes de la platine selon l'appui S1 : z sortant du béton, (x, y, z) direct
+     sol : (X, Y, Z) ; plafond : (X, −Y, −Z) ; mur (console selon +Y) : (−X, Z, Y), vue de face y vers le haut */
+  function axesPlatine(k) {
+    const n = k === "sol" ? [0, 0, 1] : k === "mur" ? [0, 1, 0] : [0, 0, -1], u1 = k === "mur" ? [-1, 0, 0] : [1, 0, 0];
+    return { u1, u2: [n[1] * u1[2] - n[2] * u1[1], n[2] * u1[0] - n[0] * u1[2], n[0] * u1[1] - n[1] * u1[0]], n };
+  }
+  /* F = [Fx, Fy, Fz, Mx, My, Mz] : effort de l'ouvrage sur l'appui (axes globaux) → {N (> 0 traction), Vx, Vy, Mx, My, Mz} dans les axes de la platine */
+  function effortsPlatine(F, k) {
+    const { u1, u2, n } = axesPlatine(k), d = (a, o) => a[0] * F[o] + a[1] * F[o + 1] + a[2] * F[o + 2];
+    return { N: d(n, 0), Vx: d(u1, 0), Vy: d(u2, 0), Mx: d(u1, 3), My: d(u2, 3), Mz: d(n, 3) };
+  }
+  return { PROD, AS, verifier, repartition, aireUnion, hefOpti, gammas, axesPlatine, effortsPlatine };
 })();
 if (typeof module !== "undefined") module.exports = CHEV;

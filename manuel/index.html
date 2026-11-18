@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.61"></script>
+<script src="../commun/auth.js?v=2.62"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.61">
-<script src="../commun/apps.js?v=2.61"></script>
-<script src="../commun/data/profils.js?v=2.61"></script>
-<script src="../commun/barres3d.js?v=2.61"></script>
-<script src="../commun/acier.js?v=2.61"></script>
-<script src="../commun/data/tuyauterie.js?v=2.61"></script>
-<script src="../commun/charges.js?v=2.61"></script>
-<script src="../commun/coefvent.js?v=2.61"></script>
-<script src="../commun/tendues.js?v=2.61"></script>
-<script src="../commun/portique.js?v=2.61"></script>
-<script src="../commun/chevilles.js?v=2.61"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.62">
+<script src="../commun/apps.js?v=2.62"></script>
+<script src="../commun/data/profils.js?v=2.62"></script>
+<script src="../commun/barres3d.js?v=2.62"></script>
+<script src="../commun/acier.js?v=2.62"></script>
+<script src="../commun/data/tuyauterie.js?v=2.62"></script>
+<script src="../commun/charges.js?v=2.62"></script>
+<script src="../commun/coefvent.js?v=2.62"></script>
+<script src="../commun/tendues.js?v=2.62"></script>
+<script src="../commun/portique.js?v=2.62"></script>
+<script src="../commun/chevilles.js?v=2.62"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -226,8 +226,8 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <div class="lim">Non traités : assemblages (jarret, faîtage, pieds, ancrages), accumulations de neige, fermetures partielles (mur isolé), classe 4, voilement par cisaillement, résistance locale de l'âme aux nœuds, actions de montage. C<sub>my</sub> = 0,9 et C<sub>mLT</sub> forfaitaires ; pannes en vent : coefficient extrême de la toiture (prudent pour les pannes courantes).</div>
 </article>
 
-<article class="card" id="an1"><div class="theme">AN1 – Ancrages</div><h2>10 ter bis. AN1 – Ancrages d'une platine sur béton (maquette d'interface)</h2>
-<p><b>État (2.61)</b> : calcul NF EN 1992-4 + AN branché (moteur <code>commun/chevilles.js</code>), platine rigide ; CBFEM en phase 2.</p>
+<article class="card" id="an1"><div class="theme">AN1 – Ancrages</div><h2>10 ter bis. AN1 – Ancrages d'une platine sur béton</h2>
+<p><b>État (2.62)</b> : calcul NF EN 1992-4 + AN (moteur <code>commun/chevilles.js</code>), platine rigide ; note de calcul Word sur la trame FIP ; import des efforts depuis S1 et A1 ; CBFEM en phase 2.</p>
 <p><b>Répartition (platine rigide, §6.2.1)</b> : déformation plane ε(x, y) = ε₀ + κ<sub>x</sub>·x + κ<sub>y</sub>·y ; cheville tendue T<sub>i</sub> = E<sub>s</sub>·A<sub>s</sub>·ε<sub>i</sub> (A<sub>s</sub> ≈ 0,78·πd²/4), cheville comprimée inactive ; béton comprimé sous toute la platine σ = E<sub>cm</sub>·ε (30 × 30 cellules) ; équilibre N, M<sub>x</sub>, M<sub>y</sub> résolu par Newton. Cisaillement : V/n par cheville + torsion M<sub>z</sub>·r/Σr² autour du centre du groupe. Efforts saisis au centre du profilé : M<sub>x</sub>' = M<sub>x</sub> + N·e<sub>y</sub>, M<sub>y</sub>' = M<sub>y</sub> − N·e<sub>x</sub>, M<sub>z</sub>' = M<sub>z</sub> + e<sub>x</sub>·V<sub>y</sub> − e<sub>y</sub>·V<sub>x</sub>. Contrôle : 4 chevilles toutes tendues → valeurs de la « platine rigide équivalente » de PROFIS (tests).</p>
 <p><b>Traction</b> : acier N<sub>Rk,s</sub>/γ<sub>Ms</sub> (cheville la plus chargée) ; cône (7.1)–(7.7) avec A<sub>c,N</sub> = aire de l'union des carrés s<sub>cr,N</sub> × s<sub>cr,N</sub> centrés sur les chevilles tendues, découpée par les bords (égale à la Fig. 7.4 pour les groupes rectangulaires, généralisée aux dispositions quelconques), ψ<sub>s,N</sub> (plus petite distance au bord), ψ<sub>re,N</sub>, ψ<sub>ec,N</sub> (excentricité de la résultante des tractions par rapport au centre des chevilles tendues, deux directions), ψ<sub>M,N</sub> = 2 − z/(1,5 h<sub>ef</sub>) si c ≥ 1,5 h<sub>ef</sub>, C<sub>Ed</sub>/N<sub>Ed</sub> &gt; 0,8 et z/h<sub>ef</sub> &lt; 1,5 ; chimique (7.13)–(7.21) : N⁰<sub>Rk,p</sub> = ψ<sub>sus</sub>·τ<sub>Rk</sub>·π·d·h<sub>ef</sub>, τ<sub>Rk</sub> = τ<sub>Rk,(C20/25)</sub>·(f<sub>ck</sub>/20)<sup>0,1</sup>, s<sub>cr,Np</sub> = 7,3·d·(ψ<sub>sus</sub>·τ<sub>Rk,ucr</sub>)<sup>0,5</sup> ≤ 3 h<sub>ef</sub>, ψ<sub>g,Np</sub> avec l'entraxe moyen pris comme moyenne des distances au plus proche voisin ; mécanique : N<sub>Rk,p</sub>·ψ<sub>c</sub> de l'ETE (cheville la plus chargée) ; fendage (7.23)–(7.24) sauf conditions §7.2.1.7 (2) b) (c ≥ 1,2 c<sub>cr,sp</sub> et h ≥ h<sub>min</sub>, ou armature w<sub>k</sub> ≤ 0,3 mm).</p>
 <p><b>Cisaillement</b> : acier k<sub>7</sub>·V⁰<sub>Rk,s</sub>/γ<sub>Ms</sub> (HAS : k<sub>6</sub>·N<sub>Rk,s</sub>, k<sub>6</sub> = 0,6 / 0,5 ; HST4 : V⁰<sub>Rk,s</sub> de l'ETE) ; effet de levier (7.39) k<sub>8</sub>·min(N<sub>Rk,c</sub> ; N<sub>Rk,p</sub>) sur toutes les chevilles, ψ<sub>ec</sub> avec l'excentricité e<sub>V</sub> = |M<sub>z,groupe</sub>|/V (simplification) ; bord (7.40)–(7.48) pour chaque bord fini à moins de max(10 h<sub>ef</sub> ; 60 d) : rangée la plus proche si l'espace annulaire n'est pas comblé, toutes les chevilles sinon ; composante vers le bord = somme algébrique, composante parallèle = somme des valeurs absolues (prudent, Fig. 7.12, pratique PROFIS), α<sub>V</sub> = atan(V<sub>∥</sub>/V<sub>⊥</sub>), A<sub>c,V</sub> = union des bandes ±1,5 c₁ de hauteur min(h ; 1,5 c₁) bornée par les bords latéraux. γ<sub>inst</sub> = 1,0 en cisaillement.</p>
@@ -242,6 +242,9 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <p><b>Données des ETE intégrées</b> : HAS-U 5.8 / 8.8 avec HIT-HY 200-A V3 (ETA-19/0601 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,5, k<sub>cr,N</sub> = 7,7, k<sub>ucr,N</sub> = 11,0, s<sub>cr,N</sub> = 3h<sub>ef</sub>, c<sub>cr,N</sub> = 1,5h<sub>ef</sub>, γ<sub>inst</sub> = 1,0 en trou sec ou humide, 1,4 en trou rempli d'eau) ; HST4 (ETA-21/0878 Tab. C1 : N<sub>Rk,s</sub>, γ<sub>Ms,N</sub> = 1,4, plages de h<sub>ef</sub>).</p>
 <p><b>Coefficients partiels retenus (NF EN 1992-4/NA Tab. 4.1)</b> : acier traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 ; acier cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 (f<sub>uk</sub> ≤ 800 N/mm² et f<sub>yk</sub>/f<sub>uk</sub> ≤ 0,8), sinon 1,5 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub>, γ<sub>c</sub> = 1,5 (accidentel 1,2, sismique 1,3) ; γ<sub>Msp</sub> = γ<sub>Mp</sub> = γ<sub>Mc</sub>. Interaction béton : éq. (7.55) ou (7.56), la plus favorable (pratique constatée dans PROFIS).</p>
 <p><b>Qualification prévue</b> : 5 notes PROFIS anonymisées (V1 à V5 : HAS-U M12, M16, M27 ; HST4 M16 ; béton fissuré et non fissuré) et exemples du guide Hilti chap. 6 ; recalculs déjà vérifiés à la main : N⁰<sub>Rk,c</sub> = 7,7 × √25 × 214<sup>1,5</sup> = 12 052 daN (V5), 12,7 × √25 × 105<sup>1,5</sup> = 6 832 daN (V4), ψ<sub>M,N</sub> = 2 − z/(1,5h<sub>ef</sub>) = 1,156 (V5).</p>
+<p><b>Note de calcul Word (2.62)</b> : bouton « Word » de l'en-tête, trame FIP (page de garde, révisions, sommaire) dès qu'une identification est saisie. Plan : 1. objet et références ; 2. hypothèses (béton, cheville et ETE, pose, séisme, méthode) ; 3. géométrie (plan coté et perspective) ; 4. combinaisons (efforts au centre du profilé, transport au centre de la platine) ; 5. vérifications : tableau récapitulatif, puis pour chaque combinaison efforts par cheville, modes de rupture (E<sub>d</sub>, R<sub>d</sub>, taux, paragraphe), interactions, alertes ; valeurs intermédiaires de la combinaison déterminante (note simplifiée) ou de toutes (note complète) ; 6. règles de conception ; 7. conclusion. Mention « non valable pour exécution ».</p>
+<p><b>Import depuis S1 (2.62)</b> : carte « Fixations sur l'ouvrage », bouton « Vérifier les chevilles dans AN1 » par platine chevillée. Effort de l'ouvrage sur l'appui F = −R (axes globaux X le long des tuyauteries, Y, Z vertical), projeté dans les axes de la platine (x, y dans son plan, z sortant du béton, trièdre direct) : N = F·z (&gt; 0 en traction), V<sub>x</sub> = F·x, V<sub>y</sub> = F·y, M<sub>x</sub> = M·x, M<sub>y</sub> = M·y, M<sub>z</sub> = M·z, avec sol (x, y, z) = (X, Y, Z), plafond (X, −Y, −Z), mur (−X, Z, Y) : vue de face, y vers le haut (<code>CHEV.effortsPlatine</code>). kN → ×100 daN, kN·m → ×100 daN·m. Combinaisons transmises : parmi les ELU et, séparément, les sismiques, celles qui rendent extrêmes N, −N, |V|, |M<sub>x</sub>|, |M<sub>y</sub>|, |M<sub>z</sub>| et la traction estimée N/4 + |M<sub>x</sub>|/(2a<sub>2</sub>) + |M<sub>y</sub>|/(2a<sub>1</sub>). Chevilles : 4 aux angles a<sub>1</sub> × a<sub>2</sub> ; platine max(a + 80 ; 150) mm.</p>
+<p><b>Import depuis A1 (2.62)</b> : carte « Descente de charges aux pieds de poteaux », bouton « Vérifier l'ancrage des pieds dans AN1 ». Pour chaque pied (files A et B, portique courant et de pignon), combinaisons ELU donnant V<sub>min</sub>, V<sub>max</sub>, H<sub>max</sub>, H<sub>min</sub> (réactions complètes de la combinaison, amplification comprise) : N = −V (V &gt; 0 en compression), V<sub>x</sub> = H<sub>X</sub> (de A vers B), M = 0 (pieds articulés). Efforts longitudinaux des pieds de palée à ajouter manuellement. Profilé : poteau de A1 (platine agrandie à h + 100 × b + 100 mm au moins).</p>
 <div class="lim">Hors périmètre : méthode Hilti / SOFA (plus de 3 × 3 chevilles, dispositions circulaires, platines décollées), CBFEM (phase 2), fatigue, feu, rails insert.</div>
 </article>
 
@@ -316,6 +319,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.62</td><td>AN1, S1, A1</td><td>AN1 : note de calcul Word (trame FIP, simplifiée ou complète) ; import des efforts depuis S1 (réactions de platine projetées dans ses axes) et A1 (pieds de poteaux), lien de retour ; filtre des profilés selon h et b de la platine.</td><td>Aucun calcul de résistance modifié ; nouvelle projection des réactions S1 dans les axes de la platine (tests ajoutés).</td></tr>
 <tr><td>2.61</td><td>AN1</td><td>Phase 1 : calcul NF EN 1992-4 + AN (platine rigide avec zone comprimée, tous les modes en traction et en cisaillement, interactions, séisme annexe C avec α<sub>eq</sub>, α<sub>gap</sub> et réduction DLS, h<sub>ef</sub> optimale) ; données ETE complètes HAS-U / HIT-HY 200-A V3 et HST4 ; efforts saisis au centre du profilé ; qualification sur 4 notes PROFIS (≤ 0,02 %).</td><td>Nouveaux résultats AN1 (les taux de démonstration sont remplacés).</td></tr>
 <tr><td>2.60</td><td>AN1</td><td>Maquette : choix h<sub>ef</sub> saisie / optimale et h<sub>ef,limite</sub> ; profilé déplaçable et orientable (saisie et plan 2D) ; barre d'outils du plan 2D (sélection, ajout, suppression, rotation) ; règles « cheville sous le profilé » et « profilé hors platine ».</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.59</td><td>AN1</td><td>Maquette : cotes générales sur la vue 3D et sur le plan 2D (dont distances aux bords du béton), SCU déporté hors de la platine, section « Plan coté et perspective » dans l'impression / PDF.</td><td>Aucun calcul modifié.</td></tr>
@@ -416,7 +420,8 @@ function tests(){
         forces:F([-0.5,-0.3,1772.3,4780.9,6131.5,4785.4,1776.8,-0.3],[[0,-18.5],[18.1,9.5],[-21.8,37.7],[-53.4,-10.2],[-0.4,-55.8],[53.5,-10.7],[22,38.2],[-18,9.7]]),Cres:{C:206488,x:-0.2,y:-93.1}};
       [['Ns',24480,'acier'],['Np',24534.2,'adhérence, A_p,N d\'une disposition circulaire'],['Nc',19389.6,'cône, ψM,N = 1,156']].forEach(([id,v,t])=>ajout('AN1 V4 – HAS-U 8.8 M27, h_ef 214, 8 chevilles en cercle : '+id,'PROFIS (note V4) – '+t,R(V4,id),v,'daN'));
       const Rr=CHEV.repartition([{x:-90,y:-90},{x:90,y:-90},{x:-90,y:90},{x:90,y:90}],{lx:240,ly:240},16,31000,{N:63930,Vx:250,Vy:910,Mx:1710e3,My:470e3,Mz:0});
-      [1253.6,992.6,2203.9,1942.9].forEach((v,k)=>ajout('AN1 – platine rigide, 2×2 ±90 mm, N = 6 393 daN, Mx = 171, My = 47 daN·m : cheville '+(k+1),'PROFIS « platine rigide équivalente » (note V1)',Rr.T[k]/10,v,'daN')); }
+      [1253.6,992.6,2203.9,1942.9].forEach((v,k)=>ajout('AN1 – platine rigide, 2×2 ±90 mm, N = 6 393 daN, Mx = 171, My = 47 daN·m : cheville '+(k+1),'PROFIS « platine rigide équivalente » (note V1)',Rr.T[k]/10,v,'daN'));
+      { const F6=[1,2,3,4,5,6]; [['sol','N',3],['sol','My',5],['plafond','N',-3],['plafond','Vy',-2],['plafond','Mz',-6],['mur','N',2],['mur','Vx',-1],['mur','Vy',3],['mur','Mx',-4],['mur','My',6]].forEach(([k,c,v])=>ajout('AN1 – import S1 : F = (1, 2, 3 ; 4, 5, 6) sur appui '+k+' → '+c,'projection axes platine (z sortant du béton)',CHEV.effortsPlatine(F6,k)[c],v,'')); } }
       const e=CH.CAT_Q.find(c=>c.c==='ESC-I'); ajout('Q1 – escalier industriel NF E 85-015 : q_k','2 kN/m² (§5.1.2.1)',e.qk,2,'kN/m²'); ajout('Idem : Q_k sur 100 × 100 mm','1 kN (§5.1.2.1)',e.Qk,1,'kN'); } ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
     ajout('Idem : calorifuge compris dans q vide','q_vide(tube) + π/4((D+100)²−D²)·100·g',r3.qVide,qv+(a(D+100)-a(D))*100*9.81/1000,'kN/m'); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
@@ -425,6 +430,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.61"></script>
+<script src="../commun/replier.js?v=2.62"></script>
 </body>
 </html>
