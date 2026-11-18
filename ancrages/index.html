@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="../commun/auth.js?v=2.58"></script>
+<script>calcProteger("../");</script>
+<title>FIP Études — AN1 Ancrages (maquette)</title>
+<link rel="icon" href="../commun/img/picto-fip.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../commun/calc.css?v=2.58">
+<script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
+<script src="../commun/apps.js?v=2.58"></script>
+<script src="../commun/data/profils.js?v=2.58"></script>
+<script src="../commun/ident.js?v=2.58"></script>
+<style>
+  /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
+  main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
+  .pan{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:calc(100vh - 120px)}
+  .pan details{border-bottom:1px solid var(--line)}
+  .pan summary{cursor:pointer;padding:8px 12px;background:var(--panel);font-size:12px;font-weight:700;color:var(--fip-bleu);text-transform:uppercase;letter-spacing:.04em}
+  .pan .in{padding:8px 12px}
+  .pan label{font-size:12px;margin-top:6px}
+  .pan label input[type=checkbox]{width:auto;display:inline;margin:0 2px 0 8px;vertical-align:middle}
+  .pan .row,.pan .row3{gap:6px}
+  .ro{background:#f1f3f6;color:var(--muted)}
+  .presets{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+  .presets button{padding:4px 8px;font-size:12px;background:#fff;color:var(--fip-bleu)}
+  .presets button.on{background:var(--fip-bleu);color:#fff}
+  .centre{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .onglets{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .onglets button.on{background:var(--fip-bleu);color:#fff}
+  .onglets button{padding:5px 12px}
+  .vue{background:#fff;border:1px solid var(--line);border-radius:8px;height:520px;position:relative;overflow:hidden}
+  #v3d canvas{display:block}
+  #v2d svg{width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
+  .bandeau{background:var(--warn-soft);color:var(--warn);border:1px solid #f0d49a;border-radius:6px;padding:6px 10px;font-size:12.5px;font-weight:600}
+  .res h3{font-size:12px;margin:10px 12px 4px;color:var(--fip-bleu);text-transform:uppercase;letter-spacing:.04em}
+  .mode{display:grid;grid-template-columns:1fr 64px;gap:6px;align-items:center;padding:5px 12px;cursor:pointer;font-size:12.5px}
+  .mode:hover{background:var(--panel)}
+  .mode .b{grid-column:1/3;height:5px;background:#eef1f5;border-radius:3px;overflow:hidden}
+  .mode .b i{display:block;height:100%}
+  .mode .p{text-align:right;font-weight:700}
+  .aideMode{margin:8px 12px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--fip-rouge);border-radius:6px;font-size:12.5px;background:#fffdf8}
+  .bas{grid-column:1/4}
+  table.cmb input{width:72px;padding:3px 5px;font-size:12px}
+  table.cmb td,table.cmb th{padding:3px 5px;font-size:12px}
+  .regles li{margin:3px 0;font-size:12.5px}
+  @media (max-width:1200px){main.app{grid-template-columns:280px minmax(0,1fr)}.res{grid-column:1/3}.bas{grid-column:1/3}}
+  @media (max-width:820px){main.app{grid-template-columns:1fr}.res,.bas{grid-column:1}.pan{max-height:none}.vue{height:380px}}
+  @media print{.pan{max-height:none}.onglets,.presets{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <a href="../accueil.html" class="brand" title="Retour à l'accueil"><img src="../commun/img/picto-fip.png" alt="FIP"><span>FIP<em>Études</em></span></a>
+  <a href="../accueil.html" class="back">← Accueil</a>
+  <div style="flex:1 1 auto">
+    <h1><span class="code">AN1</span>Ancrages – platine sur béton (chevilles)</h1>
+    <div class="sub">NF EN 1992-4 + AN (déc. 2022) · ETE des chevilles (ETA-19/0601 HIT-HY 200-A V3 + HAS-U, ETA-21/0878 HST4) · <b>maquette d'interface – calcul non branché</b></div>
+  </div>
+  <button onclick="window.print()">🖨️ Imprimer / PDF</button>
+</header>
+<main class="app">
+  <!-- =================== SAISIE =================== -->
+  <aside class="pan" id="pSaisie">
+    <details><summary>Identification</summary><div class="in"><div id="cIdent"></div></div></details>
+    <details open id="dBeton"><summary>Matériau de base</summary><div class="in">
+      <div class="row"><div><label>Classe de béton</label><select id="classe"></select></div><div><label>État</label><select id="fiss"><option value="cr">Fissuré</option><option value="ucr">Non fissuré</option></select></div></div>
+      <div class="row3"><div><label>f<sub>ck</sub> (MPa)</label><input id="fck" class="ro" readonly></div><div><label>f<sub>ck,cube</sub></label><input id="fcube" class="ro" readonly></div><div><label>E<sub>cm</sub> (GPa)</label><input id="ecm" class="ro" readonly></div></div>
+      <label>Épaisseur du support h (mm)</label><input id="h" type="number" step="10" value="250">
+      <label>Distance au bord depuis le centre de la platine (mm)</label>
+      <div class="row"><div><label>+X <input type="checkbox" data-inf="cxp" checked> ∞</label><input id="cxp" type="number" step="10" value="500"></div><div><label>−X <input type="checkbox" data-inf="cxm" checked> ∞</label><input id="cxm" type="number" step="10" value="500"></div></div>
+      <div class="row"><div><label>+Y <input type="checkbox" data-inf="cyp" checked> ∞</label><input id="cyp" type="number" step="10" value="500"></div><div><label>−Y <input type="checkbox" data-inf="cym" checked> ∞</label><input id="cym" type="number" step="10" value="500"></div></div>
+      <div class="note">Valeurs NF EN 1992-1-1 Tab. 3.1.</div>
+    </div></details>
+    <details><summary>Température et pose</summary><div class="in">
+      <label>Plage de température (court / long terme)</label><select id="temp"><option>I : 40 / 24 °C</option><option>II : 80 / 50 °C</option><option>III : 120 / 72 °C</option></select>
+      <label>Perçage</label><select id="percage"><option>Perforateur (HD)</option><option>Mèche creuse aspirante (HDB)</option><option>Carottage + rugosifiage (DD+RT)</option></select>
+      <label>État du trou</label><select id="trou"><option value="1.0">Sec ou humide (γ<sub>inst</sub> = 1,0)</option><option value="1.4">Rempli d'eau (γinst = 1,4 – chimique)</option></select>
+      <label>Durée d'utilisation</label><select id="vie"><option>50 ans</option><option>100 ans</option></select>
+      <label class="chk"><input type="checkbox" id="annul" checked> Espace annulaire comblé (kit de remplissage)</label>
+    </div></details>
+    <details open><summary>Cheville</summary><div class="in">
+      <label>Famille</label><select id="fam"></select>
+      <div class="row"><div><label>Diamètre</label><select id="diam"></select></div><div><label>Classe acier</label><select id="cl"></select></div></div>
+      <label>Profondeur d'implantation h<sub>ef</sub> (mm)</label><input id="hef" type="number" step="5">
+      <div class="note" id="noteHef"></div>
+      <div class="row"><div><label>N<sub>Rk,s</sub> (kN) – ETE</label><input id="nrks" class="ro" readonly></div><div><label>γ<sub>Ms,N</sub> – ETE / AN</label><input id="gms" class="ro" readonly></div></div>
+    </div></details>
+    <details open><summary>Disposition des chevilles</summary><div class="in">
+      <div class="presets" id="presets"><button type="button" data-p="1">1</button><button type="button" data-p="2">2</button><button type="button" data-p="4" class="on">2×2</button><button type="button" data-p="6">3×2</button><button type="button" data-p="9">3×3</button></div>
+      <div class="row"><div><label>Entraxe s<sub>x</sub> (mm)</label><input id="sx" type="number" step="5" value="180"></div><div><label>Entraxe s<sub>y</sub> (mm)</label><input id="sy" type="number" step="5" value="180"></div></div>
+      <div class="note">Plan 2D : glisser une cheville pour la déplacer, double-clic pour en ajouter ou en retirer ; tableau des coordonnées en bas.</div>
+    </div></details>
+    <details open><summary>Platine et profilé</summary><div class="in">
+      <div class="row3"><div><label>l<sub>x</sub> (mm)</label><input id="lx" type="number" step="10" value="240"></div><div><label>l<sub>y</sub> (mm)</label><input id="ly" type="number" step="10" value="240"></div><div><label>t (mm)</label><input id="tp" type="number" step="1" value="15"></div></div>
+      <label>Nuance</label><select id="nuP"><option>S235</option><option>S275</option><option>S355</option></select>
+      <div class="row"><div><label>Famille de profilé</label><select id="pfam"><option>HEA</option><option>HEB</option><option>IPE</option><option>SHS</option><option>RHS</option><option>CHS</option><option value="aucun">aucun</option></select></div><div><label>Profilé</label><select id="pnom"></select></div></div>
+    </div></details>
+    <details><summary>Méthode de calcul</summary><div class="in">
+      <select id="meth"><option>NF EN 1992-4 + AN – platine rigide</option><option disabled>CBFEM – platine flexible (phase 2)</option><option disabled>Méthode Hilti / SOFA (hors périmètre)</option></select>
+      <div class="note">Coefficients partiels : AN Tab. 4.1 (γ<sub>Mc</sub> = 1,5 · γ<sub>inst</sub> ; sismique γ<sub>c</sub> = 1,3). Interaction béton : éq. (7.55) ou (7.56), la plus favorable.</div>
+    </div></details>
+  </aside>
+
+  <!-- =================== VUES =================== -->
+  <section class="centre">
+    <div class="bandeau">MAQUETTE D'INTERFACE – les efforts et taux affichés sont fictifs (taux de démonstration ; efforts par cheville selon la répartition élastique N/n + M<sub>x</sub>·y/Σy² − M<sub>y</sub>·x/Σx², exacte seulement si toutes les chevilles sont tendues, sans zone comprimée). Aucun résultat n'est utilisable avant le branchement du calcul NF EN 1992-4 (phase 1).</div>
+    <div class="onglets"><button type="button" id="b3d" class="on">Vue 3D</button><button type="button" id="b2d">Plan 2D (édition)</button>
+      <span class="note" style="margin-left:auto">Pas de quadrillage <input id="pas" type="number" value="5" step="5" min="1" style="width:56px"> mm</span></div>
+    <div class="vue" id="v3d"></div>
+    <div class="vue" id="v2d" hidden></div>
+    <div class="card" id="cRegles" style="margin:0"><h2>Règles de conception et alertes</h2><ul class="regles" id="regles"></ul></div>
+  </section>
+
+  <!-- =================== RÉSULTATS =================== -->
+  <aside class="pan res" id="pRes">
+    <h3>Traction</h3><div id="rN"></div>
+    <h3>Cisaillement</h3><div id="rV"></div>
+    <h3>Interaction</h3><div id="rI"></div>
+    <div id="aideMode"></div>
+    <h3>Efforts par cheville (indicatifs)</h3>
+    <div style="padding:0 12px 12px"><table id="tF" style="font-size:12px"></table></div>
+  </aside>
+
+  <!-- =================== COMBINAISONS / COORDONNÉES =================== -->
+  <section class="card bas" id="cCmb" style="margin:0"><h2>Combinaisons de charges (daN, daN·m) – efforts au centre de la platine</h2>
+    <table class="cmb" id="tCmb"></table>
+    <div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" id="addC">➕ Combinaison</button> <button type="button" class="sec" disabled title="Phase 1 : reprise des réactions d'appui de S1 ou des pieds de poteau de A1">Importer depuis S1 / A1</button></div>
+  </section>
+  <section class="card bas" id="cCoord" style="margin:0"><h2>Coordonnées des chevilles (mm, origine au centre de la platine)</h2>
+    <table class="cmb" id="tCoord"></table>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id), h=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])), f=(v,d=1)=>Number(v).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+/* ---- NF EN 1992-1-1 Tab. 3.1 ---- */
+const BETON=[[12,15,27],[16,20,29],[20,25,30],[25,30,31],[30,37,33],[35,45,34],[40,50,35],[45,55,36],[50,60,37],[55,67,38],[60,75,39],[70,85,41],[80,95,42],[90,105,44]];
+/* ---- données des ETE (valeurs caractéristiques relevées ; à compléter en phase 1) ---- */
+const PROD={
+  HAS:{n:'HIT-HY 200-A V3 + HAS-U (chimique)',eta:'ETA-19/0601',diam:['M8','M10','M12','M16','M20','M24','M27','M30'],d:[8,10,12,16,20,24,27,30],
+    cl:{'5.8':{nrks:[18.3,29.0,42.1,78.5,122.5,176.5,229.5,280.5],g:1.5},'8.8':{nrks:[29.3,46.4,67.4,125.6,196.0,282.4,367.2,448.8],g:1.5}},hef:null,
+    k1:{cr:7.7,ucr:11.0},smin:null,cmin:null},
+  HST4:{n:'HST4 (goujon d\'ancrage)',eta:'ETA-21/0878',diam:['M8','M10','M12','M16','M20'],d:[8,10,12,16,20],
+    cl:{'acier':{nrks:[21.0,32.5,46.0,75.0,124.2],g:1.4}},hef:[[30,90],[30,100],[40,125],[65,160],[101,180]],
+    smin:[35,40,50,65,90],cmin:[40,45,55,65,80]}
+};
+/* ---- état ---- */
+let A=[{x:-90,y:-90},{x:90,y:-90},{x:-90,y:90},{x:90,y:90}], C=[{nom:'Combinaison 1',N:6393,Vx:25,Vy:91,Mx:171,My:47,Mz:0,sis:false}], actif=0, modeSel=null;
+try{ const s=JSON.parse(localStorage.getItem('fip.an1')); if(s&&s.A&&s.C){ A=s.A; C=s.C; } }catch(e){}
+const enr=()=>{ try{ localStorage.setItem('fip.an1',JSON.stringify({A,C})); }catch(e){} };
+/* ---- remplissage des listes ---- */
+$('classe').innerHTML=BETON.map(([a,b])=>`<option value="${a}" ${a===25?'selected':''}>C${a}/${b}</option>`).join('');
+$('fam').innerHTML=Object.entries(PROD).map(([k,p])=>`<option value="${k}">${h(p.n)} – ${p.eta}</option>`).join('');
+function majProduit(){ const P=PROD[$('fam').value]; const dv=$('diam').value;
+  $('diam').innerHTML=P.diam.map(d=>`<option ${d===(dv||'M16')?'selected':''}>${d}</option>`).join(''); if(!P.diam.includes($('diam').value)) $('diam').value='M16';
+  const cv=$('cl').value; $('cl').innerHTML=Object.keys(P.cl).map(c=>`<option ${c===cv?'selected':''}>${c}</option>`).join(''); majCheville(); }
+function majCheville(){ const P=PROD[$('fam').value], i=P.diam.indexOf($('diam').value), c=P.cl[$('cl').value];
+  $('nrks').value=f(c.nrks[i],1); $('gms').value=f(c.g,2);
+  if(P.hef){ const [a,b]=P.hef[i]; if(!$('hef').value||+$('hef').value<a||+$('hef').value>b) $('hef').value=Math.min(b,Math.max(a,Math.round(P.d[i]*6.5/5)*5)); $('noteHef').textContent=`Plage ETE : ${a} à ${b} mm ; s_min = ${P.smin[i]} mm, c_min = ${P.cmin[i]} mm (ETA-21/0878 Tab. B7, à confirmer selon h_ef et h).`; }
+  else { if(!$('hef').value) $('hef').value=Math.round(P.d[i]*7.5/5)*5; $('noteHef').textContent='Plage h_ef, s_min, c_min, h_min : tableaux B de l\'ETE, branchés en phase 1.'; }
+  rendre(); }
+function majBeton(){ const b=BETON.find(x=>x[0]===+$('classe').value); $('fck').value=b[0]; $('fcube').value=b[1]; $('ecm').value=b[2]; rendre(); }
+function majProfils(){ const fam=$('pfam').value, L=fam==='aucun'?[]:PROFILS.filter(p=>p.f===fam&&p.h<=Math.min(+$('lx').value,+$('ly').value));
+  const v=$('pnom').value; $('pnom').innerHTML=L.map(p=>`<option ${p.n===v?'selected':''}>${h(p.n)}</option>`).join('')||'<option value="">—</option>';
+  if(!L.some(p=>p.n===v)&&L.length) $('pnom').value=L[Math.min(2,L.length-1)].n; rendre(); }
+/* ---- dispositions types ---- */
+function preset(n){ const sx=+$('sx').value||180, sy=+$('sy').value||180, g=(k,s)=>[...Array(k)].map((_,i)=>(i-(k-1)/2)*s);
+  const [nx,ny]={1:[1,1],2:[2,1],4:[2,2],6:[3,2],9:[3,3]}[n]; A=[]; g(ny,sy).forEach(y=>g(nx,sx).forEach(x=>A.push({x,y})));
+  document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('on',+b.dataset.p===n)); rendre(); }
+/* ---- efforts indicatifs (maquette) et taux fictifs ---- */
+function efforts(){ const c=C[actif]||C[0], n=A.length, sx2=A.reduce((s,a)=>s+a.x*a.x,0)||1, sy2=A.reduce((s,a)=>s+a.y*a.y,0)||1;
+  return A.map(a=>{ const N=c.N/n+(c.Mx*1000)*a.y/sy2*(sy2>1?1:0)-(c.My*1000)*a.x/sx2*(sx2>1?1:0); return {N:Math.max(0,N),V:Math.hypot(c.Vx,c.Vy)/n}; }); }
+const DEMO={acier:.43,cone:1.00,glis:.87,fend:0,vacier:.01,levier:.01,bord:.01};
+const AIDE_MODES={
+  acier:['Rupture de l\'acier (traction)','NF EN 1992-4 §7.2.1.3 : N<sub>Rd,s</sub> = N<sub>Rk,s</sub>/γ<sub>Ms</sub> (ETE). Pistes : diamètre supérieur, classe 8.8, chevilles supplémentaires.'],
+  cone:['Rupture par cône de béton','§7.2.1.4 : N<sub>Rk,c</sub> = N⁰<sub>Rk,c</sub>·A<sub>c,N</sub>/A⁰<sub>c,N</sub>·ψ<sub>s,N</sub>·ψ<sub>re,N</sub>·ψ<sub>ec,N</sub>·ψ<sub>M,N</sub>, N⁰<sub>Rk,c</sub> = k₁·√f<sub>ck</sub>·h<sub>ef</sub><sup>1,5</sup>. Pistes : augmenter h<sub>ef</sub> (effet en h<sub>ef</sub><sup>1,5</sup>), écarter les chevilles (jusqu\'à s<sub>cr,N</sub> = 3h<sub>ef</sub>), éloigner des bords, béton non fissuré si justifié, armatures de reprise (§7.2.1.9).'],
+  glis:['Extraction-glissement / rupture combinée (chimique)','§7.2.1.5 et §7.2.1.6 : adhérence τ<sub>Rk</sub> de l\'ETE (température, durée, perçage, état du trou). Pistes : h<sub>ef</sub> plus grand, diamètre supérieur, plage de température plus favorable, trou sec.'],
+  fend:['Rupture par fendage','§7.2.1.7 : à vérifier si c &lt; c<sub>cr,sp</sub> ou h &lt; h<sub>min</sub>. Pistes : épaisseur du support, distances aux bords, armatures limitant les fissures (w<sub>k</sub> ≤ 0,3 mm).'],
+  vacier:['Rupture de l\'acier (cisaillement)','§7.2.2.3 : V<sub>Rd,s</sub> = k₇·V⁰<sub>Rk,s</sub>/γ<sub>Ms</sub> ; avec bras de levier (platine décollée) : M<sub>Rk,s</sub> (§7.2.2.3.2). Pistes : diamètre, espace annulaire comblé, suppression du décollement.'],
+  levier:['Effet de levier (pryout)','§7.2.2.4 : V<sub>Rk,cp</sub> = k₈·min(N<sub>Rk,c</sub> ; N<sub>Rk,p</sub>). Pistes : celles du cône de béton.'],
+  bord:['Rupture du bord du béton','§7.2.2.5 : effet des distances c₁, c₂, de l\'épaisseur h, de l\'angle de la charge. Pistes : éloigner du bord, armatures de bord, espace annulaire comblé (répartition sur toutes les chevilles).'],
+  ia:['Interaction acier','Tab. 7.3 éq. (7.54) : (N/N<sub>Rd,s</sub>)² + (V/V<sub>Rd,s</sub>)² ≤ 1.'],
+  ib:['Interaction béton','Tab. 7.3 : éq. (7.55) β<sub>N</sub><sup>1,5</sup> + β<sub>V</sub><sup>1,5</sup> ≤ 1, ou éq. (7.56) (β<sub>N</sub> + β<sub>V</sub>)/1,2 ≤ 1 ; la plus favorable est retenue (comme PROFIS).']};
+function ligne(k,lib,r){ const c=r>1?'var(--bad)':r>.9?'var(--warn)':'var(--ok)'; return `<div class="mode" data-m="${k}"><span>${lib}</span><span class="p" style="color:${c}">${f(r*100,0)} %${r>1?' ✘':''}</span><span class="b"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></span></div>`; }
+/* ---- règles de conception (contrôles géométriques réels) ---- */
+function regles(){ const P=PROD[$('fam').value], i=P.diam.indexOf($('diam').value), d=P.d[i], d0=d+(d<=8?1:d<=24?2:3), lx=+$('lx').value, ly=+$('ly').value, hef=+$('hef').value, R=[];
+  const ok=(t)=>R.push(['✔',t]), av=(t)=>R.push(['⚠️',t]), inf=(t)=>R.push(['ℹ️',t]);
+  const xs=[...new Set(A.map(a=>a.x))], ys=[...new Set(A.map(a=>a.y))];
+  if(A.length<=9&&xs.length<=3&&ys.length<=3&&A.length===xs.length*ys.length) ok(`${A.length} cheville(s) en disposition rectangulaire ${xs.length}×${ys.length} : domaine de la NF EN 1992-4.`); else av('Disposition hors domaine de la NF EN 1992-4 (au-delà de 3×3 ou non rectangulaire) : méthode Hilti / SOFA non intégrée.');
+  const hors=A.filter(a=>Math.abs(a.x)>lx/2||Math.abs(a.y)>ly/2); if(hors.length) av(`${hors.length} cheville(s) hors de la platine.`);
+  const e=Math.min(...A.map(a=>Math.min(lx/2-Math.abs(a.x),ly/2-Math.abs(a.y)))); if(e<1.2*d0) av(`Pince sur la platine ${f(e,0)} mm < 1,2·d₀ = ${f(1.2*d0,0)} mm (NF EN 1993-1-8 Tab. 3.3, d₀ = ${d0} mm selon NF EN 1992-4 Tab. 6.1).`); else ok(`Pince sur la platine ${f(e,0)} mm ≥ 1,2·d₀ = ${f(1.2*d0,0)} mm (NF EN 1993-1-8 Tab. 3.3).`);
+  if(P.smin){ let s=1e9; A.forEach((a,j)=>A.forEach((b,k)=>{ if(k>j) s=Math.min(s,Math.hypot(a.x-b.x,a.y-b.y)); })); if(A.length>1) (s<P.smin[i]?av:ok)(`Entraxe mini ${f(s,0)} mm ${s<P.smin[i]?'<':'≥'} s_min = ${P.smin[i]} mm (ETE).`); } else inf('Entraxe et distance au bord minimaux, épaisseur minimale : ETE, contrôlés en phase 1.');
+  const lim=Math.max(10*hef,60*d), bords=[['+X','cxp',a=>+$('cxp').value-a.x],['−X','cxm',a=>+$('cxm').value+a.x],['+Y','cyp',a=>+$('cyp').value-a.y],['−Y','cym',a=>+$('cym').value+a.y]].filter(([,k])=>!document.querySelector(`[data-inf="${k}"]`).checked);
+  const pres=bords.filter(([,,c])=>Math.min(...A.map(c))<lim);
+  if(pres.length){ if(!$('annul').checked) av(`Bord ${pres.map(b=>b[0]).join(', ')} à moins de max(10·h_ef ; 60·d) = ${f(lim,0)} mm sans espace annulaire comblé : seule la traction est couverte par la NF EN 1992-4.`); else ok(`Bord ${pres.map(b=>b[0]).join(', ')} proche (< ${f(lim,0)} mm) avec espace annulaire comblé : cisaillement couvert.`); if(P.cmin){ const cm=Math.min(...pres.map(([,,c])=>Math.min(...A.map(c)))); (cm<P.cmin[i]?av:ok)(`Distance au bord ${f(cm,0)} mm ${cm<P.cmin[i]?'<':'≥'} c_min = ${P.cmin[i]} mm (ETE).`); } }
+  else ok('Pas de bord à moins de max(10·h_ef ; 60·d) : rupture du bord non déterminante.');
+  if(+$('h').value<2*hef) av(`h = ${$('h').value} mm < 2·h_ef = ${2*hef} mm : vérifier h_min (ETE) et le fendage.`);
+  const fck=+$('classe').value; if(fck<20||fck>50) av('Classe de béton hors du domaine courant des ETE (C20/25 à C50/60) : à vérifier dans l\'ETE.');
+  inf('Platine supposée rigide (NF EN 1992-4 §6.2.1) : épaisseur à justifier ; la vérification CBFEM viendra en phase 2.');
+  if(C.some(c=>c.sis)) inf('Combinaison sismique : catégorie de performance C1 / C2 selon l\'AN Tab. C1-1 à C1-3, γ_c = 1,3.');
+  $('regles').innerHTML=R.map(([s,t])=>`<li>${s} ${t}</li>`).join(''); }
+/* ---- tableaux ---- */
+function tables(){
+  $('tCmb').innerHTML=`<tr><th></th><th>Nom</th><th>N</th><th>V<sub>x</sub></th><th>V<sub>y</sub></th><th>M<sub>x</sub></th><th>M<sub>y</sub></th><th>M<sub>z</sub></th><th>Sismique</th><th>Taux</th><th></th></tr>`+C.map((c,i)=>`<tr data-i="${i}"><td><input type="radio" name="act" ${i===actif?'checked':''}></td><td><input data-k="nom" value="${h(c.nom)}" style="width:130px"></td>${['N','Vx','Vy','Mx','My','Mz'].map(k=>`<td><input data-k="${k}" type="number" step="any" value="${c[k]}"></td>`).join('')}<td><input type="checkbox" data-k="sis" ${c.sis?'checked':''}></td><td class="n">— </td><td><button type="button" class="sec mini" data-x>✕</button></td></tr>`).join('');
+  $('tCoord').innerHTML=`<tr><th>#</th><th>X</th><th>Y</th><th></th></tr>`+A.map((a,i)=>`<tr data-i="${i}"><td>${i+1}</td><td><input data-a="x" type="number" step="5" value="${f(a.x,0).replace(/\s/g,'')}"></td><td><input data-a="y" type="number" step="5" value="${f(a.y,0).replace(/\s/g,'')}"></td><td><button type="button" class="sec mini" data-xa>✕</button></td></tr>`).join('')+`<tr><td colspan="4"><button type="button" class="sec mini" id="addA">➕ cheville</button></td></tr>`;
+}
+$('tCmb').addEventListener('change',e=>{ const tr=e.target.closest('tr'); if(!tr) return; const i=+tr.dataset.i, k=e.target.dataset.k;
+  if(e.target.name==='act'){ actif=i; rendre(); return; } if(k) C[i][k]=k==='sis'?e.target.checked:k==='nom'?e.target.value:+e.target.value||0; rendre(); });
+$('tCmb').addEventListener('click',e=>{ if(e.target.closest('[data-x]')&&C.length>1){ C.splice(+e.target.closest('tr').dataset.i,1); actif=0; rendre(); } });
+$('addC').onclick=()=>{ C.push({nom:'Combinaison '+(C.length+1),N:0,Vx:0,Vy:0,Mx:0,My:0,Mz:0,sis:false}); rendre(); };
+$('tCoord').addEventListener('change',e=>{ const tr=e.target.closest('tr'); if(!tr||!e.target.dataset.a) return; A[+tr.dataset.i][e.target.dataset.a]=+e.target.value||0; rendre(); });
+$('tCoord').addEventListener('click',e=>{ if(e.target.closest('[data-xa]')&&A.length>1){ A.splice(+e.target.closest('tr').dataset.i,1); rendre(); } if(e.target.id==='addA'){ A.push({x:0,y:0}); rendre(); } });
+/* ---- résultats (fictifs) ---- */
+function resultats(){ const F=efforts(), Nmax=Math.max(...F.map(x=>x.N));
+  $('rN').innerHTML=ligne('acier','Acier',DEMO.acier)+ligne('cone','Rupture par cône de béton',DEMO.cone)+(($('fam').value==='HAS')?ligne('glis','Rupture combinée extraction-glissement et cône',DEMO.glis):ligne('glis','Extraction-glissement',DEMO.glis))+ligne('fend','Rupture par fendage',DEMO.fend);
+  $('rV').innerHTML=ligne('vacier','Acier (sans bras de levier)',DEMO.vacier)+ligne('levier','Effet de levier (pryout)',DEMO.levier)+ligne('bord','Rupture du bord du béton',DEMO.bord);
+  $('rI').innerHTML=ligne('ia','Acier – éq. (7.54)',.18)+ligne('ib','Béton – éq. (7.55) / (7.56)',.84);
+  $('aideMode').innerHTML=modeSel&&AIDE_MODES[modeSel]?`<div class="aideMode"><b>${AIDE_MODES[modeSel][0]}</b><br>${AIDE_MODES[modeSel][1]}</div>`:'<div class="note" style="padding:6px 12px">Cliquer sur un mode de rupture : formule, référence et pistes d\'amélioration.</div>';
+  $('tF').innerHTML=`<tr><th>#</th><th class="n">N (daN)</th><th class="n">V (daN)</th></tr>`+F.map((x,i)=>`<tr${x.N===Nmax&&Nmax>0?' style="background:var(--gov)"':''}><td>${i+1}</td><td class="n">${f(x.N,1)}</td><td class="n">${f(x.V,1)}</td></tr>`).join(''); }
+document.getElementById('pRes').addEventListener('click',e=>{ const m=e.target.closest('[data-m]'); if(m){ modeSel=m.dataset.m===modeSel?null:m.dataset.m; resultats(); } });
+/* ---- plan 2D éditable (SVG) ---- */
+let drag=null;
+function plan2D(){ const box=$('v2d'); if(box.hidden) return; const W=box.clientWidth||800, H=box.clientHeight||520, lx=+$('lx').value, ly=+$('ly').value;
+  const ext=Math.max(lx,ly)*1.6, k=Math.min(W,H)/ext, X=x=>W/2+x*k, Y=y=>H/2-y*k, pas=Math.max(1,+$('pas').value||5);
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial" font-size="11">`;
+  const gstep=pas*k<6?pas*Math.ceil(6/(pas*k)):pas; for(let x=-ext;x<=ext;x+=gstep) s+=`<line x1="${X(x)}" y1="0" x2="${X(x)}" y2="${H}" stroke="#eef1f5"/>`; for(let y=-ext;y<=ext;y+=gstep) s+=`<line x1="0" y1="${Y(y)}" x2="${W}" y2="${Y(y)}" stroke="#eef1f5"/>`;
+  s+=`<rect x="${X(-lx/2)}" y="${Y(ly/2)}" width="${lx*k}" height="${ly*k}" fill="#f5efbf" stroke="#8a7d2a"/>`;
+  const p=PROFILS.find(q=>q.n===$('pnom').value);
+  if(p){ if(/^(HE|IP)/.test(p.f)){ const b=p.b,hh=p.h,tw=p.tw,tf=p.tf; s+=`<path d="M${X(-hh/2)},${Y(b/2)} h${tf*k} v${(b/2-tw/2)*k} h${(hh-2*tf)*k} v${-(b/2-tw/2)*k} h${tf*k} v${b*k} h${-tf*k} v${-(b/2-tw/2)*k} h${-(hh-2*tf)*k} v${(b/2-tw/2)*k} h${-tf*k}z" fill="#9aa4b1" stroke="#171a1e"/>`; }
+    else if(p.f==='CHS') s+=`<circle cx="${X(0)}" cy="${Y(0)}" r="${p.h/2*k}" fill="none" stroke="#171a1e" stroke-width="${Math.max(1,p.t*k)}"/>`;
+    else s+=`<rect x="${X(-p.b/2)}" y="${Y(p.h/2)}" width="${p.b*k}" height="${p.h*k}" fill="none" stroke="#171a1e" stroke-width="${Math.max(1,p.t*k)}"/>`; }
+  const F=efforts(), Nmax=Math.max(...F.map(x=>x.N),1);
+  A.forEach((a,i)=>{ s+=`<g data-i="${i}" style="cursor:move"><circle cx="${X(a.x)}" cy="${Y(a.y)}" r="${Math.max(6,8)}" fill="${F[i].N>0?`rgba(227,0,9,${.35+.65*F[i].N/Nmax})`:'#1d8a3a'}" stroke="#fff" stroke-width="2"/><text x="${X(a.x)+10}" y="${Y(a.y)-10}" fill="#114088" font-weight="700">${i+1}</text></g>`; });
+  // cotes : entraxes et pinces (selon X et Y)
+  const xs=[...new Set(A.map(a=>a.x))].sort((a,b)=>a-b), ys=[...new Set(A.map(a=>a.y))].sort((a,b)=>a-b), yb=Y(-ly/2)+22, xg=X(-lx/2)-22;
+  const cx=[-lx/2,...xs,lx/2]; cx.forEach((v,j)=>{ if(j){ const a=cx[j-1]; s+=`<line x1="${X(a)}" y1="${yb}" x2="${X(v)}" y2="${yb}" stroke="#5f6670"/><text x="${(X(a)+X(v))/2}" y="${yb-4}" text-anchor="middle" fill="#5f6670">${f(v-a,0)}</text>`; } s+=`<line x1="${X(v)}" y1="${yb-5}" x2="${X(v)}" y2="${yb+5}" stroke="#5f6670"/>`; });
+  const cy=[-ly/2,...ys,ly/2]; cy.forEach((v,j)=>{ if(j){ const a=cy[j-1]; s+=`<line x1="${xg}" y1="${Y(a)}" x2="${xg}" y2="${Y(v)}" stroke="#5f6670"/><text x="${xg-4}" y="${(Y(a)+Y(v))/2}" text-anchor="end" fill="#5f6670">${f(v-a,0)}</text>`; } s+=`<line x1="${xg-5}" y1="${Y(v)}" x2="${xg+5}" y2="${Y(v)}" stroke="#5f6670"/>`; });
+  s+=`<g transform="translate(24,${H-24})"><line x1="0" y1="0" x2="34" y2="0" stroke="#e30009" stroke-width="2"/><text x="38" y="4" fill="#e30009">X</text><line x1="0" y1="0" x2="0" y2="-34" stroke="#1d8a3a" stroke-width="2"/><text x="-4" y="-38" fill="#1d8a3a">Y</text></g></svg>`;
+  box.innerHTML=s; const svg=box.querySelector('svg');
+  const pt=e=>{ const r=svg.getBoundingClientRect(); return {x:Math.round(((e.clientX-r.left)*W/r.width-W/2)/k/pas)*pas, y:Math.round((H/2-(e.clientY-r.top)*H/r.height)/k/pas)*pas}; };
+  svg.onpointerdown=e=>{ const g=e.target.closest('[data-i]'); if(g){ drag=+g.dataset.i; svg.setPointerCapture(e.pointerId); } };
+  svg.onpointermove=e=>{ if(drag==null) return; const p2=pt(e); A[drag].x=p2.x; A[drag].y=p2.y; const c=svg.querySelector(`[data-i="${drag}"] circle`), t=svg.querySelector(`[data-i="${drag}"] text`); c.setAttribute('cx',X(p2.x)); c.setAttribute('cy',Y(p2.y)); t.setAttribute('x',X(p2.x)+10); t.setAttribute('y',Y(p2.y)-10); };
+  svg.onpointerup=()=>{ if(drag!=null){ drag=null; rendre(); } };
+  svg.ondblclick=e=>{ const g=e.target.closest('[data-i]'); if(g){ if(A.length>1) A.splice(+g.dataset.i,1); } else A.push(pt(e)); rendre(); };
+}
+/* ---- vue 3D (three.js) ---- */
+let V3=null;
+async function vue3D(){ const box=$('v3d'); if(box.hidden) return;
+  if(!V3){ const T=await import('three'), {OrbitControls}=await import('../commun/lib/three/OrbitControls.js'); V3={T};
+    V3.r=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); V3.r.setPixelRatio(Math.min(devicePixelRatio,2)); box.appendChild(V3.r.domElement);
+    V3.cam=new T.PerspectiveCamera(35,1,1,50000); V3.cam.up.set(0,0,1); V3.ctl=new OrbitControls(V3.cam,V3.r.domElement); V3.ctl.enableDamping=true;
+    const boucle=()=>{ requestAnimationFrame(boucle); if(V3.sc){ V3.ctl.update(); V3.r.render(V3.sc,V3.cam); } }; boucle();
+    new ResizeObserver(()=>{ const w=box.clientWidth,hh=box.clientHeight; if(!w) return; V3.r.setSize(w,hh); V3.cam.aspect=w/hh; V3.cam.updateProjectionMatrix(); }).observe(box); V3.prem=true; }
+  const T=V3.T, sc=new T.Scene(); sc.background=new T.Color('#ffffff');
+  sc.add(new T.HemisphereLight(0xffffff,0x8899aa,1.1)); const dl=new T.DirectionalLight(0xffffff,1.2); dl.position.set(800,-1200,1500); sc.add(dl);
+  const lx=+$('lx').value, ly=+$('ly').value, tp=+$('tp').value, hb=+$('h').value, hef=+$('hef').value, P=PROD[$('fam').value], d=P.d[P.diam.indexOf($('diam').value)];
+  const ext=k=>{ const inf=document.querySelector(`[data-inf="${k}"]`).checked; return inf?Math.max(lx,ly)*1.3:Math.min(+$(k).value,Math.max(lx,ly)*3); };
+  const xp=ext('cxp'), xm=ext('cxm'), yp=ext('cyp'), ym=ext('cym');
+  const beton=new T.Mesh(new T.BoxGeometry(xp+xm,yp+ym,hb),new T.MeshLambertMaterial({color:'#c9c9c4',transparent:true,opacity:.55}));
+  beton.position.set((xp-xm)/2,(yp-ym)/2,-hb/2); sc.add(beton); { const l=new T.LineSegments(new T.EdgesGeometry(beton.geometry),new T.LineBasicMaterial({color:'#7d7d78'})); l.position.copy(beton.position); sc.add(l); }
+  const pl=new T.Mesh(new T.BoxGeometry(lx,ly,tp),new T.MeshLambertMaterial({color:'#d8c96a'})); pl.position.set(0,0,tp/2); sc.add(pl);
+  { const l=new T.LineSegments(new T.EdgesGeometry(pl.geometry),new T.LineBasicMaterial({color:'#6b6020'})); l.position.copy(pl.position); sc.add(l); }
+  const p=PROFILS.find(q=>q.n===$('pnom').value), Hp=Math.max(300,(p?p.h:0)*1.6), mat=new T.MeshLambertMaterial({color:'#8d98a6'});
+  if(p){ let sh=new T.Shape();
+    if(/^(HE|IP)/.test(p.f)){ const b=p.b,hh=p.h,tw=p.tw,tf=p.tf, Q=[[-hh/2,-b/2],[-hh/2+tf,-b/2],[-hh/2+tf,-tw/2],[hh/2-tf,-tw/2],[hh/2-tf,-b/2],[hh/2,-b/2],[hh/2,b/2],[hh/2-tf,b/2],[hh/2-tf,tw/2],[-hh/2+tf,tw/2],[-hh/2+tf,b/2],[-hh/2,b/2]]; sh.moveTo(...Q[0]); Q.slice(1).forEach(q=>sh.lineTo(...q)); }
+    else if(p.f==='CHS'){ sh.absarc(0,0,p.h/2,0,2*Math.PI); const ho=new T.Path(); ho.absarc(0,0,p.h/2-p.t,0,2*Math.PI,true); sh.holes.push(ho); }
+    else { const b=p.b/2,hh=p.h/2,t=p.t; sh.moveTo(-b,-hh); sh.lineTo(b,-hh); sh.lineTo(b,hh); sh.lineTo(-b,hh); const ho=new T.Path(); ho.moveTo(-b+t,-hh+t); ho.lineTo(-b+t,hh-t); ho.lineTo(b-t,hh-t); ho.lineTo(b-t,-hh+t); sh.holes.push(ho); }
+    const g=new T.ExtrudeGeometry(sh,{depth:Hp,bevelEnabled:false}), m=new T.Mesh(g,mat); m.position.z=tp; sc.add(m); }
+  const F=efforts(), Nmax=Math.max(...F.map(x=>x.N),1);
+  A.forEach((a,i)=>{ const col=F[i].N>0?new T.Color().lerpColors(new T.Color('#f2a0a3'),new T.Color('#e30009'),F[i].N/Nmax):new T.Color('#1d8a3a');
+    const tige=new T.Mesh(new T.CylinderGeometry(d/2,d/2,hef+tp+d,16),new T.MeshLambertMaterial({color:col})); tige.rotation.x=Math.PI/2; tige.position.set(a.x,a.y,(tp+d-hef)/2); sc.add(tige);
+    const ec=new T.Mesh(new T.CylinderGeometry(d*.9,d*.9,d*.8,6),new T.MeshLambertMaterial({color:'#555'})); ec.rotation.x=Math.PI/2; ec.position.set(a.x,a.y,tp+d*.4); sc.add(ec); });
+  // effort normal (flèche)
+  const c=C[actif]||C[0]; if(c&&c.N){ const dir=new T.Vector3(0,0,c.N>0?1:-1), o=new T.Vector3(0,0,tp+Hp+(c.N>0?20:Hp*.6)); sc.add(new T.ArrowHelper(dir,o,Hp*.5,0x114088,40,20)); }
+  V3.sc=sc; const sz=Math.max(xp+xm,yp+ym,hb+Hp);
+  if(V3.prem){ V3.cam.position.set(sz*1.15,-sz*1.45,sz*.95); V3.ctl.target.set(0,0,Hp*.15); V3.prem=false; }
+  const w=box.clientWidth,hh=box.clientHeight; V3.r.setSize(w,hh); V3.cam.aspect=w/hh; V3.cam.updateProjectionMatrix(); }
+/* ---- rendu général ---- */
+let tR=null;
+function rendre(){ enr(); tables(); regles(); resultats(); plan2D(); clearTimeout(tR); tR=setTimeout(()=>vue3D().catch(e=>{ $('v3d').innerHTML=`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${h(e.message)}</div>`; }),60); }
+document.querySelectorAll('#pSaisie input:not([data-inf]):not(#hef), #pSaisie select:not(#fam):not(#diam):not(#cl):not(#classe):not(#pfam), #pas').forEach(el=>el.addEventListener('input',()=>{ if(['lx','ly'].includes(el.id)) majProfils(); else rendre(); }));
+document.querySelectorAll('[data-inf]').forEach(el=>el.addEventListener('change',()=>{ $(el.dataset.inf).disabled=el.checked; rendre(); }));
+document.querySelectorAll('[data-inf]').forEach(el=>{ $(el.dataset.inf).disabled=el.checked; });
+$('hef').addEventListener('change',rendre); $('fam').onchange=()=>{ $('hef').value=''; majProduit(); }; $('diam').onchange=()=>{ $('hef').value=''; majCheville(); }; $('cl').onchange=majCheville; $('classe').onchange=majBeton; $('pfam').onchange=majProfils;
+document.querySelectorAll('#presets button').forEach(b=>b.onclick=()=>preset(+b.dataset.p));
+$('b3d').onclick=()=>{ $('v3d').hidden=false; $('v2d').hidden=true; $('b3d').classList.add('on'); $('b2d').classList.remove('on'); rendre(); };
+$('b2d').onclick=()=>{ $('v3d').hidden=true; $('v2d').hidden=false; $('b2d').classList.add('on'); $('b3d').classList.remove('on'); rendre(); };
+IDENT.init({cible:'cIdent',cle:'AN1',repere:'Platine P1'});
+majBeton(); majProfils(); majProduit();
+</script>
+<script src="../commun/aide.js?v=2.58"></script>
+<script>AIDE.init({titre:"Aide – AN1 Ancrages (maquette)",manuel:"an1",intro:"AN1 vérifiera les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE. Cette version est une MAQUETTE D'INTERFACE : géométrie, vues et règles de conception sont actives, mais les efforts et taux sont fictifs.",
+  etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, température et pose, cheville (données de l'ETE), disposition, platine et profilé, méthode.",cible:"#pSaisie"},
+    {t:"Vues",html:"Vue 3D (rotation et zoom à la souris) ou plan 2D : glisser une cheville pour la déplacer (accrochage au quadrillage), double-clic pour en ajouter ou en retirer.",cible:"#v3d"},
+    {t:"Règles de conception",html:"Contrôles géométriques réels : domaine de la NF EN 1992-4 (rectangulaire ≤ 3×3), pinces sur la platine, entraxe et distance au bord minimaux (ETE), bord proche et espace annulaire.",cible:"#cRegles"},
+    {t:"Résultats",html:"Taux par mode de rupture (fictifs dans la maquette). Cliquer un mode affiche sa formule, son paragraphe et les pistes d'amélioration.",cible:"#pRes"},
+    {t:"Combinaisons",html:"Efforts au centre de la platine ; la combinaison cochée est affichée. L'import depuis S1 et A1 viendra en phase 1.",cible:"#cCmb"}],
+  faq:[{q:"Rigide ou flexible ?",r:"La NF EN 1992-4 suppose une platine rigide (§6.2.1, répartition linéaire). Si elle ne l'est pas, les chevilles les plus chargées le sont davantage (effet de levier, bras de levier réduit) : c'est l'objet du CBFEM (phase 2)."},
+    {q:"Quels coefficients partiels ?",r:"AN Tab. 4.1 : acier en traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 (1,5 pour 5.8 et 8.8 ; 1,4 pour HST4 selon l'ETE) ; acier en cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub> avec γ<sub>c</sub> = 1,5 (1,3 en sismique)."},
+    {q:"Et la méthode Hilti ?",r:"Elle étend le domaine de la NF EN 1992-4 (plus de 3×3 chevilles, dispositions circulaires, répartition du cisaillement selon fib bulletin 58, platine décollée) avec les mêmes coefficients. Elle n'est pas intégrée : AN1 signale les cas hors domaine."}]});</script>
+</body>
+</html>
