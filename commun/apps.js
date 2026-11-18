@@ -10,7 +10,7 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.60";
+const CALC_VERSION = "v2.61";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
@@ -204,8 +204,8 @@ const CALC_APPS = [
   },
   {
     code: "AN1",
-    titre: "Ancrages – platine sur béton (maquette)",
-    description: "Maquette d'interface : béton (Tab. 3.1), bords, cheville (HAS-U + HIT-HY 200-A V3, HST4 ; données ETE), disposition éditable en plan 2D, platine et profilé, vue 3D, combinaisons, taux par mode de rupture NF EN 1992-4 et règles de conception. Calcul branché en phase 1.",
+    titre: "Ancrages – platine sur béton (chevilles)",
+    description: "Chevilles chimiques (HIT-HY 200-A V3 + HAS-U) et mécaniques (HST4) selon la NF EN 1992-4 + AN et les ETE : platine rigide avec zone comprimée, cône, adhérence, extraction, fendage, acier, effet de levier, bord, interactions, séisme (C1 / C2, DLS), h_ef optimale ; plan 2D éditable et vue 3D cotés",
     url: "ancrages/",
     categorie: "asm",
     normes: ["NF EN 1992-4 + AN", "ETE"],
