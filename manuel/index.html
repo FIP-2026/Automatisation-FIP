@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.63"></script>
+<script src="../commun/auth.js?v=2.64"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.63">
-<script src="../commun/apps.js?v=2.63"></script>
-<script src="../commun/data/profils.js?v=2.63"></script>
-<script src="../commun/barres3d.js?v=2.63"></script>
-<script src="../commun/acier.js?v=2.63"></script>
-<script src="../commun/data/tuyauterie.js?v=2.63"></script>
-<script src="../commun/charges.js?v=2.63"></script>
-<script src="../commun/coefvent.js?v=2.63"></script>
-<script src="../commun/tendues.js?v=2.63"></script>
-<script src="../commun/portique.js?v=2.63"></script>
-<script src="../commun/chevilles.js?v=2.63"></script>
-<script src="../commun/cbfem.js?v=2.63"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.64">
+<script src="../commun/apps.js?v=2.64"></script>
+<script src="../commun/data/profils.js?v=2.64"></script>
+<script src="../commun/barres3d.js?v=2.64"></script>
+<script src="../commun/acier.js?v=2.64"></script>
+<script src="../commun/data/tuyauterie.js?v=2.64"></script>
+<script src="../commun/charges.js?v=2.64"></script>
+<script src="../commun/coefvent.js?v=2.64"></script>
+<script src="../commun/tendues.js?v=2.64"></script>
+<script src="../commun/portique.js?v=2.64"></script>
+<script src="../commun/chevilles.js?v=2.64"></script>
+<script src="../commun/cbfem.js?v=2.64"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -257,6 +257,7 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <li><b>Résolution</b> : factorisation LDLᵀ en ligne de ciel ; itérations sur l'état des contacts, des chevilles et des rigidités sécantes jusqu'à stabilité (variation &lt; 0,2 %).</li>
 <li><b>Cisaillement et torsion</b> : répartis comme en platine rigide (la platine est indéformable dans son plan).</li></ul>
 <p><b>Dépouillement</b> : traction T<sub>i</sub> = k<sub>a</sub>·w<sub>i</sub> ; compression C et sa position (reprises pour ψ<sub>M,N</sub>, §7.2.1.4 (7)) ; pression moyenne σ<sub>c</sub> = C/A<sub>c</sub> comparée à f<sub>jd</sub> = β<sub>j</sub>·k<sub>j</sub>·f<sub>cd</sub> (NF EN 1993-1-8 §6.2.5, β<sub>j</sub> = 2/3 ; k<sub>j</sub> = √(A<sub>c1</sub>/A<sub>c0</sub>) ≤ 3, NF EN 1992-1-1 §6.7) – indicatif ; effort linéique q en pied de paroi lissé sur max(10 mm ; 2,5·t<sub>paroi</sub>), contrainte q/t<sub>paroi</sub> (indicative) ; gorge des cordons doubles a ≥ √(q² + v²)/(2·f<sub>vw,d</sub>), f<sub>vw,d</sub> = f<sub>u</sub>/(√3·β<sub>w</sub>·γ<sub>M2</sub>) (NF EN 1993-1-8 §4.5.3.3, indicative). Le taux de la combinaison est le maximum du taux des chevilles et de ε<sub>pl</sub>/ε<sub>lim</sub>.</p>
+<p><b>Affichage (2.64)</b> : les champs sont tracés à partir des valeurs aux nœuds de la grille (w, pression nodale, rapport r = m<sub>eq</sub>/m<sub>y</sub> moyenné sur les mailles voisines), interpolées bilinéairement ; σ<sub>Ed</sub> = min(r ; 1)·f<sub>y</sub>, violet si r &gt; 1. Vue 3D : déplacements multipliés par l'amplification (auto : 6 % de la plus grande dimension de la platine pour le déplacement maximal, arrondi à 1, 2 ou 5 × 10ⁿ) ; le profilé suit le mouvement de corps rigide w = w₀ + θ₁·y − θ₂·x.</p>
 <p><b>Qualification</b> : (1) élément : console en bande, flèche à 0,03 % de PL³/(3EI) + PL/(κGA) ; (2) limite rigide : platine de 300 mm, tractions égales à la statique N/n ± M·d/Σd² à 0,02 % ; (3) équilibre ΣT − C = N et moments, exact ; (4) notes PROFIS anonymisées, cheville la plus tendue : V1 (HE 100 A, platine 240 × 240 × 15, 4 HAS M16) 2 861 daN pour 2 872 (−0,4 %) ; V3 (IPE 140 excentré, platine 390 × 200 × 15, 8 HST4 M16) 2 724 pour 2 734 (−0,4 %) ; V5 (tube 200 × 200 × 4, platine 450 × 600 × 25, 6 HAS-U M12, traction pure) 1 325 pour 1 316 (+0,7 %) ; écart maximal sur l'ensemble des chevilles 3 à 5 % de la cheville la plus tendue. Note V2 (plat de 130 × 10, 8 chevilles en ligne) : 1 399 pour 1 482 daN (−6 %) et 766 pour 998 daN sur la deuxième cheville, la géométrie de la note étant incertaine. Contrainte de platine de la note V5 : 56 N/mm² pour 44 (maillages différents, PROFIS 10 à 50 mm).</p>
 <p><b>Limites du CBFEM de AN1</b> : résultats dépendant du maillage (l'effet de levier augmente d'environ 10 à 15 % entre la maille par défaut et une maille de 5 mm : la raideur des chevilles est calée pour la maille par défaut) ; platine rectangulaire posée sans calage ni mortier ; pas de raidisseurs ; soudures, pression diamétrale et section du profilé non vérifiées ; précontrainte des chevilles ignorée.</p>
 <div class="lim">Hors périmètre : méthode Hilti / SOFA (plus de 3 × 3 chevilles, dispositions circulaires, platines décollées), CBFEM (phase 2), fatigue, feu, rails insert.</div>
@@ -333,6 +334,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.64</td><td>AN1</td><td>Interface CBFEM : échelle de couleurs chiffrée (σ<sub>Ed</sub>, ε<sub>pl</sub>, w, pression) sur le plan 2D (champ interpolé aux nœuds) et la vue 3D (platine maillée colorée et déformée, amplification réglable, profilé et chevilles entraînés, traction des chevilles affichée) ; légende reprise dans l'impression et la note Word. Le moteur renvoie les valeurs aux nœuds (w, pression, rapport m<sub>eq</sub>/m<sub>y</sub> moyen des mailles voisines).</td><td>Aucun calcul modifié (affichage seulement).</td></tr>
 <tr><td>2.63</td><td>AN1</td><td>Phase 2 : platine flexible CBFEM (moteur <code>commun/cbfem.js</code> : plaque MITC4 élasto-plastique, béton unilatéral, chevilles en traction seule, profilé à section plane) ; contrainte et déformation plastique de la platine, pression sur le béton, effort en pied de paroi, comparaison flexible / rigide, carte sur le plan 2D, section dédiée dans la note Word ; familles HEM, IPN, UPN, UPE, L.</td><td>Méthode « platine rigide » inchangée. Nouvelle méthode au choix : tractions des chevilles majorées par l'effet de levier (ex. note V1 : taux 93 % en rigide, 136 % en flexible) ; raideur des chevilles à vérifier.</td></tr>
 <tr><td>2.62</td><td>AN1, S1, A1</td><td>AN1 : note de calcul Word (trame FIP, simplifiée ou complète) ; import des efforts depuis S1 (réactions de platine projetées dans ses axes) et A1 (pieds de poteaux), lien de retour ; filtre des profilés selon h et b de la platine.</td><td>Aucun calcul de résistance modifié ; nouvelle projection des réactions S1 dans les axes de la platine (tests ajoutés).</td></tr>
 <tr><td>2.61</td><td>AN1</td><td>Phase 1 : calcul NF EN 1992-4 + AN (platine rigide avec zone comprimée, tous les modes en traction et en cisaillement, interactions, séisme annexe C avec α<sub>eq</sub>, α<sub>gap</sub> et réduction DLS, h<sub>ef</sub> optimale) ; données ETE complètes HAS-U / HIT-HY 200-A V3 et HST4 ; efforts saisis au centre du profilé ; qualification sur 4 notes PROFIS (≤ 0,02 %).</td><td>Nouveaux résultats AN1 (les taux de démonstration sont remplacés).</td></tr>
@@ -459,6 +461,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.63"></script>
+<script src="../commun/replier.js?v=2.64"></script>
 </body>
 </html>
