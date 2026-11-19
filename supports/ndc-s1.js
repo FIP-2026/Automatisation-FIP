@@ -157,7 +157,7 @@ async function ndcRendre(horsEcran) {
   const synth = `<div style="font-size:16px;font-weight:800;margin:4px 0;color:${verdict ? "#1d7a36" : "#c0141c"}">${verdict ? "✔ SUPPORT VÉRIFIÉ" : "✘ SUPPORT NON VÉRIFIÉ"} – taux maxi ${f(V.gov.r * 100, 0)} %</div>
     <div class="pied">Critère dimensionnant : ${V.gov.n.replace(/<[^>]+>/g, "")}</div>`;
   if (simple) {
-    h += lay2(vueFace(D, V), synth + tabVerif);
+    h += lay2(vueFace(D, V, { num: false }), synth + tabVerif);
     h += `<table><tr><th style="width:22%">Profilés</th><td>${V.Gm.B.map((b) => `${escH(b.lib)} : <b>${escH(b.p.n)}</b>`).join(" · ")} — ${$("nuance").value} — masse ≈ ${f(masse, 1)} kg</td></tr>
       <tr><th>Tuyauteries</th><td>${V.Gm.T.map((t, i) => `${escH(t.nom)} : ${escH(t.P.desc)}, portée ${f(+t.portee || 0, 2)} m, G = ${f(V.CC.detail[i].G, 2)} kN`).join("<br>")}</td></tr>
       <tr><th>Actions</th><td>${ndcHyp(D, V, true)}${D.cW ? ` (q<sub>p</sub> = ${f(D.qp, 2)} kN/m²)` : ""}${D.cE ? ` (S<sub>a</sub> = ${f(V.CC.Sa, 2)})` : ""} — combinaisons NF EN 1990 6.10${D.cE ? " et 6.12b" : ""} (${V.res.length} ELU, ${V.CAR.length} ELS)</td></tr>
@@ -178,7 +178,8 @@ async function ndcRendre(horsEcran) {
     if (S("hyp")) h += T2("Hypothèses de charges") + ndcHyp(D, V);
     if (S("mat")) h += T2("Matériaux et sections") + $("rData").innerHTML;
     if (S("mod")) { let img = ""; try { await perspective(); const s = $("imgPersp").src; if (/^data:image\/png/.test(s)) img = `<img src="${s}" alt="Perspective 3D">`; } catch (e) { }
-      h += T2("Modèle (2D et 3D)") + lay2(vueFace(D, V), vueCote(D, V)) + (img ? `<div style="text-align:center">${img}</div>` : "") + `<div class="pied">Vues : cotes en mm ; charges G (rouge), vent (bleu), frottement / dilatation (orange). Repère X ∥ tuyaux, Y transversal, Z vertical.</div>`; }
+      h += T2("Modèle (2D et 3D)") + lay2(vueFace(D, V, { num: false }), vueCote(D, V, { num: false })) + (img ? `<div style="text-align:center">${img}</div>` : "") + `<div class="pied">Vues : cotes en mm ; charges G (rouge), vent (bleu), frottement / dilatation (orange). Repère X ∥ tuyaux, Y transversal, Z vertical.</div>`;
+      h += `<h3>Numérotation du modèle : nœuds, barres et liaisons</h3>` + lay2(vueFace(D, V, { num: true }), vueCote(D, V, { num: true })) + tableauTopoS1(V, "h3"); }
     if (S("liai")) h += T2("Liaisons") + ndcLiaisons(D, V);
     if (S("chg")) h += T2("Chargement par cas (valeurs caractéristiques)") + $("rCharges").innerHTML;
     if (S("comb")) h += T2("Combinaisons d'actions") + `<p>${V.res.filter((r) => r.c.type === "ELU").length} combinaisons ELU fondamentales (NF EN 1990 éq. 6.10 + AN)${V.res.some((r) => r.c.type === "Sismique") ? `, ${V.res.filter((r) => r.c.type === "Sismique").length} combinaisons sismiques (6.12b, 100 % / 30 %)` : ""}, ${V.CAR.length} combinaisons ELS caractéristiques (6.14b).</p>` + $("rComb").innerHTML + `<h3>Combinaisons ELS caractéristiques</h3><p class="pied">${V.CAR.map((c) => c.nom).join(" ; ")}</p>`;
