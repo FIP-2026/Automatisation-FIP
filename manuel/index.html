@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.77"></script>
+<script src="../commun/auth.js?v=2.78"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.77">
-<script src="../commun/apps.js?v=2.77"></script>
-<script src="../commun/data/profils.js?v=2.77"></script>
-<script src="../commun/barres3d.js?v=2.77"></script>
-<script src="../commun/acier.js?v=2.77"></script>
-<script src="../commun/data/tuyauterie.js?v=2.77"></script>
-<script src="../commun/charges.js?v=2.77"></script>
-<script src="../commun/coefvent.js?v=2.77"></script>
-<script src="../commun/tendues.js?v=2.77"></script>
-<script src="../commun/portique.js?v=2.77"></script>
-<script src="../commun/chevilles.js?v=2.77"></script>
-<script src="../commun/cbfem.js?v=2.77"></script>
-<script src="../commun/topo.js?v=2.77"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.78">
+<script src="../commun/apps.js?v=2.78"></script>
+<script src="../commun/data/profils.js?v=2.78"></script>
+<script src="../commun/barres3d.js?v=2.78"></script>
+<script src="../commun/acier.js?v=2.78"></script>
+<script src="../commun/data/tuyauterie.js?v=2.78"></script>
+<script src="../commun/charges.js?v=2.78"></script>
+<script src="../commun/coefvent.js?v=2.78"></script>
+<script src="../commun/tendues.js?v=2.78"></script>
+<script src="../commun/portique.js?v=2.78"></script>
+<script src="../commun/chevilles.js?v=2.78"></script>
+<script src="../commun/cbfem.js?v=2.78"></script>
+<script src="../commun/topo.js?v=2.78"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -259,13 +259,13 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <ul><li><b>Platine</b> : plaque épaisse de Reissner-Mindlin, quadrilatères à 4 nœuds MITC4 (w, β<sub>x</sub>, β<sub>y</sub> ; cisaillement transversal à déformations imposées, sans verrouillage), D = E·t³/(12(1 − ν²)), κ·G·t avec κ = 5/6, E = 210 000 N/mm², ν = 0,3. Maillage rectangulaire passant par les chevilles et les parois : maille visée min(l<sub>x</sub> ; l<sub>y</sub>)/20 bornée à 8 – 14 mm, au plus ≈ 6 000 inconnues.</li>
 <li><b>Plasticité</b> : acier élastique – parfaitement plastique, théorie de la déformation par rigidité sécante en flexion. Moment équivalent m<sub>eq</sub> = √(m<sub>x</sub>² − m<sub>x</sub>·m<sub>y</sub> + m<sub>y</sub>² + 3·m<sub>xy</sub>²) au centre de la maille, r = m<sub>eq,él</sub>/m<sub>y</sub> avec m<sub>y</sub> = f<sub>y</sub>·t²/6 ; si r &gt; 1 la rigidité de flexion est multipliée par (1,5 − 0,5/r²)/r (loi moment – courbure d'une section rectangulaire). σ<sub>Ed</sub> = min(r ; 1)·f<sub>y</sub>, ε<sub>pl</sub> = (r − 1)·f<sub>y</sub>/E ≤ ε<sub>lim</sub> = 5 % (NF EN 1993-1-5 annexe C.8). f<sub>y</sub> selon NF EN 1993-1-1 Tab. 3.1 (t ≤ 40 mm). Simplification par rapport à une plasticité par couches : valable pour un chargement monotone proportionnel.</li>
 <li><b>Béton</b> : appui de Winkler unilatéral, k<sub>c</sub> = E<sub>cm</sub>/h<sub>c</sub>, h<sub>c</sub> = 30 mm par défaut (calé, peu sensible : 100 à 3 100 N/mm³ changent la cheville la plus tendue de quelques %).</li>
-<li><b>Chevilles</b> : ressorts en traction seule, liés au déplacement moyen sous la rondelle (8 points au rayon d<sub>w</sub>/3, d<sub>w</sub> = 1,8·d). <b>Raideur – à vérifier</b> : PROFIS emploie des raideurs tirées d'essais, non publiées. Règle retenue, calée sur les notes PROFIS : scellement chimique k<sub>a</sub> = E<sub>s</sub>·A<sub>s</sub>/(t + 4·d) ; cheville à expansion k<sub>a</sub> = E<sub>s</sub>·A<sub>s</sub>/(2·h<sub>ef</sub>) (un seul point de calage) ; A<sub>s</sub> = 0,78·πd²/4. Les déplacements à court terme des ETE (δ<sub>N0</sub>) conduisent à des raideurs 2,5 à 7 fois plus faibles et sous-estiment l'effet de levier des notes PROFIS : ils ne sont pas retenus. La raideur peut être saisie.</li>
+<li><b>Chevilles</b> : ressorts en traction seule, liés au déplacement moyen sous la rondelle (8 points au rayon d<sub>w</sub>/3, d<sub>w</sub> = 1,8·d). <b>Raideur – à vérifier</b> : PROFIS emploie des raideurs tirées d'essais, non publiées. Règle k<sub>a</sub> = E<sub>s</sub>·A<sub>s</sub>/L (A<sub>s</sub> = 0,78·πd²/4), <b>recalée en 2.78 sur 8 notes PROFIS</b> : scellement chimique HAS / HAS-U (M12 à M20, h<sub>ef</sub> 70 à 214 mm, béton fissuré ou non) L = 80 mm, sans tendance nette selon d, h<sub>ef</sub> ou t ; cheville à expansion HST4 (M16 seulement, h<sub>ef</sub> 74 et 105 mm) L = 13·d en béton non fissuré et 16·d en béton fissuré. Hors de ces plages (autres diamètres de HST4, M8, M10, M24 à M30) : extrapolation. Les déplacements à court terme des ETE (δ<sub>N0</sub>) conduisent à des raideurs 2,5 à 7 fois plus faibles et sous-estiment l'effet de levier des notes PROFIS : ils ne sont pas retenus. La raideur peut être saisie.</li>
 <li><b>Profilé</b> : parois indéformables dans leur plan, section plane w = w₀ + θ₁·y − θ₂·x imposée par pénalité le long des deux faces de chaque paroi (cordons de part et d'autre) ; N, M<sub>x</sub>, M<sub>y</sub> (au centre de la platine) appliqués à ce corps rigide. I, U, L, tubes carrés, rectangulaires et ronds, position et angle quelconques.</li>
 <li><b>Résolution</b> : factorisation LDLᵀ en ligne de ciel ; itérations sur l'état des contacts, des chevilles et des rigidités sécantes jusqu'à stabilité (variation &lt; 0,2 %).</li>
 <li><b>Cisaillement et torsion</b> : répartis comme en platine rigide (la platine est indéformable dans son plan).</li></ul>
 <p><b>Dépouillement</b> : traction T<sub>i</sub> = k<sub>a</sub>·w<sub>i</sub> ; compression C et sa position (reprises pour ψ<sub>M,N</sub>, §7.2.1.4 (7)) ; pression moyenne σ<sub>c</sub> = C/A<sub>c</sub> comparée à f<sub>jd</sub> = β<sub>j</sub>·k<sub>j</sub>·f<sub>cd</sub> (NF EN 1993-1-8 §6.2.5, β<sub>j</sub> = 2/3 ; k<sub>j</sub> = √(A<sub>c1</sub>/A<sub>c0</sub>) ≤ 3, NF EN 1992-1-1 §6.7) – indicatif ; effort linéique q en pied de paroi lissé sur max(10 mm ; 2,5·t<sub>paroi</sub>), contrainte q/t<sub>paroi</sub> (indicative) ; gorge des cordons doubles a ≥ √(q² + v²)/(2·f<sub>vw,d</sub>), f<sub>vw,d</sub> = f<sub>u</sub>/(√3·β<sub>w</sub>·γ<sub>M2</sub>) (NF EN 1993-1-8 §4.5.3.3, indicative). Le taux de la combinaison est le maximum du taux des chevilles et de ε<sub>pl</sub>/ε<sub>lim</sub>.</p>
 <p><b>Affichage (2.64)</b> : les champs sont tracés à partir des valeurs aux nœuds de la grille (w, pression nodale, rapport r = m<sub>eq</sub>/m<sub>y</sub> moyenné sur les mailles voisines), interpolées bilinéairement ; σ<sub>Ed</sub> = min(r ; 1)·f<sub>y</sub>, violet si r &gt; 1. Vue 3D : déplacements multipliés par l'amplification (auto : 6 % de la plus grande dimension de la platine pour le déplacement maximal, arrondi à 1, 2 ou 5 × 10ⁿ) ; le profilé suit le mouvement de corps rigide w = w₀ + θ₁·y − θ₂·x.</p>
-<p><b>Qualification</b> : (1) élément : console en bande, flèche à 0,03 % de PL³/(3EI) + PL/(κGA) ; (2) limite rigide : platine de 300 mm, tractions égales à la statique N/n ± M·d/Σd² à 0,02 % ; (3) équilibre ΣT − C = N et moments, exact ; (4) notes PROFIS anonymisées, cheville la plus tendue : V1 (HE 100 A, platine 240 × 240 × 15, 4 HAS M16) 2 861 daN pour 2 872 (−0,4 %) ; V3 (IPE 140 excentré, platine 390 × 200 × 15, 8 HST4 M16) 2 724 pour 2 734 (−0,4 %) ; V5 (tube 200 × 200 × 4, platine 450 × 600 × 25, 6 HAS-U M12, traction pure) 1 325 pour 1 316 (+0,7 %) ; écart maximal sur l'ensemble des chevilles 3 à 5 % de la cheville la plus tendue. Note V2 (plat de 130 × 10, 8 chevilles en ligne) : 1 399 pour 1 482 daN (−6 %) et 766 pour 998 daN sur la deuxième cheville, la géométrie de la note étant incertaine. Contrainte de platine de la note V5 : 56 N/mm² pour 44 (maillages différents, PROFIS 10 à 50 mm).</p>
+<p><b>Qualification</b> : (1) élément : console en bande, flèche à 0,03 % de PL³/(3EI) + PL/(κGA) ; (2) limite rigide : platine de 300 mm, tractions égales à la statique N/n ± M·d/Σd² à 0,02 % ; (3) équilibre ΣT − C = N et moments, exact ; (4) huit notes PROFIS anonymisées, écart sur la cheville la plus tendue (AN1 / PROFIS, daN) : V1 HE 100 A, 4 HAS M16, traction + flexion 2 855 / 2 872 (−0,6 %) ; N1 même platine en flexion 3 621 / 3 674 (−1,4 %) ; V5 tube 200 × 200 × 4, 6 HAS-U M12, traction pure 1 285 / 1 313 (−2,3 %) ; N2 IPE 180 excentré, 9 HAS-U M20 6 366 / 6 510 (−2,2 %, platine rigide : 1 625) ; N4 plat 130 × 10, 4 HAS-U M16 3 053 / 2 842 (+7,4 %) ; V2 plat 130 × 10, 8 HAS-U M16 en ligne 1 397 / 1 482 (−5,8 %) ; V3 IPE 140 excentré, 8 HST4 M16 non fissuré 2 730 / 2 734 (−0,2 %) ; N3 tube 100 × 100 × 3, 4 HST4 M16 fissuré 1 668 / 1 699 (−1,8 %). Écart maximal sur l'ensemble des chevilles : 2 à 9 % de la cheville la plus tendue (16 % pour V2). Contrainte de platine de la note V5 : 57 N/mm² pour 44 (maillages différents, PROFIS 10 à 50 mm).</p>
 <p><b>Limites du CBFEM de AN1</b> : résultats dépendant du maillage (l'effet de levier augmente d'environ 10 à 15 % entre la maille par défaut et une maille de 5 mm : la raideur des chevilles est calée pour la maille par défaut) ; platine rectangulaire posée sans calage ni mortier ; pas de raidisseurs ; soudures, pression diamétrale et section du profilé non vérifiées ; précontrainte des chevilles ignorée.</p>
 <div class="lim">Hors périmètre : méthode Hilti / SOFA (plus de 3 × 3 chevilles, dispositions circulaires, platines décollées), CBFEM (phase 2), fatigue, feu, rails insert.</div>
 </article>
@@ -342,6 +342,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.78</td><td>AN1 (CBFEM)</td><td>Raideur des chevilles recalée sur 8 notes PROFIS (4 nouvelles) : scellement chimique L = 80 mm (au lieu de t + 4·d) ; HST4 L = 13·d non fissuré / 16·d fissuré (au lieu de 2·h<sub>ef</sub>) ; 4 tests ajoutés.</td><td>CBFEM, raideur automatique : tractions modifiées de quelques % en chimique (M16 inchangé à 1 %, M12 −9 % de raideur, M20 +19 %) ; HST4 en béton fissuré ou de faible h<sub>ef</sub> : raideur réduite (ex. h<sub>ef</sub> 74 mm fissuré : −42 %), donc moins d'effet de levier. Platine rigide inchangée.</td></tr>
 <tr><td>2.77</td><td>S1, CS, AN1</td><td>Console murale avec jambe de force : fixation du pied de jambe par chevilles (lien AN1) ou tiges traversantes + contre-plaque, entraxes propres, vérification dans le tableau des fixations, dessins et nomenclatures (S1 et cahier).</td><td>Nouvelle vérification (tiges du pied de jambe) ; nomenclature : tiges et contre-plaque du pied comptées.</td></tr>
 <tr><td>2.76</td><td>CS</td><td>Chevillage : platines identiques d'un même type (ex. pieds d'un portique en U) vérifiées ensemble dans AN1.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.75</td><td>CS, S1, AN1</td><td>Cahier : chevillage des platines par type relié à AN1 (enveloppe des configurations, retour du résultat sur le type, dans la fiche et dans la nomenclature, « à relancer » si les efforts changent) ; S1 : combinaisons de platine dans le résumé ; AN1 : retour structuré (produit, diamètre, nombre, h<sub>ef</sub>, platine).</td><td>Aucun calcul modifié ; nomenclature : chevilles réelles pour les platines vérifiées dans AN1.</td></tr>
@@ -483,16 +484,26 @@ function tests(){
         const L=200,bb=20,tt=10,PP=1000,Ee=210000,Ii=bb*tt**3/12; ajout('CBFEM – élément MITC4 : console en bande 200 × 20 × 10 mm, P = 1 kN, 40 mailles','PL³/(3EI) + PL/(κGA)',CBFEM.consoleTest(L,bb,tt,40,PP),PP*L**3/(3*Ee*Ii)+PP*L/(5/6*Ee/2.6*bb*tt),'mm');
         const XY=a=>a.map(([x,y])=>({x,y})), kc=31000/30, A1=XY([[-90,-90],[90,-90],[-90,90],[90,90]]), hea={f:'HEA',h:96,b:100,tw:5,tf:8}, c1={N:63930,Mx:171e4,My:47e4};
         const rr=CBFEM.calculer({plaque:{lx:240,ly:240,t:300,fy:235},A:A1,ka:4e5,kc,parois:CBFEM.paroisPlacees(hea,{}),comb:c1}); [1253.6,992.6,2203.9,1942.9].forEach((v,k)=>ajout('CBFEM – limite rigide (platine de 300 mm), note V1 : cheville '+(k+1),'statique N/n + Mx·y/Σy² − My·x/Σx²',rr.T[k]/10,v,'daN'));
-        const r1=CBFEM.calculer({plaque:{lx:240,ly:240,t:15,fy:235},A:A1,ka:CBFEM.raideurCheville(true,16,214,15).k,kc,dw:28.8,parois:CBFEM.paroisPlacees(hea,{}),comb:c1});
+        const r1=CBFEM.calculer({plaque:{lx:240,ly:240,t:15,fy:235},A:A1,ka:CBFEM.raideurCheville(true,16,214,15,true).k,kc,dw:28.8,parois:CBFEM.paroisPlacees(hea,{}),comb:c1});
         ajout('CBFEM – équilibre vertical ΣT − C, note V1','N = 6 393 daN',(r1.T.reduce((a,b)=>a+b,0)-r1.C)/10,6393,'daN',1e-6);
         ajout('CBFEM – note V1 (HE 100 A, 240 × 240 × 15, HAS M16) : cheville la plus tendue','PROFIS CBFEM 2 872,3 daN (tolérance 6 %)',Math.max(...r1.T)/10,2872.3,'daN',0.06);
         ajout('Idem : cheville la moins tendue','PROFIS CBFEM 1 548,1 daN (tolérance 8 %)',Math.min(...r1.T)/10,1548.1,'daN',0.08);
-        const r3=CBFEM.calculer({plaque:{lx:390,ly:200,t:15,fy:235},A:XY([[165,-70],[165,70],[55,-70],[55,70],[-55,-70],[-55,70],[-165,-70],[-165,70]]),ka:CBFEM.raideurCheville(false,16,105,15).k,kc,dw:28.8,parois:CBFEM.paroisPlacees({f:'IPE',h:140,b:73,tw:4.7,tf:6.9},{x:-60,y:0,a:0}),comb:{N:-460,Mx:-18e4,My:1250e4-460*60}});
+        const r3=CBFEM.calculer({plaque:{lx:390,ly:200,t:15,fy:235},A:XY([[165,-70],[165,70],[55,-70],[55,70],[-55,-70],[-55,70],[-165,-70],[-165,70]]),ka:CBFEM.raideurCheville(false,16,105,15,false).k,kc,dw:28.8,parois:CBFEM.paroisPlacees({f:'IPE',h:140,b:73,tw:4.7,tf:6.9},{x:-60,y:0,a:0}),comb:{N:-460,Mx:-18e4,My:1250e4-460*60}});
         ajout('CBFEM – note V3 (IPE 140 excentré, 390 × 200 × 15, HST4 M16) : cheville la plus tendue','PROFIS CBFEM 2 734,4 daN (tolérance 6 %)',Math.max(...r3.T)/10,2734.4,'daN',0.06);
         ajout('Idem : cheville 5','PROFIS CBFEM 1 337,9 daN (tolérance 8 %)',r3.T[4]/10,1337.9,'daN',0.08);
-        const r5=CBFEM.calculer({plaque:{lx:450,ly:600,t:25,fy:235},A:XY([[-175,250],[-175,-250],[0,250],[0,-250],[175,250],[175,-250]]),ka:CBFEM.raideurCheville(true,12,70,25).k,kc,dw:21.6,parois:CBFEM.paroisPlacees({f:'SHS',h:200,b:200,t:4},{}),comb:{N:40000,Mx:0,My:0}});
+        const r5=CBFEM.calculer({plaque:{lx:450,ly:600,t:25,fy:235},A:XY([[-175,250],[-175,-250],[0,250],[0,-250],[175,250],[175,-250]]),ka:CBFEM.raideurCheville(true,12,70,25,true).k,kc,dw:21.6,parois:CBFEM.paroisPlacees({f:'SHS',h:200,b:200,t:4},{}),comb:{N:40000,Mx:0,My:0}});
         ajout('CBFEM – note V5 (tube 200 × 200 × 4, 450 × 600 × 25, HAS-U M12, traction pure) : cheville médiane','PROFIS 1 313,1 daN (tolérance 6 %)',r5.T[2]/10,1313.1,'daN',0.06);
-        ajout('Idem : cheville d\'angle','PROFIS 1 043,7 daN (tolérance 6 %)',r5.T[0]/10,1043.7,'daN',0.06); } }
+        ajout('Idem : cheville d\'angle','PROFIS 1 043,7 daN (tolérance 8 %)',r5.T[0]/10,1043.7,'daN',0.08);
+        // notes de recalage 2.78 (N1 à N4) : cheville la plus tendue
+        const cb=(pl,A,ch,d,hef,fis,par,comb)=>CBFEM.calculer({plaque:{lx:pl[0],ly:pl[1],t:pl[2],fy:235},A:XY(A),ka:CBFEM.raideurCheville(ch,d,hef,pl[2],fis).k,kc,dw:1.8*d,parois:par,comb});
+        const n1=cb([240,240,15],[[-90,-90],[90,-90],[-90,90],[90,90]],true,16,214,true,CBFEM.paroisPlacees(hea,{}),{N:310,Mx:131e4,My:898e4});
+        ajout('CBFEM – note N1 (HE 100 A, 240 × 240 × 15, HAS M16, flexion My) : cheville la plus tendue','PROFIS CBFEM 3 674,2 daN (tolérance 6 %)',Math.max(...n1.T)/10,3674.2,'daN',0.06);
+        const n2=cb([450,260,15],[[195,-100],[195,100],[65,-100],[65,100],[-65,-100],[-65,100],[-195,-100],[-195,100],[-195,0]],true,20,117,false,CBFEM.paroisPlacees({f:'IPE',h:180,b:91,tw:5.3,tf:8},{x:-70,y:0,a:0}),{N:1170,Mx:30e4,My:2100e4+1170*70});
+        ajout('CBFEM – note N2 (IPE 180 excentré, 450 × 260 × 15, 9 HAS-U M20) : cheville dans l\'axe de l\'âme','PROFIS CBFEM 6 509,5 daN (rigide : 1 624,7 ; tolérance 6 %)',n2.T[8]/10,6509.5,'daN',0.06);
+        const n3=cb([250,250,12],[[-90,-90],[90,-90],[-90,90],[90,90]],false,16,74,true,CBFEM.paroisPlacees({f:'SHS',h:100,b:100,t:3},{}),{N:-1350,Mx:520e4,My:0});
+        ajout('CBFEM – note N3 (tube 100 × 100 × 3, 250 × 250 × 12, HST4 M16 en béton fissuré) : cheville la plus tendue','PROFIS CBFEM 1 698,9 daN (tolérance 6 %)',Math.max(...n3.T)/10,1698.9,'daN',0.06);
+        const n4=cb([220,220,15],[[-80,-65],[80,-65],[-80,65],[80,65]],true,16,102,false,[{a:[-15,-65],b:[-15,65],t:10}],{N:0,Mx:531e4,My:0});
+        ajout('CBFEM – note N4 (plat 130 × 10 excentré, 220 × 220 × 15, HAS-U M16) : cheville la plus tendue','PROFIS CBFEM 2 842,0 daN (tolérance 10 %)',Math.max(...n4.T)/10,2842.0,'daN',0.10); } }
       const e=CH.CAT_Q.find(c=>c.c==='ESC-I'); ajout('Q1 – escalier industriel NF E 85-015 : q_k','2 kN/m² (§5.1.2.1)',e.qk,2,'kN/m²'); ajout('Idem : Q_k sur 100 × 100 mm','1 kN (§5.1.2.1)',e.Qk,1,'kN'); } ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
     ajout('Idem : calorifuge compris dans q vide','q_vide(tube) + π/4((D+100)²−D²)·100·g',r3.qVide,qv+(a(D+100)-a(D))*100*9.81/1000,'kN/m'); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
@@ -501,6 +512,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.77"></script>
+<script src="../commun/replier.js?v=2.78"></script>
 </body>
 </html>
