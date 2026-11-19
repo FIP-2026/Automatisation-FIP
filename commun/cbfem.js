@@ -93,14 +93,15 @@ const CBFEM = (() => {
   }
 
   /* ---------- raideur axiale d'une cheville (N/mm) — À VÉRIFIER ----------
-     PROFIS utilise des raideurs d'essais non publiées. Règle k = E_s·A_s/L calée sur 8 notes PROFIS (2.78) :
-     scellement chimique (HAS, M12 à M20, h_ef 70 à 214 mm, béton fissuré ou non) : L = 80 mm (indépendant de d, de h_ef et de t) ;
-     cheville à expansion (HST4 M16 seulement, h_ef 74 et 105 mm) : L = 13·d en béton non fissuré, 16·d en béton fissuré.
+     PROFIS utilise des raideurs d'essais non publiées. Règle calée sur 12 notes PROFIS (2.79) :
+     scellement chimique (HAS, M12 à M24, h_ef 70 à 214 mm, béton fissuré ou non) : k = E_s·A_s/L avec L = 80 mm ;
+     cheville à expansion (HST4 M12 à M20, h_ef 74 à 111 mm) : k = 160 kN/mm en béton non fissuré, 125 kN/mm en béton fissuré,
+     indépendamment du diamètre (raideur gouvernée par le glissement du cône, pas par la tige).
      Écart sur la cheville la plus tendue : −6 % à +8 %. Hors de ces plages : extrapolation.
      Les déplacements à court terme des ETE (δ_N0) donnent des raideurs 2,5 à 7 fois plus faibles, donc moins d'effet de levier. */
   function raideurCheville(chimique, d, hef, t, fiss) {
-    const As = 0.78 * Math.PI * d * d / 4, L = chimique ? 80 : (fiss ? 16 : 13) * d;
-    return { k: ES * As / L, L, As, src: chimique ? "tige E_s·A_s/L, L = 80 mm (calée sur 6 notes PROFIS, M12 à M20)" : `tige E_s·A_s/L, L = ${fiss ? 16 : 13}·d en béton ${fiss ? "" : "non "}fissuré (calée sur 2 notes PROFIS, HST4 M16)` };
+    const As = 0.78 * Math.PI * d * d / 4, k = chimique ? ES * As / 80 : (fiss ? 125e3 : 160e3);
+    return { k, L: ES * As / k, As, src: chimique ? "tige E_s·A_s/L, L = 80 mm (calée sur 7 notes PROFIS, M12 à M24)" : `${fiss ? 125 : 160} kN/mm en béton ${fiss ? "" : "non "}fissuré (calée sur 4 notes PROFIS, HST4 M12 à M20)` };
   }
 
   /* ---------- calcul ----------
