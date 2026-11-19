@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.76"></script>
+<script src="../commun/auth.js?v=2.77"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.76">
+<link rel="stylesheet" href="../commun/calc.css?v=2.77">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.76"></script>
-<script src="../commun/data/tuyauterie.js?v=2.76"></script>
-<script src="../commun/acier.js?v=2.76"></script>
-<script src="../commun/barres3d.js?v=2.76"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.76"></script>
-<script src="../commun/dessin.js?v=2.76"></script>
-<script src="../commun/coefvent.js?v=2.76"></script>
-<script src="../commun/cahier.js?v=2.76"></script>
-<script src="../commun/chevilles.js?v=2.76"></script>
-<script src="../commun/topo.js?v=2.76"></script>
+<script src="../commun/data/profils.js?v=2.77"></script>
+<script src="../commun/data/tuyauterie.js?v=2.77"></script>
+<script src="../commun/acier.js?v=2.77"></script>
+<script src="../commun/barres3d.js?v=2.77"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.77"></script>
+<script src="../commun/dessin.js?v=2.77"></script>
+<script src="../commun/coefvent.js?v=2.77"></script>
+<script src="../commun/cahier.js?v=2.77"></script>
+<script src="../commun/chevilles.js?v=2.77"></script>
+<script src="../commun/topo.js?v=2.77"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -109,6 +109,7 @@
     <h2>Fixation sur l'ouvrage</h2>
     <div class="row">
       <div><label>Mode de fixation de la platine</label><select id="fix"></select></div>
+      <div id="bFixP"><label>Pied de jambe de force : entraxes a<sub>1</sub> × a<sub>2</sub> (mm)</label><div class="row"><input id="fp1" type="number" step="10" value="80" title="a1 : entraxe horizontal (axe X) des 4 fixations de la patte de pied"><input id="fp2" type="number" step="10" value="80" title="a2 : entraxe vertical des 4 fixations de la patte de pied"></div></div>
       <div id="bFixN"><label>Fixations (4) : entraxes a<sub>1</sub> × a<sub>2</sub> (mm)</label><div class="row"><input id="fa1" type="number" step="10" value="120" title="a1 : entraxe le long de l'axe u1 (X pour mur et plafond)"><input id="fa2" type="number" step="10" value="120" title="a2 : entraxe le long de l'axe u2"></div></div>
     </div>
     <div class="row" id="bFixT">
@@ -587,9 +588,9 @@ function majFormulaire(){
   $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi?'':'none'; $('blocNc').style.display=typ==='L'||typ==='Lplaf'?'':'none'; $('labOff').innerHTML=typ==='Lplaf'?'Décalage de la 1<sup>re</sup> console au-dessus du bas o (m)':'Décalage de la 1<sup>re</sup> console sous le sommet o (m)'; $('blocHj').style.display=typ==='murJ'?'':'none';
   const fx=$('fix'), opts=[['chev','Chevilles (efforts transmis au fournisseur)']].concat(['mur','murJ'].includes(typ)?[['tige','Tiges filetées traversantes + contre-plaque']]:[]).concat(['plafond','Lplaf'].includes(typ)?[['crap','Crapautage sur profilé existant']]:[]);
   if(fx.dataset.t!==typ||fx.options.length!==opts.length){ const v=fx.value; fx.innerHTML=opts.map(([k,l])=>`<option value="${k}">${l}</option>`).join(''); if(opts.some(o=>o[0]===v)) fx.value=v; fx.dataset.t=typ; }
-  $('bFixT').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'?'':'none';
+  $('bFixT').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'?'':'none'; $('bFixP').style.display=typ==='murJ'&&fx.value!=='crap'?'':'none';
   $('bCrCat').style.display=$('crType').value==='cat'?'':'none'; $('bCrMa').style.display=$('crType').value==='maison'?'':'none';
-  $('noteFix').innerHTML={chev:'Platine fixée par 4 chevilles : les efforts par cheville (traction, cisaillement) sont donnés pour le choix fournisseur (Hilti PROFIS, Fischer…).',tige:'Mur peu résistant ou mince : 4 tiges filetées traversantes, contre-plaque côté opposé. Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; mur (écrasement sous contre-plaque) non vérifié.',crap:'Platine pincée par 4 crapauds sur la semelle d\'un profilé existant (sans perçage). Traction et glissement à comparer aux valeurs du catalogue (Lindapter, Kee Klamp…) ; le glissement le long du profilé est le point sensible, aggravé par l\'inclinaison θ.'}[fx.value]||'';
+  $('noteFix').innerHTML={chev:'Platine fixée par 4 chevilles : les efforts par cheville (traction, cisaillement) sont donnés pour le choix fournisseur (Hilti PROFIS, Fischer…).',tige:'Mur peu résistant ou mince : 4 tiges filetées traversantes, contre-plaque côté opposé (platine de la console et patte du pied de jambe de force). Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; mur (écrasement sous contre-plaque) non vérifié.',crap:'Platine pincée par 4 crapauds sur la semelle d\'un profilé existant (sans perçage). Traction et glissement à comparer aux valeurs du catalogue (Lindapter, Kee Klamp…) ; le glissement le long du profilé est le point sensible, aggravé par l\'inclinaison θ.'}[fx.value]||'';
   $('labOr').textContent=['mur','murJ'].includes(typ)?'Orientation de la console (et de la jambe)':['plafond','Lplaf'].includes(typ)?'Orientation de la suspente':'Orientation du montant';
   $('bloc2').querySelector('label').textContent=typ==='murJ'?'Profilé de la jambe de force':'Profilé de la traverse / des consoles';
   $('blocSj').style.display=$('platine').value==='saisie'?'':'none';
@@ -748,12 +749,17 @@ function svgCrap(X,Y,ih){
   crap.forEach(c=>{ const [a,b]=[c[ih],c[2]]; s+=`<rect x="${X(a)-4}" y="${Y(b)-4}" width="8" height="8" fill="#e30009" stroke="#171a1e" stroke-width=".6"/>`; });
   return s+`<text x="${X(projeter(ends[1],ih)[0][0])}" y="${Y(Math.max(...ends.flat().map(p=>p[2])))-6}" font-size="10" fill="#5f6670">${escH(g.p.n)} existant</text>`;
 }
+/* platines fixées au mur (console et pied de jambe de force) ; entraxes des 4 fixations (m) selon l'appui ; platines chevillées (lien AN1) */
+const chevillable=k=>['sol','mur','plafond','murPied'].includes(k)&&!($('fix').value==='tige'&&MURAL(k))&&!($('fix').value==='crap'&&k==='plafond');
+const MURAL=k=>k==='mur'||k==='murPied';
+const entraxesAp=k=>k==='murPied'?[Math.max(num('fp1',80),20)/1000,Math.max(num('fp2',80),20)/1000]:[Math.max(num('fa1',120),20)/1000,Math.max(num('fa2',120),20)/1000];
 function fixations(D,V){
-  const mode=$('fix').value||'chev', a1=Math.max(num('fa1',120),20)/1000, a2=Math.max(num('fa2',120),20)/1000, r=Math.hypot(a1,a2)/2;
+  const mode=$('fix').value||'chev';
   const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]], dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
   const out=[];
-  V.Gm.appuis.forEach((ap,ia)=>{ if(!['sol','mur','plafond'].includes(ap.k)) return;
-    let n=ap.k==='sol'?[0,0,1]:ap.k==='mur'?[0,1,0]:[0,0,-1], u1=[1,0,0], th=0;
+  V.Gm.appuis.forEach((ap,ia)=>{ if(!['sol','mur','plafond','murPied'].includes(ap.k)) return;
+    const [a1,a2]=entraxesAp(ap.k), r=Math.hypot(a1,a2)/2;
+    let n=ap.k==='sol'?[0,0,1]:MURAL(ap.k)?[0,1,0]:[0,0,-1], u1=[1,0,0], th=0;
     if(mode==='crap'&&ap.k==='plafond'){ const g=crapGeo(); th=g.th; n=g.n; u1=g.ex; }
     const u2=cross(n,u1); let w={T:{v:0},V:{v:0},S:{v:0},I:{v:0},M:null};
     V.res.forEach(rc=>{ const F=rc.Rb[ia].map(x=>-x), Fv=F.slice(0,3), M=F.slice(3);
@@ -766,7 +772,7 @@ function fixations(D,V){
       if(mode==='tige'){ const d=+$('tD').value, fub=FUB[$('tCl').value], As=AS_T[d], FtRd=0.9*fub*As/1.25/1000, FvRd=0.6*fub*As/1.25/1000, I=Vb/FvRd+T/(1.4*FtRd);
         if(I>w.I.v) w.I={v:I,c:rc.c.nom,FtRd,FvRd,rt:T/FtRd,rv:Vb/FvRd}; } });
     const o={ap,ia,mode,a1,a2,th,...w}; if(mode==='crap'&&ap.k==='plafond'){ if(w.M){ o.rT=w.M.rt; o.rS=w.M.rs; o.maison=true; } else { o.rT=w.T.v/Math.max(num('crT',5),0.01); o.rS=w.S.v/Math.max(num('crV',0.8),0.01); } }
-    if(mode==='tige'&&ap.k==='mur'){ o.d=+$('tD').value; o.cl=$('tCl').value; }
+    if(mode==='tige'&&MURAL(ap.k)){ o.d=+$('tD').value; o.cl=$('tCl').value; }
     out.push(o); });
   return out;
 }
@@ -775,21 +781,21 @@ function fixations(D,V){
 function cleAN1S1(ia){ const ap=dernier&&dernier.V.Gm.appuis[ia]; return 'S1|'+($('repere').value||'')+'|'+(ap?ap.lib.replace(/<[^>]+>/g,''):ia); }
 function preAN1S1(ia){ const {D,V}=dernier, ap=V.Gm.appuis[ia]; if(!ap) return null;
   const r1=x=>Math.round(x*10)/10;
-  const a1=Math.max(num('fa1',120),20), a2=Math.max(num('fa2',120),20);
-  const L=V.res.filter(r=>r.c.type==='ELU'||r.c.type==='Sismique').map(rc=>{ const e=CHEV.effortsPlatine(rc.Rb[ia].map(x=>-x),ap.k);
+  const [a1,a2]=entraxesAp(ap.k).map(v=>Math.round(v*1000)), kAx=ap.k==='murPied'?'mur':ap.k;
+  const L=V.res.filter(r=>r.c.type==='ELU'||r.c.type==='Sismique').map(rc=>{ const e=CHEV.effortsPlatine(rc.Rb[ia].map(x=>-x),kAx);
     return {nom:String(rc.c.nom).replace(/<[^>]+>/g,''),...Object.fromEntries(Object.entries(e).map(([k,v])=>[k,r1(v*100)])),sis:rc.c.type==='Sismique'}; });
   const crit=[c=>c.N,c=>-c.N,c=>Math.hypot(c.Vx,c.Vy),c=>Math.abs(c.Mx),c=>Math.abs(c.My),c=>Math.abs(c.Mz),c=>c.N/4+Math.abs(c.Mx)*1000/(2*a2)+Math.abs(c.My)*1000/(2*a1)], C=[];
   [false,true].forEach(sis=>{ const G=L.filter(c=>c.sis===sis); if(!G.length) return; crit.forEach(k=>{ const b=G.reduce((x,c)=>k(c)>k(x)?c:x); if(!C.includes(b)) C.push(b); }); });
   const b=V.Gm.B.find(b=>[b.A,b.B].some(P=>Math.hypot(...P.map((v,i)=>v-ap.pt[i]))<1e-6))||V.Gm.B[0];
-  const Aa=[[-1,-1],[1,-1],[-1,1],[1,1]].map(([i,j])=>({x:i*a1/2,y:j*a2/2})), ax={sol:'x = X, y = Y, z = Z',plafond:'x = X, y = −Y, z = −Z (vers le bas)',mur:'x = −X, y = Z (vers le haut), z = Y (sortant du mur)'}[ap.k];
+  const Aa=[[-1,-1],[1,-1],[-1,1],[1,1]].map(([i,j])=>({x:i*a1/2,y:j*a2/2})), ax={sol:'x = X, y = Y, z = Z',plafond:'x = X, y = −Y, z = −Z (vers le bas)',mur:'x = −X, y = Z (vers le haut), z = Y (sortant du mur)'}[kAx]+(ap.k==='murPied'?' ; pied de jambe de force articulé (M = 0)':'');
   return {t:Date.now(),src:'S1 – '+($('repere').value?$('repere').value+' – ':'')+ap.lib.replace(/<[^>]+>/g,''),srcCourt:'S1',retour:'../supports/',cle:cleAN1S1(ia),emp:TOPO.empreinte(C),profil:b.p.n,C,A:Aa,
-    plaque:{lx:Math.round(Math.max(a1+80,150)),ly:Math.round(Math.max(a2+80,150))},info:`Axes de la platine : ${ax} ; combinaisons ELU${C.some(c=>c.sis)?' et sismiques':''} extrêmes (N, V, M) parmi ${L.length} ; 4 chevilles a<sub>1</sub> × a<sub>2</sub> = ${a1} × ${a2} mm, orientation du profilé à contrôler`}; }
+    plaque:ap.k==='murPied'?{lx:Math.round(Math.max(a1+60,120)),ly:Math.round(Math.max(a2+60,120))}:{lx:Math.round(Math.max(a1+80,150)),ly:Math.round(Math.max(a2+80,150))},info:`Axes de la platine : ${ax} ; combinaisons ELU${C.some(c=>c.sis)?' et sismiques':''} extrêmes (N, V, M) parmi ${L.length} ; 4 chevilles a<sub>1</sub> × a<sub>2</sub> = ${a1} × ${a2} mm, orientation du profilé à contrôler`}; }
 function ouvrirAN1(ia){ const pre=preAN1S1(ia); if(!pre) return; try{ localStorage.setItem('fip.an1.pre',JSON.stringify(pre)); }catch(e){}
   location.href='../ancrages/'; }
 function tableFix(D,V){
   const L=fixations(D,V), nm=c=>escH(String(c||'').replace(/<[^>]+>/g,''));
   if(!L.length) return '<div class="note">Pas de platine encastrée.</div>';
-  return L.map(o=>{ const m=o.mode==='tige'&&o.ap.k==='mur'?'tige':o.mode==='crap'&&o.ap.k==='plafond'?'crap':'chev';
+  return L.map(o=>{ const m=o.mode==='tige'&&MURAL(o.ap.k)?'tige':o.mode==='crap'&&o.ap.k==='plafond'?'crap':'chev';
     let h=`<h3>${escH(o.ap.lib)} – ${m==='tige'?`4 tiges filetées M${o.d} cl. ${o.cl} traversantes + contre-plaque`:m==='crap'?`4 crapauds ${o.maison?'maison':'catalogue'} sur ${escH(crapGeo().p.n)} existant${o.th?` (semelle inclinée θ = ${f(o.th*180/Math.PI,0)}°)`:''}`:'4 chevilles'} – entraxes ${f(o.a1*1000,0)} × ${f(o.a2*1000,0)} mm</h3><table>
       <tr><td>Traction maximale par fixation</td><td class="n"><b>${f(o.T.v,2)} kN</b></td><td class="note">${nm(o.T.c)} (cisaillement concomitant ${f(o.T.Vc,2)} kN)</td></tr>
       <tr><td>Cisaillement maximal par fixation</td><td class="n"><b>${f(o.V.v,2)} kN</b></td><td class="note">${nm(o.V.c)} (traction concomitante ${f(o.V.Tc,2)} kN)</td></tr>`;
@@ -1004,7 +1010,7 @@ function topoS1(V){ const Gm=V.Gm, nu=$('nuance').value;
   return TOPO.construire({barres:Gm.B.map(b=>({lib:b.lib,A:b.A,B:b.B,section:b.p.n,mat:nu,rel:b.art?'articulée aux deux extrémités (effort normal seul)':''})),
     appuis:Gm.appuis.map(a=>({pt:a.pt,c:(Gm.app&&Gm.app[a.n]?Gm.app[a.n]:a.c).slice(),lib:a.lib}))}); }
 function badgeAN1S1(ia){ const pre=preAN1S1(ia); return pre?TOPO.badge(pre.cle,pre.emp):''; }
-function tableauTopoS1(V,h='h3'){ const Gm=V.Gm; return TOPO.tableaux(topoS1(V),{titres:h,assemblage:a=>{ const ap=Gm.appuis[a.ref]; return ap&&['sol','mur','plafond'].includes(ap.k)&&$('fix').value!=='tige'&&$('fix').value!=='crap'?`<button type="button" class="sec mini" onclick="ouvrirAN1(${a.ref})" title="Chevillage de la platine dans AN1">⚓ AN1</button> ${badgeAN1S1(a.ref)}`:'<span class="note">—</span>'; },note:'Repère global : X axe des tuyaux, Y transversal, Z vertical ascendant ; origine au premier appui. Nœuds aux extrémités de barres, aux appuis et aux jonctions ; une barre est découpée à chaque jonction. Numérotation indépendante du maillage de calcul (les points d\'application des tuyaux sont des nœuds de calcul supplémentaires).'}); }
+function tableauTopoS1(V,h='h3'){ const Gm=V.Gm; return TOPO.tableaux(topoS1(V),{titres:h,assemblage:a=>{ const ap=Gm.appuis[a.ref]; return ap&&chevillable(ap.k)?`<button type="button" class="sec mini" onclick="ouvrirAN1(${a.ref})" title="Chevillage de la platine dans AN1">⚓ AN1</button> ${badgeAN1S1(a.ref)}`:'<span class="note">—</span>'; },note:'Repère global : X axe des tuyaux, Y transversal, Z vertical ascendant ; origine au premier appui. Nœuds aux extrémités de barres, aux appuis et aux jonctions ; une barre est découpée à chaque jonction. Numérotation indépendante du maillage de calcul (les points d\'application des tuyaux sont des nœuds de calcul supplémentaires).'}); }
 /* export vers Robot (commun/topo.js) : modèle numéroté, cas élémentaires (charges des tuyaux = forces concentrées sur barre, poids propre réparti), combinaisons */
 async function exportRobotS1(fmt){ if(!dernier) return; const {D,V}=dernier, Gm=V.Gm, t=topoS1(V), nd=n=>{ const q=Gm.noeuds[n]; return [q.x,q.y,q.z]; }, net=s=>String(s).replace(/<[^>]+>/g,'');
   const NOM={G:'G – permanentes (tuyaux, profilés, équipements)',FL:'Gfl – fluide en service',T:'T – température (frottement, dilatation)',S:'S – neige',WY:'Wy – vent transversal',WX:'Wx – vent longitudinal',EP:'Ep – eau d\'épreuve',EX:'Ex – séisme longitudinal',EY:'Ey – séisme transversal'};
@@ -1037,8 +1043,11 @@ function vueFace(D,V,opt={}){                               // plan Y–Z (regar
     if(a.k==='mur'&&tige){ const a2=Math.max(num('fa2',120),20)/1000,z0=Math.min(...zs,a.pt[2]-a2/2-0.1)-0.02,z1=Math.max(...zs,a.pt[2]+a2/2+0.1)+0.02,dt=+$('tD').value;
       s+=`<defs><pattern id="pbet" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#b9b4aa"/></pattern></defs><rect x="${X(-eM)}" y="${Y(z1)}" width="${eM*k}" height="${(z1-z0)*k}" fill="#ece9e2"/><rect x="${X(-eM)}" y="${Y(z1)}" width="${eM*k}" height="${(z1-z0)*k}" fill="url(#pbet)" stroke="#171a1e"/>`;
       [-1,1].forEach(sz=>{ const yy=Y(a.pt[2]+sz*a2/2); s+=`<line x1="${X(-eM-0.025)}" y1="${yy}" x2="${X(0.025)}" y2="${yy}" stroke="#e30009" stroke-width="${Math.max(dt/1000*k,2)}"/>`; });
-      s+=`<rect x="${X(-eM)-Math.max(0.012*k,4)}" y="${Y(a.pt[2]+a2/2+0.04)}" width="${Math.max(0.012*k,4)}" height="${(a2+0.08)*k}" fill="#171a1e"/><text x="${X(-eM)}" y="${Y(z0)+12}" font-size="9.5" fill="#5f6670">mur ép. ${f(eM*1000,0)} mm</text><text x="${X(-eM)}" y="${Y(z0)+24}" font-size="9" fill="#e30009">4 tiges M${dt} + contre-plaque</text>`; }
-    if(a.k==='murPied') s+=hachures(x-4,y-30,x-4,y+30,-8,8)+`<circle cx="${x}" cy="${y}" r="4.5" fill="#fff" stroke="#171a1e" stroke-width="1.5"/>`;
+      s+=`<rect x="${X(-eM)-Math.max(0.012*k,4)}" y="${Y(a.pt[2]+a2/2+0.04)}" width="${Math.max(0.012*k,4)}" height="${(a2+0.08)*k}" fill="#171a1e"/><text x="${X(-eM)}" y="${Y(z0)+12}" font-size="9.5" fill="#5f6670">mur ép. ${f(eM*1000,0)} mm</text><text x="${X(-eM)}" y="${Y(z0)+24}" font-size="9" fill="#e30009">${Gm.appuis.some(q=>q.k==='murPied')?'2 × ':''}4 tiges M${dt} + contre-plaque${Gm.appuis.some(q=>q.k==='murPied')?' (console et pied de jambe)':''}</text>`; }
+    if(a.k==='murPied'){ if(!tige) s+=hachures(x-4,y-30,x-4,y+30,-8,8);
+      else { const p2=entraxesAp('murPied')[1], dt=+$('tD').value; [-1,1].forEach(sz=>{ const yy=Y(a.pt[2]+sz*p2/2); s+=`<line x1="${X(-eM-0.025)}" y1="${yy}" x2="${X(0.025)}" y2="${yy}" stroke="#e30009" stroke-width="${Math.max(dt/1000*k,2)}"/>`; });
+        s+=`<rect x="${X(-eM)-Math.max(0.012*k,4)}" y="${Y(a.pt[2]+p2/2+0.03)}" width="${Math.max(0.012*k,4)}" height="${(p2+0.06)*k}" fill="#171a1e"/>`; }
+      s+=`<circle cx="${x}" cy="${y}" r="4.5" fill="#fff" stroke="#171a1e" stroke-width="1.5"/>`; }
     if(a.k==='murArt') s+=hachures(x+4,y-60,x+4,y+60,8,8)+`<circle cx="${x}" cy="${y}" r="4.5" fill="#fff" stroke="#171a1e" stroke-width="1.5"/>`;});
   // barres
   Gm.B.forEach(b=>{
@@ -1086,7 +1095,9 @@ function vueCote(D,V,opt={}){                             // plan X–Z
   let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%"><defs>${fl('fo','#d9822b')}<pattern id="pbet2" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#d8d4cb"/></pattern></defs><text x="6" y="16" font-size="12" font-weight="700" fill="#114088">Vue de côté (axe X des tuyaux)</text>`;
   Gm.appuis.forEach(a=>{ if(a.k==='sol') s+=hachures(X(-0.6),Y(a.pt[2]),X(0.6),Y(a.pt[2]),-8,8); if(a.k==='plafond'&&!crap) s+=hachures(X(-0.6),Y(0),X(0.6),Y(0),-8,-8); if(a.k==='plafond'&&crap) s+=svgCrap(X,Y,0);
     if(a.k==='mur'&&tige){ const a1=Math.max(num('fa1',120),20)/1000,a2=Math.max(num('fa2',120),20)/1000; s+=`<rect x="${X(-0.6)}" y="${Y(Math.max(...zs)+0.05)}" width="${1.2*k}" height="${(Math.max(...zs)-Math.min(...zs)+0.1)*k}" fill="url(#pbet2)" opacity=".8"/><rect x="${X(-a1/2-0.04)}" y="${Y(a2/2+0.04)}" width="${(a1+0.08)*k}" height="${(a2+0.08)*k}" fill="#171a1e" opacity=".85"/>`;
-      [-1,1].forEach(sx=>[-1,1].forEach(sz=>{ s+=`<circle cx="${X(sx*a1/2)}" cy="${Y(sz*a2/2)}" r="4" fill="#e30009" stroke="#fff"/>`; })); s+=`<text x="${X(0)}" y="${Y(-a2/2-0.04)+12}" font-size="9" text-anchor="middle" fill="#5f6670">platine et 4 tiges sur le mur (vue de face du mur)</text>`; } });
+      [-1,1].forEach(sx=>[-1,1].forEach(sz=>{ s+=`<circle cx="${X(sx*a1/2)}" cy="${Y(sz*a2/2)}" r="4" fill="#e30009" stroke="#fff"/>`; })); s+=`<text x="${X(0)}" y="${Y(-a2/2-0.04)+12}" font-size="9" text-anchor="middle" fill="#5f6670">platine et 4 tiges sur le mur (vue de face du mur)</text>`; }
+    if(a.k==='murPied'&&tige){ const [p1,p2]=entraxesAp('murPied'), z=a.pt[2]; s+=`<rect x="${X(-p1/2-0.03)}" y="${Y(z+p2/2+0.03)}" width="${(p1+0.06)*k}" height="${(p2+0.06)*k}" fill="#171a1e" opacity=".85"/>`;
+      [-1,1].forEach(sx=>[-1,1].forEach(sz=>{ s+=`<circle cx="${X(sx*p1/2)}" cy="${Y(z+sz*p2/2)}" r="3.5" fill="#e30009" stroke="#fff"/>`; })); s+=`<text x="${X(0)}" y="${Y(z-p2/2-0.03)+12}" font-size="9" text-anchor="middle" fill="#5f6670">patte du pied de jambe et 4 tiges</text>`; } });
   Gm.B.forEach(b=>{const o=b.bord([1,0,0]),e=o.hi-o.lo;
     if(b.vert||Math.abs(b.dir[2])>0.05){const z0=Math.min(b.A[2],b.B[2]),z1=Math.max(b.A[2],b.B[2]);s+=`<rect x="${X(o.lo)}" y="${Y(z1)}" width="${Math.max(e*k,4)}" height="${(z1-z0)*k}" fill="#cfd8e3" stroke="#171a1e" opacity=".9"/>`;}
     else{const v=b.bord([0,0,1]);s+=`<rect x="${X(o.lo)}" y="${Y(b.A[2]+v.hi)}" width="${Math.max(e*k,4)}" height="${Math.max((v.hi-v.lo)*k,3)}" fill="#cfd8e3" stroke="#171a1e"/>`;}});
@@ -1146,7 +1157,10 @@ function specDessin(D,V,opt={}){
         S.push(boiteAA(-cx/2,cx/2,-2*ep-e,-ep-e,P[2]-cz/2,P[2]+cz/2));
         [-1,1].forEach(i=>[-1,1].forEach(j=>S.push(DESSIN.cylindre([i*a1/2,0.03,P[2]+j*a2/2],[i*a1/2,-2*ep-e-0.03,P[2]+j*a2/2],dF/2000,0)))); }
       else { sols.push({a:[0,-ep,Math.min(z0,P[2]-cz/2)-0.15],b:[0,-ep,Math.max(z1,P[2]+cz/2)+0.1],mat:[0,-0.2,P[2]],vues:['face']},{a:[-0.3,-ep,0],b:[0.3,-ep,0],mat:[0,-0.2,0],vues:['dessus']}); } }
-    if(a.k==='murPied'){ const c=0.14; S.push(boiteAA(P[0]-c/2,P[0]+c/2,P[1]-0.01,P[1],P[2]-c/2,P[2]+c/2)); pl.push({k:a.k,d:[c,c],e:0.01}); }
+    if(a.k==='murPied'){ const [p1,p2]=entraxesAp('murPied'), c=Math.max(0.14,Math.max(p1,p2)+0.06); S.push(boiteAA(P[0]-c/2,P[0]+c/2,P[1]-0.01,P[1],P[2]-c/2,P[2]+c/2)); pl.push({k:a.k,d:[c,c],e:0.01});
+      [-1,1].forEach(i=>[-1,1].forEach(j=>trou([P[0]+i*p1/2,P[1],P[2]+j*p2/2],[0,1,0])));
+      if(tige){ const e=Math.max(num('eMur',200),20)/1000; S.push(boiteAA(P[0]-c/2,P[0]+c/2,-0.01-ep-e,-ep-e,P[2]-c/2,P[2]+c/2));
+        [-1,1].forEach(i=>[-1,1].forEach(j=>S.push(DESSIN.cylindre([P[0]+i*p1/2,0.02,P[2]+j*p2/2],[P[0]+i*p1/2,-0.01-ep-e-0.03,P[2]+j*p2/2],dF/2000,0)))); } }
     if(a.k==='murArt'){ const c=0.16; S.push(boiteAA(P[0]-c/2,P[0]+c/2,P[1],P[1]+0.01,P[2]-c/2,P[2]+c/2)); pl.push({k:a.k,d:[c,c],e:0.01});
       sols.push({a:[0,P[1]+0.01,z0-0.05],b:[0,P[1]+0.01,z1+0.15],mat:[0,P[1]+0.3,z1],vues:['face']},{a:[-0.3,P[1]+0.01,z1],b:[0.3,P[1]+0.01,z1],mat:[0,P[1]+0.3,z1],vues:['dessus']}); } });
   if(crap){ const {g,crap:cp}=crapPoints(), h=g.p.h/1000, s=secPts(g.p), mm3=(o,ex,ey,ez,L,sec)=>DESSIN.prisme(o,ex,ey,ez,L,sec,null);
@@ -1196,7 +1210,7 @@ function specDessin(D,V,opt={}){
   if(nP){ rep++; const L=fixM==='tige'?'Tiges filetées traversantes + écrous, rondelles':crap?`Crapauds (${$('crType').value==='maison'?'maison, boulon précontraint':'catalogue'})`:'Chevilles d\'ancrage';
     nom.push([rep,'—',L+' – selon note de chevillage','—','—','—']);
     if(pm&&!crap){ const P=pm.pt; reperes.push(pm.k==='mur'?{vue:vCote,p:[cx*0.3,0,P[2]+cz*0.3],n:String(rep),dx:-1,dy:-1}:{vue:'dessus',p:[cx*0.3,P[1]-cz*0.3,P[2]],n:String(rep),dx:-1,dy:1}); }
-    if(tige){ rep++; nom.push([rep,nP,'Contre-plaque – dimensions selon note de chevillage',$('nuance').value,'—','—']); } }
+    if(tige){ rep++; nom.push([rep,nP+pl.filter(p=>p.k==='murPied').length,'Contre-plaque – dimensions selon note de chevillage',$('nuance').value,'—','—']); } }
   const ge=new Map(); Gm.T.forEach(t=>{ const d=diamEtrier(t), k=`Étrier (U-bolt) M${d} pour Ø${f(t.P.De,1)}`; ge.set(k,(ge.get(k)||0)+1); });
   [...ge.entries()].forEach(([k,n])=>{ rep++; nom.push([rep,n,k+' + écrous','acier galva.','—','—']); });
   if(Gm.T[0]) reperes.push({vue:'face',p:[0,Gm.T[0].c[1]-Gm.T[0].P.De/2000*0.7-diamEtrier(Gm.T[0])/2000,Gm.T[0].c[2]+Gm.T[0].P.De/2000*0.7],n:String(rep),dx:-1,dy:-0.6});
@@ -1438,7 +1452,7 @@ function resumeS1(){                                     // résultats synthéti
     tuyaux:V.Gm.T.map(t=>({nom:t.nom,desc:t.P.desc,G:V.CC.detail[V.Gm.T.indexOf(t)].G,barre:V.Gm.B[t.bi].lib,d:diamEtrier(t),dn:t.mode==='base'?+t.dn:null,De:t.P.De})),
     fix:{mode:$('fix').value||'chev',d:+$('tD').value,cl:$('tCl').value},appuis:env.map(E=>({lib:E.a.lib,k:E.a.k,profil:(V.Gm.B.find(b=>[b.A,b.B].some(P=>Math.hypot(...P.map((v,i)=>v-E.a.pt[i]))<1e-6))||V.Gm.B[0]).p.n,ELU:E.ELU.map(e=>e.v),SIS:V.res.some(r=>r.c.type==='Sismique')?E.SIS.map(e=>e.v):null,
       cas:Object.fromEntries(['G','FL','T','S','WY','WX','EP','EX','EY'].filter(c=>V.R[c]).map(c=>[c,V.R[c].reactions[E.a.n].map(x=>-x)]))})),
-    an1:V.Gm.appuis.map((a,ia)=>({a,ia})).filter(({a})=>['sol','mur','plafond'].includes(a.k)&&!($('fix').value==='tige'&&a.k==='mur')&&!($('fix').value==='crap'&&a.k==='plafond'))
+    an1:V.Gm.appuis.map((a,ia)=>({a,ia})).filter(({a})=>chevillable(a.k))
       .map(({a,ia})=>{ const p=preAN1S1(ia); return p?{ia,lib:a.lib.replace(/<[^>]+>/g,''),k:a.k,C:p.C,A:p.A,plaque:p.plaque,profil:p.profil,info:p.info}:null; }).filter(Boolean),
     lignes:V.lignes.map(l=>({n:l.n.replace(/<[^>]+>/g,''),r:l.r})),date:new Date().toISOString()};
 }
@@ -1479,13 +1493,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.76"></script>
-<script src="../commun/aide.js?v=2.76"></script>
-<script src="../commun/notes.js?v=2.76"></script>
-<script src="ndc-s1.js?v=2.76"></script>
+<script src="../commun/replier.js?v=2.77"></script>
+<script src="../commun/aide.js?v=2.77"></script>
+<script src="../commun/notes.js?v=2.77"></script>
+<script src="ndc-s1.js?v=2.77"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.76"></script>
-<script src="../commun/export.js?v=2.76"></script>
+<script src="aide-s1.js?v=2.77"></script>
+<script src="../commun/export.js?v=2.77"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

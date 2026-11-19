@@ -246,6 +246,7 @@ const CHEV = (() => {
   /* axes de la platine selon l'appui S1 : z sortant du béton, (x, y, z) direct
      sol : (X, Y, Z) ; plafond : (X, −Y, −Z) ; mur (console selon +Y) : (−X, Z, Y), vue de face y vers le haut */
   function axesPlatine(k) {
+    if (k === "murPied") k = "mur";      // pied de jambe de force : platine murale
     const n = k === "sol" ? [0, 0, 1] : k === "mur" ? [0, 1, 0] : [0, 0, -1], u1 = k === "mur" ? [-1, 0, 0] : [1, 0, 0];
     return { u1, u2: [n[1] * u1[2] - n[2] * u1[1], n[2] * u1[0] - n[0] * u1[2], n[0] * u1[1] - n[1] * u1[0]], n };
   }

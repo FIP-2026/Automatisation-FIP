@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.76"></script>
+<script src="../commun/auth.js?v=2.77"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.76">
-<script src="../commun/apps.js?v=2.76"></script>
-<script src="../commun/data/profils.js?v=2.76"></script>
-<script src="../commun/barres3d.js?v=2.76"></script>
-<script src="../commun/acier.js?v=2.76"></script>
-<script src="../commun/data/tuyauterie.js?v=2.76"></script>
-<script src="../commun/charges.js?v=2.76"></script>
-<script src="../commun/coefvent.js?v=2.76"></script>
-<script src="../commun/tendues.js?v=2.76"></script>
-<script src="../commun/portique.js?v=2.76"></script>
-<script src="../commun/chevilles.js?v=2.76"></script>
-<script src="../commun/cbfem.js?v=2.76"></script>
-<script src="../commun/topo.js?v=2.76"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.77">
+<script src="../commun/apps.js?v=2.77"></script>
+<script src="../commun/data/profils.js?v=2.77"></script>
+<script src="../commun/barres3d.js?v=2.77"></script>
+<script src="../commun/acier.js?v=2.77"></script>
+<script src="../commun/data/tuyauterie.js?v=2.77"></script>
+<script src="../commun/charges.js?v=2.77"></script>
+<script src="../commun/coefvent.js?v=2.77"></script>
+<script src="../commun/tendues.js?v=2.77"></script>
+<script src="../commun/portique.js?v=2.77"></script>
+<script src="../commun/chevilles.js?v=2.77"></script>
+<script src="../commun/cbfem.js?v=2.77"></script>
+<script src="../commun/topo.js?v=2.77"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -203,6 +203,7 @@
 <li>Diagrammes : efforts internes de la combinaison choisie ; déformée par interpolation d'Hermite des déplacements nodaux + flèche locale q·s²(L − s)²/(24EI).</li>
 <li>Alertes de conception (règles de l'art, seuils réglables) : pince d'étrier (e<sub>2</sub> ≥ 1,2·d<sub>0</sub>, EN 1993-1-8 Tab. 3.3), profilé en I tourné, gros diamètre sur étrier, calorifuge sans sabot, élancement, longueurs de console / montant, torsion, fixations sous le profilé (axe ≥ nu + 1,5·d), jambe de force (angle, largeur), classe 4.</li></ul>
 <div class="lim">Non traités : platines, chevilles (ETE fabricant), soudures, étriers, effets du 2<sup>nd</sup> ordre, séisme vertical, déversement des cornières, flambement par torsion-flexion des U.</div>
+<p><b>Pied de jambe de force (2.77)</b> : la patte du pied (appui articulé, forces seules) est traitée comme la platine de la console : 4 fixations d'entraxes propres (a₁ × a₂, 80 × 80 mm par défaut), efforts par fixation et vérification des tiges traversantes (NF EN 1993-1-8 Tab. 3.4, interaction F<sub>v,Ed</sub>/F<sub>v,Rd</sub> + F<sub>t,Ed</sub>/(1,4·F<sub>t,Rd</sub>) ≤ 1) ou lien AN1 (axes de la platine murale). Dessins : tiges et contre-plaque du pied en vue de face, de côté et sur la planche ; nomenclature : une contre-plaque par platine fixée par tiges.</p>
 </article>
 
 <article class="card" id="p1"><div class="theme">P1 – Poutre</div><h2>9. P1 – Poutre isostatique</h2>
@@ -341,6 +342,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.77</td><td>S1, CS, AN1</td><td>Console murale avec jambe de force : fixation du pied de jambe par chevilles (lien AN1) ou tiges traversantes + contre-plaque, entraxes propres, vérification dans le tableau des fixations, dessins et nomenclatures (S1 et cahier).</td><td>Nouvelle vérification (tiges du pied de jambe) ; nomenclature : tiges et contre-plaque du pied comptées.</td></tr>
 <tr><td>2.76</td><td>CS</td><td>Chevillage : platines identiques d'un même type (ex. pieds d'un portique en U) vérifiées ensemble dans AN1.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.75</td><td>CS, S1, AN1</td><td>Cahier : chevillage des platines par type relié à AN1 (enveloppe des configurations, retour du résultat sur le type, dans la fiche et dans la nomenclature, « à relancer » si les efforts changent) ; S1 : combinaisons de platine dans le résumé ; AN1 : retour structuré (produit, diamètre, nombre, h<sub>ef</sub>, platine).</td><td>Aucun calcul modifié ; nomenclature : chevilles réelles pour les platines vérifiées dans AN1.</td></tr>
 <tr><td>2.74</td><td>AN1</td><td>Note détaillée : figures et tableau de la platine CBFEM pour la combinaison décisive de la platine (σ<sub>Ed</sub> maxi, puis ε<sub>pl</sub>, puis déplacement), distincte du cas dimensionnant des chevilles, comme PROFIS ; les deux combinaisons sont nommées dans la note.</td><td>Aucun calcul modifié.</td></tr>
@@ -499,6 +501,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.76"></script>
+<script src="../commun/replier.js?v=2.77"></script>
 </body>
 </html>
