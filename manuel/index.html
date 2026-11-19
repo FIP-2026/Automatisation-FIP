@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.71"></script>
+<script src="../commun/auth.js?v=2.72"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.71">
-<script src="../commun/apps.js?v=2.71"></script>
-<script src="../commun/data/profils.js?v=2.71"></script>
-<script src="../commun/barres3d.js?v=2.71"></script>
-<script src="../commun/acier.js?v=2.71"></script>
-<script src="../commun/data/tuyauterie.js?v=2.71"></script>
-<script src="../commun/charges.js?v=2.71"></script>
-<script src="../commun/coefvent.js?v=2.71"></script>
-<script src="../commun/tendues.js?v=2.71"></script>
-<script src="../commun/portique.js?v=2.71"></script>
-<script src="../commun/chevilles.js?v=2.71"></script>
-<script src="../commun/cbfem.js?v=2.71"></script>
-<script src="../commun/topo.js?v=2.71"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.72">
+<script src="../commun/apps.js?v=2.72"></script>
+<script src="../commun/data/profils.js?v=2.72"></script>
+<script src="../commun/barres3d.js?v=2.72"></script>
+<script src="../commun/acier.js?v=2.72"></script>
+<script src="../commun/data/tuyauterie.js?v=2.72"></script>
+<script src="../commun/charges.js?v=2.72"></script>
+<script src="../commun/coefvent.js?v=2.72"></script>
+<script src="../commun/tendues.js?v=2.72"></script>
+<script src="../commun/portique.js?v=2.72"></script>
+<script src="../commun/chevilles.js?v=2.72"></script>
+<script src="../commun/cbfem.js?v=2.72"></script>
+<script src="../commun/topo.js?v=2.72"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -169,7 +169,7 @@
 <article class="card" id="s1"><div class="theme">S1 – Supports de tuyauterie</div><h2>8. S1 – Modèle de calcul</h2>
 <p><b>Numérotation du modèle (2.68, <code>commun/topo.js</code>)</b> : bouton « 🔢 Nœuds / barres » des vues et section « Modèle » de la note complète. Comme dans Robot, la numérotation porte sur la structure et non sur le maillage de calcul : nœuds aux extrémités de barres, aux appuis et aux jonctions (une extrémité de barre située sur une autre barre crée un nœud et découpe cette barre) ; nœuds triés de bas en haut puis selon X et Y. Tableaux : nœuds (X, Y, Z en m), barres (origine, extrémité, section, matériau, longueur, relâchements – jambe de force articulée), liaisons (DX à RZ bloqués, libres ou ressorts k en kN·m/rad pour la platine semi-rigide).</p>
 <p><b>Liens avec les assemblages et export Robot (2.69)</b> : colonne « Assemblage » des liaisons → AN1 (efforts de la platine dans ses axes). Retour : AN1 écrit dans <code>fip.an1.retour[clé]</code> (clé = module | repère | appui) le taux maxi, la cheville, la platine, la méthode et l'empreinte des efforts reçus ; S1 recalcule l'empreinte de ses efforts actuels et affiche « à relancer » si elle diffère. Export Robot (<code>TOPO.exportRobot</code>, classeur Excel) : nœuds, barres, appuis, cas, charges localisées sur les barres numérotées (charge nodale de calcul → force concentrée sur barre à l'abscisse x ; charge répartie d'un élément de calcul → charge uniforme partielle [x₁ ; x₂], éléments contigus de même intensité fusionnés, uniforme si la barre entière est chargée), combinaisons avec coefficients. Procédure de copier-coller à valider dans la version de Robot utilisée.</p>
-<p><b>Export Robot .str (2.70, <code>TOPO.texteSTR</code>)</b> : syntaxe ROBOT97 relevée sur un fichier exporté par Robot v40 (mots-clés NOEuds, ELEments, CARactéristiques physiques, APPuis, RELâchements, CHArgements / CAs, unités m et daN, numérotation discontinue, Windows-1252, CRLF). Le fichier de référence ne contenant que des charges réparties sur barres entières et des forces nodales, les barres sont découpées aux points de charge et aux limites des charges partielles (barre B<i>n</i> → <i>n</i>01, <i>n</i>02… ; nœuds ajoutés à partir de 1001) : les numéros N et B de l'écran restent valables. Appuis : ddl <b>libres</b> listés après les nœuds (déduit du fichier de référence : appuis « RX RY RZ » d'une passerelle) – <b>à vérifier</b> ; mots-clés des moments nodaux CX, CY, CZ – <b>à vérifier</b> ; ressorts d'appui exportés comme blocages (commentés) ; sections IPE, HEA, HEB, HEM, IPN, UPN, UPE par leur nom, tubes ronds par « Diamètre … EP … », autres profils (SHS, RHS, cornières) signalés à vérifier ; jarrets à section constante (signalé). <b>Combinaisons (2.71)</b> : bloc « COMbinaison # n libellé », nature (ELU, ELS, ACCidentelle) et paires « n° de cas – coefficient », d'après un second fichier Robot v40 à combinaisons manuelles ; numérotées à la suite des cas ; combinaisons sismiques exportées en ACCidentelle (nature à vérifier) ; amplification du second ordre de A1 non transposée (analyse P-Δ dans Robot).</p>
+<p><b>Export Robot .str (2.70, <code>TOPO.texteSTR</code>)</b> : syntaxe ROBOT97 relevée sur un fichier exporté par Robot v40 (mots-clés NOEuds, ELEments, CARactéristiques physiques, APPuis, RELâchements, CHArgements / CAs, unités m et daN, numérotation discontinue, Windows-1252, CRLF). Le fichier de référence ne contenant que des charges réparties sur barres entières et des forces nodales, les barres sont découpées aux points de charge et aux limites des charges partielles (barre B<i>n</i> → <i>n</i>01, <i>n</i>02… ; nœuds ajoutés à partir de 1001) : les numéros N et B de l'écran restent valables. Appuis : ddl <b>libres</b> listés après les nœuds (déduit du fichier de référence : appuis « RX RY RZ » d'une passerelle) – <b>à vérifier</b> ; mots-clés des moments nodaux CX, CY, CZ – <b>à vérifier</b> ; ressorts d'appui exportés comme blocages (commentés) ; sections IPE, HEA, HEB, HEM, IPN, UPN, UPE par leur nom, tubes ronds par « Diamètre … EP … », autres profils (SHS, RHS, cornières) signalés à vérifier ; jarrets à section constante (signalé). <b>Combinaisons (2.71)</b> : bloc « COMbinaison # n libellé », nature (ELU, ELS, ACCidentelle) et paires « n° de cas – coefficient », d'après un second fichier Robot v40 à combinaisons manuelles ; numérotées à la suite des cas ; combinaisons sismiques en nature ELU, libellé préfixé « SIS » (comme les combinaisons sismiques exportées par Robot v40), coefficients négatifs admis (relevé sur le même fichier) ; amplification du second ordre de A1 non transposée (analyse P-Δ dans Robot).</p>
 <h3 id="s1-modele">8.1 Calcul de barres 3D</h3>
 <p>Méthode des déplacements, élastique linéaire au 1<sup>er</sup> ordre, 6 ddl par nœud. Matrice de rigidité locale 12 × 12 d'Euler-Bernoulli (EA/L, GJ/L, 12EI/L³, 6EI/L², 4EI/L, 2EI/L), transformée en repère global (rotation R, axes locaux définis par un vecteur v<sub>z</sub>). Charges réparties : efforts d'encastrement parfait (qL/2, qL²/12). Résolution par élimination de Gauss avec pivot partiel ; réactions R = K·U − F ; efforts internes le long des barres par équilibre de la partie amont.</p>
 <p>Chaque barre est découpée aux points d'appui des tuyaux, aux nœuds des autres barres et aux appuis. Les tuyaux sont reliés à la barre par des <b>bras rigides</b> : la charge appliquée à l'axe du tuyau est transportée au nœud de la barre avec son moment (M = r × F), l'excentricité valant e = demi-emprise du profilé + D<sub>cal</sub>/2 + sabot.</p>
@@ -340,6 +340,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.72</td><td>S1, A1</td><td>Export .str : combinaisons sismiques en nature ELU (libellé « SIS »), d'après un fichier Robot v40 à combinaisons sismiques ; coefficients négatifs confirmés.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.71</td><td>S1, A1</td><td>Export .str : combinaisons manuelles (ELU, ELS, accidentelles ; sismiques en accidentelles, à vérifier) selon la syntaxe d'un fichier Robot v40 ; libellés en ASCII.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.70</td><td>S1, A1</td><td>Export Robot texte (.str) selon la syntaxe ROBOT97 d'un fichier Robot v40 : nœuds, éléments (découpés aux points de charge, numérotation discontinue), sections, appuis, relâchements, cas et charges en daN ; test de relecture.</td><td>Aucun calcul modifié. Mots-clés des appuis et des moments nodaux à vérifier à l'ouverture dans Robot.</td></tr>
 <tr><td>2.69</td><td>S1, A1, AN1</td><td>Liens nœud d'appui → AN1 avec retour du résultat (taux, cheville, platine, date, « à relancer » si les efforts ont changé) ; export Robot (classeur Excel au format des tableaux : nœuds, barres, appuis, cas, charges sur barres, combinaisons).</td><td>Aucun calcul modifié.</td></tr>
@@ -493,6 +494,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.71"></script>
+<script src="../commun/replier.js?v=2.72"></script>
 </body>
 </html>

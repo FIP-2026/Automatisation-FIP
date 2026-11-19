@@ -161,7 +161,7 @@ const TOPO = (() => {
     L.push(";+---------------------------+-------------------------+---------------------+", `;! Fichier: ${ASCII(d.fichier || "FIP").slice(0, 16).padEnd(16)}! Date: ${dt}    ! FIP Etudes ${typeof CALC_VERSION !== "undefined" ? CALC_VERSION : ""}      !`, ";+---------------------------+-------------------------+---------------------+");
     L.push(`; ${ASCII(d.titre || "")}`, `; ${ASCII(d.repere || "")}`, "; Predimensionnement (APS/APD) - non valable pour execution. Fichier a verifier a l'ouverture dans Robot.",
       "; Poids propre des profiles inclus dans le cas G (charges reparties) : ne pas ajouter le poids propre automatique de Robot.",
-      "; Combinaisons manuelles en fin de fichier (COMbinaison) ; combinaisons sismiques exportees en nature ACCidentelle (a verifier).", ...(d.notes || []).map((n) => "; " + ASCII(n)), "ROBOT97", "", "PORtique SPAtial", "", "NUMérotation DIScontinue", "", `NOEuds ${nodes.length}  ELEments ${pieces.length}`, "", "UNItés", "Longueur=m\tForce=daN", "");
+      "; Combinaisons manuelles en fin de fichier (COMbinaison) ; combinaisons sismiques en nature ELU (comme Robot), libelle prefixe SIS.", ...(d.notes || []).map((n) => "; " + ASCII(n)), "ROBOT97", "", "PORtique SPAtial", "", "NUMérotation DIScontinue", "", `NOEuds ${nodes.length}  ELEments ${pieces.length}`, "", "UNItés", "Longueur=m\tForce=daN", "");
     L.push(";+------+-------------------+--------------------+--------------------+", ";!  N° !        X         !         Y         !         Z         !", ";+------+-------------------+--------------------++-------------------+", "NOEuds");
     nodes.forEach((n) => L.push(`${pad(n.id, 5)}  ${pad(nc(n.x), 11)}          ${pad(nc(n.y), 11)}          ${pad(nc(n.z), 11)}`));
     L.push("", "ELEments", ";+------+-------+-------+", ";!  N° ! ORIG.! EXTR.!", ";+------+-------+-------+");
@@ -192,10 +192,10 @@ const TOPO = (() => {
     const vues = new Set(); let nDbl = 0;
     (d.combis || []).forEach((cb) => { const P = Object.entries(cb.f || {}).filter(([id, k]) => numCas[id] && Math.abs(k) > 1e-9); if (!P.length) return;
       const sig = String(cb.type || "").slice(0, 3) + P.map(([id, k]) => numCas[id] + ":" + Math.round(k * 1e4)).sort().join("|"); if (vues.has(sig)) { nDbl++; return; } vues.add(sig);
-      const ty = String(cb.type || ""), nat = /ELS/i.test(ty) ? "ELS" : /sism/i.test(ty) ? (nSis++, "ACCidentelle") : /accid/i.test(ty) ? "ACCidentelle" : "ELU";
-      const lib = ASCII(cb.nom).replace(/,/g, ".").replace(/\s*\.\s*(?=[A-Za-z])/g, "*").slice(0, 80);
+      const ty = String(cb.type || ""), sis = /sism/i.test(ty), nat = /ELS/i.test(ty) ? "ELS" : sis ? (nSis++, "ELU") : /accid/i.test(ty) ? "ACCidentelle" : "ELU";
+      const lib = (sis ? "SIS " : "") + ASCII(cb.nom).replace(/,/g, ".").replace(/\s*\.\s*(?=[A-Za-z])/g, "*").slice(0, 80);
       L.push(`COMbinaison # ${++nC} ${lib}`, ` ${nat}`, P.map(([id, k]) => `${numCas[id]} ${Math.round(k * 1e4) / 1e4}`).join(" ") + " ", ""); });
-    if (nSis) L.push(`; ${nSis} combinaison(s) sismique(s) exportee(s) en nature ACCidentelle : nature a verifier dans Robot.`, "");
+    if (nSis) L.push(`; ${nSis} combinaison(s) sismique(s) (statique equivalente 6.12b) en nature ELU, libelle SIS.`, "");
     if (nDbl) L.push(`; ${nDbl} combinaison(s) identique(s) une fois les imperfections retirees (sens phi -> / <-) non repetee(s) : definir les defauts dans Robot.`, "");
     L.push("FIN", "", "");
     return { texte: L.join("\r\n"), nodes, pieces, ress, combis: nC - CAS.length, jarrets: [...jar], sections: [...new Set(nsec)], hors: [...new Set(hors)], moments: CAS.some(({ CB }) => CB.ponct.some((o) => o.F.slice(3).some((v) => Math.abs(v) > 1e-9))) };
