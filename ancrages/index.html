@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.68"></script>
+<script src="../commun/auth.js?v=2.69"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AN1 Ancrages</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.68">
+<link rel="stylesheet" href="../commun/calc.css?v=2.69">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/apps.js?v=2.68"></script>
-<script src="../commun/data/profils.js?v=2.68"></script>
-<script src="../commun/ident.js?v=2.68"></script>
-<script src="../commun/chevilles.js?v=2.68"></script>
-<script src="../commun/cbfem.js?v=2.68"></script>
-<script src="../commun/export.js?v=2.68"></script>
+<script src="../commun/apps.js?v=2.69"></script>
+<script src="../commun/data/profils.js?v=2.69"></script>
+<script src="../commun/ident.js?v=2.69"></script>
+<script src="../commun/chevilles.js?v=2.69"></script>
+<script src="../commun/cbfem.js?v=2.69"></script>
+<script src="../commun/export.js?v=2.69"></script>
 <style>
   /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
   main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
@@ -190,10 +190,13 @@ const PROD=CHEV.PROD;
 /* ---- état ---- */
 let PR={x:0,y:0,a:0}, hefMode='saisie', outil='sel', sel=null, A=[{x:-90,y:-90},{x:90,y:-90},{x:-90,y:90},{x:90,y:90}], C=[{nom:'Combinaison 1',N:6393,Vx:25,Vy:91,Mx:171,My:47,Mz:0,sis:false}], actif=0, modeSel=null;
 /* réglages mémorisés avec la saisie : méthode de calcul et affichage des résultats CBFEM */
+/* lien avec le module source (S1, A1) : clé, empreinte des efforts envoyés, lien de retour */
+let LIEN=null;
 const OPT_IDS=['meth','carte','ampDef','kaMode','kaVal','hcVal','nivNote'];
 try{ const s=JSON.parse(localStorage.getItem('fip.an1')); if(s&&s.A&&s.C){ A=s.A; C=s.C; if(s.PR) PR=s.PR; if(s.hefMode) hefMode=s.hefMode; }
+  if(s&&s.lien) LIEN=s.lien;
   if(s&&s.opt) OPT_IDS.forEach(k=>{ const el=$(k); if(el&&s.opt[k]!=null&&(el.tagName!=='SELECT'||[...el.options].some(o=>o.value===s.opt[k]))) el.value=s.opt[k]; }); }catch(e){}
-const enr=()=>{ try{ localStorage.setItem('fip.an1',JSON.stringify({A,C,PR,hefMode,opt:Object.fromEntries(OPT_IDS.map(k=>[k,$(k).value]))})); }catch(e){} };
+const enr=()=>{ try{ localStorage.setItem('fip.an1',JSON.stringify({A,C,PR,hefMode,lien:LIEN,opt:Object.fromEntries(OPT_IDS.map(k=>[k,$(k).value]))})); }catch(e){} };
 /* ---- remplissage des listes ---- */
 $('classe').innerHTML=BETON.map(([a,b])=>`<option value="${a}" ${a===25?'selected':''}>C${a}/${b}</option>`).join('');
 $('fam').innerHTML=Object.entries(PROD).map(([k,p])=>`<option value="${k}">${h(p.nom)} – ${p.eta}</option>`).join('');
@@ -582,7 +585,7 @@ window.addEventListener('beforeprint',()=>{ if(!IMPR_PRET){ prepImpr(); $('imprC
 window.addEventListener('afterprint',()=>{ IMPR_PRET=false; document.body.classList.remove('impNote'); });
 /* ---- rendu général ---- */
 let tR=null;
-function rendre(){ enr(); calculer(); majPose(); $('schCh').innerHTML=schemaCheville(276); tables(); regles(); resultats(); plan2D(); clearTimeout(tR); tR=setTimeout(()=>vue3D().catch(e=>{ $('v3d').innerHTML=`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${h(e.message)}</div>`; }),60); }
+function rendre(){ enr(); calculer(); renvoyer(); majPose(); $('schCh').innerHTML=schemaCheville(276); tables(); regles(); resultats(); plan2D(); clearTimeout(tR); tR=setTimeout(()=>vue3D().catch(e=>{ $('v3d').innerHTML=`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${h(e.message)}</div>`; }),60); }
 document.querySelectorAll('#pSaisie input:not([data-inf]):not(#hef), #pSaisie select:not(#fam):not(#diam):not(#cl):not(#classe):not(#pfam), #pas').forEach(el=>el.addEventListener('input',()=>{ if(['lx','ly'].includes(el.id)) majProfils(); else rendre(); }));
 document.querySelectorAll('[data-inf]').forEach(el=>el.addEventListener('change',()=>{ $(el.dataset.inf).disabled=el.checked; rendre(); }));
 document.querySelectorAll('[data-inf]').forEach(el=>{ $(el.dataset.inf).disabled=el.checked; });
@@ -695,10 +698,20 @@ async function preparerNote(){
   <h2>${7+nF}. Règles de conception et alertes</h2><ul>${$('regles').innerHTML}</ul>
   ${conclusion(8+nF)}`;
 }
+/* ---- retour du résultat vers le module source (fip.an1.retour[clé]) à chaque calcul ---- */
+const sigC=()=>JSON.stringify(C.map(c=>[c.N,c.Vx,c.Vy,c.Mx,c.My,c.Mz,!!c.sis]));
+function renvoyer(){ if(!LIEN||!RES.length) return; const P=PROD[$('fam').value], ok=RES.filter(r=>r&&!r.err), u=ok.length===RES.length?Math.max(...RES.map(r=>r.uMax)):NaN;
+  let o={}; try{ o=JSON.parse(localStorage.getItem('fip.an1.retour'))||{}; }catch(e){}
+  o[LIEN.cle]={t:Date.now(),u,emp:LIEN.emp,cheville:`${A.length} × ${h0txt(P.nom).split(' (')[0]} ${$('diam').value}${$('cl').value!=='acier'?' '+$('cl').value:''}, h_ef ${$('hef').value} mm, platine ${$('lx').value} × ${$('ly').value} × ${$('tp').value}`,
+    methode:$('meth').value==='cbfem'?'platine flexible (CBFEM)':'platine rigide',modifie:sigC()!==LIEN.sigC};
+  try{ localStorage.setItem('fip.an1.retour',JSON.stringify(o)); }catch(e){}
+  $('preInfo').hidden=false; if(!$('preInfo').dataset.import) $('preInfo').innerHTML=`<b>Lié à ${h(LIEN.src)}</b> : le résultat (taux ${isFinite(u)?f(u*100,0)+' %':'—'}) est renvoyé à ${h(LIEN.srcCourt||'la source')} à chaque calcul${o[LIEN.cle].modifie?' ; combinaisons modifiées ici depuis l\'import':''}. ${LIEN.retour?`<a href="${h(LIEN.retour)}">← Retour à ${h(LIEN.srcCourt)}</a> · `:''}<a href="#" id="delier">Délier</a>`;
+  const dl=$('delier'); if(dl) dl.onclick=e=>{ e.preventDefault(); LIEN=null; enr(); $('preInfo').hidden=true; }; }
 /* ---- import depuis S1 / A1 (fip.an1.pre, moins d'une heure) ---- */
 function lirePre(){ let p=null; try{ p=JSON.parse(localStorage.getItem('fip.an1.pre')); }catch(e){} try{ localStorage.removeItem('fip.an1.pre'); }catch(e){}
   if(!p||!Array.isArray(p.C)||!p.C.length||Date.now()-(p.t||0)>3600e3) return;
   C=p.C.map(c=>({nom:String(c.nom||'Combinaison').slice(0,80),N:+c.N||0,Vx:+c.Vx||0,Vy:+c.Vy||0,Mx:+c.Mx||0,My:+c.My||0,Mz:+c.Mz||0,sis:!!c.sis})); actif=0;
+  LIEN=p.cle?{cle:String(p.cle),emp:String(p.emp||''),src:String(p.src||''),srcCourt:String(p.srcCourt||''),retour:String(p.retour||''),sigC:sigC()}:null;
   if(Array.isArray(p.A)&&p.A.length) A=p.A.map(a=>({x:+a.x||0,y:+a.y||0}));
   PR={x:0,y:0,a:+(p.angle||0)}; syncPR();
   const pr=p.profil&&PROFILS.find(q=>q.n===p.profil), fams=[...$('pfam').options].map(o=>o.value);
@@ -707,6 +720,7 @@ function lirePre(){ let p=null; try{ p=JSON.parse(localStorage.getItem('fip.an1.
     if(+$('lx').value<(rot?B:L)) $('lx').value=rot?B:L; if(+$('ly').value<(rot?L:B)) $('ly').value=rot?L:B; $('pfam').value=pr.f; }
   else $('pfam').value='aucun';
   const lien=p.retour?` <a href="${h(p.retour)}">← Retour à ${h(p.srcCourt||p.src||'')}</a>`:'';
+  $('preInfo').dataset.import='1'; setTimeout(()=>{ delete $('preInfo').dataset.import; },15000);
   $('preInfo').innerHTML=`<b>Données reprises de ${h(p.src||'')}</b> : ${C.length} combinaison${C.length>1?'s':''}${p.profil?`, profilé ${h(p.profil)}${pr&&fams.includes(pr.f)?'':' (hors bibliothèque AN1 : non représenté)'}`:''}${p.info?'. '+p.info:''}. À vérifier : béton, bords, cheville, disposition.${lien}`; $('preInfo').hidden=false;
   return pr&&fams.includes(pr.f)?pr.n:null; }
 $('bImport').onclick=()=>{ $('preInfo').hidden=false; $('preInfo').innerHTML=`<b>Import des efforts</b> : dans <a href="../supports/">S1 Supports</a>, carte « Fixations sur l'ouvrage » → « ⚓ Vérifier les chevilles dans AN1 » (réactions ELU et sismiques de la platine, dans ses axes) ; dans <a href="../auvent/">A1 Toiture isolée</a>, carte « Descente de charges aux pieds de poteaux » → « ⚓ Vérifier l'ancrage des pieds dans AN1 » (combinaisons ELU déterminantes de chaque pied). Les combinaisons actuelles sont remplacées.`; };
@@ -715,7 +729,7 @@ const PRE_PROF=lirePre();
 syncPR(); majSis(); majBeton(); majProfils(); if(PRE_PROF){ $('pnom').value=PRE_PROF; } majProduit();
 </script>
 <script>EXPORT.init({code:'AN1',titre:'Note de calcul – ancrage de platine',excel:false,avant:()=>preparerNote(),zones:()=>[$('note')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.repere||K.num||'ancrage'; }});</script>
-<script src="../commun/aide.js?v=2.68"></script>
+<script src="../commun/aide.js?v=2.69"></script>
 <script>AIDE.init({titre:"Aide – AN1 Ancrages",manuel:"an1",intro:"AN1 vérifie les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE : répartition des efforts en platine rigide, tous les modes de rupture en traction et en cisaillement, interactions, situation sismique (annexe C) et h_ef optimale. Prédimensionnement APS/APD : la platine rigide est une hypothèse à justifier, ou à contrôler avec la méthode CBFEM (platine flexible en éléments finis)",
   etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, cheville (données de l'ETE, schéma de pose coté : tige ou goujon, trou de platine, perçage, résine ou clip d'expansion, h<sub>ef</sub>, t<sub>fix</sub>, h), disposition, platine et profilé, méthode. Les conditions de pose (température, perçage, état du trou, durée d'utilisation, espace annulaire, α<sub>sus</sub>, armatures) sont regroupées dans un bloc replié « Conditions de pose » de la carte Cheville, avec leur résumé ; valeurs par défaut : plage I, perforateur, trou sec, 50 ans, espace annulaire comblé, ψ<sub>re,N</sub> = 1. Elles figurent dans les hypothèses de la cheville des notes.",cible:"#pSaisie"},
     {t:"Vues",html:"Vue 3D cotée (rotation et zoom à la souris ; chaînes de cotes platine / chevilles, l<sub>x</sub>, l<sub>y</sub>, épaisseur h, distances aux bords finis en rouge ; SCU X/Y/Z placé hors de la platine) ou plan 2D coté (mêmes cotes, bords du béton : trait fort si fini, trait mixte si infini ou lointain) . Barre d'outils du plan 2D : « ↖ Sélection » (cliquer une cheville ou le profilé puis glisser, accrochage au quadrillage), « ＋ Chevilles » (clic pour poser), « ✕ Supprimer » ou touche Suppr, « ↺ / ↻ 90° » pour tourner le profilé.",cible:"#v3d"},
@@ -725,7 +739,7 @@ syncPR(); majSis(); majBeton(); majProfils(); if(PRE_PROF){ $('pnom').value=PRE_
     {t:"Résultats",html:"Taux par mode de rupture (efforts / résistance de calcul en daN), interactions acier et béton (Tab. 7.3 ou éq. C.9 en séisme), taux maxi de la combinaison cochée, alertes (catégorie sismique non couverte, réduction DLS). Cliquer un mode affiche ses valeurs intermédiaires (aires, ψ, τ, k…) et les pistes d'amélioration.",cible:"#pRes"},
     {t:"Séisme",html:"Cocher « sismique » sur la combinaison. Catégorie C1 / C2 (AN Tab. C1-1 à C1-3), calcul a1 en capacité ou a2 élastique, coefficient appliqué aux efforts (AN Fig. NA.1 : PROFIS ne l'applique pas), déplacement admissible DLS (3 mm selon la NF EN 1992-4 ; réduction δ_req/δ_eq de l'éq. C.11), α_gap (espace annulaire), α_eq (Tab. C.3), γ_c = 1,3.",cible:"#dSis"},
     {t:"Note de calcul Word et PDF",html:"Choisir le niveau dans l'en-tête (« Note : simplifiée / détaillée »), puis « Word » ou « Imprimer / PDF » (même contenu, trame FIP en Word dès qu'une identification est saisie). <b>Simplifiée</b> : résultats globaux (taux de chaque combinaison, cas dimensionnant surligné, résumé de ses vérifications), chevillage (cheville, ETE, béton, platine, profilé, méthode, plan coté et vue 3D), conclusion. <b>Détaillée</b>, comme PROFIS : objet et références, résultats globaux, hypothèses, géométrie, combinaisons, puis vérification du seul cas dimensionnant (efforts par cheville, platine CBFEM, modes de rupture, formules de la NF EN 1992-4 avec variables et comparaison E<sub>d</sub> / R<sub>d</sub>), figures CBFEM (une page par champ), règles de conception et conclusion. La vue 3D garde l'orientation choisie à l'écran.",cible:"#cCmb"},
-    {t:"Combinaisons et import",html:"Efforts au centre du profilé (daN, daN·m ; N &gt; 0 en traction) ; la combinaison cochée est affichée. Import : depuis S1 (carte « Fixations sur l'ouvrage » → « Vérifier les chevilles dans AN1 ») les réactions ELU et sismiques extrêmes de la platine, projetées dans ses axes (sol : X, Y, Z ; plafond : X, −Y, −Z ; mur : −X, Z, Y), et les 4 chevilles a<sub>1</sub> × a<sub>2</sub> ; depuis A1 (carte « Descente de charges aux pieds de poteaux » → « Vérifier l'ancrage des pieds dans AN1 ») les combinaisons ELU déterminantes de chaque pied et le profilé du poteau. Un bandeau rappelle la source, avec un lien de retour ; béton, bords et cheville restent à saisir.",cible:"#cCmb"}],
+    {t:"Combinaisons et import",html:"Efforts au centre du profilé (daN, daN·m ; N &gt; 0 en traction) ; la combinaison cochée est affichée. Import : depuis S1 (carte « Fixations sur l'ouvrage » → « Vérifier les chevilles dans AN1 ») les réactions ELU et sismiques extrêmes de la platine, projetées dans ses axes (sol : X, Y, Z ; plafond : X, −Y, −Z ; mur : −X, Z, Y), et les 4 chevilles a<sub>1</sub> × a<sub>2</sub> ; depuis A1 (carte « Descente de charges aux pieds de poteaux » → « Vérifier l'ancrage des pieds dans AN1 ») les combinaisons ELU déterminantes de chaque pied et le profilé du poteau. Un bandeau rappelle la source, avec un lien de retour ; béton, bords et cheville restent à saisir. Tant que le lien existe (« Délier » pour l'arrêter), chaque calcul renvoie au module source le taux maxi, la cheville et la platine retenues ; S1 et A1 l'affichent sur le nœud correspondant et signalent « à relancer » si leurs efforts ont changé.",cible:"#cCmb"}],
   faq:[{q:"Pourquoi les efforts importés de S1 ont-ils un signe inattendu ?",r:"AN1 travaille dans les axes de la platine, z sortant du béton : sous une platine de plafond, une charge descendante est une traction (N &gt; 0) ; sur un mur, y est vertical vers le haut et x = −X (vue de face). Le bandeau d'import rappelle la correspondance."},{q:"Rigide ou flexible ?",r:"La NF EN 1992-4 suppose une platine rigide (§6.2.1, répartition linéaire). Si elle ne l'est pas, les chevilles les plus chargées le sont davantage (effet de levier, bras de levier réduit). La méthode « CBFEM – platine flexible » le calcule : comparer la cheville la plus tendue en flexible et en rigide (rapport affiché). Un rapport proche de 1 justifie l'hypothèse rigide ; sinon épaissir la platine, rapprocher les chevilles des parois du profilé ou raidir."},
     {q:"Quelle confiance accorder au CBFEM de AN1 ?",r:"Le modèle (plaque MITC4, contact unilatéral, chevilles en traction seule, plasticité par rigidité sécante) est vérifié sur des cas théoriques et retrouve à 3 – 5 % la cheville la plus tendue de trois notes PROFIS. Le point sensible est la raideur des chevilles : PROFIS utilise des raideurs d'essais non publiées, AN1 une règle calée (E<sub>s</sub>·A<sub>s</sub>/(t + 4d) en scellement chimique, E<sub>s</sub>·A<sub>s</sub>/(2·h<sub>ef</sub>) en expansion) signalée « à vérifier » et modifiable. Une cheville plus raide augmente l'effet de levier : en cas de doute, tester une raideur double. Prédimensionnement, non valable pour exécution."},
     {q:"Que ne vérifie pas le CBFEM de AN1 ?",r:"Les soudures (seule une gorge indicative est donnée), la pression diamétrale des trous, la section du profilé au-delà de la contrainte en pied de paroi, les raidisseurs, les platines non rectangulaires ou décollées (mortier, calage), la répartition du cisaillement en platine flexible (reprise du calcul rigide)."},
