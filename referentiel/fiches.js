@@ -199,7 +199,7 @@ const FICHES = [
   <li><b>Liaisons</b> : pour chaque appui, les six degrés de liberté DX, DY, DZ (translations) et RX, RY, RZ (rotations) sont bloqués, libres ou retenus par un ressort (platine semi-rigide). Encastrement : tout bloqué ; rotule : translations bloquées, rotations libres.</li>
   <li><b>Pourquoi numéroter</b> : un assemblage (pied de poteau, jonction poteau – traverse) se calcule à un nœud avec les efforts des barres qui y arrivent ; la numérotation permet de les retrouver, de contrôler le modèle et d'échanger avec un autre logiciel.</li></ul>
   <p>Le logiciel découpe en plus chaque barre en petits éléments pour le calcul (maillage) : ces points de calcul ne sont pas numérotés pour rester lisible.</p>
-  <p><b>Échanges</b> : depuis un nœud d'appui, l'assemblage (chevillage AN1) reçoit les efforts du nœud et renvoie son taux ; l'export Robot reprend nœuds, barres, appuis, charges et combinaisons dans un classeur à coller dans les tableaux de Robot.</p>`,
+  <p><b>Échanges</b> : depuis un nœud d'appui, l'assemblage (chevillage AN1) reçoit les efforts du nœud et renvoie son taux ; l'export Robot produit un fichier texte .str à ouvrir directement dans Robot (modèle et cas de charge) et un classeur Excel (mêmes données et combinaisons).</p>`,
   refs: "NF EN 1993-1-1 §5.2 (analyse globale), NF EN 1993-1-8 §5 (modélisation des assemblages).", calc: "S1, A1" },
 { id: "chevilles", theme: "Calcul acier", titre: "Chevilles dans le béton : modes de rupture et platine rigide",
   bref: "Une cheville peut céder par l'acier, par arrachement d'un cône de béton, par glissement (adhérence de la résine), par fendage ou, en cisaillement, par effet de levier et rupture du bord. La NF EN 1992-4 vérifie chaque mode, avec une platine supposée rigide.",

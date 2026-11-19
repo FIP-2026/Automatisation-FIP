@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.69"></script>
+<script src="../commun/auth.js?v=2.70"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.69">
+<link rel="stylesheet" href="../commun/calc.css?v=2.70">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.69"></script>
-<script src="../commun/data/tuyauterie.js?v=2.69"></script>
-<script src="../commun/acier.js?v=2.69"></script>
-<script src="../commun/barres3d.js?v=2.69"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.69"></script>
-<script src="../commun/dessin.js?v=2.69"></script>
-<script src="../commun/coefvent.js?v=2.69"></script>
-<script src="../commun/cahier.js?v=2.69"></script>
-<script src="../commun/chevilles.js?v=2.69"></script>
-<script src="../commun/topo.js?v=2.69"></script>
+<script src="../commun/data/profils.js?v=2.70"></script>
+<script src="../commun/data/tuyauterie.js?v=2.70"></script>
+<script src="../commun/acier.js?v=2.70"></script>
+<script src="../commun/barres3d.js?v=2.70"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.70"></script>
+<script src="../commun/dessin.js?v=2.70"></script>
+<script src="../commun/coefvent.js?v=2.70"></script>
+<script src="../commun/cahier.js?v=2.70"></script>
+<script src="../commun/chevilles.js?v=2.70"></script>
+<script src="../commun/topo.js?v=2.70"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -203,7 +203,7 @@
   <div class="card" id="rHero"></div>
   <div class="card"><h2>Alertes de conception</h2><div id="rAlertes"></div></div>
   <div class="card"><h2>Vues du support</h2>
-    <div class="vues noprint"><button id="b2d" class="on">Vues 2D</button><button id="b3d">Vue 3D</button><button id="bNum" title="Afficher les numéros de nœuds et de barres (avec leur section) et le tableau du modèle : nœuds, barres, liaisons">🔢 Nœuds / barres</button><button id="bRobot" type="button" title="Classeur Excel au format des tableaux Robot : nœuds, barres, appuis, cas, charges sur barres, combinaisons">📤 Export Robot</button><button id="bInd" title="Planche de plan : vues orthogonales à l'échelle, cotation ISO, nomenclature, cartouche">📐 Dessin industriel</button>
+    <div class="vues noprint"><button id="b2d" class="on">Vues 2D</button><button id="b3d">Vue 3D</button><button id="bNum" title="Afficher les numéros de nœuds et de barres (avec leur section) et le tableau du modèle : nœuds, barres, liaisons">🔢 Nœuds / barres</button><button id="bStr" type="button" title="Fichier texte Robot (.str, syntaxe ROBOT97) : nœuds, barres, sections, appuis, relâchements, cas et charges (daN) – à ouvrir dans Robot">📄 Robot (.str)</button><button id="bRobot" type="button" title="Classeur Excel au format des tableaux Robot : nœuds, barres, appuis, cas, charges sur barres, combinaisons">📊 Tableaux Robot</button><button id="bInd" title="Planche de plan : vues orthogonales à l'échelle, cotation ISO, nomenclature, cartouche">📐 Dessin industriel</button>
       <span id="optInd" style="display:none;margin-left:8px"><select id="fmtInd" style="width:auto"><option value="A3">A3 paysage</option><option value="A4">A4 paysage</option></select> <label style="display:inline;font-weight:400;margin:0 6px"><input type="checkbox" id="ddcInd"> DDC + SCU</label><button id="prInd" type="button">🖨 Planche à l'échelle</button> <button id="dxfInd" type="button" title="Export AutoCAD (DXF 2000 : présentation A3 avec cartouche en espace papier, vues en espace objet ; mm, calques ISO)">⬇ DXF</button></span></div>
     <div id="p2d"><div class="vue2d"><div id="vFace"></div><div id="vCote"></div></div><div id="vTopo" hidden></div></div>
     <div id="pInd" style="display:none"><div id="vInd" style="border:1px solid var(--line);border-radius:6px;overflow:hidden"></div><div class="note" id="nInd"></div></div>
@@ -1006,14 +1006,15 @@ function topoS1(V){ const Gm=V.Gm, nu=$('nuance').value;
 function badgeAN1S1(ia){ const pre=preAN1S1(ia); return pre?TOPO.badge(pre.cle,pre.emp):''; }
 function tableauTopoS1(V,h='h3'){ const Gm=V.Gm; return TOPO.tableaux(topoS1(V),{titres:h,assemblage:a=>{ const ap=Gm.appuis[a.ref]; return ap&&['sol','mur','plafond'].includes(ap.k)&&$('fix').value!=='tige'&&$('fix').value!=='crap'?`<button type="button" class="sec mini" onclick="ouvrirAN1(${a.ref})" title="Chevillage de la platine dans AN1">⚓ AN1</button> ${badgeAN1S1(a.ref)}`:'<span class="note">—</span>'; },note:'Repère global : X axe des tuyaux, Y transversal, Z vertical ascendant ; origine au premier appui. Nœuds aux extrémités de barres, aux appuis et aux jonctions ; une barre est découpée à chaque jonction. Numérotation indépendante du maillage de calcul (les points d\'application des tuyaux sont des nœuds de calcul supplémentaires).'}); }
 /* export vers Robot (commun/topo.js) : modèle numéroté, cas élémentaires (charges des tuyaux = forces concentrées sur barre, poids propre réparti), combinaisons */
-async function exportRobotS1(){ if(!dernier) return; const {D,V}=dernier, Gm=V.Gm, t=topoS1(V), nd=n=>{ const q=Gm.noeuds[n]; return [q.x,q.y,q.z]; }, net=s=>String(s).replace(/<[^>]+>/g,'');
+async function exportRobotS1(fmt){ if(!dernier) return; const {D,V}=dernier, Gm=V.Gm, t=topoS1(V), nd=n=>{ const q=Gm.noeuds[n]; return [q.x,q.y,q.z]; }, net=s=>String(s).replace(/<[^>]+>/g,'');
   const NOM={G:'G – permanentes (tuyaux, profilés, équipements)',FL:'Gfl – fluide en service',T:'T – température (frottement, dilatation)',S:'S – neige',WY:'Wy – vent transversal',WX:'Wx – vent longitudinal',EP:'Ep – eau d\'épreuve',EX:'Ex – séisme longitudinal',EY:'Ey – séisme transversal'};
   const NAT={G:'permanente',FL:'permanente',T:'exploitation (température)',S:'neige',WY:'vent',WX:'vent',EP:'exploitation (épreuve)',EX:'sismique',EY:'sismique'};
   const cas=Object.entries(V.CC.cas).filter(([,v])=>v.charges.length||v.reparties.length).map(([id,v])=>({id,nom:NOM[id]||id,nature:NAT[id]||'',
     ponct:v.charges.map(c=>({P:nd(c.n),F:c.F})),rep:v.reparties.map(r=>({A:nd(Gm.barres[r.b].i),B:nd(Gm.barres[r.b].j),q:r.q}))}));
   const combis=V.ELU.map(c=>({nom:net(c.nom),type:c.type==='Sismique'?'ELU sismique':'ELU',f:c.b})).concat(V.CAR.map(c=>({nom:net(c.nom),type:'ELS caractéristique',f:c.b})));
-  try{ await TOPO.exportRobot(t,{titre:'S1 – support de tuyauterie '+($('repere').value||''),repere:TYPES[D.typ].n+' – '+$('nuance').value,fichier:'S1_'+(($('repere').value||'support').replace(/[^A-Za-z0-9_-]+/g,'_')),cas,combis,
-    notes:['Charges des tuyauteries : forces au point d\'appui du tuyau sur la barre, avec le moment de transport de l\'excentricité (bras rigide).','Cas ± (température, vent, séisme) : un seul sens exporté ; le signe est porté par le coefficient de la combinaison.','Platine semi-rigide : ressorts de rotation de la feuille Appuis (kN·m/rad).']}); }
+  const dd={titre:'S1 – support de tuyauterie '+($('repere').value||''),repere:TYPES[D.typ].n+' – '+$('nuance').value,fichier:'S1_'+(($('repere').value||'support').replace(/[^A-Za-z0-9_-]+/g,'_')),cas,combis,
+    notes:['Charges des tuyauteries : forces au point d\'appui du tuyau sur la barre, avec le moment de transport de l\'excentricité (bras rigide).','Cas ± (température, vent, séisme) : un seul sens exporté ; le signe est porté par le coefficient de la combinaison.','Platine semi-rigide : ressorts de rotation de la feuille Appuis (kN·m/rad).']};
+  try{ if(fmt==='str') TOPO.exportSTR(t,dd); else await TOPO.exportRobot(t,dd); }
   catch(e){ alert('Export impossible : '+e.message); } }
 function majNum(){ $('bNum').classList.toggle('on',NUM); $('vTopo').hidden=!NUM; if(NUM&&dernier) $('vTopo').innerHTML=tableauTopoS1(dernier.V,'h3'); }
 function vueFace(D,V,opt={}){                               // plan Y–Z (regard le long des tuyaux)
@@ -1399,7 +1400,7 @@ function init(){
   const modeVue=m=>{ vue3dActive=m==='3d'; modeIndus=m==='ind'; $('p2d').style.display=m==='2d'?'':'none'; $('p3d').style.display=m==='3d'?'':'none'; $('pInd').style.display=m==='ind'?'':'none'; $('optInd').style.display=m==='ind'?'':'none';
     [['b2d','2d'],['b3d','3d'],['bInd','ind']].forEach(([id,k])=>$(id).classList.toggle('on',k===m)); if(m==='ind') majIndus(); };
   $('b2d').onclick=()=>modeVue('2d'); $('bInd').onclick=()=>modeVue('ind');
-  $('bRobot').onclick=exportRobotS1;
+  $('bRobot').onclick=()=>exportRobotS1('xlsx'); $('bStr').onclick=()=>exportRobotS1('str');
   $('bNum').onclick=()=>{ NUM=!NUM; try{ localStorage.setItem('fip.s1.num',NUM?'1':'0'); }catch(e){} modeVue('2d'); if(dernier){ $('vFace').innerHTML=vueFace(dernier.D,dernier.V); $('vCote').innerHTML=vueCote(dernier.D,dernier.V); } majNum(); };
   $('fmtInd').onchange=()=>{ formatIndus=$('fmtInd').value; majIndus(); }; $('ddcInd').onchange=()=>majIndus(); $('dxfInd').onclick=exporterDXF; $('prInd').onclick=()=>{ if(dernier&&dernier.planche) imprimerPlanche(dernier.planche); };
   $('b3d').onclick=()=>{modeVue('3d');majVue3D().catch(e=>{$('v3d').insertAdjacentHTML('beforeend',`<div class="msg warn" style="margin:10px">Vue 3D indisponible : ${escH(e.message)}</div>`);});};
@@ -1476,13 +1477,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.69"></script>
-<script src="../commun/aide.js?v=2.69"></script>
-<script src="../commun/notes.js?v=2.69"></script>
-<script src="ndc-s1.js?v=2.69"></script>
+<script src="../commun/replier.js?v=2.70"></script>
+<script src="../commun/aide.js?v=2.70"></script>
+<script src="../commun/notes.js?v=2.70"></script>
+<script src="ndc-s1.js?v=2.70"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.69"></script>
-<script src="../commun/export.js?v=2.69"></script>
+<script src="aide-s1.js?v=2.70"></script>
+<script src="../commun/export.js?v=2.70"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
