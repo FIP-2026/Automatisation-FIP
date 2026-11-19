@@ -192,6 +192,14 @@ const FICHES = [
   <li>Supports de tuyauterie : min(L/150 ; 5 mm) au point d'appui du tuyau (pratique, modifiable).</li>
   <li>Fréquence propre d'un plancher : ≥ 2,6 à 5 Hz selon l'usage (vibrations).</li></ul>`,
   refs: "NF EN 1993-1-1 §7.2 + AN (Tab. 7.1, §7.2.2, §7.2.3) ; NF EN 1990 A1.4.", calc: "P1, P2, S1" },
+{ id: "modele", theme: "Calcul acier", titre: "Modèle de calcul : nœuds, barres et liaisons",
+  bref: "Un logiciel de calcul de structure (Robot, etc.) décrit l'ouvrage par des nœuds (points), des barres qui relient deux nœuds (avec une section et un matériau) et des liaisons aux appuis (déplacements et rotations bloqués ou libres).",
+  corps: `<ul><li><b>Nœuds</b> : extrémités des barres, appuis et jonctions entre barres ; coordonnées X, Y, Z dans le repère global.</li>
+  <li><b>Barres</b> : élément entre deux nœuds (origine → extrémité), section, matériau, éventuels relâchements (barre articulée qui ne transmet que l'effort normal, comme une jambe de force).</li>
+  <li><b>Liaisons</b> : pour chaque appui, les six degrés de liberté DX, DY, DZ (translations) et RX, RY, RZ (rotations) sont bloqués, libres ou retenus par un ressort (platine semi-rigide). Encastrement : tout bloqué ; rotule : translations bloquées, rotations libres.</li>
+  <li><b>Pourquoi numéroter</b> : un assemblage (pied de poteau, jonction poteau – traverse) se calcule à un nœud avec les efforts des barres qui y arrivent ; la numérotation permet de les retrouver, de contrôler le modèle et d'échanger avec un autre logiciel.</li></ul>
+  <p>Le logiciel découpe en plus chaque barre en petits éléments pour le calcul (maillage) : ces points de calcul ne sont pas numérotés pour rester lisible.</p>`,
+  refs: "NF EN 1993-1-1 §5.2 (analyse globale), NF EN 1993-1-8 §5 (modélisation des assemblages).", calc: "S1, A1" },
 { id: "chevilles", theme: "Calcul acier", titre: "Chevilles dans le béton : modes de rupture et platine rigide",
   bref: "Une cheville peut céder par l'acier, par arrachement d'un cône de béton, par glissement (adhérence de la résine), par fendage ou, en cisaillement, par effet de levier et rupture du bord. La NF EN 1992-4 vérifie chaque mode, avec une platine supposée rigide.",
   corps: `<ul><li><b>Traction</b> : acier (N<sub>Rk,s</sub> de l'ETE), cône de béton (N⁰<sub>Rk,c</sub> = k₁·√f<sub>ck</sub>·h<sub>ef</sub><sup>1,5</sup>, k₁ = 7,7 en béton fissuré et 11,0 non fissuré pour les chevilles chimiques ; s<sub>cr,N</sub> = 3h<sub>ef</sub>), extraction-glissement (mécanique) ou rupture combinée par adhérence (chimique, τ<sub>Rk</sub> selon la température et la durée), fendage.</li>

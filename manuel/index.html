@@ -4,24 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.67"></script>
+<script src="../commun/auth.js?v=2.68"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.67">
-<script src="../commun/apps.js?v=2.67"></script>
-<script src="../commun/data/profils.js?v=2.67"></script>
-<script src="../commun/barres3d.js?v=2.67"></script>
-<script src="../commun/acier.js?v=2.67"></script>
-<script src="../commun/data/tuyauterie.js?v=2.67"></script>
-<script src="../commun/charges.js?v=2.67"></script>
-<script src="../commun/coefvent.js?v=2.67"></script>
-<script src="../commun/tendues.js?v=2.67"></script>
-<script src="../commun/portique.js?v=2.67"></script>
-<script src="../commun/chevilles.js?v=2.67"></script>
-<script src="../commun/cbfem.js?v=2.67"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.68">
+<script src="../commun/apps.js?v=2.68"></script>
+<script src="../commun/data/profils.js?v=2.68"></script>
+<script src="../commun/barres3d.js?v=2.68"></script>
+<script src="../commun/acier.js?v=2.68"></script>
+<script src="../commun/data/tuyauterie.js?v=2.68"></script>
+<script src="../commun/charges.js?v=2.68"></script>
+<script src="../commun/coefvent.js?v=2.68"></script>
+<script src="../commun/tendues.js?v=2.68"></script>
+<script src="../commun/portique.js?v=2.68"></script>
+<script src="../commun/chevilles.js?v=2.68"></script>
+<script src="../commun/cbfem.js?v=2.68"></script>
+<script src="../commun/topo.js?v=2.68"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -166,6 +167,7 @@
 </article>
 
 <article class="card" id="s1"><div class="theme">S1 – Supports de tuyauterie</div><h2>8. S1 – Modèle de calcul</h2>
+<p><b>Numérotation du modèle (2.68, <code>commun/topo.js</code>)</b> : bouton « 🔢 Nœuds / barres » des vues et section « Modèle » de la note complète. Comme dans Robot, la numérotation porte sur la structure et non sur le maillage de calcul : nœuds aux extrémités de barres, aux appuis et aux jonctions (une extrémité de barre située sur une autre barre crée un nœud et découpe cette barre) ; nœuds triés de bas en haut puis selon X et Y. Tableaux : nœuds (X, Y, Z en m), barres (origine, extrémité, section, matériau, longueur, relâchements – jambe de force articulée), liaisons (DX à RZ bloqués, libres ou ressorts k en kN·m/rad pour la platine semi-rigide).</p>
 <h3 id="s1-modele">8.1 Calcul de barres 3D</h3>
 <p>Méthode des déplacements, élastique linéaire au 1<sup>er</sup> ordre, 6 ddl par nœud. Matrice de rigidité locale 12 × 12 d'Euler-Bernoulli (EA/L, GJ/L, 12EI/L³, 6EI/L², 4EI/L, 2EI/L), transformée en repère global (rotation R, axes locaux définis par un vecteur v<sub>z</sub>). Charges réparties : efforts d'encastrement parfait (qL/2, qL²/12). Résolution par élimination de Gauss avec pivot partiel ; réactions R = K·U − F ; efforts internes le long des barres par équilibre de la partie amont.</p>
 <p>Chaque barre est découpée aux points d'appui des tuyaux, aux nœuds des autres barres et aux appuis. Les tuyaux sont reliés à la barre par des <b>bras rigides</b> : la charge appliquée à l'axe du tuyau est transportée au nœud de la barre avec son moment (M = r × F), l'excentricité valant e = demi-emprise du profilé + D<sub>cal</sub>/2 + sabot.</p>
@@ -208,6 +210,7 @@
 
 <article class="card" id="a1"><div class="theme">A1 – Toiture isolée</div><h2>10 bis. A1 – Portique de toiture isolée (auvent)</h2>
 <p><b>Domaine</b> : portique courant à une travée, mono ou bi-pente, L ≤ 20 m, entraxe ≤ 12 m, pente ≤ 15 %, pieds articulés, nœuds de tête rigides, jarrets de longueur 0,1·L ; profilés laminés en I ou PRS S235 à S355 (classe 4 exclue) ; phase APS/APD.</p>
+<p><b>Numérotation du modèle (2.68)</b> : « 🔢 Nœuds / barres » (carte « Modèle et chargement ») et rapport RC complet. Portique courant dans son plan (X de la file A vers la file B, Z vertical) : nœuds aux pieds, têtes de poteaux, extrémités des jarrets et faîtage, triés selon X puis Z ; barres poteaux, jarrets (section « traverse + jarret h<sub>j</sub> »), traverses par versant ; liaisons : pieds articulés (RY libre), assemblages de tête et de faîtage rigides. Indépendante du maillage de calcul ; pannes, lisses et contreventements non numérotés.</p>
 <div class="form">Modèle : Barres3D plan (ddl hors plan bloqués), 8 éléments par poteau, 14 à 24 par traverse, jarret en 4 tronçons PRS équivalents (semelles de la traverse, h = h<sub>tr</sub> + h<sub>j</sub>·(1 − d/L<sub>j</sub>))<br>
 PRS : A = 2·b·t<sub>f</sub> + h<sub>w</sub>·t<sub>w</sub> ; I<sub>y</sub> = [b·h³ − (b − t<sub>w</sub>)·h<sub>w</sub>³]/12 ; W<sub>pl,y</sub> = b·t<sub>f</sub>·(h − t<sub>f</sub>) + t<sub>w</sub>·h<sub>w</sub>²/4 ; I<sub>t</sub> ≈ [2·b·t<sub>f</sub>³ + (h − t<sub>f</sub>)·t<sub>w</sub>³]/3 ; I<sub>w</sub> = t<sub>f</sub>·b³·(h − t<sub>f</sub>)²/24<br>
 Charges par m de rampant (portique courant) : G = (g<sub>couv</sub> + g<sub>div</sub> + g<sub>pannes</sub>)·e·k<sub>c</sub> + poids propre ; S = (0,8·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> + Δs)·e·k<sub>c</sub>·cos α (cas i, ii, iii en bi-pente) ; W = c·q<sub>p</sub>·e·k<sub>c</sub> normal au rampant (mono : CNC2M c<sub>1</sub> sur 0,1·d puis c<sub>2</sub> → c<sub>3</sub>, rive latérale ; bi : c<sub>f</sub> par versant, fig. 7.17) + traînée des poteaux c<sub>f</sub>·q<sub>p</sub>·h<sub>section</sub> ; k<sub>c</sub> = réaction d'appui intermédiaire maximale de la panne continue / (q·e)<br>
@@ -335,6 +338,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.68</td><td>AN1, S1, A1, RC</td><td>AN1 : bloc « Conditions de pose » replié dans la carte Cheville (résumé affiché), schéma de pose coté de la cheville choisie (interface, notes Word et PDF), conditions de pose dans les hypothèses de la cheville. S1 et A1 : numérotation du modèle type Robot (nœuds, barres avec section, liaisons) affichable sur les vues, tableaux dans la note complète S1 et le rapport RC (<code>commun/topo.js</code>).</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.67</td><td>AN1</td><td>Note de calcul sur le modèle PROFIS, deux niveaux (choix dans l'en-tête) : simplifiée (résultats globaux de toutes les combinaisons, chevillage avec plan coté et vue 3D, type de cheville, conclusion) ; détaillée (résultats globaux en tête, hypothèses, puis formules NF EN 1992-4, variables et vérifications du seul cas dimensionnant, figures CBFEM). « Imprimer / PDF » sort désormais la note (même contenu que Word) avec un en-tête d'identification.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.66</td><td>AN1</td><td>Note Word et impression / PDF : chapitre « Résultats de la platine flexible (CBFEM) » pour la combinaison déterminante (contrainte σ<sub>Ed</sub>, déformation plastique si elle existe, déplacement w, pression si contact), chaque champ en vue 3D déformée et en plan avec échelle de couleurs ; la géométrie (chapitre 3) est désormais tracée sans champ de résultats.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.65</td><td>AN1</td><td>Méthode de calcul (rigide / CBFEM), réglages CBFEM (raideur, h<sub>c</sub>) et d'affichage (résultat, amplification, niveau de la note) mémorisés avec la saisie : ils ne reviennent plus à « platine rigide » au rechargement.</td><td>Aucun calcul modifié.</td></tr>
@@ -443,6 +447,11 @@ function tests(){
       const Rr=CHEV.repartition([{x:-90,y:-90},{x:90,y:-90},{x:-90,y:90},{x:90,y:90}],{lx:240,ly:240},16,31000,{N:63930,Vx:250,Vy:910,Mx:1710e3,My:470e3,Mz:0});
       [1253.6,992.6,2203.9,1942.9].forEach((v,k)=>ajout('AN1 – platine rigide, 2×2 ±90 mm, N = 6 393 daN, Mx = 171, My = 47 daN·m : cheville '+(k+1),'PROFIS « platine rigide équivalente » (note V1)',Rr.T[k]/10,v,'daN'));
       { const F6=[1,2,3,4,5,6]; [['sol','N',3],['sol','My',5],['plafond','N',-3],['plafond','Vy',-2],['plafond','Mz',-6],['mur','N',2],['mur','Vx',-1],['mur','Vy',3],['mur','Mx',-4],['mur','My',6]].forEach(([k,c,v])=>ajout('AN1 – import S1 : F = (1, 2, 3 ; 4, 5, 6) sur appui '+k+' → '+c,'projection axes platine (z sortant du béton)',CHEV.effortsPlatine(F6,k)[c],v,'')); }
+      { const tT=TOPO.construire({barres:[{lib:'Montant',A:[0,0,0],B:[0,0,1.5],section:'HEA 100'},{lib:'Traverse',A:[0,-0.5,1.5],B:[0,0.5,1.5],section:'UPN 80'}],appuis:[{pt:[0,0,0],c:[1,1,1,1,1,1]}]});
+        ajout('Numérotation (S1 en T) : nombre de nœuds','pied, tête, 2 extrémités de traverse',tT.N.length,4,'');
+        ajout('Idem : nombre de barres (traverse découpée au droit du montant)','montant + 2 demi-traverses',tT.B.length,3,'');
+        ajout('Idem : longueur de la demi-traverse','0,5 m',tT.B[1].L,0.5,'m');
+        ajout('Idem : nœud commun montant / traverse','N2 (tête, z = 1,5 m)',tT.N[tT.B[0].j-1].z,1.5,'m'); }
       { // CBFEM – élément, limite rigide, équilibre, notes PROFIS (tolérance 6 % sur la cheville la plus tendue : raideurs calées)
         const L=200,bb=20,tt=10,PP=1000,Ee=210000,Ii=bb*tt**3/12; ajout('CBFEM – élément MITC4 : console en bande 200 × 20 × 10 mm, P = 1 kN, 40 mailles','PL³/(3EI) + PL/(κGA)',CBFEM.consoleTest(L,bb,tt,40,PP),PP*L**3/(3*Ee*Ii)+PP*L/(5/6*Ee/2.6*bb*tt),'mm');
         const XY=a=>a.map(([x,y])=>({x,y})), kc=31000/30, A1=XY([[-90,-90],[90,-90],[-90,90],[90,90]]), hea={f:'HEA',h:96,b:100,tw:5,tf:8}, c1={N:63930,Mx:171e4,My:47e4};
@@ -465,6 +474,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.67"></script>
+<script src="../commun/replier.js?v=2.68"></script>
 </body>
 </html>
