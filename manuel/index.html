@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.73"></script>
+<script src="../commun/auth.js?v=2.74"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.73">
-<script src="../commun/apps.js?v=2.73"></script>
-<script src="../commun/data/profils.js?v=2.73"></script>
-<script src="../commun/barres3d.js?v=2.73"></script>
-<script src="../commun/acier.js?v=2.73"></script>
-<script src="../commun/data/tuyauterie.js?v=2.73"></script>
-<script src="../commun/charges.js?v=2.73"></script>
-<script src="../commun/coefvent.js?v=2.73"></script>
-<script src="../commun/tendues.js?v=2.73"></script>
-<script src="../commun/portique.js?v=2.73"></script>
-<script src="../commun/chevilles.js?v=2.73"></script>
-<script src="../commun/cbfem.js?v=2.73"></script>
-<script src="../commun/topo.js?v=2.73"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.74">
+<script src="../commun/apps.js?v=2.74"></script>
+<script src="../commun/data/profils.js?v=2.74"></script>
+<script src="../commun/barres3d.js?v=2.74"></script>
+<script src="../commun/acier.js?v=2.74"></script>
+<script src="../commun/data/tuyauterie.js?v=2.74"></script>
+<script src="../commun/charges.js?v=2.74"></script>
+<script src="../commun/coefvent.js?v=2.74"></script>
+<script src="../commun/tendues.js?v=2.74"></script>
+<script src="../commun/portique.js?v=2.74"></script>
+<script src="../commun/chevilles.js?v=2.74"></script>
+<script src="../commun/cbfem.js?v=2.74"></script>
+<script src="../commun/topo.js?v=2.74"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -340,6 +340,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.74</td><td>AN1</td><td>Note détaillée : figures et tableau de la platine CBFEM pour la combinaison décisive de la platine (σ<sub>Ed</sub> maxi, puis ε<sub>pl</sub>, puis déplacement), distincte du cas dimensionnant des chevilles, comme PROFIS ; les deux combinaisons sont nommées dans la note.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.73</td><td>S1, A1</td><td>Export .str : <b>correction des unités</b> (1 kN = 100 daN ; les charges et moments étaient exportés 10 fois trop faibles en 2.70 – 2.72) ; charges d'un même tronçon sommées avant fusion des tronçons contigus (les composantes verticale et horizontale du vent découpaient la traverse à chaque élément de calcul). Appuis (ddl libres listés) et moments nodaux CX, CY, CZ confirmés à l'ouverture dans Robot v40.</td><td>Fichiers .str produits en 2.70 – 2.72 à régénérer (charges ×10). Aucun calcul FIP modifié.</td></tr>
 <tr><td>2.72</td><td>S1, A1</td><td>Export .str : combinaisons sismiques en nature ELU (libellé « SIS »), d'après un fichier Robot v40 à combinaisons sismiques ; coefficients négatifs confirmés.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.71</td><td>S1, A1</td><td>Export .str : combinaisons manuelles (ELU, ELS, accidentelles ; sismiques en accidentelles, à vérifier) selon la syntaxe d'un fichier Robot v40 ; libellés en ASCII.</td><td>Aucun calcul modifié.</td></tr>
@@ -495,6 +496,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.73"></script>
+<script src="../commun/replier.js?v=2.74"></script>
 </body>
 </html>
