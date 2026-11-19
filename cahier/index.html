@@ -4,20 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.74"></script>
+<script src="../commun/auth.js?v=2.77"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.74">
-<script src="../commun/acier.js?v=2.74"></script>
-<script src="../commun/cahier.js?v=2.74"></script>
-<script src="../commun/pictos-s1.js?v=2.74"></script>
-<script src="../commun/notes.js?v=2.74"></script>
-<script src="../commun/ident.js?v=2.74"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.74"></script>
-<script src="../commun/dessin.js?v=2.74"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.77">
+<script src="../commun/acier.js?v=2.77"></script>
+<script src="../commun/cahier.js?v=2.77"></script>
+<script src="../commun/pictos-s1.js?v=2.77"></script>
+<script src="../commun/notes.js?v=2.77"></script>
+<script src="../commun/ident.js?v=2.77"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.77"></script>
+<script src="../commun/dessin.js?v=2.77"></script>
+<script src="../commun/topo.js?v=2.77"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -26,6 +27,7 @@
   .pickPop button:hover,.pickPop button.on{border-color:#1f6fd1;background:#eef4fb}.pickPop svg{width:80px;height:64px}
   .logoAff{max-height:48px;max-width:160px;border:1px solid var(--line);border-radius:4px;padding:2px;background:#fff}
   .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.actions button{padding:5px 10px;font-size:12px}
+  .an1{margin-top:6px;padding:5px 8px;background:#f4f7fb;border:1px solid var(--line);border-radius:6px;font-size:13px}.an1 .an1l{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}.an1 button{padding:3px 9px;font-size:12px}
   .typeBloc{border:1px solid var(--line);border-left:4px solid var(--fip-bleu);border-radius:6px;padding:8px 10px;margin:10px 0;background:#fbfcfd}
   .typeBloc.spe{border-left-color:#7a5d00}
   .typeBloc details.schema{margin-top:6px}.typeBloc details.schema>summary{cursor:pointer;font-size:13px;color:var(--fip-bleu);font-weight:600}
@@ -117,7 +119,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.74"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.77"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -326,10 +328,11 @@ function gestion(){ setTimeout(schemasManquants,200);
     const ddcM=spe?`<details ${T.ddc?.length?'open':''}><summary>Descente de charges saisie (ex. issue de Robot) — par support unitaire</summary><table><tr><th>Appui / nœud</th>${thC}<th></th></tr>`+
       (T.ddc||[]).map((a,ai)=>`<tr><td><input data-dl="${ti}|${ai}" value="${h(a.lib)}"></td>${a.v.map((x,k)=>`<td><input data-dv="${ti}|${ai}|${k}" type="number" step="any" value="${x}" style="width:64px"></td>`).join('')}<td class="act"><button class="sec" type="button" data-ddel="${ti}|${ai}" style="color:var(--bad)">✕</button></td></tr>`).join('')+
       `</table><button class="sec" type="button" data-dadd="${ti}" style="padding:2px 8px;font-size:12px">＋ appui</button></details>`:'';
-    return `<div class="typeBloc ${spe?'spe':''}" data-tb="${ti}">${tete}${blocSchema(T,ti,defs)}${tab}${ddcM}</div>`; }).join('')+
+    return `<div class="typeBloc ${spe?'spe':''}" data-tb="${ti}">${tete}${blocSchema(T,ti,defs)}${tab}${ligneAN1(T,ti)}${ddcM}</div>`; }).join('')+
     `<div class="note">Cotes en mm ; une cote sur fond jaune est propre à la configuration (sinon valeur du type). Une modification de cote rend la configuration « à recalculer ». Pour changer profilé, tuyauterie ou actions : ✎ S1 sur le type (commun à toutes ses configurations).</div>`;
   const ix=s=>s.split('|').map((x,i)=>i<2?+x:x), on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,()=>fn(el)));
   on('[data-tpk]','click',el=>choisirType(el));
+  on('[data-an1]','click',el=>ouvrirAN1CS(+el.dataset.an1,el.dataset.an1l));
   on('[data-tn]','change',el=>{ const T=K.types[+el.dataset.tn], v=el.value.trim(); if(!v||K.types.some(t=>t!==T&&t.nom===v)){ alert('Repère vide ou déjà utilisé.'); el.value=T.nom; return; } T.nom=v; enr(); tout(); });
   on('[data-td]','change',el=>{ K.types[+el.dataset.td].designation=el.value; enr(); tout(); });
   on('[data-tp]','change',el=>{ K.types[+el.dataset.tp].plan=el.value; enr(); tout(); });
@@ -366,6 +369,34 @@ function etatRecalc(){
   $('etat').innerHTML=(n?`<div class="msg jaune">${n} configuration(s) à recalculer (cotes ou paramètres modifiés) : cliquer « ⟳ Recalculer tout ».</div>`:'')+(nc?`<div class="msg info">${nc} type(s) non calculé(s) : comptés dans le listing, à calculer dans S1 (✎ S1) pour obtenir profilés, BOM et DDC.</div>`:'');
 }
 
+/* ---------------- chevillage des platines (lien AN1) ----------------
+   Par type et par platine chevillée : combinaisons de toutes les configurations calculées (S1 resume.an1), extrêmes retenus
+   (N, −N, |V|, |Mx|, |My|, |Mz|, traction estimée), envoi à AN1 (fip.an1.pre) ; retour : fip.an1.retour[clé] (clé = affaire | id du type | platine) */
+const cleAN1CS=(T,lib)=>'CS|'+(K.affaire.num||'')+'|'+T.id+'|'+lib;
+/* platines identiques d'un même type (même nature, profilé, chevilles et platine – ex. les deux pieds d'un portique en U) : vérifiées ensemble */
+const NOM_PL={sol:'Platines de pied',mur:'Platines murales',plafond:'Platines de plafond',murPied:'Pattes de pied de jambe'};
+function an1Type(T){ const par={};
+  T.configs.forEach(c=>(c.resume?.an1||[]).forEach(p=>{ const k=p.k+'|'+p.profil+'|'+JSON.stringify(p.A)+'|'+JSON.stringify(p.plaque);
+    const o=par[k]||(par[k]={k:p.k,A:p.A,plaque:p.plaque,profil:p.profil,info:p.info,L:[],confs:new Set(),libs:[]}); o.confs.add(repere(T,c)); if(!o.libs.includes(p.lib)) o.libs.push(p.lib); o.L.push(...p.C.map(x=>({...x,_pl:p.lib,nom:repere(T,c)+' – '+x.nom}))); }));
+  return Object.values(par).map(o=>{ o.lib=o.libs.length>1?`${NOM_PL[o.k]||'Platines'} ×${o.libs.length} (${o.libs.join(', ')})`:o.libs[0];
+    if(o.libs.length>1) o.L.forEach(x=>{ x.nom=x.nom.replace(/^(\S+) – /,`$1 – ${x._pl} – `); }); const xs=o.A.map(a=>a.x), ys=o.A.map(a=>a.y), a1=(Math.max(...xs)-Math.min(...xs))||100, a2=(Math.max(...ys)-Math.min(...ys))||100;
+    const crit=[c=>c.N,c=>-c.N,c=>Math.hypot(c.Vx,c.Vy),c=>Math.abs(c.Mx),c=>Math.abs(c.My),c=>Math.abs(c.Mz),c=>c.N/4+Math.abs(c.Mx)*1000/(2*a2)+Math.abs(c.My)*1000/(2*a1)], C=[];
+    [false,true].forEach(sis=>{ const G=o.L.filter(c=>!!c.sis===sis); if(!G.length) return; crit.forEach(k=>{ const b=G.reduce((x,c)=>k(c)>k(x)?c:x); if(!C.includes(b)) C.push(b); }); });
+    return {...o,C,confs:[...o.confs],cle:cleAN1CS(T,o.lib),emp:TOPO.empreinte(C.map(c=>[c.N,c.Vx,c.Vy,c.Mx,c.My,c.Mz,!!c.sis]))}; }); }
+function ouvrirAN1CS(ti,lib){ const T=K.types[ti], o=an1Type(T).find(x=>x.lib===lib); if(!o) return;
+  const pre={t:Date.now(),src:`cahier ${K.affaire.num?K.affaire.num+' – ':''}${T.nom} – ${o.lib}`,srcCourt:'cahier',retour:'../cahier/',cle:o.cle,emp:o.emp,profil:o.profil,C:o.C,A:o.A,plaque:o.plaque,
+    info:`enveloppe de ${o.confs.length} configuration(s) (${o.confs.join(', ')})${o.libs.length>1?` et de ${o.libs.length} platines identiques (${o.libs.join(', ')})`:''} ; ${o.info||''}`};
+  try{ localStorage.setItem('fip.an1.pre',JSON.stringify(pre)); }catch(e){} location.href='../ancrages/'; }
+/* texte du résultat renvoyé par AN1 (fiches, nomenclature) */
+function texteAN1(o){ const r=TOPO.retour(o.cle); if(!r) return {txt:'non vérifié dans AN1',r:null};
+  const per=r.emp!==o.emp; return {r,per,txt:`${r.n||''} × ${r.produit||''} ${r.diam||''}${r.cl?' '+r.cl:''}, h<sub>ef</sub> ${r.hef} mm, platine ${r.lx} × ${r.ly} × ${r.tp} mm – taux ${isFinite(r.u)?f(r.u*100,0)+' %':'—'} (${h(r.methode||'')})${per?' – <b>à relancer</b> (efforts modifiés)':''}`}; }
+function ligneAN1(T,ti){ if(T.kind==='spe') return ''; const r=resumeT(T);
+  if(!r) return '<div class="an1"><b>⚓ Chevillage (AN1)</b> : <span class="note">type à calculer dans S1</span></div>';
+  if(T.configs.some(c=>c.resume&&!c.resume.an1)) return '<div class="an1"><b>⚓ Chevillage (AN1)</b> : <span class="note">« ⟳ Recalculer tout » pour activer le lien avec AN1</span></div>';
+  const L=an1Type(T); if(!L.length) return '<div class="an1"><b>⚓ Chevillage (AN1)</b> : <span class="note">pas de platine chevillée (tiges traversantes ou crapauds)</span></div>';
+  const manq=T.configs.filter(c=>!c.resume).length;
+  return `<div class="an1"><b>⚓ Chevillage (AN1)</b>${manq?` <span class="note">(${manq} configuration(s) à recalculer : enveloppe incomplète)</span>`:''}${L.map(o=>`<div class="an1l"><button type="button" class="sec" data-an1="${ti}" data-an1l="${h(o.lib)}" title="Ouvrir AN1 avec les combinaisons extrêmes de ${o.confs.length} configuration(s)${o.libs.length>1?' et des '+o.libs.length+' platines identiques':''}">${h(o.lib)} → AN1</button> ${TOPO.badge(o.cle,o.emp)}</div>`).join('')}</div>`; }
+
 /* ---------------- listing ---------------- */
 function listing(){
   if(!K.types.length){ $('rListing').innerHTML='<div class="note">—</div>'; return; }
@@ -385,11 +416,13 @@ function bom(){
     const r=c.resume; if(!r){ if(q) manq.push(rep); return; }
     r.barres.forEach(b=>{ const k=b.profil+'|'+r.nuance, o=P[k]||(P[k]={profil:b.profil,nuance:r.nuance,m:b.m,L:0,det:[]}); o.L+=q*b.L; o.det.push(`${rep} : ${q} × ${f(b.L,2)} m`); });
     (r.tuyaux||[]).forEach(t=>{ if(!t.d) return; const k=`Étrier M${t.d} pour ${t.dn?'DN'+t.dn:'Ø'+f(t.De,1)}`; E[k]=(E[k]||0)+q; });
+    const AN=r.an1?an1Type(T):[];
     (r.appuis||[]).forEach(a=>{ const k=`${LIB[a.k]||'Platine'} – ${a.profil||''}`, fm=(r.fix||{}).mode||'chev'; PL[k]=(PL[k]||0)+q;
-      if(['murArt','murPied'].includes(a.k)) return;
-      if(fm==='tige'&&a.k==='mur'){ const t=`Tige filetée M${r.fix.d} classe ${r.fix.cl} traversante (écrous, rondelles)`; FX[t]=(FX[t]||0)+4*q; FX['Contre-plaque (côté opposé du mur)']=(FX['Contre-plaque (côté opposé du mur)']||0)+q; }
+      if(a.k==='murArt') return;
+      if(fm==='tige'&&(a.k==='mur'||a.k==='murPied')){ const t=`Tige filetée M${r.fix.d} classe ${r.fix.cl} traversante (écrous, rondelles)`; FX[t]=(FX[t]||0)+4*q; FX['Contre-plaque (côté opposé du mur)']=(FX['Contre-plaque (côté opposé du mur)']||0)+q; }
       else if(fm==='crap'&&a.k==='plafond') FX['Crapaud / pince-poutre (sur profilé existant)']=(FX['Crapaud / pince-poutre (sur profilé existant)']||0)+4*q;
-      else nPl+=q; }); }));
+      else { const o=AN.find(x=>x.libs.includes(String(a.lib).replace(/<[^>]+>/g,''))), rr=o&&TOPO.retour(o.cle);
+        if(rr&&rr.n){ const t=`Chevilles ${rr.produit} ${rr.diam}${rr.cl?' '+rr.cl:''} – h_ef ${rr.hef} mm (AN1${rr.emp!==o.emp?', à relancer':''})`; FX[t]=(FX[t]||0)+rr.n*q; } else nPl+=q; } }); }));
   const L=Object.values(P).sort((a,b)=>a.profil.localeCompare(b.profil,'fr',{numeric:true})), tot=L.reduce((s,o)=>s+o.L*o.m,0), maj=+K.reglages.majo||0, chev=+K.reglages.chev||0;
   const mSp=SP.reduce((s,x)=>s+(x.m||0)*x.q,0);
   let html='';
@@ -397,7 +430,7 @@ function bom(){
   html+=`<h3>Profilés</h3>`+(L.length?`<table><tr><th>Profilé</th><th>Nuance</th><th>Détail (repère : qté × longueur)</th><th class="n">Longueur totale (m)</th><th class="n">kg/m</th><th class="n">Masse (kg)</th></tr>`+
     L.map(o=>`<tr><td><b>${h(o.profil)}</b></td><td>${h(o.nuance||'')}</td><td style="font-size:12px">${o.det.map(h).join(' ; ')}</td><td class="n">${f(o.L,2)}</td><td class="n">${f(o.m,2)}</td><td class="n">${f(o.L*o.m,1)}</td></tr>`).join('')+
     `<tr><td colspan="5"><b>Total profilés</b></td><td class="n"><b>${f(tot,1)} kg</b></td></tr><tr><td colspan="5">Majoration platines, goussets, boulonnerie, soudures (${maj} %)</td><td class="n">${f(tot*maj/100,1)} kg</td></tr></table>`:'<div class="note">—</div>');
-  const acc=[...Object.entries(PL).map(([k,n])=>[k,n,'u']),...Object.entries(FX).map(([k,n])=>[k,n,'u']),...(nPl&&chev?[[`Chevilles (forfait ${chev} par platine, à dimensionner avec la DDC)`,nPl*chev,'u']]:[]),...Object.entries(E).sort().map(([k,n])=>[k,n,'u'])];
+  const acc=[...Object.entries(PL).map(([k,n])=>[k,n,'u']),...Object.entries(FX).map(([k,n])=>[k,n,'u']),...(nPl&&chev?[[`Chevilles (forfait ${chev} par platine non vérifiée dans AN1)`,nPl*chev,'u']]:[]),...Object.entries(E).sort().map(([k,n])=>[k,n,'u'])];
   html+=`<h3>Platines, fixations et étriers</h3>`+(acc.length?`<table><tr><th>Désignation</th><th class="n">Quantité</th></tr>${acc.map(([k,n])=>`<tr><td>${h(k)}</td><td class="n">${n}</td></tr>`).join('')}</table><div class="note">Platines et chevilles à dimensionner (hors périmètre S1). Un étrier par tuyauterie et par support ; diamètre automatique indicatif ou saisi dans S1.</div>`:'<div class="note">—</div>');
   html+=`<h3>Supports spéciaux</h3>`+(SP.length?`<table><tr><th>Repère</th><th>Désignation</th><th>Plan</th><th class="n">Qté</th><th class="n">Masse unitaire (kg)</th><th class="n">Masse (kg)</th></tr>${SP.map(x=>`<tr><td><b>${h(x.rep)}</b></td><td>${h(x.des)}</td><td>${h(x.plan||'')}</td><td class="n">${x.q}</td><td class="n">${x.m==null?'—':f(x.m,1)}</td><td class="n">${x.m==null?'—':f(x.m*x.q,1)}</td></tr>`).join('')}</table>`:'<div class="note">—</div>');
   const totG=tot*(1+maj/100)+mSp;
@@ -440,7 +473,8 @@ function fiches(){
       if(S.plans&&md!=='schema'){ if(T.vues?.planche) pre=`<div class="planche ${md}">${T.vues.planche}</div>`; else s+=`<div class="msg info">Planche ${md} non générée : « 🖼 Générer plans et perspectives » ou « Recalculer ».</div>`; }
       else if(S.plans) s+=`<div class="vuesType"><div>${T.vues?.face||'<div class="note">Vues non générées.</div>'}</div><div>${T.vues?.cote||''}</div><div>${IMG[T.id]?`<img src="${IMG[T.id]}" alt="Perspective ${h(T.nom)}">`:'<div class="note">Perspective : « 🖼 Générer plans et perspectives ».</div>'}</div></div>`;
       s+=`<table style="margin-top:6px"><tr><td style="width:22%">Profilés</td><td>${r.barres.map(b=>`${h(b.lib)} : <b>${h(b.profil)}</b>`).join(' · ')} — ${h(r.nuance||'')}</td></tr>
-        <tr><td>Tuyauteries</td><td>${(r.tuyaux||[]).map(t=>`${h(t.nom)} : ${h(t.desc)} sur ${h((t.barre||'').toLowerCase())}${t.d?` — étrier M${t.d}`:''}`).join('<br>')}</td></tr></table>`;
+        <tr><td>Tuyauteries</td><td>${(r.tuyaux||[]).map(t=>`${h(t.nom)} : ${h(t.desc)} sur ${h((t.barre||'').toLowerCase())}${t.d?` — étrier M${t.d}`:''}`).join('<br>')}</td></tr>
+        ${(()=>{ const L=an1Type(T); return L.length?`<tr><td>Chevillage (AN1, NF EN 1992-4)</td><td>${L.map(o=>`${h(o.lib)} : ${texteAN1(o).txt}`).join('<br>')}</td></tr>`:''; })()}</table>`;
     }
     // tableau des configurations
     s+=`<h3>Configurations</h3><table><tr><th>Repère</th>${spe?'':defs.map(d=>`<th class="cote" title="${h(d.lib)}">${h(d.l)}</th>`).join('')}<th class="n">Qté</th><th>Repères</th><th>Lignes / iso</th>${!spe&&S.verif?'<th class="n">Taux</th><th>Critère</th><th>Statut</th>':''}</tr>`+
@@ -484,10 +518,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=2.74"></script>
-<script src="../commun/aide.js?v=2.74"></script>
-<script src="aide-cs.js?v=2.74"></script>
-<script src="../commun/export.js?v=2.74"></script>
+<script src="../commun/replier.js?v=2.77"></script>
+<script src="../commun/aide.js?v=2.77"></script>
+<script src="aide-cs.js?v=2.77"></script>
+<script src="../commun/export.js?v=2.77"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>
