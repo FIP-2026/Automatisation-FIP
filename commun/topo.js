@@ -97,8 +97,10 @@ const TOPO = (() => {
       const L0 = dist(r.A, r.B), cps = [0, L0]; t.N.forEach((n) => { const x = surSegment(r.A, r.B, [n.x, n.y, n.z]); if (x !== null) cps.push(x); }); cps.sort((p, q) => p - q);
       for (let k = 0; k < cps.length - 1; k++) { if (cps[k + 1] - cps[k] < 1e-6) continue; const P = [0, 1, 2].map((q) => r.A[q] + (r.B[q] - r.A[q]) * cps[k] / L0), Q = [0, 1, 2].map((q) => r.A[q] + (r.B[q] - r.A[q]) * cps[k + 1] / L0);
         const m = localiserSeg(t, P, Q); if (!m) { hors.push(c.id); continue; } segs.push({ ...m, q: r.q.map((v) => v || 0) }); } });
-    segs.sort((a, b) => a.b - b.b || a.x1 - b.x1); const fus = [];
-    segs.forEach((s) => { const l = fus[fus.length - 1]; if (l && l.b === s.b && Math.abs(l.x2 - s.x1) < 1e-6 && l.q.every((v, k) => Math.abs(v - s.q[k]) < 1e-9)) l.x2 = s.x2; else if (l && l.b === s.b && Math.abs(l.x1 - s.x1) < 1e-6 && Math.abs(l.x2 - s.x2) < 1e-6) l.q = l.q.map((v, k) => v + s.q[k]); else fus.push({ ...s, q: s.q.slice() }); });
+    // 1) somme des charges d'un même tronçon (ex. composantes verticale et horizontale du vent rangées séparément) ; 2) fusion des tronçons contigus de même intensité
+    const parT = new Map(); segs.forEach((s) => { const k = s.b + "_" + r4(s.x1) + "_" + r4(s.x2), o = parT.get(k); if (o) o.q = o.q.map((v, q) => v + s.q[q]); else parT.set(k, { ...s, q: s.q.slice() }); });
+    const tri = [...parT.values()].sort((a, b) => a.b - b.b || a.x1 - b.x1), fus = [];
+    tri.forEach((s) => { const l = fus[fus.length - 1]; if (l && l.b === s.b && Math.abs(l.x2 - s.x1) < 1e-6 && l.q.every((v, k) => Math.abs(v - s.q[k]) < 1e-6)) l.x2 = s.x2; else fus.push({ ...s, q: s.q.slice() }); });
     return { ponct: [...ponct.values()].filter((o) => o.F.some((v) => Math.abs(v) > 1e-9)).sort((a, b) => a.b - b.b || a.x - b.x), rep: fus.filter((s) => s.q.some((v) => Math.abs(v) > 1e-9)) };
   }
   function lignesRobot(t, d) {
@@ -134,7 +136,7 @@ const TOPO = (() => {
   }
   /* ---------- export Robot texte (.str, syntaxe ROBOT97 relevée sur un fichier Robot v40) ----------
      Barres découpées aux points de charge (numérotation discontinue : la barre B3 devient 301, 302… ; nœuds ajoutés à partir de 1001),
-     charges nodales (NOEuds FX= …) et réparties sur barres entières (ELEments PZ= …), unités m et daN.
+     charges nodales (NOEuds FX= …) et réparties sur barres entières (ELEments PZ= …), unités m et daN (1 kN = 100 daN ; kN·m → daN·m ×100).
      d : comme exportRobot, plus { horsPlan:true } (portique plan : UY, RX, RZ bloqués à tous les nœuds) */
   const ASCII = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[·×]/g, (c) => (c === "·" ? "." : "x")).replace(/[–—−]/g, "-").replace(/±/g, "+/-").replace(/→/g, "->").replace(/←/g, "<-").replace(/[φϕ]/g, "phi").replace(/[ψ]/g, "psi").replace(/[γ]/g, "g").replace(/[μ]/g, "mu").replace(/[^\x20-\x7e]/g, " ").replace(/\s+/g, " ").trim();
   const n2 = (v) => { const r = Math.round(v * 100) / 100; return (Object.is(r, -0) ? 0 : r).toFixed(2); };
@@ -184,8 +186,8 @@ const TOPO = (() => {
     if (rel.length) { L.push("", "RELâchements", ""); rel.forEach((b) => { const P = pieces.filter((p) => p.b === b.n); if (P.length === 1) L.push(`ELEments ${P[0].id}  ORigine RX RY RZ EX RY RZ`); else { L.push(`ELEments ${P[0].id}  ORigine RX RY RZ`); L.push(`ELEments ${P[P.length - 1].id}  EX RY RZ`); } }); }
     L.push("", "CHArgements", "");
     CAS.forEach(({ c, CB }, ic) => { L.push(`CAs # ${ic + 1} ${ASCII(c.nom).toUpperCase().slice(0, 60)}`);
-      const el = []; CB.rep.forEach((s) => { const ids = pieces.filter((p) => p.b === s.b && p.x1 >= s.x1 - 2e-4 && p.x2 <= s.x2 + 2e-4).map((p) => p.id); ["PX", "PY", "PZ"].forEach((k, q) => { if (Math.abs(s.q[q]) > 1e-9) el.push(...liste(ids, `${k}=${n2(s.q[q] * 10)}`).map((l) => "\t" + l.trim())); }); });
-      const no = []; CB.ponct.forEach((o) => { const id = noeudA(o.b, r4(o.x)); ["FX", "FY", "FZ", "CX", "CY", "CZ"].forEach((k, q) => { if (Math.abs(o.F[q]) > 1e-9) no.push(`\t${id} ${k}=${n2(o.F[q] * 10)}`); }); });
+      const el = []; CB.rep.forEach((s) => { const ids = pieces.filter((p) => p.b === s.b && p.x1 >= s.x1 - 2e-4 && p.x2 <= s.x2 + 2e-4).map((p) => p.id); ["PX", "PY", "PZ"].forEach((k, q) => { if (Math.abs(s.q[q]) > 1e-9) el.push(...liste(ids, `${k}=${n2(s.q[q] * 100)}`).map((l) => "\t" + l.trim())); }); });
+      const no = []; CB.ponct.forEach((o) => { const id = noeudA(o.b, r4(o.x)); ["FX", "FY", "FZ", "CX", "CY", "CZ"].forEach((k, q) => { if (Math.abs(o.F[q]) > 1e-9) no.push(`\t${id} ${k}=${n2(o.F[q] * 100)}`); }); });
       if (el.length) L.push("ELEments", ...el); if (no.length) L.push("NOEuds", ...no); L.push(""); });
     // combinaisons manuelles (syntaxe relevée sur un fichier Robot v40) : « COMbinaison # n libellé », nature (ELU, ELS, ACCidentelle), paires « cas coefficient »
     const numCas = {}; CAS.forEach(({ c }, ic) => { numCas[c.id] = ic + 1; }); let nC = CAS.length, nSis = 0;
