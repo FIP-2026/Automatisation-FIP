@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.70"></script>
+<script src="../commun/auth.js?v=2.71"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.70">
-<script src="../commun/apps.js?v=2.70"></script>
-<script src="../commun/data/profils.js?v=2.70"></script>
-<script src="../commun/barres3d.js?v=2.70"></script>
-<script src="../commun/acier.js?v=2.70"></script>
-<script src="../commun/data/tuyauterie.js?v=2.70"></script>
-<script src="../commun/charges.js?v=2.70"></script>
-<script src="../commun/coefvent.js?v=2.70"></script>
-<script src="../commun/tendues.js?v=2.70"></script>
-<script src="../commun/portique.js?v=2.70"></script>
-<script src="../commun/chevilles.js?v=2.70"></script>
-<script src="../commun/cbfem.js?v=2.70"></script>
-<script src="../commun/topo.js?v=2.70"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.71">
+<script src="../commun/apps.js?v=2.71"></script>
+<script src="../commun/data/profils.js?v=2.71"></script>
+<script src="../commun/barres3d.js?v=2.71"></script>
+<script src="../commun/acier.js?v=2.71"></script>
+<script src="../commun/data/tuyauterie.js?v=2.71"></script>
+<script src="../commun/charges.js?v=2.71"></script>
+<script src="../commun/coefvent.js?v=2.71"></script>
+<script src="../commun/tendues.js?v=2.71"></script>
+<script src="../commun/portique.js?v=2.71"></script>
+<script src="../commun/chevilles.js?v=2.71"></script>
+<script src="../commun/cbfem.js?v=2.71"></script>
+<script src="../commun/topo.js?v=2.71"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -169,7 +169,7 @@
 <article class="card" id="s1"><div class="theme">S1 – Supports de tuyauterie</div><h2>8. S1 – Modèle de calcul</h2>
 <p><b>Numérotation du modèle (2.68, <code>commun/topo.js</code>)</b> : bouton « 🔢 Nœuds / barres » des vues et section « Modèle » de la note complète. Comme dans Robot, la numérotation porte sur la structure et non sur le maillage de calcul : nœuds aux extrémités de barres, aux appuis et aux jonctions (une extrémité de barre située sur une autre barre crée un nœud et découpe cette barre) ; nœuds triés de bas en haut puis selon X et Y. Tableaux : nœuds (X, Y, Z en m), barres (origine, extrémité, section, matériau, longueur, relâchements – jambe de force articulée), liaisons (DX à RZ bloqués, libres ou ressorts k en kN·m/rad pour la platine semi-rigide).</p>
 <p><b>Liens avec les assemblages et export Robot (2.69)</b> : colonne « Assemblage » des liaisons → AN1 (efforts de la platine dans ses axes). Retour : AN1 écrit dans <code>fip.an1.retour[clé]</code> (clé = module | repère | appui) le taux maxi, la cheville, la platine, la méthode et l'empreinte des efforts reçus ; S1 recalcule l'empreinte de ses efforts actuels et affiche « à relancer » si elle diffère. Export Robot (<code>TOPO.exportRobot</code>, classeur Excel) : nœuds, barres, appuis, cas, charges localisées sur les barres numérotées (charge nodale de calcul → force concentrée sur barre à l'abscisse x ; charge répartie d'un élément de calcul → charge uniforme partielle [x₁ ; x₂], éléments contigus de même intensité fusionnés, uniforme si la barre entière est chargée), combinaisons avec coefficients. Procédure de copier-coller à valider dans la version de Robot utilisée.</p>
-<p><b>Export Robot .str (2.70, <code>TOPO.texteSTR</code>)</b> : syntaxe ROBOT97 relevée sur un fichier exporté par Robot v40 (mots-clés NOEuds, ELEments, CARactéristiques physiques, APPuis, RELâchements, CHArgements / CAs, unités m et daN, numérotation discontinue, Windows-1252, CRLF). Le fichier de référence ne contenant que des charges réparties sur barres entières et des forces nodales, les barres sont découpées aux points de charge et aux limites des charges partielles (barre B<i>n</i> → <i>n</i>01, <i>n</i>02… ; nœuds ajoutés à partir de 1001) : les numéros N et B de l'écran restent valables. Appuis : ddl <b>libres</b> listés après les nœuds (déduit du fichier de référence : appuis « RX RY RZ » d'une passerelle) – <b>à vérifier</b> ; mots-clés des moments nodaux CX, CY, CZ – <b>à vérifier</b> ; ressorts d'appui exportés comme blocages (commentés) ; sections IPE, HEA, HEB, HEM, IPN, UPN, UPE par leur nom, tubes ronds par « Diamètre … EP … », autres profils (SHS, RHS, cornières) signalés à vérifier ; jarrets à section constante (signalé) ; combinaisons dans le classeur Excel.</p>
+<p><b>Export Robot .str (2.70, <code>TOPO.texteSTR</code>)</b> : syntaxe ROBOT97 relevée sur un fichier exporté par Robot v40 (mots-clés NOEuds, ELEments, CARactéristiques physiques, APPuis, RELâchements, CHArgements / CAs, unités m et daN, numérotation discontinue, Windows-1252, CRLF). Le fichier de référence ne contenant que des charges réparties sur barres entières et des forces nodales, les barres sont découpées aux points de charge et aux limites des charges partielles (barre B<i>n</i> → <i>n</i>01, <i>n</i>02… ; nœuds ajoutés à partir de 1001) : les numéros N et B de l'écran restent valables. Appuis : ddl <b>libres</b> listés après les nœuds (déduit du fichier de référence : appuis « RX RY RZ » d'une passerelle) – <b>à vérifier</b> ; mots-clés des moments nodaux CX, CY, CZ – <b>à vérifier</b> ; ressorts d'appui exportés comme blocages (commentés) ; sections IPE, HEA, HEB, HEM, IPN, UPN, UPE par leur nom, tubes ronds par « Diamètre … EP … », autres profils (SHS, RHS, cornières) signalés à vérifier ; jarrets à section constante (signalé). <b>Combinaisons (2.71)</b> : bloc « COMbinaison # n libellé », nature (ELU, ELS, ACCidentelle) et paires « n° de cas – coefficient », d'après un second fichier Robot v40 à combinaisons manuelles ; numérotées à la suite des cas ; combinaisons sismiques exportées en ACCidentelle (nature à vérifier) ; amplification du second ordre de A1 non transposée (analyse P-Δ dans Robot).</p>
 <h3 id="s1-modele">8.1 Calcul de barres 3D</h3>
 <p>Méthode des déplacements, élastique linéaire au 1<sup>er</sup> ordre, 6 ddl par nœud. Matrice de rigidité locale 12 × 12 d'Euler-Bernoulli (EA/L, GJ/L, 12EI/L³, 6EI/L², 4EI/L, 2EI/L), transformée en repère global (rotation R, axes locaux définis par un vecteur v<sub>z</sub>). Charges réparties : efforts d'encastrement parfait (qL/2, qL²/12). Résolution par élimination de Gauss avec pivot partiel ; réactions R = K·U − F ; efforts internes le long des barres par équilibre de la partie amont.</p>
 <p>Chaque barre est découpée aux points d'appui des tuyaux, aux nœuds des autres barres et aux appuis. Les tuyaux sont reliés à la barre par des <b>bras rigides</b> : la charge appliquée à l'axe du tuyau est transportée au nœud de la barre avec son moment (M = r × F), l'excentricité valant e = demi-emprise du profilé + D<sub>cal</sub>/2 + sabot.</p>
@@ -340,6 +340,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.71</td><td>S1, A1</td><td>Export .str : combinaisons manuelles (ELU, ELS, accidentelles ; sismiques en accidentelles, à vérifier) selon la syntaxe d'un fichier Robot v40 ; libellés en ASCII.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.70</td><td>S1, A1</td><td>Export Robot texte (.str) selon la syntaxe ROBOT97 d'un fichier Robot v40 : nœuds, éléments (découpés aux points de charge, numérotation discontinue), sections, appuis, relâchements, cas et charges en daN ; test de relecture.</td><td>Aucun calcul modifié. Mots-clés des appuis et des moments nodaux à vérifier à l'ouverture dans Robot.</td></tr>
 <tr><td>2.69</td><td>S1, A1, AN1</td><td>Liens nœud d'appui → AN1 avec retour du résultat (taux, cheville, platine, date, « à relancer » si les efforts ont changé) ; export Robot (classeur Excel au format des tableaux : nœuds, barres, appuis, cas, charges sur barres, combinaisons).</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.68</td><td>AN1, S1, A1, RC</td><td>AN1 : bloc « Conditions de pose » replié dans la carte Cheville (résumé affiché), schéma de pose coté de la cheville choisie (interface, notes Word et PDF), conditions de pose dans les hypothèses de la cheville. S1 et A1 : numérotation du modèle type Robot (nœuds, barres avec section, liaisons) affichable sur les vues, tableaux dans la note complète S1 et le rapport RC (<code>commun/topo.js</code>).</td><td>Aucun calcul modifié.</td></tr>
@@ -463,12 +464,13 @@ function tests(){
         ajout('Liens : empreinte des efforts identique pour des efforts identiques','déterministe',TOPO.empreinte([{N:1}])===TOPO.empreinte([{N:1}])?1:0,1,'');
         { // export .str : relecture du fichier produit (nœuds, éléments, charges)
           const cas={id:'G',nom:'G',ponct:[{P:[0,0.3,1.5],F:[0,0,-2,0,0,0]}],rep:[{A:[0,0,0],B:[0,0,1.5],q:[0,0,-0.1]},{A:[0,-0.5,1.5],B:[0,-0.2,1.5],q:[0,0,-0.2]}]};
-          const S=TOPO.texteSTR(tT,{cas:[cas]}).texte.split('\r\n'), bloc=k=>{ const i=S.indexOf(k), o=[]; for(let j=i+1;j<S.length&&S[j].trim()!=='';j++) if(!S[j].startsWith(';')) o.push(S[j].trim().split(/\s+/)); return o; };
+          const S=TOPO.texteSTR(tT,{cas:[cas],combis:[{nom:'1,35·G',type:'ELU',f:{G:1.35}},{nom:'G',type:'ELS caractéristique',f:{G:1}}]}).texte.split('\r\n'), bloc=k=>{ const i=S.indexOf(k), o=[]; for(let j=i+1;j<S.length&&S[j].trim()!=='';j++) if(!S[j].startsWith(';')) o.push(S[j].trim().split(/\s+/)); return o; };
           const dec=/NOEuds (\d+)\s+ELEments (\d+)/.exec(S.find(l=>/^NOEuds \d/.test(l))), NO=bloc('NOEuds'), EL=bloc('ELEments'), X={}; NO.forEach(r=>X[r[0]]=r.slice(1).map(Number)); const Lg={}; EL.forEach(r=>Lg[r[0]]=Math.hypot(...X[r[1]].map((v,k)=>v-X[r[2]][k])));
           const ich=S.indexOf('CHArgements'); let tot=0, mode=''; S.slice(ich).forEach(l=>{ if(/^ELEments/.test(l)) mode='e'; else if(/^NOEuds/.test(l)) mode='n'; else if(/^CAs/.test(l)) mode=''; else { const m=/^\t(.*) (P|F)Z=(-?[\d.]+)/.exec(l); if(m) m[1].split(' ').forEach(id=>{ tot+=+m[3]*(mode==='e'?Lg[id]:1); }); } });
           ajout('Export Robot .str : nœuds déclarés = nœuds listés','en-tête NOEuds n',+dec[1],NO.length,'');
           ajout('Idem : éléments déclarés = éléments listés (barres découpées aux points de charge)','en-tête ELEments m',+dec[2],EL.length,'');
-          ajout('Idem : charge verticale totale relue (daN)','−(0,1·1,5 + 0,2·0,3 + 2)·10 = −22,1 daN',tot,-22.1,'daN'); } }
+          ajout('Idem : charge verticale totale relue (daN)','−(0,1·1,5 + 0,2·0,3 + 2)·10 = −22,1 daN',tot,-22.1,'daN');
+          const ic=S.findIndex(l=>/^COMbinaison # 2 /.test(l)); ajout('Idem : combinaison ELU relue (nature, cas 1 × 1,35)','« COMbinaison # 2 », « ELU », « 1 1.35 »',ic>0&&S[ic+1].trim()==='ELU'&&S[ic+2].trim()==='1 1.35'?1:0,1,''); } }
       { // CBFEM – élément, limite rigide, équilibre, notes PROFIS (tolérance 6 % sur la cheville la plus tendue : raideurs calées)
         const L=200,bb=20,tt=10,PP=1000,Ee=210000,Ii=bb*tt**3/12; ajout('CBFEM – élément MITC4 : console en bande 200 × 20 × 10 mm, P = 1 kN, 40 mailles','PL³/(3EI) + PL/(κGA)',CBFEM.consoleTest(L,bb,tt,40,PP),PP*L**3/(3*Ee*Ii)+PP*L/(5/6*Ee/2.6*bb*tt),'mm');
         const XY=a=>a.map(([x,y])=>({x,y})), kc=31000/30, A1=XY([[-90,-90],[90,-90],[-90,90],[90,90]]), hea={f:'HEA',h:96,b:100,tw:5,tf:8}, c1={N:63930,Mx:171e4,My:47e4};
@@ -491,6 +493,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.70"></script>
+<script src="../commun/replier.js?v=2.71"></script>
 </body>
 </html>

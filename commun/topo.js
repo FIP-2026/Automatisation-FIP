@@ -136,7 +136,7 @@ const TOPO = (() => {
      Barres découpées aux points de charge (numérotation discontinue : la barre B3 devient 301, 302… ; nœuds ajoutés à partir de 1001),
      charges nodales (NOEuds FX= …) et réparties sur barres entières (ELEments PZ= …), unités m et daN.
      d : comme exportRobot, plus { horsPlan:true } (portique plan : UY, RX, RZ bloqués à tous les nœuds) */
-  const ASCII = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[·×]/g, (c) => (c === "·" ? "." : "x")).replace(/[–—]/g, "-").replace(/[^\x20-\x7e]/g, " ").replace(/\s+/g, " ").trim();
+  const ASCII = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[·×]/g, (c) => (c === "·" ? "." : "x")).replace(/[–—−]/g, "-").replace(/±/g, "+/-").replace(/→/g, "->").replace(/←/g, "<-").replace(/[φϕ]/g, "phi").replace(/[ψ]/g, "psi").replace(/[γ]/g, "g").replace(/[μ]/g, "mu").replace(/[^\x20-\x7e]/g, " ").replace(/\s+/g, " ").trim();
   const n2 = (v) => { const r = Math.round(v * 100) / 100; return (Object.is(r, -0) ? 0 : r).toFixed(2); };
   const nc = (v) => String(Math.round(v * 1e6) / 1e6);
   function sectionRobot(sec) {
@@ -161,7 +161,7 @@ const TOPO = (() => {
     L.push(";+---------------------------+-------------------------+---------------------+", `;! Fichier: ${ASCII(d.fichier || "FIP").slice(0, 16).padEnd(16)}! Date: ${dt}    ! FIP Etudes ${typeof CALC_VERSION !== "undefined" ? CALC_VERSION : ""}      !`, ";+---------------------------+-------------------------+---------------------+");
     L.push(`; ${ASCII(d.titre || "")}`, `; ${ASCII(d.repere || "")}`, "; Predimensionnement (APS/APD) - non valable pour execution. Fichier a verifier a l'ouverture dans Robot.",
       "; Poids propre des profiles inclus dans le cas G (charges reparties) : ne pas ajouter le poids propre automatique de Robot.",
-      "; Combinaisons non decrites dans ce fichier : voir le classeur Excel 'Tableaux Robot'.", ...(d.notes || []).map((n) => "; " + ASCII(n)), "ROBOT97", "", "PORtique SPAtial", "", "NUMérotation DIScontinue", "", `NOEuds ${nodes.length}  ELEments ${pieces.length}`, "", "UNItés", "Longueur=m\tForce=daN", "");
+      "; Combinaisons manuelles en fin de fichier (COMbinaison) ; combinaisons sismiques exportees en nature ACCidentelle (a verifier).", ...(d.notes || []).map((n) => "; " + ASCII(n)), "ROBOT97", "", "PORtique SPAtial", "", "NUMérotation DIScontinue", "", `NOEuds ${nodes.length}  ELEments ${pieces.length}`, "", "UNItés", "Longueur=m\tForce=daN", "");
     L.push(";+------+-------------------+--------------------+--------------------+", ";!  N° !        X         !         Y         !         Z         !", ";+------+-------------------+--------------------++-------------------+", "NOEuds");
     nodes.forEach((n) => L.push(`${pad(n.id, 5)}  ${pad(nc(n.x), 11)}          ${pad(nc(n.y), 11)}          ${pad(nc(n.z), 11)}`));
     L.push("", "ELEments", ";+------+-------+-------+", ";!  N° ! ORIG.! EXTR.!", ";+------+-------+-------+");
@@ -187,8 +187,18 @@ const TOPO = (() => {
       const el = []; CB.rep.forEach((s) => { const ids = pieces.filter((p) => p.b === s.b && p.x1 >= s.x1 - 2e-4 && p.x2 <= s.x2 + 2e-4).map((p) => p.id); ["PX", "PY", "PZ"].forEach((k, q) => { if (Math.abs(s.q[q]) > 1e-9) el.push(...liste(ids, `${k}=${n2(s.q[q] * 10)}`).map((l) => "\t" + l.trim())); }); });
       const no = []; CB.ponct.forEach((o) => { const id = noeudA(o.b, r4(o.x)); ["FX", "FY", "FZ", "CX", "CY", "CZ"].forEach((k, q) => { if (Math.abs(o.F[q]) > 1e-9) no.push(`\t${id} ${k}=${n2(o.F[q] * 10)}`); }); });
       if (el.length) L.push("ELEments", ...el); if (no.length) L.push("NOEuds", ...no); L.push(""); });
+    // combinaisons manuelles (syntaxe relevée sur un fichier Robot v40) : « COMbinaison # n libellé », nature (ELU, ELS, ACCidentelle), paires « cas coefficient »
+    const numCas = {}; CAS.forEach(({ c }, ic) => { numCas[c.id] = ic + 1; }); let nC = CAS.length, nSis = 0;
+    const vues = new Set(); let nDbl = 0;
+    (d.combis || []).forEach((cb) => { const P = Object.entries(cb.f || {}).filter(([id, k]) => numCas[id] && Math.abs(k) > 1e-9); if (!P.length) return;
+      const sig = String(cb.type || "").slice(0, 3) + P.map(([id, k]) => numCas[id] + ":" + Math.round(k * 1e4)).sort().join("|"); if (vues.has(sig)) { nDbl++; return; } vues.add(sig);
+      const ty = String(cb.type || ""), nat = /ELS/i.test(ty) ? "ELS" : /sism/i.test(ty) ? (nSis++, "ACCidentelle") : /accid/i.test(ty) ? "ACCidentelle" : "ELU";
+      const lib = ASCII(cb.nom).replace(/,/g, ".").replace(/\s*\.\s*(?=[A-Za-z])/g, "*").slice(0, 80);
+      L.push(`COMbinaison # ${++nC} ${lib}`, ` ${nat}`, P.map(([id, k]) => `${numCas[id]} ${Math.round(k * 1e4) / 1e4}`).join(" ") + " ", ""); });
+    if (nSis) L.push(`; ${nSis} combinaison(s) sismique(s) exportee(s) en nature ACCidentelle : nature a verifier dans Robot.`, "");
+    if (nDbl) L.push(`; ${nDbl} combinaison(s) identique(s) une fois les imperfections retirees (sens phi -> / <-) non repetee(s) : definir les defauts dans Robot.`, "");
     L.push("FIN", "", "");
-    return { texte: L.join("\r\n"), nodes, pieces, ress, jarrets: [...jar], sections: [...new Set(nsec)], hors: [...new Set(hors)], moments: CAS.some(({ CB }) => CB.ponct.some((o) => o.F.slice(3).some((v) => Math.abs(v) > 1e-9))) };
+    return { texte: L.join("\r\n"), nodes, pieces, ress, combis: nC - CAS.length, jarrets: [...jar], sections: [...new Set(nsec)], hors: [...new Set(hors)], moments: CAS.some(({ CB }) => CB.ponct.some((o) => o.F.slice(3).some((v) => Math.abs(v) > 1e-9))) };
   }
   /* encodage Windows-1252 (fichiers Robot) */
   function cp1252(txt) { const sp = { "€": 0x80, "‚": 0x82, "„": 0x84, "…": 0x85, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "–": 0x96, "—": 0x97, "œ": 0x9c, "Œ": 0x8c }, out = new Uint8Array(txt.length);
