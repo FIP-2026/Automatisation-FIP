@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.87"></script>
+<script src="../commun/auth.js?v=2.88"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.87">
+<link rel="stylesheet" href="../commun/calc.css?v=2.88">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.87"></script>
-<script src="../commun/data/tuyauterie.js?v=2.87"></script>
-<script src="../commun/acier.js?v=2.87"></script>
-<script src="../commun/barres3d.js?v=2.87"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.87"></script>
-<script src="../commun/data/gabarit-a2.js?v=2.87"></script>
-<script src="../commun/dessin.js?v=2.87"></script>
-<script src="../commun/coefvent.js?v=2.87"></script>
-<script src="../commun/cahier.js?v=2.87"></script>
-<script src="../commun/chevilles.js?v=2.87"></script>
-<script src="../commun/topo.js?v=2.87"></script>
+<script src="../commun/data/profils.js?v=2.88"></script>
+<script src="../commun/data/tuyauterie.js?v=2.88"></script>
+<script src="../commun/acier.js?v=2.88"></script>
+<script src="../commun/barres3d.js?v=2.88"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.88"></script>
+<script src="../commun/data/gabarit-a2.js?v=2.88"></script>
+<script src="../commun/dessin.js?v=2.88"></script>
+<script src="../commun/coefvent.js?v=2.88"></script>
+<script src="../commun/cahier.js?v=2.88"></script>
+<script src="../commun/chevilles.js?v=2.88"></script>
+<script src="../commun/topo.js?v=2.88"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -1010,6 +1010,11 @@ let NUM=false; try{ NUM=localStorage.getItem('fip.s1.num')==='1'; }catch(e){}
 function topoS1(V){ const Gm=V.Gm, nu=$('nuance').value;
   return TOPO.construire({barres:Gm.B.map(b=>({lib:b.lib,A:b.A,B:b.B,section:b.p.n,mat:nu,rel:b.art?'articulée aux deux extrémités (effort normal seul)':''})),
     appuis:Gm.appuis.map(a=>({pt:a.pt,c:(Gm.app&&Gm.app[a.n]?Gm.app[a.n]:a.c).slice(),lib:a.lib}))}); }
+/* résultats AN1 des platines (épaisseur, dimensions, chevilles) par nature d'appui : retour de S1 lui-même, ou fourni par le cahier (opt.retourAN) */
+function retoursAN1S1(Gm){ const R={}; try{ Gm.appuis.forEach((a,i)=>{ if(R[a.k]) return; const r=TOPO.retour(cleAN1S1(i)); if(r) R[a.k]=r; }); }catch(e){} return R; }
+const epPlatine=(RET,Gm)=>{ const k=(Gm.appuis.find(a=>['sol','plafond','mur'].includes(a.k))||{}).k, r=k&&RET[k]; return r&&+r.tp>0?r.tp/1000:0.012; };
+/* cotes fonctionnelles (2.88) : positions des tuyauteries et hauteur du montant comptées depuis le sol, le plafond ou le mur fini (et non depuis la platine) */
+const surSol=typ=>['sol','L','U','T','Lmur'].includes(typ), surPlaf=typ=>['plafond','Lplaf'].includes(typ), surMur=typ=>['mur','murJ'].includes(typ);
 function badgeAN1S1(ia){ const pre=preAN1S1(ia); return pre?TOPO.badge(pre.cle,pre.emp):''; }
 function tableauTopoS1(V,h='h3'){ const Gm=V.Gm; return TOPO.tableaux(topoS1(V),{titres:h,assemblage:a=>{ const ap=Gm.appuis[a.ref]; return ap&&chevillable(ap.k)?`<button type="button" class="sec mini" onclick="ouvrirAN1(${a.ref})" title="Chevillage de la platine dans AN1">⚓ AN1</button> ${badgeAN1S1(a.ref)}`:'<span class="note">—</span>'; },note:'Repère global : X axe des tuyaux, Y transversal, Z vertical ascendant ; origine au premier appui. Nœuds aux extrémités de barres, aux appuis et aux jonctions ; une barre est découpée à chaque jonction. Numérotation indépendante du maillage de calcul (les points d\'application des tuyaux sont des nœuds de calcul supplémentaires).'}); }
 /* export vers Robot (commun/topo.js) : modèle numéroté, cas élémentaires (charges des tuyaux = forces concentrées sur barre, poids propre réparti), combinaisons */
@@ -1145,7 +1150,7 @@ function specDessin(D,V,opt={}){
     S.push(DESSIN.prisme(b.A.map((v,i)=>v-b.dir[i]*eA),R[0],R[1],R[2],b.L+eA+eB,sp.o,sp.h||null,{c0,c1})); });
   const ys=Gm.B.flatMap(b=>[b.A[1],b.B[1]]), zs=Gm.B.flatMap(b=>[b.A[2],b.B[2]]), y0=Math.min(...ys), y1=Math.max(...ys), z0=Math.min(...zs), z1=Math.max(...zs);
   // --- platines et fixations
-  const a1=Math.max(num('fa1',120),20)/1000, a2=Math.max(num('fa2',120),20)/1000, dF=fixM==='tige'?+$('tD').value:12, ep=0.012, cx=Math.max(a1+0.08,0.15), cz=Math.max(a2+0.08,0.15);
+  const a1=Math.max(num('fa1',120),20)/1000, a2=Math.max(num('fa2',120),20)/1000, dF=fixM==='tige'?+$('tD').value:12, RET=opt.retourAN||retoursAN1S1(Gm), ep=epPlatine(RET,Gm), cx=Math.max(a1+0.08,0.15), cz=Math.max(a2+0.08,0.15);
   const pl=[], trou=()=>{};                                   // platines : ni trous, ni entraxes, ni dimensions (relèvent de la note de chevillage)
   Gm.appuis.forEach(a=>{ const P=a.pt;
     if(a.k==='sol'){ S.push(boiteAA(P[0]-cx/2,P[0]+cx/2,P[1]-cz/2,P[1]+cz/2,P[2]-ep,P[2])); pl.push({k:a.k,d:[cx,cz]}); [-1,1].forEach(i=>[-1,1].forEach(j=>trou([P[0]+i*a1/2,P[1]+j*a2/2,P[2]],[0,0,1])));
@@ -1184,15 +1189,16 @@ function specDessin(D,V,opt={}){
     etiq.push({vue:'face',p:[c[0]+Lp,c[1]+r*0.7,c[2]+r*0.7],txt:`${t.nom||'L'+(i+1)} – ${t.mode==='base'?'DN'+t.dn+' ':''}Ø${f(t.P.De,1)}${t.P.ecal?' + calo. '+t.P.ecal:''}`,dx:10,dy:-8-6*i}); });
   // --- cotes (vue de face)
   const v=Gm.B.find(b=>b.vert), hz=Gm.B.find(b=>!b.vert);
-  if(v){ const zz=[v.A[2],v.B[2]].sort((a,b)=>a-b); cotes.push({vue:'face',a:[0,v.A[1],zz[0]],b:[0,v.A[1],zz[1]],cote:'gauche',niv:0,txt:lc('H',zz[1]-zz[0])}); }
+  const zSol=((Gm.appuis.find(a=>a.k==='sol')||{pt:[0,0,0]}).pt[2])-ep, zPlaf=((Gm.appuis.find(a=>a.k==='plafond')||{pt:[0,0,0]}).pt[2])+ep;
+  if(v){ const zz=[v.A[2],v.B[2]].sort((a,b)=>a-b), z0=surSol(D.typ)?Math.min(zz[0],zSol):zz[0], z1=D.typ==='plafond'?Math.max(zz[1],zPlaf):zz[1]; cotes.push({vue:'face',a:[0,v.A[1],z0],b:[0,v.A[1],z1],cote:'gauche',niv:0,txt:lc('H',z1-z0)}); }
   if(hz){ const yy=[hz.A[1],hz.B[1]].sort((a,b)=>a-b); cotes.push({vue:'face',a:[0,yy[0],hz.A[2]],b:[0,yy[1],hz.A[2]],cote:'bas',niv:0,txt:lc('L',yy[1]-yy[0])}); }
   if(D.typ==='murJ'){ const j=Gm.B[1]; cotes.push({vue:'face',a:[0,0,j.A[2]],b:[0,0,0],cote:'gauche',niv:0,txt:lc('h',-j.A[2])},{vue:'face',a:[0,0,0],b:[0,j.B[1],0],cote:'bas',niv:1,txt:lc('b',j.B[1])}); }
   if((D.typ==='L'||D.typ==='Lplaf')&&D.off>0){ const b1=Gm.B[1],m=Gm.B[0]; cotes.push({vue:'face',a:[0,0,m.B[2]],b:[0,0,b1.A[2]],cote:'gauche',niv:1,txt:lc('o',D.off)}); }
   if((D.typ==='L'||D.typ==='Lplaf')&&D.nc>1){ const b1=Gm.B[1],b2=Gm.B[2]; cotes.push({vue:'face',a:[0,b1.B[1],b2.A[2]],b:[0,b1.B[1],b1.A[2]],cote:'droite',niv:0,txt:lc('h',Math.abs(b1.A[2]-b2.A[2]))}); }
   const nh={}, nv={};
   Gm.T.forEach((t,i)=>{ const b=Gm.B[t.bi], lib=lc('a'+(i+1),Math.abs(+t.pos||0));
-    if(b.vert){ const zr=D.typ==='plafond'?0:b.A[2], n=nv[t.bi]=(nv[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,t.c[1],zr],b:[0,t.c[1],t.c[2]],cote:'droite',niv:n+(D.typ==='L'&&D.nc>1?1:0),txt:lib}); }
-    else { const yr=D.typ==='T'?0:b.A[1], n=nh[t.bi]=(nh[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,yr,t.c[2]],b:[0,t.c[1],t.c[2]],cote:'haut',niv:n,txt:lib}); } });
+    if(b.vert){ const zo=D.typ==='plafond'?0:b.A[2], zr=surSol(D.typ)?zSol:D.typ==='plafond'?zPlaf:zo, n=nv[t.bi]=(nv[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,t.c[1],zr],b:[0,t.c[1],t.c[2]],cote:'droite',niv:n+(D.typ==='L'&&D.nc>1?1:0),txt:lc('a'+(i+1),Math.abs(+t.pos||0)+Math.abs(zo-zr))}); }
+    else { const yo=D.typ==='T'?0:b.A[1], yr=surMur(D.typ)?-ep:yo, n=nh[t.bi]=(nh[t.bi]??-1)+1; cotes.push({vue:'face',a:[0,yr,t.c[2]],b:[0,t.c[1],t.c[2]],cote:'haut',niv:n,txt:lc('a'+(i+1),Math.abs(+t.pos||0)+Math.abs(yo-yr))}); } });
   const pm=Gm.appuis.find(a=>['sol','plafond','mur'].includes(a.k));                 // pas de cote de platine : dimensions, épaisseur et fixations selon la note de chevillage
   // --- nomenclature et repères
   let rep=0; const grp=new Map();
@@ -1459,7 +1465,7 @@ function resumeS1(){                                     // résultats synthéti
     lignes:V.lignes.map(l=>({n:l.n.replace(/<[^>]+>/g,''),r:l.r})),date:new Date().toISOString()};
 }
 window.S1API={ndc:async(o={})=>{ const sv={...NDC}; Object.assign(NDC,o); try{ const el=await ndcRendre(true), h=el.outerHTML; $('ndcHors').innerHTML=''; return h; } finally{ Object.keys(NDC).forEach(k=>delete NDC[k]); Object.assign(NDC,sv); } },ndcCSS:()=>NDC_CSS,
-  plancheVec:(o={})=>DESSIN.planche({...specDessin(dernier.D,dernier.V,{lettres:true,...o}),vecteur:true}).svg,cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:true,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase,traitement:o.traitement,repSupport:o.repSupport}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
+  decalCotes:(RET)=>{ const {D,V}=dernier, ep=epPlatine(RET||retoursAN1S1(V.Gm),V.Gm), typ=D.typ, o={}; if(surSol(typ)||typ==='plafond') o.Lm=ep; tuyaux.forEach((t,i)=>{ const b=V.Gm.B[(V.Gm.T[i]||{}).bi]; if(b&&((b.vert&&(surSol(typ)||typ==='plafond'))||(!b.vert&&surMur(typ)))) o['pos'+i]=ep; }); return o; },plancheVec:(o={})=>DESSIN.planche({...specDessin(dernier.D,dernier.V,{lettres:true,...o}),vecteur:true}).svg,cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:true,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase,traitement:o.traitement,repSupport:o.repSupport,retourAN:o.retourAN}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
   perspective:async()=>{await perspective();return $('persp').hidden?'':$('imgPersp').src;}};
 const QS=new URLSearchParams(location.search), ID_CAHIER=QS.get('cahier'), ID_CONF=QS.get('conf');
 function initCahier(){
@@ -1495,13 +1501,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.87"></script>
-<script src="../commun/aide.js?v=2.87"></script>
-<script src="../commun/notes.js?v=2.87"></script>
-<script src="ndc-s1.js?v=2.87"></script>
+<script src="../commun/replier.js?v=2.88"></script>
+<script src="../commun/aide.js?v=2.88"></script>
+<script src="../commun/notes.js?v=2.88"></script>
+<script src="ndc-s1.js?v=2.88"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.87"></script>
-<script src="../commun/export.js?v=2.87"></script>
+<script src="aide-s1.js?v=2.88"></script>
+<script src="../commun/export.js?v=2.88"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
