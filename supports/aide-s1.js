@@ -53,6 +53,7 @@ AIDE.init({
     zsol: "Hauteur du support au-dessus du sol fini : sert à calculer la pression de vent à la bonne hauteur.",
     sabot: "Hauteur de la cale ou du sabot sous le tuyau (obligatoire si le tuyau est calorifugé).",
     fix: "Comment la platine est fixée : chevilles, tiges filetées traversantes avec contre-plaque (mur faible ou mince) crapauds sur un profilé existant (poutre, poteau) ou sandwich du profilé existant (platine, 4 tiges filetées et contre-plaque, sans perçage). Crapautage et sandwich sont proposés pour les supports en U, T, L mural, console murale (avec ou sans jambe de force) et suspente.",
+    sideC: "Supports en L : consoles d'un seul côté (+Y) ou des deux côtés du montant (symétriques). Chaque tuyauterie choisit sa console (droite ou gauche).",
     fa1: "Entraxes des 4 fixations de la platine, en mm (a₁ le long de X, a₂ dans l'autre direction).",
     crAng: "Pente de la poutre existante (toiture). En travers (panne) ou le long du profilé (arbalétrier) : dans ce dernier cas le poids fait glisser les crapauds.",
     crT: "Résistance en traction d'un crapaud, à lire dans le catalogue du fabricant.",

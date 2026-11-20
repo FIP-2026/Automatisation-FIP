@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.89"></script>
+<script src="../commun/auth.js?v=2.90"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.89">
+<link rel="stylesheet" href="../commun/calc.css?v=2.90">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.89"></script>
-<script src="../commun/data/tuyauterie.js?v=2.89"></script>
-<script src="../commun/acier.js?v=2.89"></script>
-<script src="../commun/barres3d.js?v=2.89"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.89"></script>
-<script src="../commun/data/gabarit-a2.js?v=2.89"></script>
-<script src="../commun/dessin.js?v=2.89"></script>
-<script src="../commun/coefvent.js?v=2.89"></script>
-<script src="../commun/cahier.js?v=2.89"></script>
-<script src="../commun/chevilles.js?v=2.89"></script>
-<script src="../commun/topo.js?v=2.89"></script>
+<script src="../commun/data/profils.js?v=2.90"></script>
+<script src="../commun/data/tuyauterie.js?v=2.90"></script>
+<script src="../commun/acier.js?v=2.90"></script>
+<script src="../commun/barres3d.js?v=2.90"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.90"></script>
+<script src="../commun/data/gabarit-a2.js?v=2.90"></script>
+<script src="../commun/dessin.js?v=2.90"></script>
+<script src="../commun/coefvent.js?v=2.90"></script>
+<script src="../commun/cahier.js?v=2.90"></script>
+<script src="../commun/chevilles.js?v=2.90"></script>
+<script src="../commun/topo.js?v=2.90"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -98,6 +98,7 @@
       <div><label id="labLt">Largeur de la traverse L<sub>b</sub> (m)</label><input id="Lt" type="number" step="0.05" value="0.8"></div>
       <div id="blocHj"><label>Pied de jambe sous la console h<sub>j</sub> (m)</label><input id="hj" type="number" step="0.05" value="0.5"></div>
       <div id="blocNc"><label>Consoles : nombre / espacement h<sub>c</sub> (m)</label><div class="row"><select id="nc"><option>1</option><option selected>2</option><option>3</option><option>4</option></select><input id="hc" type="number" step="0.05" value="0.5"></div>
+        <label>Côté des consoles</label><select id="sideC"><option value="1">D'un seul côté (+Y)</option><option value="2">Des deux côtés (symétriques)</option></select>
         <label id="labOff" title="Distance entre l'extrémité libre du montant ou de la suspente et la première console (0 = console à l'extrémité)">Décalage de la 1<sup>re</sup> console sous le sommet o (m)</label><input id="off" type="number" step="0.05" min="0" value="0"></div>
     </div>
     <div class="row">
@@ -312,7 +313,7 @@ function cartesTuyaux(){
       <div><label>Calorifuge (mm)</label><input data-k="ecal" type="number" value="${t.ecal}"></div>
       ${t.mode==='base'?`<div><label>ρ calorifuge</label><input data-k="rhoCal" type="number" value="${t.rhoCal}"></div>`:''}
       <div><label>Portée tuyau (m)</label><input data-k="portee" type="number" step="0.1" value="${t.portee}"></div>
-      ${typ==='L'||typ==='Lplaf'?`<div><label>Console n°</label><select data-k="cons">${opt([...Array(+$('nc').value)].map((_,k)=>[k+1,'Console '+(k+1)+(k?'':typ==='Lplaf'?' (bas)':' (tête)')]),t.cons||1)}</select></div>`:''}
+      ${typ==='L'||typ==='Lplaf'?`<div><label>Console n°</label><select data-k="cons">${opt([...Array($('sideC').value==='2'?2*$('nc').value:+$('nc').value)].map((_,k)=>{ const nc=+$('nc').value, g=k>=nc, j=k%nc; return [k+1,'Console '+(j+1)+(j?'':typ==='Lplaf'?' (bas)':' (tête)')+($('sideC').value==='2'?(g?' – gauche':' – droite'):'')]; }),t.cons||1)}</select></div>`:''}
       <div><label>${pos}</label><input data-k="pos" type="number" step="0.05" value="${t.pos}"></div>
       <div><label>${['sol','plafond'].includes(typ)?'Excentr. e (m)':'Excentr. vert. (m)'}</label><input data-k="e" type="number" step="0.01" value="${t.e}" placeholder="auto"></div>
       <div><label>Fonction</label><select data-k="fonc">${opt([['glissant','Glissant'],['guide','Guidé'],['fixe','Point fixe']],t.fonc)}</select></div>
@@ -384,9 +385,11 @@ function modele(D){
       appuis.push({pt:[0,0,0],c:ENC,lib:'Pied (platine au sol)',k:'sol'}); break;
     case 'L': barre('Montant','m',pm,[0,0,0],[0,0,H],vzM,2*H,H,true);
       for(let k=0;k<D.nc;k++){ const z=Math.max(H-D.off-k*D.hc,0.05); barre('Console '+(k+1),'t',pt,[0,0,z],[0,Lt,z],vzT,2*Lt,Lt,true); }
+      if(D.both) for(let k=0;k<D.nc;k++){ const z=Math.max(H-D.off-k*D.hc,0.05); barre('Console '+(k+1)+' (gauche)','t',pt,[0,0,z],[0,-Lt,z],vzT,2*Lt,Lt,true); }
       appuis.push({pt:[0,0,0],c:ENC,lib:'Pied (platine au sol)',k:'sol'}); break;
     case 'Lplaf': barre('Suspente','m',pm,[0,0,0],[0,0,-H],vzM,2*H,H,true);
       for(let k=0;k<D.nc;k++){ const z=Math.min(-H+D.off+k*D.hc,-0.05); barre('Console '+(k+1),'t',pt,[0,0,z],[0,Lt,z],vzT,2*Lt,Lt,true); }
+      if(D.both) for(let k=0;k<D.nc;k++){ const z=Math.min(-H+D.off+k*D.hc,-0.05); barre('Console '+(k+1)+' (gauche)','t',pt,[0,0,z],[0,-Lt,z],vzT,2*Lt,Lt,true); }
       appuis.push({pt:[0,0,0],c:ENC,lib:'Platine au plafond',k:'plafond'}); break;
     case 'U': barre('Montant gauche','m',pm,[0,0,0],[0,0,H],vzM,2*H,H,true); barre('Montant droit','m',pm,[0,Lt,0],[0,Lt,H],vzM,2*H,H,true); barre('Traverse','t',pt,[0,0,H],[0,Lt,H],vzT,Lt,Lt,false);
       appuis.push({pt:[0,0,0],c:ENC,lib:'Pied gauche',k:'sol'}); appuis.push({pt:[0,Lt,0],c:ENC,lib:'Pied droit',k:'sol'}); break;
@@ -400,7 +403,7 @@ function modele(D){
 }
 function barreDuTuyau(t,D){
   if(!TYPES[D.typ].multi) return 0;
-  if(D.typ==='L'||D.typ==='Lplaf') return Math.min(Math.max(+t.cons||1,1),D.nc);       // barre 0 = montant, consoles 1…nc
+  if(D.typ==='L'||D.typ==='Lplaf') return Math.min(Math.max(+t.cons||1,1),D.both?2*D.nc:D.nc);       // barre 0 = montant, consoles 1…nc (à droite), puis nc+1…2nc (à gauche si consoles des deux côtés)
   if(D.typ==='murJ') return 0;                                       // tuyaux sur la console
   return D.typ==='U'?2:1;
 }
@@ -574,7 +577,7 @@ function verifier(D){
    ===================================================================== */
 function donnees(){
   const typ=typeSup(), multi=TYPES[typ].multi;
-  return {typ,Lm:Math.max(num('Lm',1),0.05),Lt:Math.max(num('Lt',0.8),0.05),nc:+$('nc').value,hc:Math.max(num('hc',0.5),0.05),hj:Math.max(num('hj',0.5),0.05),_b:(()=>{ if(typeSup()==='murJ'&&num('Lt',0.6)>num('Lm',0.8)){ $('Lt').value=num('Lm',0.8); } return 0; })(),off:Math.max(num('off',0),0),
+  return {typ,Lm:Math.max(num('Lm',1),0.05),Lt:Math.max(num('Lt',0.8),0.05),nc:+$('nc').value,both:['L','Lplaf'].includes(typ)&&$('sideC').value==='2',hc:Math.max(num('hc',0.5),0.05),hj:Math.max(num('hj',0.5),0.05),_b:(()=>{ if(typeSup()==='murJ'&&num('Lt',0.6)>num('Lm',0.8)){ $('Lt').value=num('Lm',0.8); } return 0; })(),off:Math.max(num('off',0),0),
     pm:profil($('prof').value),pt:multi?profil($('prof2').value):null,sabot:num('sabot'),tuyaux:tuyaux.map(t=>({...t,P:propsTuyau(t)})),
     cT:$('cT').checked,cW:$('cW').checked,cS:$('cS').checked,cE:$('cE').checked,cEP:$('cEP').checked,
     qp:num('qp'),cft:num('cft',1.2),cfp:$('cfp').value===''?null:num('cfp',2),sk:num('sk'),mus:num('mus',0.8),altN:$('altN').value==='1',
@@ -586,7 +589,7 @@ function majFormulaire(){
   $('noteType').innerHTML=TYPES[typ].note;
   $('labL').textContent=typ==='murJ'?'Longueur de la console L (m)':typ==='mur'?'Longueur de la console L (m)':typ==='plafond'||typ==='Lplaf'?'Longueur de la suspente H (m)':'Hauteur du montant H (m)';
   $('labP1').textContent=typ==='murJ'?'Profilé de la console':typ==='Lplaf'?'Profilé de la suspente':multi?'Profilé des montants':typ==='mur'?'Profilé de la console':typ==='plafond'?'Profilé de la suspente':'Profilé du montant';
-  $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi?'':'none'; $('blocNc').style.display=typ==='L'||typ==='Lplaf'?'':'none'; $('labOff').innerHTML=typ==='Lplaf'?'Décalage de la 1<sup>re</sup> console au-dessus du bas o (m)':'Décalage de la 1<sup>re</sup> console sous le sommet o (m)'; $('blocHj').style.display=typ==='murJ'?'':'none';
+  $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi?'':'none'; $('blocNc').style.display=typ==='L'||typ==='Lplaf'?'':'none';  $('labOff').innerHTML=typ==='Lplaf'?'Décalage de la 1<sup>re</sup> console au-dessus du bas o (m)':'Décalage de la 1<sup>re</sup> console sous le sommet o (m)'; $('blocHj').style.display=typ==='murJ'?'':'none';
   const fx=$('fix'), SUR=['plafond','Lplaf','U','T','Lmur','mur','murJ'].includes(typ), opts=[['chev','Chevilles (efforts transmis au fournisseur)']].concat(['mur','murJ'].includes(typ)?[['tige','Tiges filetées traversantes + contre-plaque (mur)']]:[]).concat(SUR?[['crap','Crapautage sur profilé existant'],['sand','Sandwich du profilé existant : platine, tiges filetées et contre-plaque']]:[]);
   if(fx.dataset.t!==typ||fx.options.length!==opts.length){ const v=fx.value; fx.innerHTML=opts.map(([k,l])=>`<option value="${k}">${l}</option>`).join(''); if(opts.some(o=>o[0]===v)) fx.value=v; fx.dataset.t=typ; }
   $('bFixT').style.display=fx.value==='tige'||fx.value==='sand'?'':'none'; $('bEMur').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'||fx.value==='sand'?'':'none'; $('bFixP').style.display=typ==='murJ'?'':'none';
@@ -1469,6 +1472,7 @@ function init(){
   $('ajout').onclick=()=>{const d=tuyaux[tuyaux.length-1];tuyaux.push({...d,nom:'L'+(tuyaux.length+1),pos:+((+d.pos||0)+0.25).toFixed(2)});cartesTuyaux();calc();};
   document.querySelectorAll('input[name=type]').forEach(r=>r.onchange=()=>{appliquerDefauts(typeSup());cartesTuyaux();calc();});
   $('nc').addEventListener('change',()=>{cartesTuyaux();});
+  $('sideC').addEventListener('change',()=>{cartesTuyaux();});
   document.querySelectorAll('#form > .card input:not([data-k]), #form > .card select:not([data-k])').forEach(el=>{if(!['fam','fam2'].includes(el.id))el.addEventListener('input',calc)});
   const modeVue=m=>{ vue3dActive=m==='3d'; modeIndus=m==='ind'; $('p2d').style.display=m==='2d'?'':'none'; $('p3d').style.display=m==='3d'?'':'none'; $('pInd').style.display=m==='ind'?'':'none'; $('optInd').style.display=m==='ind'?'':'none';
     [['b2d','2d'],['b3d','3d'],['bInd','ind']].forEach(([id,k])=>$(id).classList.toggle('on',k===m)); if(m==='ind') majIndus(); };
@@ -1552,13 +1556,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.89"></script>
-<script src="../commun/aide.js?v=2.89"></script>
-<script src="../commun/notes.js?v=2.89"></script>
-<script src="ndc-s1.js?v=2.89"></script>
+<script src="../commun/replier.js?v=2.90"></script>
+<script src="../commun/aide.js?v=2.90"></script>
+<script src="../commun/notes.js?v=2.90"></script>
+<script src="ndc-s1.js?v=2.90"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.89"></script>
-<script src="../commun/export.js?v=2.89"></script>
+<script src="aide-s1.js?v=2.90"></script>
+<script src="../commun/export.js?v=2.90"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
