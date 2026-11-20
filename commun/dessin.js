@@ -236,7 +236,7 @@ const DESSIN = (() => {
     if (spec.statut) { const T = { x0: ZT.x0, y0: ZT.y0, x1: ZT.x0 + ZT.w, y1: ZT.y0 + hTp - 2 }, ph = spec.statut.phase || "APS/APD";   // bandeau encadré (pas de filigrane)
       s += `<g data-c="CARTOUCHE"><rect x="${T.x0}" y="${T.y0}" width="${T.x1 - T.x0}" height="${T.y1 - T.y0}" fill="#fff" stroke="#000" stroke-width="0.7"/><rect x="${T.x0 + 1}" y="${T.y0 + 1}" width="${T.x1 - T.x0 - 2}" height="${T.y1 - T.y0 - 2}" fill="none" ${STY.fin}/>` +
         txt((T.x0 + T.x1) / 2, T.y0 + 1.6 + TH.b1, `NON VALABLE POUR EXÉCUTION – PHASE ${ph}`, { a: "middle", h: TH.b1, b: 1 }) +
-        txt((T.x0 + T.x1) / 2, T.y1 - 2.4, "Cotes, nomenclature et DDC de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: TH.b2 }) + "</g>"; }
+        txt((T.x0 + T.x1) / 2, T.y1 - 2.4, "Cotes et nomenclature de prédimensionnement (avant-projet), à confirmer par les études d'exécution.", { a: "middle", h: TH.b2 }) + "</g>"; }
     place.forEach(({ V, x, y, w, h }) => {
       const X = (u) => x + (V.mu(u) - V.u0) * k, Y = (v) => y + (V.v1 - V.mv(v)) * k, P = (p) => [X(dot(p, V.u)), Y(dot(p, V.v))], dans = (o) => !o.vues || o.vues.includes(V.id);
       let g = "";
@@ -272,8 +272,8 @@ const DESSIN = (() => {
       (spec.reperes || []).filter((r) => r.vue === V.id).forEach((r) => { const [px, py] = P(r.p); let dx = r.dx ?? (px - cx0), dy = r.dy ?? (py - cy0); const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
         const L = r.L || 14, bx = px + dx * L, by = py + dy * L, R = 3.5;
         g += `<g data-c="REPERES"><circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }) + "</g>"; });
-      if (spec.scu) { g += `<g data-c="REPERES">` + triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - V.titre.length * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7) + "</g>"; /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
-      g += `<g data-c="TEXTE">${txt(x + w / 2, y + h + V.mg.b + 1, V.titre, { a: "middle", h: 3.5, b: 1 })}</g>`;
+      if (spec.scu) { g += `<g data-c="REPERES">` + triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - (V.titre.length + 12) * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7) + "</g>"; /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
+      g += `<g data-c="TEXTE">${txt(x + w / 2, y + h + V.mg.b + 1, `${V.titre}  –  ÉCH. 1:${ech}`, { a: "middle", h: 3.5, b: 1 })}</g>`;
       s += `<g>${g}</g>`;
     });
     // perspective isométrique (sans échelle) dans la plus grande zone libre
@@ -350,8 +350,8 @@ const DESSIN = (() => {
      pages : [{ svg, nom }] — nom = nom de la présentation (ex. « F01 ST-01 »).
      Calques ISO : CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE, FENETRES (non imprimé)
      ===================================================================== */
-  const CALQUES = { "0": [7, "CONTINUOUS"], CADRE: [7, "CONTINUOUS"], CONTOUR: [7, "CONTINUOUS"], FIN: [9, "CONTINUOUS"], AXES: [1, "CENTER"], CACHE: [6, "DASHED"], PIECES_VOISINES: [8, "PHANTOM"],
-    COTES: [3, "CONTINUOUS"], REPERES: [4, "CONTINUOUS"], TEXTE: [7, "CONTINUOUS"], OUVRAGE: [8, "CONTINUOUS"], CARTOUCHE: [7, "CONTINUOUS"], FILIGRANE: [9, "CONTINUOUS"], FENETRES: [8, "CONTINUOUS", 1] };
+  const CALQUES = { "0": [7, "CONTINUOUS"], CADRE: [7, "CONTINUOUS"], CONTOUR: [232, "CONTINUOUS"], FIN: [9, "CONTINUOUS"], AXES: [1, "CENTER"], CACHE: [6, "DASHED"], PIECES_VOISINES: [8, "PHANTOM"],
+    COTES: [91, "CONTINUOUS", 0, "8CC88C"], REPERES: [91, "CONTINUOUS", 0, "8CC88C"], TEXTE: [7, "CONTINUOUS"], OUVRAGE: [8, "CONTINUOUS"], CARTOUCHE: [7, "CONTINUOUS"], FILIGRANE: [9, "CONTINUOUS"], FENETRES: [8, "CONTINUOUS", 1] };
   const TIRETS = { "8 1.5 1 1.5": "AXES", "10 1.5 1 1.5 1 1.5": "PIECES_VOISINES", "3 1.5": "CACHE" };
   const CP1252 = "€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–—˜™š›œ\u009DžŸ";
   const ASCII = { " ": " ", " ": " ", " ": " ", "≈": "~", "≤": "<=", "≥": ">=", "→": "->", "−": "-", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "²": "2", "³": "3", "⁴": "4" };
@@ -478,7 +478,7 @@ const DESSIN = (() => {
     const tables = [
       tab("VPORT", hT.VPORT, [rec("VPORT", H(), hT.VPORT, "AcDbViewportTableRecord", "\n2\n*Active\n70\n0\n10\n0\n20\n0\n11\n1\n21\n1\n12\n210\n22\n148.5\n13\n0\n23\n0\n14\n10\n24\n10\n15\n10\n25\n10\n16\n0\n26\n0\n36\n1\n17\n0\n27\n0\n37\n0\n40\n300\n41\n1.414\n42\n50\n43\n0\n44\n0\n50\n0\n51\n0\n71\n0\n72\n1000\n73\n1\n74\n3\n75\n0\n76\n0\n77\n0\n78\n0\n281\n0\n65\n0\n146\n0")]),
       tab("LTYPE", hT.LTYPE, [lt("ByBlock", "", []), lt("ByLayer", "", []), lt("Continuous", "Solid line", []), lt("CENTER", "Axe ISO ____ . ____", [8, -1.5, 0.5, -1.5]), lt("DASHED", "Cache ISO __ __", [3, -1.5]), lt("PHANTOM", "Pieces voisines ____ . . ____", [10, -1.5, 0.5, -1.5, 0.5, -1.5])]),
-      tab("LAYER", hT.LAYER, [["Defpoints", [7, "CONTINUOUS", 1]], ...Object.entries(CALQUES)].map(([n, [c, l, np]]) => rec("LAYER", H(), hT.LAYER, "AcDbLayerTableRecord", `\n2\n${n}\n70\n0\n62\n${c}\n6\n${l === "CONTINUOUS" ? "Continuous" : l}${np ? "\n290\n0" : ""}\n370\n-3\n390\n${hPh}`))),
+      tab("LAYER", hT.LAYER, [["Defpoints", [7, "CONTINUOUS", 1]], ...Object.entries(CALQUES)].map(([n, [c, l, np, rgb]]) => rec("LAYER", H(), hT.LAYER, "AcDbLayerTableRecord", `\n2\n${n}\n70\n0\n62\n${c}${rgb ? "\n420\n" + parseInt(rgb, 16) : ""}\n6\n${l === "CONTINUOUS" ? "Continuous" : l}${np ? "\n290\n0" : ""}\n370\n-3\n390\n${hPh}`))),
       tab("STYLE", hT.STYLE, [rec("STYLE", H(), hT.STYLE, "AcDbTextStyleTableRecord", "\n2\nStandard\n70\n0\n40\n0\n41\n1\n50\n0\n71\n0\n42\n2.5\n3\ntxt\n4\n"), rec("STYLE", H(), hT.STYLE, "AcDbTextStyleTableRecord", "\n2\nISO\n70\n0\n40\n0\n41\n0.85\n50\n0\n71\n0\n42\n2.5\n3\narial.ttf\n4\n")]),
       tab("VIEW", hT.VIEW, []), tab("UCS", hT.UCS, []),
       tab("APPID", hT.APPID, [rec("APPID", H(), hT.APPID, "AcDbRegAppTableRecord", "\n2\nACAD\n70\n0")]),

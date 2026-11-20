@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.80"></script>
+<script src="../commun/auth.js?v=2.81"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.80">
-<script src="../commun/apps.js?v=2.80"></script>
-<script src="../commun/data/profils.js?v=2.80"></script>
-<script src="../commun/barres3d.js?v=2.80"></script>
-<script src="../commun/acier.js?v=2.80"></script>
-<script src="../commun/data/tuyauterie.js?v=2.80"></script>
-<script src="../commun/charges.js?v=2.80"></script>
-<script src="../commun/coefvent.js?v=2.80"></script>
-<script src="../commun/tendues.js?v=2.80"></script>
-<script src="../commun/portique.js?v=2.80"></script>
-<script src="../commun/chevilles.js?v=2.80"></script>
-<script src="../commun/cbfem.js?v=2.80"></script>
-<script src="../commun/topo.js?v=2.80"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.81">
+<script src="../commun/apps.js?v=2.81"></script>
+<script src="../commun/data/profils.js?v=2.81"></script>
+<script src="../commun/barres3d.js?v=2.81"></script>
+<script src="../commun/acier.js?v=2.81"></script>
+<script src="../commun/data/tuyauterie.js?v=2.81"></script>
+<script src="../commun/charges.js?v=2.81"></script>
+<script src="../commun/coefvent.js?v=2.81"></script>
+<script src="../commun/tendues.js?v=2.81"></script>
+<script src="../commun/portique.js?v=2.81"></script>
+<script src="../commun/chevilles.js?v=2.81"></script>
+<script src="../commun/cbfem.js?v=2.81"></script>
+<script src="../commun/topo.js?v=2.81"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -300,7 +300,8 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 <article class="card" id="cs"><div class="theme">CS – Cahier de supportage</div><h2>12. CS – Cahier de supportage</h2>
 <ul><li><b>Type</b> = un support S1 (profilés, tuyauteries, actions) ; <b>configuration</b> = même type avec cotes différentes (H, L, h, a<sub>i</sub>…). Chaque configuration est recalculée par le moteur S1 (page S1 chargée en arrière-plan, mêmes formules).</li>
 <li><b>Schéma coté (2.57)</b> : pour chaque type calculé, vues de face et de côté en lettres (mêmes vues que les plans schématiques), générées automatiquement par le moteur S1 sur la 1<sup>re</sup> configuration et enregistrées avec le type ; légende des cotes (lettre, libellé) ; la lettre de la case active du tableau est surlignée sur le schéma. Repliable, état mémorisé.</li>
-<li><b>Enveloppe de DDC d'un type</b> : pour chaque appui et chaque composante, valeur de plus grande valeur absolue sur toutes les combinaisons et toutes les configurations (non concomitante, prudente).</li>
+<li><b>Descentes de charges (retirées du cahier en 2.81)</b> : le cahier ne porte plus ni DDC, ni SCU, ni repérage d'appuis ; la DDC sert uniquement au plan d'implantation génie civil, issue de S1 ou de Robot.</li>
+<li><b>Plans (2.81)</b> : numéro de plan imposé, lot <b>PIP</b> et code document <b>PLA</b> ; titre de chaque vue suivi de l'échelle (« VUE DE FACE – ÉCH. 1:10 ») ; aperçu de la planche sous chaque type ; <b>traitement de surface</b> par défaut du cahier ou par type, galvanisation à chaud (NF EN ISO 1461) ou peinture (NF EN ISO 12944), inscrit en note du plan et dans la BOM ; BOM générale en tête du cahier. Calques DXF : CONTOUR en couleur AutoCAD 232 ; COTES et REPERES en vert très clair (RVB 140-200-140, couleur vraie, ACI 91 en repli) – <b>à valider sur un plan réel</b>.</li>
 <li><b>Statut</b> : le plus défavorable des configurations (non vérifié &gt; non calculé &gt; taux élevé &gt; conforme).</li>
 <li><b>Nomenclature (BOM)</b> : profilés × longueurs × quantités ; chevilles (forfait par platine) ; majoration accessoires (platines, goussets, soudures) en % de la masse des profilés.</li>
 <li><b>Notes de calcul</b> : configuration la plus sollicitée (taux maxi) de chaque type, ou toutes ; <b>plans</b> : planche dessinée sur la 1<sup>re</sup> configuration, cotes en lettres, valeurs au tableau des configurations.</li></ul>
@@ -342,6 +343,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.81</td><td>CS, S1 (plans)</td><td>Cahier de supportage : DDC supprimées (interface et plans) ; plans lot PIP / code PLA ; titre et échelle sous chaque vue ; traitement de surface (galva / peinture) par type ; aperçu du plan par type ; BOM générale en tête ; calques DXF (CONTOUR ACI 232, cotes et repères en vert clair).</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.80</td><td>AN1 (CBFEM)</td><td>Contrôle sur 4 notes PROFIS supplémentaires sans recalage (HST4 M8, HAS M10 et M20) : règle de raideur inchangée, plage étendue (chimique M10 à M24, HST4 M8 à M20) ; 3 tests ajoutés ; limites documentées (faibles efforts, ε<sub>pl</sub> indicative).</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.79</td><td>AN1 (CBFEM)</td><td>Raideur des chevilles recalée sur 12 notes PROFIS (4 nouvelles : HST4 M10, M12, M20 et HAS-U M24) : HST4 k<sub>a</sub> = 160 kN/mm (non fissuré) ou 125 kN/mm (fissuré), indépendante du diamètre, au lieu de E<sub>s</sub>·A<sub>s</sub>/(13·d ou 16·d) ; chimique inchangé (L = 80 mm, validé en M24) ; alerte pour les combinaisons fortement comprimées ; 3 tests ajoutés.</td><td>CBFEM, HST4, raideur automatique : M16 inchangé (±3 %), M12 +30 %, M20 −19 %, M10 +57 % ; tractions modifiées de quelques %. Platine rigide et scellement chimique inchangés.</td></tr>
 <tr><td>2.78</td><td>AN1 (CBFEM)</td><td>Raideur des chevilles recalée sur 8 notes PROFIS (4 nouvelles) : scellement chimique L = 80 mm (au lieu de t + 4·d) ; HST4 L = 13·d non fissuré / 16·d fissuré (au lieu de 2·h<sub>ef</sub>) ; 4 tests ajoutés.</td><td>CBFEM, raideur automatique : tractions modifiées de quelques % en chimique (M16 inchangé à 1 %, M12 −9 % de raideur, M20 +19 %) ; HST4 en béton fissuré ou de faible h<sub>ef</sub> : raideur réduite (ex. h<sub>ef</sub> 74 mm fissuré : −42 %), donc moins d'effet de levier. Platine rigide inchangée.</td></tr>
@@ -529,6 +531,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.80"></script>
+<script src="../commun/replier.js?v=2.81"></script>
 </body>
 </html>
