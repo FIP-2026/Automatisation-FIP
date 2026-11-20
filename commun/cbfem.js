@@ -94,7 +94,7 @@ const CBFEM = (() => {
 
   /* ---------- raideur axiale d'une cheville (N/mm) — À VÉRIFIER ----------
      PROFIS utilise des raideurs d'essais non publiées. Règle calée sur 12 notes PROFIS (2.79) :
-     scellement chimique (HAS, M10 à M30, h_ef 60 à 214 mm ; HAS M20 à faible h_ef sous-estimé de 9 à 15 %, béton fissuré ou non) : k = E_s·A_s/L avec L = 80 mm ;
+     scellement chimique (HAS, M10 à M30, h_ef 60 à 214 mm ; HAS M20 sous-estimé de 8 à 15 %, béton fissuré ou non) : k = E_s·A_s/L avec L = 80 mm ;
      cheville à expansion (HST4 M8 à M20, h_ef 30 à 111 mm) : k = 160 kN/mm en béton non fissuré, 125 kN/mm en béton fissuré,
      indépendamment du diamètre (raideur gouvernée par le glissement du cône, pas par la tige).
      Contrôlée sans recalage sur 4 notes de plus (2.80 : HST4 M8, HAS M10 et M20) : écart sur la cheville la plus tendue −9 % à +7 %.
