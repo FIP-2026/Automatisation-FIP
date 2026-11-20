@@ -12,7 +12,9 @@ const DESSIN = (() => {
   const nrm = (a) => { const n = Math.hypot(...a) || 1; return a.map((v) => v / n); };
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const F = "Arial,Helvetica,sans-serif", TF = 0.5, TFin = 0.25, SEG = 0.04;
-  const FORMATS = { A3: [420, 297], A4: [297, 210] };
+  const FORMATS = { A2: [594, 420], A3: [420, 297], A4: [297, 210] };
+  /* gabarits FIP (commun/data/gabarit-a2.js, gabarit-a3.js) : A2 et A3 ; A4 = cartouche simplifié */
+  const gabFor = (fmt) => (fmt === "A2" ? (typeof GABARIT_A2 !== "undefined" ? GABARIT_A2 : null) : fmt === "A4" ? null : typeof GABARIT_A3 !== "undefined" ? GABARIT_A3 : null);
   const ECHELLES = [1, 2, 5, 10, 20, 50, 100];                                  // échelles recommandées NF EN ISO 5455
   /* Vues : u → droite, v → haut, w → vers l'observateur */
   const VUES = {
@@ -116,6 +118,20 @@ const DESSIN = (() => {
   const hachures = (x1, y1, x2, y2, nx, ny, pas = 2.5, lg = 3) => { const L = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.floor(L / pas)); let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${STY.fort}/>`;
     for (let i = 0; i <= n; i++) { const x = x1 + (x2 - x1) * i / n, y = y1 + (y2 - y1) * i / n; s += `<line x1="${x}" y1="${y}" x2="${x + (nx + (y2 - y1) / L * 0.7) * lg}" y2="${y + (ny - (x2 - x1) / L * 0.7) * lg}" ${STY.fin}/>`; } return s; };
 
+  /* symbole de coupe de tuyau (vue de face) : ligne de rupture en S et demi-section hachurée à 45° (côté droit), traits fins ;
+     le tout en segments (même rendu en SVG et en DXF) */
+  function coupeTuyau(cx, cy, r) {
+    const poly = [], N = 24, S = [];
+    for (let i = 0; i <= N; i++) { const t = -Math.PI / 2 + Math.PI * i / N; poly.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]); }      // demi-cercle droit, de haut en bas
+    for (let i = 0; i <= N; i++) { const t = 1 - i / N; S.push([cx + 0.5 * r * Math.sin(2 * Math.PI * t), cy - r + 2 * r * t]); }           // ligne en S, de bas en haut
+    poly.push(...S.slice(1, -1));
+    let g = `<g data-c="FIN"><polyline points="${S.map((p) => p.map((v) => v.toFixed(2)).join(",")).join(" ")}" fill="none" ${STY.fin}/>`;
+    const pas = Math.max(0.9, Math.min(2, r / 5)), d0 = cx + cy - 2 * r, d1 = cx + cy + 2 * r;                                                  // droites x + y = d
+    for (let d = d0 + pas; d < d1; d += pas * Math.SQRT2) { const X = [];
+      poly.forEach((a, i) => { const b = poly[(i + 1) % poly.length], fa = a[0] + a[1] - d, fb = b[0] + b[1] - d; if ((fa < 0) !== (fb < 0)) { const t = fa / (fa - fb); X.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); } });
+      X.sort((p, q) => p[0] - q[0]); for (let i = 0; i + 1 < X.length; i += 2) g += `<line x1="${X[i][0].toFixed(2)}" y1="${X[i][1].toFixed(2)}" x2="${X[i + 1][0].toFixed(2)}" y2="${X[i + 1][1].toFixed(2)}" ${STY.fin}/>`; }
+    return g + "</g>";
+  }
   /* trièdre du SCU dans une vue orthogonale (flèches pour les axes dans le plan, ⊙ / ⊗ pour l'axe normal) ou en perspective */
   const AXES = [["X", [1, 0, 0]], ["Y", [0, 1, 0]], ["Z", [0, 0, 1]]];
   function triedre(V, ox, oy, L = 9) {
@@ -134,7 +150,7 @@ const DESSIN = (() => {
              reperes:[{vue, p, n}], etiquettes:[{vue, p, txt, dx, dy}], nomenclature:[[rep, qte, des, mat, long, masse]], tableau:{titre, cols, rows}, cartouche:{...}, notes:[...] } */
   /* ---------- gabarit FIP A3 (commun/data/gabarit-a3.js) : cadre, cartouche et tableau des révisions à attributs ----------
      K (cartouche) : client1, client2, titre (ou titres[3]), projet, doc, lot, chrono, page, rev, bonPour, revisions:[{rev, desc, par, verif, appr, date}] */
-  const avecGabarit = (spec) => spec.format !== "A4" && typeof GABARIT_A3 !== "undefined" && !(spec.cartouche && spec.cartouche.provisoire === true);
+  const avecGabarit = (spec) => !!gabFor(spec.format || "A3") && !(spec.cartouche && spec.cartouche.provisoire === true);
   function valeursGabarit(K, ech) {
     const coupe = (t, n) => { const L = []; let l = ""; String(t || "").split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { if (l.trim()) L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
     const tit = K.titres || coupe(K.titre, 30), V = { CLIENT1: K.client1 ?? K.client ?? "", CLIENT2: K.client2 ?? "", TITRE1: tit[0] || "", TITRE2: tit[1] || "", TITRE3: tit.slice(2).join(" "),
@@ -143,9 +159,9 @@ const DESSIN = (() => {
     for (let i = 0; i < 5; i++) { const r = R[i] || {}; Object.assign(V, { ["DESCRIPTION" + i]: R[i] ? [r.rev != null && String(r.rev) !== String(i) ? "(" + r.rev + ")" : "", r.desc || ""].join(" ").trim() : i ? "" : "CREATION DU DOCUMENT", ["PAR" + i]: r.par || "", ["VERIFIE" + i]: r.verif || "", ["APPROUVE" + i]: r.appr || "", ["DATE" + i]: r.date || "" }); }
     return V;
   }
-  function gabaritSVG(V, PH) {
-    const G = GABARIT_A3, anc = ["start", "middle", "end"], fs = (h) => +(h / 0.72).toFixed(2);
-    let s = `<g data-gabarit="A3">`;
+  function gabaritSVG(V, PH, fmt) {
+    const G = gabFor(fmt), anc = ["start", "middle", "end"], fs = (h) => +(h / 0.72).toFixed(2);
+    let s = `<g data-gabarit="${fmt}">`;
     for (const k of ["F", "C", "R"]) {
       const B = G[k], [ox, oy] = B.o, X = (x) => +(ox + x).toFixed(3), Y = (y) => +(PH - oy - y).toFixed(3);
       const T = (x, y, h, ha, va, t, att) => `<text${att ? ` data-att="${att}"` : ""} x="${X(x)}" y="${+(Y(y) + (va === 2 ? h / 2 : va === 3 ? h : 0)).toFixed(3)}" font-size="${fs(h)}" text-anchor="${anc[ha] || "start"}" fill="#000">${esc(t)}</text>`;
@@ -196,7 +212,7 @@ const DESSIN = (() => {
       vues.forEach((V) => { V.r = { u0: V.u0, u1: V.u1, v0: V.v0, v1: V.v1 }; });
       // marges de cotation (mm planche) selon les cotes demandées
       const MG = (V, cote) => 10 + 8 * (1 + Math.max(-1, ...(spec.cotes || []).filter((c) => c.vue === V.id && c.cote === cote).map((c) => c.niv || 0)));
-      vues.forEach((V) => { V.mg = { g: MG(V, "gauche"), d: MG(V, "droite"), h: MG(V, "haut") + 6, b: MG(V, "bas") }; });
+      vues.forEach((V) => { V.mg = { g: MG(V, "gauche"), d: MG(V, "droite"), h: MG(V, "haut") + 6, b: MG(V, "bas") + 5 }; });
       // choix de l'échelle normalisée et placement
       let ech = null, place = null, grille = null;
       for (const e of ECHELLES) {
@@ -251,6 +267,7 @@ const DESSIN = (() => {
         g += `<polyline data-c="${CAL[a.type] || "FIN"}" points="${Q.map((q) => q.map((v) => v.toFixed(2)).join(",")).join(" ")}" fill="none" ${STY[a.type] || STY.fin}/>`; });
       (spec.cercles || []).filter(dans).forEach((c) => { const n = c.n || [1, 0, 0]; if (Math.abs(dot(n, V.w)) < 0.9) return; const [cx, cy] = P(c.c), r = c.r * k;
         g += `<circle data-c="${CAL[c.style] || "FIN"}" cx="${cx}" cy="${cy}" r="${r}" fill="none" ${STY[c.style] || STY.fin}/>`;
+        if (c.coupe) g += coupeTuyau(cx, cy, r);
         if (c.croix) g += `<line x1="${cx - r - 2}" y1="${cy}" x2="${cx + r + 2}" y2="${cy}" ${STY.axe}/><line x1="${cx}" y1="${cy - r - 2}" x2="${cx}" y2="${cy + r + 2}" ${STY.axe}/>`; });
       // lignes de rupture (trait fin avec zigzag, ISO 128) : bande blanche par pièce traversant l'intervalle
       const zig = (x1, y1, x2, y2) => { const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, nx = -uy, ny = ux, m = L / 2, P2 = (t, o) => `${(x1 + ux * t + nx * o).toFixed(2)},${(y1 + uy * t + ny * o).toFixed(2)}`;
@@ -272,8 +289,9 @@ const DESSIN = (() => {
       (spec.reperes || []).filter((r) => r.vue === V.id).forEach((r) => { const [px, py] = P(r.p); let dx = r.dx ?? (px - cx0), dy = r.dy ?? (py - cy0); const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
         const L = r.L || 14, bx = px + dx * L, by = py + dy * L, R = 3.5;
         g += `<g data-c="REPERES"><circle cx="${px}" cy="${py}" r="0.6" fill="#000"/><line x1="${px}" y1="${py}" x2="${bx - dx * R}" y2="${by - dy * R}" ${STY.fin}/><circle cx="${bx}" cy="${by}" r="${R}" fill="#fff" ${STY.fin}/>` + txt(bx, by + 1.25, r.n, { a: "middle" }) + "</g>"; });
-      if (spec.scu) { g += `<g data-c="REPERES">` + triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - (V.titre.length + 12) * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7) + "</g>"; /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
-      g += `<g data-c="TEXTE">${txt(x + w / 2, y + h + V.mg.b + 1, `${V.titre}  –  ÉCH. 1:${ech}`, { a: "middle", h: 3.5, b: 1 })}</g>`;
+      if (spec.scu) { g += `<g data-c="REPERES">` + triedre(V, Math.max(Math.min(x - V.mg.g + 12, x + w / 2 - (V.titre.length + 24) * 1.15 - 16), zx0 + 16), y + h + V.mg.b - 7) + "</g>"; /* à gauche du titre de la vue */ (spec.appuis || []).filter((a) => (a.vues || ["face"]).includes(V.id)).forEach((a) => { const [px, py] = P(a.p); g += etiqAppui(px, py, a.n); }); }
+      { const t1 = V.titre + (spec.repSupport ? " - SUPPORT " + spec.repSupport : ""), t2 = "ECHELLE 1:" + ech, yt = y + h + V.mg.b + 1, ul = (t, yy) => { const L = t.length * 2.55; return `<line x1="${(x + w / 2 - L / 2).toFixed(2)}" y1="${yy + 1}" x2="${(x + w / 2 + L / 2).toFixed(2)}" y2="${yy + 1}" ${STY.fin}/>`; };
+        g += `<g data-c="TEXTE">${txt(x + w / 2, yt, t1, { a: "middle", h: 3.5, b: 1 })}${ul(t1, yt)}${txt(x + w / 2, yt + 4.6, t2, { a: "middle", h: 3.5, b: 1 })}${ul(t2, yt + 4.6)}</g>`; }
       s += `<g>${g}</g>`;
     });
     // perspective isométrique (sans échelle) dans la plus grande zone libre
@@ -319,7 +337,7 @@ const DESSIN = (() => {
     }
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;
     if (GAB) {   // gabarit FIP A3 : cadre, cartouche et révisions (blocs à attributs dans le DXF)
-      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH) + `<g data-c="TEXTE" data-ep="1">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
+      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH, spec.format || "A3") + `<g data-c="TEXTE" data-ep="1">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
       return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
     }
     // cartouche provisoire (A4)
@@ -341,6 +359,32 @@ const DESSIN = (() => {
     s += lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("");   // notes à gauche du cartouche
     s += txt(zx1 - 1, zy0 - 2, K.provisoire === false ? "" : "Cartouche simplifié A4 – le gabarit FIP est en A3", { a: "end", h: 2 }) + "</g>";
     return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
+  }
+  /* ---------- page de garde / sommaire du cahier (gabarit FIP) ----------
+     spec : { format, cartouche:K, cols:[…], lignes:[[…]…], largeurs:[…], docsRef:[…], notes:[…] } — tableau à gauche (colonnes de lignes de hauteur constante), documents de référence et notes générales à droite */
+  function sommaire(spec) {
+    const [PW, PH] = FORMATS[spec.format] || FORMATS.A3, G = gabFor(spec.format || "A3"), zx0 = 10, zy0 = 10, zy1 = PH - 10, K = spec.cartouche || {};
+    const cols = spec.cols, lw = spec.largeurs || cols.map(() => 1), sw = lw.reduce((a, b) => a + b, 0), wT = Math.min(150, PW * 0.36), xs = [];
+    let xx = 0; lw.forEach((p) => { xs.push(xx); xx += p / sw * wT; });
+    const hl = 6.2, nMax = Math.max(4, Math.floor((zy1 - zy0 - 8) / hl) - 1), L = spec.lignes, blocs = [];
+    for (let i = 0; i < L.length; i += nMax) blocs.push(L.slice(i, i + nMax)); if (!blocs.length) blocs.push([]);
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PW} ${PH}" class="planche" style="width:100%;background:#fff" font-family="${F}" data-echelle="1" data-zone="${zx0} ${zy0} ${PW - 10} ${zy1}"><rect x="0" y="0" width="${PW}" height="${PH}" fill="#fff"/>`;
+    const ligne = (x1, y1, x2, y2, l = TFin) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${l}"/>`;
+    s += `<g data-c="CARTOUCHE">`;
+    blocs.forEach((B, bi) => { const x0 = zx0 + 4 + bi * (wT + 4), y0 = zy0 + 4, H = hl * (B.length + 1);
+      s += ligne(x0, y0, x0 + wT, y0, TF) + ligne(x0, y0 + H, x0 + wT, y0 + H, TF) + ligne(x0, y0, x0, y0 + H, TF) + ligne(x0 + wT, y0, x0 + wT, y0 + H, TF);
+      cols.forEach((c, i) => { s += txt(x0 + xs[i] + lw[i] / sw * wT / 2, y0 + hl * 0.68, c, { a: "middle", h: 2.8, b: 1 }); if (i) s += ligne(x0 + xs[i], y0, x0 + xs[i], y0 + H); });
+      B.forEach((r, j) => { const yy = y0 + hl * (j + 1); s += ligne(x0, yy, x0 + wT, yy); r.forEach((c, i) => { s += txt(x0 + xs[i] + lw[i] / sw * wT / 2, yy + hl * 0.68, c, { a: "middle", h: 2.8 }); }); }); });
+    s += "</g>";
+    // documents de référence et notes générales (au-dessus du cartouche, partie droite)
+    const T = [], tit = (t) => T.push({ t, b: 1 }), puce = (t) => T.push({ t: "•  " + t });
+    if ((spec.docsRef || []).length) { tit("DOCUMENTS PROJET DE REFERENCE :"); spec.docsRef.forEach((d) => T.push({ t: d })); T.push({ t: "" }); }
+    if ((spec.notes || []).length) { tit("NOTES GENERALES :"); spec.notes.forEach(puce); }
+    const x1 = Math.max(zx0 + 8 + blocs.length * (wT + 4), PW * 0.55), y1 = zy1 - 112 - 14 - T.length * 5.2;
+    s += `<g data-c="TEXTE">` + T.map((l, i) => txt(x1, y1 + i * 5.2, l.t, { h: 3.5, b: l.b }) + (l.b ? ligne(x1, y1 + i * 5.2 + 1, x1 + l.t.length * 2.6, y1 + i * 5.2 + 1) : "")).join("") + "</g>";
+    const V = valeursGabarit(K, null); V.ECHELLE = "SANS";
+    s += gabaritSVG(V, PH, spec.format || "A3");
+    return { svg: s + "</svg>", echelle: 1, format: spec.format || "A3" };
   }
   /* =====================================================================
      EXPORT DXF 2000 (AC1015, ASCII, mm) depuis une ou plusieurs planches vectorielles (spec.vecteur = true)
@@ -385,7 +429,7 @@ const DESSIN = (() => {
         for (const n of el.children) {
           const tag = n.tagName.toLowerCase(), c = calque(n, L);
           if (["defs", "pattern", "image", "title"].includes(tag)) continue;
-          if (tag === "g" && n.getAttribute("data-gabarit")) { const V = {}; n.querySelectorAll("[data-att]").forEach((t) => { V[t.getAttribute("data-att")] = t.textContent; }); fo.ins.push(V); continue; }   // gabarit FIP : blocs + attributs (papier)
+          if (tag === "g" && n.getAttribute("data-gabarit")) { const V = {}; n.querySelectorAll("[data-att]").forEach((t) => { V[t.getAttribute("data-att")] = t.textContent; }); fo.ins.push(V); fo.gf = n.getAttribute("data-gabarit"); continue; }   // gabarit FIP : blocs + attributs (papier)
           const spN = sp === "P" || n.getAttribute("data-ep") || ["CARTOUCHE", "CADRE"].includes(n.getAttribute("data-c")) ? "P" : "M";
           if (tag === "g") { marche(n, n.getAttribute("data-c") || L, spN); continue; }
           const at = (q) => +n.getAttribute(q) || 0, fill = n.getAttribute("fill") || "", stroke = n.getAttribute("stroke");
@@ -427,8 +471,8 @@ const DESSIN = (() => {
     const hDict = H(), hGroup = H(), hLay = H(), hMls = H(), hMlsStd = H(), hPlot = H(), hPsn = H(), hPh = H();
     const brM = H(), layM = H(), blkM = [H(), H()];
     FOL.forEach((fo, i) => { fo.br = H(); fo.lay = H(); fo.blk = [H(), H()]; fo.nomBloc = i === 0 ? "*Paper_Space" : "*Paper_Space" + (i - 1); });
-    const GB = typeof GABARIT_A3 !== "undefined" && FOL.some((fo) => fo.ins.length);
-    const NOMS = { F: "FIP - FORMAT A3", C: "CARTOUCHE.FIP.AUTOCAD", R: "Révision", LOGO: "LOGOS FIP" }, BLK = {};   // noms du gabarit AutoCAD FIP (DXF 2000 : noms longs admis)
+    const gf = (FOL.find((fo) => fo.ins.length) || {}).gf, GBX = gf ? gabFor(gf) : null, GB = !!GBX;
+    const NOMS = { F: "FIP - FORMAT " + (gf || "A3"), C: "CARTOUCHE.FIP.AUTOCAD", R: "Révision", LOGO: "LOGOS FIP" }, BLK = {};   // noms du gabarit AutoCAD FIP (DXF 2000 : noms longs admis)
     if (GB) ["LOGO", "F", "C", "R"].forEach((k2) => { BLK[k2] = { br: H(), blk: [H(), H()] }; });
     const out = [], w = (s) => out.push(s);
     const ent0 = (t, h, own, L, papier, x = "") => `0\n${t}\n5\n${h}\n330\n${own}\n100\nAcDbEntity\n${papier ? "67\n1\n" : ""}8\n${L}${x}`;
@@ -453,14 +497,14 @@ const DESSIN = (() => {
       const L = [], [x0, y0, x1, y1] = fo.Z, cx = (x0 + x1) / 2, cy = fo.PH - (y0 + y1) / 2, hz = y1 - y0;
       L.push({ t: "VIEWPORT", d: { c: [fo.PW / 2, fo.PH / 2], w: fo.PW * 1.1, h: fo.PH * 1.1, st: 1, id: 1, vc: [fo.PW / 2, fo.PH / 2], vh: fo.PH * 1.1, fl: 557088 } });
       L.push({ t: "VIEWPORT", d: { c: [cx, cy], w: x1 - x0, h: hz, st: 2, id: 2, vc: [fo.oxm + cx * fo.k, cy * fo.k], vh: hz * fo.k, fl: 49248 } });   // 49248 = 32768 + 16384 (zoom verrouillé) + 96 (icône SCU)
-      if (GB) fo.ins.forEach((V) => ["F", "C", "R"].forEach((k2) => { const B = GABARIT_A3[k2], X = B.o[0], Y = B.o[1];
+      if (GB) fo.ins.forEach((V) => ["F", "C", "R"].forEach((k2) => { const B = GBX[k2], X = B.o[0], Y = B.o[1];
         L.push({ t: "INSERT", L: "CARTOUCHE", d: { nom: NOMS[k2], p: [X, Y], att: B.a.map((a) => ({ tag: a[0], p: [X + a[2], Y + a[3]], h: a[4], ha: a[5], va: a[6], t: V[a[0]] ?? a[1] })) } }); }));
       ENT.filter((e) => e.sp === "P" && e.f === i).forEach((e) => L.push(e));
       return L; });
     const modele = ENT.filter((e) => e.sp === "M");
     // définitions des blocs du gabarit (coordonnées locales, point de base en bas à droite comme le gabarit AutoCAD)
     const defBloc = {};
-    if (GB) { const G = GABARIT_A3;
+    if (GB) { const G = GBX;
       defBloc.LOGO = G.C.logo.flatMap((g) => g.tri.map((t) => ({ t: "SOLID", L: "0", col: g.aci, d: { q: [[t[0], t[1]], [t[2], t[3]], [t[4], t[5]], [t[4], t[5]]] } })));
       ["F", "C", "R"].forEach((k2) => { const B = G[k2], E2 = [];
         B.l.forEach((l) => E2.push({ t: "LINE", L: "0", d: { a: [l[0], l[1]], b: [l[2], l[3]] } }));
@@ -494,7 +538,7 @@ const DESSIN = (() => {
     const ents = modele.map((e) => entite(e, brM, false)).concat(FOL.length ? papier[0].map((e) => entite(e, FOL[0].br, true)) : []);
     // --- OBJECTS
     const plot = (nom) => `\n100\nAcDbPlotSettings\n1\n\n2\nNone\n4\n${nom}\n6\n\n40\n0\n41\n0\n42\n0\n43\n0\n44\n0\n45\n0\n46\n0\n47\n0\n48\n0\n49\n0\n140\n0\n141\n0\n142\n1\n143\n1\n70\n688\n72\n1\n73\n0\n74\n5\n7\n\n75\n16\n76\n0\n77\n2\n78\n300\n147\n1\n148\n0\n149\n0`;
-    const layout = (h, nom, ordre, br, vp, W, Hh) => `0\nLAYOUT\n5\n${h}\n330\n${hLay}${plot(W > 300 ? "ISO_full_bleed_A3_(420.00_x_297.00_MM)" : "ISO_full_bleed_A4_(297.00_x_210.00_MM)")}\n100\nAcDbLayout\n1\n${nom}\n70\n1\n71\n${ordre}\n10\n0\n20\n0\n11\n${W}\n21\n${Hh}\n12\n0\n22\n0\n32\n0\n14\n0\n24\n0\n34\n0\n15\n${W}\n25\n${Hh}\n35\n0\n146\n0\n13\n0\n23\n0\n33\n0\n16\n1\n26\n0\n36\n0\n17\n0\n27\n1\n37\n0\n76\n1\n330\n${br}` + (vp ? `\n331\n${vp}` : "");
+    const layout = (h, nom, ordre, br, vp, W, Hh) => `0\nLAYOUT\n5\n${h}\n330\n${hLay}${plot(W > 500 ? "ISO_full_bleed_A2_(594.00_x_420.00_MM)" : W > 300 ? "ISO_full_bleed_A3_(420.00_x_297.00_MM)" : "ISO_full_bleed_A4_(297.00_x_210.00_MM)")}\n100\nAcDbLayout\n1\n${nom}\n70\n1\n71\n${ordre}\n10\n0\n20\n0\n11\n${W}\n21\n${Hh}\n12\n0\n22\n0\n32\n0\n14\n0\n24\n0\n34\n0\n15\n${W}\n25\n${Hh}\n35\n0\n146\n0\n13\n0\n23\n0\n33\n0\n16\n1\n26\n0\n36\n0\n17\n0\n27\n1\n37\n0\n76\n1\n330\n${br}` + (vp ? `\n331\n${vp}` : "");
     const dict = (h, own, E2, x = "") => `0\nDICTIONARY\n5\n${h}\n330\n${own}\n100\nAcDbDictionary\n281\n1${E2.map(([n, r]) => `\n3\n${n}\n350\n${r}`).join("")}${x}`;
     const objets = [dict(hDict, 0, [["ACAD_GROUP", hGroup], ["ACAD_LAYOUT", hLay], ["ACAD_MLINESTYLE", hMls], ["ACAD_PLOTSETTINGS", hPlot], ["ACAD_PLOTSTYLENAME", hPsn]]),
       dict(hGroup, hDict, []), dict(hLay, hDict, [["Model", layM], ...FOL.map((fo) => [fo.nom, fo.lay])]), dict(hMls, hDict, [["Standard", hMlsStd]]), dict(hPlot, hDict, []),
@@ -510,5 +554,5 @@ const DESSIN = (() => {
   }
   /* nom de fichier des plans : n° de document du cartouche (Projet-Doc-Lot-Chrono) suivi de la révision */
   const nomFichierPlans = (K = {}) => String([K.projet || "00-000", K.doc || "PLN", K.lot, K.chrono || "01"].filter(Boolean).join("-") + "_Rev" + (K.rev ?? "0")).replace(/[^\w.-]+/g, "_") + ".dxf";
-  return { prisme, boite, cylindre, cercle, planche, dxf, nomFichierPlans, VUES, FORMATS };
+  return { prisme, boite, cylindre, cercle, planche, sommaire, dxf, nomFichierPlans, VUES, FORMATS };
 })();
