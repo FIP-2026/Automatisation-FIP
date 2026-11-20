@@ -151,18 +151,26 @@ const DESSIN = (() => {
   /* ---------- gabarit FIP A3 (commun/data/gabarit-a3.js) : cadre, cartouche et tableau des révisions à attributs ----------
      K (cartouche) : client1, client2, titre (ou titres[3]), projet, doc, lot, chrono, page, rev, bonPour, revisions:[{rev, desc, par, verif, appr, date}] */
   const avecGabarit = (spec) => !!gabFor(spec.format || "A3") && !(spec.cartouche && spec.cartouche.provisoire === true);
-  function valeursGabarit(K, ech) {
+  /* cartouche FIP « Titre 1 / 2 / 3 » : champs PROJECT_TITLE, DOC_TITLE_1-3, CTR_DOC_REF (n° du document), SHEET (folio), SCALE, FORMAT, TYPE (code document), DISC (lot) et 6 lignes de révisions
+     K : projectTitle (sinon client1 – client2), titres[3] (sinon titre coupé), ctrDoc (sinon projet-doc-lot-chrono-page-rev), folio, projet, doc, lot, chrono, page, rev, revisions:[{rev, desc, par, verif, date}] */
+  function valeursGabarit(K, ech, fmt) {
     const coupe = (t, n) => { const L = []; let l = ""; String(t || "").split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { if (l.trim()) L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
-    const tit = K.titres || coupe(K.titre, 30), V = { CLIENT1: K.client1 ?? K.client ?? "", CLIENT2: K.client2 ?? "", TITRE1: tit[0] || "", TITRE2: tit[1] || "", TITRE3: tit.slice(2).join(" "),
-      PROJET: K.projet || "00-000", DOC: K.doc || "PLN", LOT: K.lot || "", CHRONO: K.chrono || "01", PAGE: K.page || "01", REV: K.rev ?? K.indice ?? "0", "BON-POUR": K.bonPour || "CONSULTATION", ECHELLE: ech ? "1:" + ech : "" };
-    const R = (K.revisions || []).slice(-5);
-    for (let i = 0; i < 5; i++) { const r = R[i] || {}; Object.assign(V, { ["DESCRIPTION" + i]: R[i] ? [r.rev != null && String(r.rev) !== String(i) ? "(" + r.rev + ")" : "", r.desc || ""].join(" ").trim() : i ? "" : "CREATION DU DOCUMENT", ["PAR" + i]: r.par || "", ["VERIFIE" + i]: r.verif || "", ["APPROUVE" + i]: r.appr || "", ["DATE" + i]: r.date || "" }); }
+    const tit = K.titres || coupe(K.titre, 44), p2 = (v) => String(v ?? "").padStart(2, "0");
+    const doc = K.ctrDoc || [K.projet || "00-000", K.doc || "PLN", K.lot, K.chrono || "01", K.page || "01", K.rev ?? K.indice ?? "0"].filter((x) => x !== "" && x != null).join("-");
+    const V = { PROJECT_TITLE: K.projectTitle ?? [K.client1 ?? K.client ?? "", K.client2 ?? ""].filter(Boolean).join(" - "), DOC_TITLE_1: tit[0] || "", DOC_TITLE_2: tit[1] || "", DOC_TITLE_3: tit.slice(2).join(" "),
+      CTR_DOC_REF: doc, SHEET: K.folio || p2(K.page || 1) + "/01", SCALE: ech ? "1:" + ech : "SANS", FORMAT: fmt || "A3", TYPE: K.doc || "PLN", DISC: K.lot || "" };
+    const R = (K.revisions || []).slice(-6);
+    for (let i = 0; i < 6; i++) { const r = R[i] || {}; Object.assign(V, { ["REV_" + i]: R[i] ? String(r.rev ?? i) : i ? "" : "0", ["DATE_" + i]: r.date || "", ["REV_MEMO_" + i]: R[i] ? r.desc || "" : i ? "" : "Création du document", ["ISSUE_" + i]: r.par || "", ["CHECK_" + i]: r.verif || "" }); }
     return V;
   }
+  /* hauteur de texte réduite pour tenir dans la case (largeur limite en mm, ≈ 0,6 h par caractère) */
+  const LIM = { PROJECT_TITLE: 76, DOC_TITLE_1: 160, DOC_TITLE_2: 160, DOC_TITLE_3: 160, REV_MEMO: 76, CTR_DOC_REF: 56, DISC: 24, SHEET: 20 };
+  const hAj = (tag, h, t) => { const L = LIM[tag.replace(/_\d$/, "")], n = String(t ?? "").length; return L && n ? Math.min(h, +(L / (n * 0.6)).toFixed(2)) : h; };
   function gabaritSVG(V, PH, fmt) {
     const G = gabFor(fmt), anc = ["start", "middle", "end"], fs = (h) => +(h / 0.72).toFixed(2);
     let s = `<g data-gabarit="${fmt}">`;
     for (const k of ["F", "C", "R"]) {
+      if (!G[k]) continue;
       const B = G[k], [ox, oy] = B.o, X = (x) => +(ox + x).toFixed(3), Y = (y) => +(PH - oy - y).toFixed(3);
       const T = (x, y, h, ha, va, t, att) => `<text${att ? ` data-att="${att}"` : ""} x="${X(x)}" y="${+(Y(y) + (va === 2 ? h / 2 : va === 3 ? h : 0)).toFixed(3)}" font-size="${fs(h)}" text-anchor="${anc[ha] || "start"}" fill="#000">${esc(t)}</text>`;
       s += `<path d="${B.l.map((l) => `M${X(l[0])},${Y(l[1])}L${X(l[2])},${Y(l[3])}`).join("")}" stroke="#000" stroke-width="${k === "F" ? 0.5 : TFin}" fill="none"/>`;
@@ -170,7 +178,7 @@ const DESSIN = (() => {
       B.r.forEach((r) => { s += `<rect x="${X(r[0])}" y="${Y(r[1] + r[3])}" width="${r[2]}" height="${r[3]}" fill="#000"/>`; });
       B.t.forEach((t) => { s += T(t[0], t[1], t[2], t[3], t[4], t[5]); });
       B.m.forEach((m) => { const n = m[3].length, pas = m[2] * 2; m[3].forEach((l, i) => { s += T(m[0], m[1] - (i - (n - 1) / 2) * pas, m[2], 1, 2, l); }); });
-      B.a.forEach((a) => { s += T(a[2], a[3], a[4], a[5], a[6], V[a[0]] ?? "", a[0]); });
+      B.a.forEach((a) => { const v = V[a[0]] ?? ""; s += T(a[2], a[3], hAj(a[0], a[4], v), a[5], a[6], v, a[0]); });
       if (B.logo) B.logo.forEach((g) => { s += `<path d="${g.loops.map((L) => "M" + L.map((p) => X(p[0]) + "," + Y(p[1])).join("L") + "Z").join("")}" fill="#${g.rgb}" fill-rule="evenodd"/>`; });
     }
     return s + "</g>";
@@ -180,7 +188,7 @@ const DESSIN = (() => {
     const GAB = avecGabarit(spec), [PW, PH] = FORMATS[spec.format] || FORMATS.A3, mL = GAB ? 10 : 20, mA = 10, zx0 = mL, zx1 = PW - mA, zy0 = mA, zy1 = PH - mA;
     // bloc cartouche + nomenclature + tableau (coin inférieur droit)
     const A4 = spec.format === "A4", TH = A4 ? { hl: 4.8, f: 2.4, ft: 3, nt: 2.2, bd: 11, b1: 4, b2: 2.1 } : { hl: 6, f: 2.8, ft: 3.5, nt: 2.5, bd: 13, b1: 5, b2: 2.5 };   // tailles selon le format
-    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(180, zx1 - zx0), hCart = GAB ? 112 : 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
+    const nom = spec.nomenclature || [], tabs = (spec.tableaux || []).concat(spec.tableau ? [spec.tableau] : []).filter((t) => t && t.rows && t.rows.length), lgN = A4 ? 5 : 6, wB = Math.min(GAB ? 170 : 180, zx1 - zx0), hCart = GAB ? 144 : 36, hNom = nom.length ? (nom.length + 1) * lgN : 0;
     const coupeTxt = (t, n) => { const L = []; let l = ""; String(t).split(" ").forEach((m) => { if ((l + " " + m).trim().length > n) { L.push(l.trim()); l = m; } else l += " " + m; }); if (l.trim()) L.push(l.trim()); return L; };
     const ncTab = Math.floor(wB / (A4 ? 1.22 : 1.38));
     tabs.forEach((t) => { t._note = t.note ? coupeTxt(t.note, ncTab) : []; });
@@ -337,7 +345,7 @@ const DESSIN = (() => {
     }
     const K = spec.cartouche || {}, yc = bloc.y1 - hCart, xc = bloc.x0;
     if (GAB) {   // gabarit FIP A3 : cadre, cartouche et révisions (blocs à attributs dans le DXF)
-      s += `</g>` + gabaritSVG(valeursGabarit(K, ech), PH, spec.format || "A3") + `<g data-c="TEXTE" data-ep="1">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
+      s += `</g>` + gabaritSVG(valeursGabarit(K, ech, spec.format || "A3"), PH, spec.format || "A3") + `<g data-c="TEXTE" data-ep="1">` + lignesNotes.map((l, i) => txt(zx0 + 3, zy1 - 3 - (lignesNotes.length - 1 - i) * 3.4, l, { h: 2.5 })).join("") + "</g>";
       return { svg: s + "</svg>", echelle: ech, format: spec.format || "A3" };
     }
     // cartouche provisoire (A4)
@@ -380,9 +388,9 @@ const DESSIN = (() => {
     const T = [], tit = (t) => T.push({ t, b: 1 }), puce = (t) => T.push({ t: "•  " + t });
     if ((spec.docsRef || []).length) { tit("DOCUMENTS PROJET DE REFERENCE :"); spec.docsRef.forEach((d) => T.push({ t: d })); T.push({ t: "" }); }
     if ((spec.notes || []).length) { tit("NOTES GENERALES :"); spec.notes.forEach(puce); }
-    const x1 = Math.max(zx0 + 8 + blocs.length * (wT + 4), PW * 0.55), y1 = zy1 - 112 - 14 - T.length * 5.2;
+    const x1 = Math.max(zx0 + 8 + blocs.length * (wT + 4), PW * 0.55), y1 = zy1 - 144 - 14 - T.length * 5.2;
     s += `<g data-c="TEXTE">` + T.map((l, i) => txt(x1, y1 + i * 5.2, l.t, { h: 3.5, b: l.b }) + (l.b ? ligne(x1, y1 + i * 5.2 + 1, x1 + l.t.length * 2.6, y1 + i * 5.2 + 1) : "")).join("") + "</g>";
-    const V = valeursGabarit(K, null); V.ECHELLE = "SANS";
+    const V = valeursGabarit(K, null, spec.format || "A3");
     s += gabaritSVG(V, PH, spec.format || "A3");
     return { svg: s + "</svg>", echelle: 1, format: spec.format || "A3" };
   }
@@ -472,8 +480,8 @@ const DESSIN = (() => {
     const brM = H(), layM = H(), blkM = [H(), H()];
     FOL.forEach((fo, i) => { fo.br = H(); fo.lay = H(); fo.blk = [H(), H()]; fo.nomBloc = i === 0 ? "*Paper_Space" : "*Paper_Space" + (i - 1); });
     const gf = (FOL.find((fo) => fo.ins.length) || {}).gf, GBX = gf ? gabFor(gf) : null, GB = !!GBX;
-    const NOMS = { F: "FIP - FORMAT " + (gf || "A3"), C: "CARTOUCHE.FIP.AUTOCAD", R: "Révision", LOGO: "LOGOS FIP" }, BLK = {};   // noms du gabarit AutoCAD FIP (DXF 2000 : noms longs admis)
-    if (GB) ["LOGO", "F", "C", "R"].forEach((k2) => { BLK[k2] = { br: H(), blk: [H(), H()] }; });
+    const NOMS = { F: "FIP - FORMAT " + (gf || "A3"), C: "CARTOUCHE", R: "Révision", LOGO: "LOGOS FIP" }, BLK = {}, KS = GBX ? ["F", "C", "R"].filter((k2) => GBX[k2]) : [];   // noms du gabarit AutoCAD FIP (DXF 2000 : noms longs admis)
+    if (GB) ["LOGO", ...KS].forEach((k2) => { BLK[k2] = { br: H(), blk: [H(), H()] }; });
     const out = [], w = (s) => out.push(s);
     const ent0 = (t, h, own, L, papier, x = "") => `0\n${t}\n5\n${h}\n330\n${own}\n100\nAcDbEntity\n${papier ? "67\n1\n" : ""}8\n${L}${x}`;
     const P3 = (c, p) => `\n${c}\n${nb(p[0])}\n${c + 10}\n${nb(p[1])}\n${c + 20}\n0`;
@@ -497,8 +505,8 @@ const DESSIN = (() => {
       const L = [], [x0, y0, x1, y1] = fo.Z, cx = (x0 + x1) / 2, cy = fo.PH - (y0 + y1) / 2, hz = y1 - y0;
       L.push({ t: "VIEWPORT", d: { c: [fo.PW / 2, fo.PH / 2], w: fo.PW * 1.1, h: fo.PH * 1.1, st: 1, id: 1, vc: [fo.PW / 2, fo.PH / 2], vh: fo.PH * 1.1, fl: 557088 } });
       L.push({ t: "VIEWPORT", d: { c: [cx, cy], w: x1 - x0, h: hz, st: 2, id: 2, vc: [fo.oxm + cx * fo.k, cy * fo.k], vh: hz * fo.k, fl: 49248 } });   // 49248 = 32768 + 16384 (zoom verrouillé) + 96 (icône SCU)
-      if (GB) fo.ins.forEach((V) => ["F", "C", "R"].forEach((k2) => { const B = GBX[k2], X = B.o[0], Y = B.o[1];
-        L.push({ t: "INSERT", L: "CARTOUCHE", d: { nom: NOMS[k2], p: [X, Y], att: B.a.map((a) => ({ tag: a[0], p: [X + a[2], Y + a[3]], h: a[4], ha: a[5], va: a[6], t: V[a[0]] ?? a[1] })) } }); }));
+      if (GB) fo.ins.forEach((V) => KS.forEach((k2) => { const B = GBX[k2], X = B.o[0], Y = B.o[1];
+        L.push({ t: "INSERT", L: "CARTOUCHE", d: { nom: NOMS[k2], p: [X, Y], att: B.a.map((a) => ({ tag: a[0], p: [X + a[2], Y + a[3]], h: hAj(a[0], a[4], V[a[0]] ?? ""), ha: a[5], va: a[6], t: V[a[0]] ?? "" })) } }); }));
       ENT.filter((e) => e.sp === "P" && e.f === i).forEach((e) => L.push(e));
       return L; });
     const modele = ENT.filter((e) => e.sp === "M");
@@ -506,7 +514,7 @@ const DESSIN = (() => {
     const defBloc = {};
     if (GB) { const G = GBX;
       defBloc.LOGO = G.C.logo.flatMap((g) => g.tri.map((t) => ({ t: "SOLID", L: "0", col: g.aci, d: { q: [[t[0], t[1]], [t[2], t[3]], [t[4], t[5]], [t[4], t[5]]] } })));
-      ["F", "C", "R"].forEach((k2) => { const B = G[k2], E2 = [];
+      KS.forEach((k2) => { const B = G[k2], E2 = [];
         B.l.forEach((l) => E2.push({ t: "LINE", L: "0", d: { a: [l[0], l[1]], b: [l[2], l[3]] } }));
         B.c.forEach((c) => E2.push({ t: "CIRCLE", L: "0", d: { p: [c[0], c[1]], r: c[2] } }));
         B.r.forEach((r) => E2.push({ t: "SOLID", L: "0", d: { q: [[r[0], r[1]], [r[0] + r[2], r[1]], [r[0], r[1] + r[3]], [r[0] + r[2], r[1] + r[3]]] } }));
@@ -533,7 +541,7 @@ const DESSIN = (() => {
     // --- BLOCKS
     const bloc = (nom, br, hh, corps, fl = 0) => `0\nBLOCK\n5\n${hh[0]}\n330\n${br}\n100\nAcDbEntity\n8\n0\n100\nAcDbBlockBegin\n2\n${nom}\n70\n${fl}\n10\n0\n20\n0\n30\n0\n3\n${nom}\n1\n${corps}\n0\nENDBLK\n5\n${hh[1]}\n330\n${br}\n100\nAcDbEntity\n8\n0\n100\nAcDbBlockEnd`;
     const blocs = [bloc("*Model_Space", brM, blkM, ""), ...FOL.map((fo, i) => bloc(fo.nomBloc, fo.br, fo.blk, i === 0 ? "" : "\n" + papier[i].map((e) => entite(e, fo.br, true)).join("\n")))];
-    if (GB) ["LOGO", "F", "C", "R"].forEach((k2) => blocs.push(bloc(NOMS[k2], BLK[k2].br, BLK[k2].blk, "\n" + defBloc[k2].map((e) => entite(e, BLK[k2].br, false)).join("\n"), defBloc[k2].some((e) => e.t === "ATTDEF") ? 2 : 0)));
+    if (GB) ["LOGO", ...KS].forEach((k2) => blocs.push(bloc(NOMS[k2], BLK[k2].br, BLK[k2].blk, "\n" + defBloc[k2].map((e) => entite(e, BLK[k2].br, false)).join("\n"), defBloc[k2].some((e) => e.t === "ATTDEF") ? 2 : 0)));
     // --- ENTITIES : espace objet + présentation active (1er folio)
     const ents = modele.map((e) => entite(e, brM, false)).concat(FOL.length ? papier[0].map((e) => entite(e, FOL[0].br, true)) : []);
     // --- OBJECTS
