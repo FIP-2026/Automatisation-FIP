@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.92"></script>
+<script src="../commun/auth.js?v=2.93"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.92">
+<link rel="stylesheet" href="../commun/calc.css?v=2.93">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=2.92"></script>
-<script src="../commun/data/tuyauterie.js?v=2.92"></script>
-<script src="../commun/acier.js?v=2.92"></script>
-<script src="../commun/barres3d.js?v=2.92"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.92"></script>
-<script src="../commun/data/gabarit-a2.js?v=2.92"></script>
-<script src="../commun/dessin.js?v=2.92"></script>
-<script src="../commun/coefvent.js?v=2.92"></script>
-<script src="../commun/cahier.js?v=2.92"></script>
-<script src="../commun/chevilles.js?v=2.92"></script>
-<script src="../commun/topo.js?v=2.92"></script>
+<script src="../commun/data/profils.js?v=2.93"></script>
+<script src="../commun/data/tuyauterie.js?v=2.93"></script>
+<script src="../commun/acier.js?v=2.93"></script>
+<script src="../commun/barres3d.js?v=2.93"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.93"></script>
+<script src="../commun/data/gabarit-a2.js?v=2.93"></script>
+<script src="../commun/dessin.js?v=2.93"></script>
+<script src="../commun/coefvent.js?v=2.93"></script>
+<script src="../commun/cahier.js?v=2.93"></script>
+<script src="../commun/chevilles.js?v=2.93"></script>
+<script src="../commun/topo.js?v=2.93"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -1294,18 +1294,18 @@ function specDessin(D,V,opt={}){
     const vert=b.vert, incl=!vert&&Math.abs(b.dir[2])>0.05, m=add3(b.A,mul3(b.dir,b.L*(vert?0.4:incl?0.5:0.78)));
     reperes.push(vert?{vue:'face',p:m,n:String(rep),dx:-1,dy:0.35}:incl?{vue:'face',p:m,n:String(rep),dx:Math.abs(b.dir[2]),dy:Math.abs(b.dir[1])}:{vue:'face',p:m,n:String(rep),dx:0.35,dy:1}); });
   const LIBPL={sol:'Platine de pied',plafond:'Platine de tête',mur:'Platine murale',murPied:'Platine de pied de jambe',murArt:'Platine d\'appui mural'};
-  const gp=new Map(); pl.forEach(p=>{ const k=LIBPL[p.k]||'Platine'; p.key=k; gp.set(k,{k,n:(gp.get(k)?.n||0)+1}); });
-  [...gp.values()].forEach(p=>{ rep++; p.rep=rep; nom.push([rep,p.n,`${p.k} – dimensions selon note de chevillage`,$('nuance').value,'—','—']); });
+  const gp=new Map(); pl.forEach(p=>{ const k=LIBPL[p.k]||'Platine'; p.key=k; gp.set(k,{k,kind:p.k,n:(gp.get(k)?.n||0)+1}); });
+  [...gp.values()].forEach(p=>{ rep++; p.rep=rep; const E=opt.platEx&&opt.platEx[p.kind]; nom.push([rep,p.n,E?`${p.k} ${E.id} – ${E.lx} × ${E.ly} × ${E.tp} mm`:`${p.k} – dimensions selon note de chevillage`,$('nuance').value,'—','—']); });
   if(D.typ==='TS'){ rep++; nom.push([rep,2,'Butée d\'extrémité (plat ép. 8) + goussets du sabot – selon plan du sabot',$('nuance').value,'—','—']); }
   const repPl=k=>String((gp.get((pl.find(p=>p.k===k)||{}).key)||{}).rep||'');
   if(pm&&!crap){ const P=pm.pt; reperes.push({vue:'face',p:pm.k==='mur'?[0,-ep/2,P[2]-cz/2]:[0,P[1]-cz/2,P[2]+(pm.k==='sol'?-ep/2:ep/2)],n:repPl(pm.k),dx:pm.k==='mur'?1:-1,dy:pm.k==='plafond'?-1:1}); }
   Gm.appuis.filter(a=>a.k==='murPied'||a.k==='murArt').forEach(a=>reperes.push({vue:'face',p:[0,a.pt[1]+(a.k==='murArt'?0.005:-0.005),a.pt[2]-0.07],n:repPl(a.k),dx:a.k==='murArt'?1:-1,dy:1}));
   const nP=pl.filter(p=>!p.e).length;
   if(nP){ rep++; const L=sandE?`Tiges filetées M${$('tD').value} cl. ${$('tCl').value} + écrous, rondelles (sandwich du profilé existant ${$('crProf').value})`:crapN?`Crapauds sur profilé existant ${$('crProf').value} (${$('crType').value==='maison'?'maison, boulon précontraint':'catalogue'})`:fixM==='tige'?'Tiges filetées traversantes + écrous, rondelles':crap?`Crapauds (${$('crType').value==='maison'?'maison, boulon précontraint':'catalogue'})`:'Chevilles d\'ancrage';
-    nom.push([rep,'—',L+' – selon note de chevillage','—','—','—']);
+    nom.push([rep,'—',L+' – '+(opt.chevEx&&!sandE&&!crapN&&fixM!=='tige'?opt.chevEx:'selon note de chevillage'),'—','—','—']);
     if(pm&&!crap){ const P=pm.pt; reperes.push(pm.k==='mur'?{vue:vCote,p:[cx*0.3,0,P[2]+cz*0.3],n:String(rep),dx:-1,dy:-1}:{vue:'dessus',p:[cx*0.3,P[1]-cz*0.3,P[2]],n:String(rep),dx:-1,dy:1}); }
-    if(tige){ rep++; nom.push([rep,nP+pl.filter(p=>p.k==='murPied').length,'Contre-plaque – dimensions selon note de chevillage',$('nuance').value,'—','—']); }
-    if(sandE){ rep++; nom.push([rep,pl.filter(p=>['sol','mur','plafond','murPied'].includes(p.k)).length,'Contre-plaque (face opposée du profilé existant)',$('nuance').value,'—','—']); } }
+    if(tige){ rep++; nom.push([rep,nP+pl.filter(p=>p.k==='murPied').length,(opt.platEx&&opt.platEx.mur?'Contre-plaque '+opt.platEx.mur.id+' – '+opt.platEx.mur.lx+' × '+opt.platEx.mur.ly+' × '+opt.platEx.mur.tp+' mm':'Contre-plaque – dimensions selon note de chevillage'),$('nuance').value,'—','—']); }
+    if(sandE){ rep++; nom.push([rep,pl.filter(p=>['sol','mur','plafond','murPied'].includes(p.k)).length,(opt.platEx&&Object.values(opt.platEx)[0]?'Contre-plaque '+Object.values(opt.platEx)[0].id+' – '+Object.values(opt.platEx)[0].lx+' × '+Object.values(opt.platEx)[0].ly+' × '+Object.values(opt.platEx)[0].tp+' mm (face opposée du profilé existant)':'Contre-plaque (face opposée du profilé existant)'),$('nuance').value,'—','—']); } }
   const ge=new Map(); Gm.T.forEach(t=>{ if(!avecEtrier(t)) return; const d=diamEtrier(t), k=`Étrier (U-bolt) M${d} pour Ø${f(t.P.De,1)}`; ge.set(k,(ge.get(k)||0)+1); });
   const gl=new Map(); Gm.T.forEach(t=>{ const l=liaisonT(t); if(l==='etrier') return; const k=`Patin ${LIAIS_NOM[l]} pour Ø${f(t.P.De,1)} (h = ${f(hLiaison(t,D),0)} mm)`; gl.set(k,(gl.get(k)||0)+1);
     if(t.guide&&t.guide!=='non'){ const kg=`Guide latéral (${GUIDES[t.guide].toLowerCase()}) pour Ø${f(t.P.De,1)}, jeu 10 mm, chanfrein`; gl.set(kg,(gl.get(kg)||0)+2); } });
@@ -1333,8 +1333,8 @@ function specDessin(D,V,opt={}){
   if(opt.tableau) tableaux.push(opt.tableau);
   const phase=opt.phase||(CAHIER.existe()?(CAHIER.lire().affaire.phase||'APS'):'APS/APD');
   const TRN={galva:'Traitement de surface : galvanisation à chaud après fabrication (NF EN ISO 1461).',peinture:'Traitement de surface : peinture (système à préciser selon NF EN ISO 12944, catégorie de corrosivité du site).'};
-  return {repSupport:opt.repSupport||'',format:opt.format||formatIndus,statut:{phase},vues,solides:S,tableaux,scu:!!opt.ddc||!!opt.scu,appuis:appuisL||[],interruptions:opt.interrompre===false?[]:interruptions,iso:opt.perspective===false?null:iso,aides,cercles,sols,murs,cotes,reperes,etiquettes:etiq,nomenclature:nom,cartouche:K,
-    notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''} : a = positionnement des tuyauteries (axe), autres cotes = géométrie du support. Platines et fixations représentées à titre indicatif : dimensions, épaisseurs, entraxes et chevilles selon la note de chevillage.`,`Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (profilés seuls, hors platines et visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`,...(opt.traitement&&TRN[opt.traitement]?[TRN[opt.traitement]]:[]),...(Gm.T.some(t=>['t1','t2','t2a','t3'].includes(liaisonT(t)))?['Tôles intermédiaires de même nature que la tuyauterie, soudées en continu, avec un perçage Ø8 sur la génératrice inférieure (ST Rubis Terminal §11.4).']:[])]};
+  return {repSupport:opt.repSupport||'',format:opt.format||formatIndus,statut:opt.exec?null:{phase},vues,solides:S,tableaux,scu:!!opt.ddc||!!opt.scu,appuis:appuisL||[],interruptions:opt.interrompre===false?[]:interruptions,iso:opt.perspective===false?null:iso,aides,cercles,sols,murs,cotes,reperes,etiquettes:etiq,nomenclature:nom,cartouche:K,
+    notes:[`Cotes en mm${lettres?' (valeurs : tableau des configurations)':''} : a = positionnement des tuyauteries (axe), autres cotes = géométrie du support. ${opt.exec?'Platines, trous et chevilles : dimensions de la nomenclature (platines vérifiées dans AN1 – NF EN 1992-4) ; fichiers de découpe laser fournis par ailleurs.':'Platines et fixations représentées à titre indicatif : dimensions, épaisseurs, entraxes et chevilles selon la note de chevillage.'}`,`Longueurs entre axes du modèle de calcul : longueurs de débit à confirmer en fabrication.`,`Acier ${$('nuance').value} — masse acier ≈ ${f(masse,1)} kg${varie?' (configuration '+opt.tableau.rows[0][0]+')':''} (profilés seuls, hors platines et visserie). Tuyauteries représentées sur ±${Lp*1000} mm.`,...(opt.traitement&&TRN[opt.traitement]?[TRN[opt.traitement]]:[]),...(Gm.T.some(t=>['t1','t2','t2a','t3'].includes(liaisonT(t)))?['Tôles intermédiaires de même nature que la tuyauterie, soudées en continu, avec un perçage Ø8 sur la génératrice inférieure (ST Rubis Terminal §11.4).']:[])]};
 }
 function planIndus(D,V,opt){ return DESSIN.planche(specDessin(D,V,opt)); }
 function majIndus(){ if(!modeIndus||!dernier) return; try{ const P=planIndus(dernier.D,dernier.V,{format:formatIndus,ddc:$('ddcInd').checked}); $('vInd').innerHTML=P.svg; $('nInd').innerHTML=`Échelle 1:${P.echelle} sur ${P.format} paysage · projection européenne · faces cachées supprimées. ${P.format==='A3'?'Gabarit et cartouche FIP A3 (blocs à attributs dans le DXF).':'Cartouche simplifié en A4 (le gabarit FIP est en A3).'}`+(P.format==='A4'&&P.echelle>20?' <b style="color:#b26a00">⚠ Format A4 trop petit pour ce contenu (échelle réduite) : préférer l\'A3.</b>':''); dernier.planche=P; }
@@ -1550,6 +1550,22 @@ function appliquerParamsAffaire(){                        // paramètres communs
   if(K.climat){ try{localStorage.setItem('fip.climat',JSON.stringify(K.climat));}catch(e){} importerC1(); } else calc();
   return true;
 }
+/* platines du support (dimensions de fabrication) : épaisseur et trous provisoires de S1 tant que AN1 n'a pas vérifié la platine (le cahier d'exécution prend alors les valeurs d'AN1) */
+function platinesS1(D,V){ const mode=$('fix').value||'chev', tD=+$('tD').value, dt=tD+(tD<=8?1:tD<=24?2:3);
+  return V.Gm.appuis.filter(a=>['sol','plafond','mur','murPied','murArt'].includes(a.k)).map(a=>{ const [a1,a2]=entraxesAp(a.k).map(v=>Math.round(v*1000)), pied=a.k==='murPied'||a.k==='murArt', tige=(mode==='tige'&&MURAL(a.k))||mode==='sand', crapaud=mode==='crap'&&a.k!=='murArt', chev=!tige&&!crapaud;
+    const d=tige?dt:crapaud?0:14, ho=d?[[-1,-1],[1,-1],[-1,1],[1,1]].map(([i,j])=>({x:i*a1/2,y:j*a2/2,d})):[];
+    return {lib:a.lib.replace(/<[^>]+>/g,''),k:a.k,lx:Math.round(Math.max(a1+(pied?60:80),pied?120:150)),ly:Math.round(Math.max(a2+(pied?60:80),pied?120:150)),tp:12,trous:ho,mode:tige?'tige':crapaud?'crap':'chev',cp:tige&&a.k!=='murArt',aN1:chev&&chevillable(a.k)}; }); }
+/* pièces fabriquées autres que profilés et platines : L × l × e (mm), quantité par support */
+function piecesS1(D,V){ const L=[], Gm=V.Gm, add=(lib,l1,l2,e,q,mat)=>L.push({lib,L:Math.round(l1),l:Math.round(l2),e,q,nuance:mat||$('nuance').value});
+  Gm.T.forEach(t=>{ const l=liaisonT(t), De=t.P.De, hl=hLiaison(t,D), nm=`${t.nom||'L'} Ø${f(De,1)}`, larg=Math.min(0.6*De,300);
+    if(l==='t1'){ add(`Collier plat – ${nm}`,Math.PI*(De+10),40,5,1,'= tuyauterie'); add(`½ IPE 200 (Té) – ${nm}`,100,100,10,1); }
+    if(l==='t2'){ add(`Tôle intermédiaire – ${nm}`,150,larg,5,1,'= tuyauterie'); add(`½ IPE 200 (Té) – ${nm}`,100,100,10,1); }
+    if(l==='t2a'){ add(`Tôle intermédiaire – ${nm}`,150,larg,5,1,'= tuyauterie'); add(`Semelle du support mécano-soudé – ${nm}`,150,140,10,1); add(`Plat vertical du support mécano-soudé – ${nm}`,150,Math.max(hl-15,20),8,2); }
+    if(l==='t3') add(`Tôle intermédiaire – ${nm}`,150,larg,5,1,'= tuyauterie');
+    if(l==='t5') add(`Plat sous le tuyau – ${nm}`,150,100,Math.max(hl,5),1);
+    if(l!=='etrier'&&t.guide&&t.guide!=='non'){ const hg=Math.max(hl,60)+30; if(t.guide==='corn') add(`Cornière de guidage L 50×5 – ${nm}`,100,50,5,2); else if(t.guide==='plat') add(`Plat de guidage – ${nm}`,hg,50,5,2); else add(`Rond de guidage Ø12 – ${nm}`,hg,12,12,2); } });
+  if(D.typ==='TS') Gm.appuis.forEach(a=>{ const lx=Math.round(Math.max(entraxesAp('sol')[0]*1000+80,150)); add(`Butée d'extrémité – ${a.lib.replace(/<[^>]+>/g,'')}`,lx,(a.h0+0.06)*1000,8,1); add(`Goussets du sabot – ${a.lib.replace(/<[^>]+>/g,'')}`,100,a.h0*1000+60,8,2); });
+  return L; }
 function resumeS1(){                                     // résultats synthétiques pour le cahier
   const {D,V}=dernier, A=alertes(D,V), env=enveloppe(V), nb=A.filter(a=>a.niv==='bloq').length, nw=A.filter(a=>a.niv==='warn').length;
   const statut=(V.gov.r>1||nb)?'ko':(V.gov.r>D.cible||nw)?'jaune':'ok';
@@ -1561,10 +1577,11 @@ function resumeS1(){                                     // résultats synthéti
       cas:Object.fromEntries(['G','FL','T','S','WY','WX','EP','EX','EY'].filter(c=>V.R[c]).map(c=>[c,V.R[c].reactions[E.a.n].map(x=>-x)]))})),
     an1:V.Gm.appuis.map((a,ia)=>({a,ia})).filter(({a})=>chevillable(a.k))
       .map(({a,ia})=>{ const p=preAN1S1(ia); return p?{ia,lib:a.lib.replace(/<[^>]+>/g,''),k:a.k,C:p.C,A:p.A,plaque:p.plaque,profil:p.profil,info:p.info}:null; }).filter(Boolean),
+    platines:platinesS1(D,V),pieces:piecesS1(D,V),
     lignes:V.lignes.map(l=>({n:l.n.replace(/<[^>]+>/g,''),r:l.r})),date:new Date().toISOString()};
 }
 window.S1API={ndc:async(o={})=>{ const sv={...NDC}; Object.assign(NDC,o); try{ const el=await ndcRendre(true), h=el.outerHTML; $('ndcHors').innerHTML=''; return h; } finally{ Object.keys(NDC).forEach(k=>delete NDC[k]); Object.assign(NDC,sv); } },ndcCSS:()=>NDC_CSS,
-  decalCotes:(RET)=>{ const {D,V}=dernier, ep=epPlatine(RET||retoursAN1S1(V.Gm),V.Gm), typ=D.typ, o={}; if(surSol(typ)||typ==='plafond') o.Lm=ep; tuyaux.forEach((t,i)=>{ const b=V.Gm.B[(V.Gm.T[i]||{}).bi]; if(b&&((b.vert&&(surSol(typ)||typ==='plafond'))||(!b.vert&&surMur(typ)))) o['pos'+i]=ep; }); return o; },plancheVec:(o={})=>DESSIN.planche({...specDessin(dernier.D,dernier.V,{lettres:true,...o}),vecteur:true}).svg,cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:true,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase,traitement:o.traitement,repSupport:o.repSupport,retourAN:o.retourAN}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
+  decalCotes:(RET)=>{ const {D,V}=dernier, ep=epPlatine(RET||retoursAN1S1(V.Gm),V.Gm), typ=D.typ, o={}; if(surSol(typ)||typ==='plafond') o.Lm=ep; tuyaux.forEach((t,i)=>{ const b=V.Gm.B[(V.Gm.T[i]||{}).bi]; if(b&&((b.vert&&(surSol(typ)||typ==='plafond'))||(!b.vert&&surMur(typ)))) o['pos'+i]=ep; }); return o; },plancheVec:(o={})=>DESSIN.planche({...specDessin(dernier.D,dernier.V,{lettres:true,...o}),vecteur:true}).svg,cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:o.lettres!==false,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase,traitement:o.traitement,repSupport:o.repSupport,retourAN:o.retourAN,exec:o.exec,platEx:o.platEx,chevEx:o.chevEx}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
   perspective:async()=>{await perspective();return $('persp').hidden?'':$('imgPersp').src;}};
 const QS=new URLSearchParams(location.search), ID_CAHIER=QS.get('cahier'), ID_CONF=QS.get('conf');
 function initCahier(){
@@ -1600,13 +1617,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=2.92"></script>
-<script src="../commun/aide.js?v=2.92"></script>
-<script src="../commun/notes.js?v=2.92"></script>
-<script src="ndc-s1.js?v=2.92"></script>
+<script src="../commun/replier.js?v=2.93"></script>
+<script src="../commun/aide.js?v=2.93"></script>
+<script src="../commun/notes.js?v=2.93"></script>
+<script src="ndc-s1.js?v=2.93"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=2.92"></script>
-<script src="../commun/export.js?v=2.92"></script>
+<script src="aide-s1.js?v=2.93"></script>
+<script src="../commun/export.js?v=2.93"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>
