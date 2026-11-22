@@ -44,7 +44,7 @@ const EXEC = (() => {
     const L = [...plats.values()].sort((a, b) => a.tp - b.tp || a.lx * a.ly - b.lx * b.ly);
     L.forEach((p, i) => { p.id = "PL-" + String(i + 1).padStart(2, "0"); p.fichier = nom(p); p.sup = [...p.sup]; });
     const byKey = Object.fromEntries(L.map((p) => [p.cles, p]));
-    Object.values(parConf).forEach((kinds) => Object.keys(kinds).forEach((k) => { const p = byKey[kinds[k].cle]; Object.assign(kinds[k], { id: p.id, lx: p.lx, ly: p.ly, tp: p.tp }); }));
+    Object.values(parConf).forEach((kinds) => Object.keys(kinds).forEach((k) => { const p = byKey[kinds[k].cle]; Object.assign(kinds[k], { id: p.id, lx: p.lx, ly: p.ly, tp: p.tp, trous: p.trous }); }));
     return { plats: L, parConf, problemes, avert, supports,
       profils: [...profils.values()].map((p) => ({ ...p, sup: [...p.sup] })).sort((a, b) => a.profil.localeCompare(b.profil, "fr", { numeric: true }) || b.L - a.L),
       pieces: [...pieces.values()].map((p) => ({ ...p, sup: [...p.sup] })), boul: [...boul.entries()].map(([k, v]) => ({ des: k, ...v })) };

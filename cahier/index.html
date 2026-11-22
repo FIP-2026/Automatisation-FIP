@@ -4,26 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.93"></script>
+<script src="../commun/auth.js?v=2.94"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.93">
-<script src="../commun/acier.js?v=2.93"></script>
-<script src="../commun/cahier.js?v=2.93"></script>
-<script src="../commun/pictos-s1.js?v=2.93"></script>
-<script src="../commun/notes.js?v=2.93"></script>
-<script src="../commun/ident.js?v=2.93"></script>
-<script src="../commun/data/gabarit-a3.js?v=2.93"></script>
-<script src="../commun/data/gabarit-a2.js?v=2.93"></script>
-<script src="../commun/dessin.js?v=2.93"></script>
-<script src="../commun/topo.js?v=2.93"></script>
-<script src="../commun/zip.js?v=2.93"></script>
-<script src="../commun/laser.js?v=2.93"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.94">
+<script src="../commun/acier.js?v=2.94"></script>
+<script src="../commun/cahier.js?v=2.94"></script>
+<script src="../commun/pictos-s1.js?v=2.94"></script>
+<script src="../commun/notes.js?v=2.94"></script>
+<script src="../commun/ident.js?v=2.94"></script>
+<script src="../commun/data/gabarit-a3.js?v=2.94"></script>
+<script src="../commun/data/gabarit-a2.js?v=2.94"></script>
+<script src="../commun/dessin.js?v=2.94"></script>
+<script src="../commun/topo.js?v=2.94"></script>
+<script src="../commun/zip.js?v=2.94"></script>
+<script src="../commun/laser.js?v=2.94"></script>
 <script src="../commun/lib/xlsx/xlsx.mini.min.js"></script>
-<script src="exec.js?v=2.93"></script>
+<script src="exec.js?v=2.94"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -126,7 +126,7 @@
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=2.93"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=2.94"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -162,7 +162,7 @@ function notesGenerales(){ const m=(K.reglages.notesGen||'').split('\n').map(x=>
   const tr=[...new Set(K.types.filter(T=>qteT(T)).map(T=>traitementT(T)))], nu=[...new Set(K.types.map(T=>resumeT(T)?.nuance).filter(Boolean))];
   return [`ENSEMBLE DU SUPPORT EN ACIER ${nu.join(' / ')||'S235'}${tr.length===1?(tr[0]==='galva'?' GALVANISE A CHAUD':' PEINT'):' - TRAITEMENT DE SURFACE : VOIR LE PLAN DE CHAQUE SUPPORT'}`,'BOULONNERIE ACIER CLASSE 8.8']; }
 function specSommaire(md){ const a=K.affaire;
-  return {format:md,cols:['N° DE PAGE','N° DE SUPPORT','PRODUIT','QTE'],largeurs:[1,1.15,1.5,0.8],lignes:plansList().map(({T,c},i)=>[String(i+2),c?repere(T,c):T.nom,sansAcc(T.produit||''),String(c?(+c.qte||0):qteT(T))]),
+  return {format:md,cols:['N° DE PAGE','N° DE SUPPORT','PRODUIT','QTE'],largeurs:[1,1.15,1.5,0.8],lignes:plansList().map(({T,c,det},i)=>det?[String(i+2),'DETAIL '+sansAcc(LIAIS_TITRE[det.lia]).split(' – ')[0],'LIAISON TUYAU','—']:[String(i+2),c?repere(T,c):T.nom,sansAcc(T.produit||''),String(c?(+c.qte||0):qteT(T))]),
     docsRef:(K.reglages.docsRef||'').split('\n').map(x=>x.trim()).filter(Boolean),notes:notesGenerales(),
     cartouche:{...cartPlan(a,{}),folio:`01/${String(plansList().length+1).padStart(2,'0')}`,titres:['CAHIER DE SUPPORTAGE',CAHIER.libAffaire(a)||a.intitule||'',exec()?'Bon pour exécution':`Phase ${a.phase||'APS'} – non valable pour exécution`],titre:'CAHIER DE SUPPORTAGE',affaire:CAHIER.libAffaire(a)||''}}; }
 /* traitement de surface : défaut du cahier, modifiable par type */
@@ -176,8 +176,18 @@ const sec=k=>!!(K.rapport.sec||{})[k];
 const exec=()=>K.rapport.niveau==='exec';
 const modePlans=()=>{ const m=K.rapport.plans||'schema'; return exec()&&m==='schema'?'A3':m; };
 let EXD=null;
-const plansList=()=>{ const L=[]; K.types.forEach(T=>{ if(exec()&&T.kind==='s1'&&T.etat) T.configs.forEach(c=>L.push({T,c})); else L.push({T,c:null}); }); return L; };
-const pageDe=(T,c)=>plansList().findIndex(x=>x.T===T&&x.c===(c||null))+2;
+/* plans de détail des liaisons tuyau / support (types 1, 2, 2a, 3, 4, 5 de la spec Rubis) utilisées : une planche par type, en fin de cahier */
+const LIAIS_TITRE={etrier:'Type 4 – étrier serré sur cale téflon',t1:'Type 1 – patin : collier plat ép. 5 + ½ IPE 200',t2:'Type 2 – tôle intermédiaire + ½ IPE 200 (DN 25 à 200)',t2a:'Type 2a – tôle intermédiaire + support mécano-soudé (DN > 200)',t3:'Type 3 – tôle intermédiaire',t5:'Type 5 – tuyau posé sur plat'};
+let DET={};
+function detList(){ const M={}, ORD=['t1','t2','t2a','t3','etrier','t5'];
+  K.types.forEach(T=>T.configs.forEach(c=>(c.resume?.tuyaux||[]).forEach(t=>{ const l=t.liaison||'etrier', o=M[l]||(M[l]={De:0,hl:t.hl,guide:t.guide,dn:null,DNs:new Map()}); if(t.De>o.De){ o.De=t.De; o.dn=t.dn; o.hl=t.hl; o.guide=t.guide; } o.DNs.set(t.De,{dn:t.dn,De:t.De}); })));
+  return ORD.filter(l=>M[l]).map(l=>({lia:l,De:M[l].De,dn:M[l].dn,hl:M[l].hl,guide:M[l].guide,DNs:[...M[l].DNs.values()].sort((a,b)=>a.De-b.De)})); }
+const plansList=()=>{ const L=[]; K.types.forEach(T=>{ if(exec()&&T.kind==='s1'&&T.etat) T.configs.forEach(c=>L.push({T,c})); else L.push({T,c:null}); });
+  if(modePlans()!=='schema') detList().forEach(d=>L.push({T:null,c:null,det:d})); return L; };
+const pageDe=(T,c)=>plansList().findIndex(x=>!x.det&&x.T===T&&x.c===(c||null))+2;
+const pageDeDet=lia=>plansList().findIndex(x=>x.det&&x.det.lia===lia)+2;
+const cartDet=(a,d)=>({...cartPlan(a,{},null),page:String(pageDeDet(d.lia)).padStart(2,'0'),folio:`${String(pageDeDet(d.lia)).padStart(2,'0')}/${String(plansList().length+1).padStart(2,'0')}`,titres:['CAHIER DE SUPPORTAGE','Détail – '+LIAIS_TITRE[d.lia],exec()?'Bon pour exécution':`Phase ${a.phase||'APS'} – non valable pour exécution`]});
+const argsDet=(a,d)=>({lia:d.lia,De:d.De,dn:d.dn,hl:d.hl,guide:d.guide,DNs:d.DNs,format:modePlans(),exec:exec(),phase:a.phase||'APS',cartouche:{...cartDet(a,d),affaire:CAHIER.libAffaire(a)||''}});
 const prochain=(pref,pad)=>{ let n=1; const nom=i=>pref+(pad?String(i).padStart(2,'0'):i); while(K.types.some(t=>t.nom===nom(n))) n++; return nom(n); };
 
 /* ---------------- affaire ---------------- */
@@ -289,6 +299,7 @@ async function recalculer0(avecImages){
   }
   if(exec()){ EXD=EXEC.collecter(); const md=modePlans();      // un plan coté par configuration, avec platines et chevilles d'AN1
     for(const T of L) for(const c of T.configs){ $('etat').innerHTML=`<div class="msg info">⏳ Plan d'exécution ${h(repere(T,c))}…</div>`; A.charger(T.etat); A.appliquerCotes({...T.cotes0,...(c.cotes||{})}); T.decal=A.decalCotes(retourT(T)); c.planche=A.vues(argsPlanche(T,A,md,c)).planche; } }
+  DET={}; if(modePlans()!=='schema'){ const md=modePlans(); for(const d of detList()){ $('etat').innerHTML=`<div class="msg info">⏳ Détail ${h(LIAIS_TITRE[d.lia])}…</div>`; try{ DET[d.lia]=A.detailLiaison(argsDet(K.affaire,d),false); }catch(e){ console.error(e); } } }
   K.aRecalc=false; enr(); $('etat').innerHTML=''; tout();
 }
 function argsPlanche(T,A,md,c){
@@ -315,12 +326,13 @@ $('dxfCS').onclick=()=>occupe($('dxfCS'),async()=>{ const L=typesS1(); if(!L.len
   const A=await moteur(), md=modePlans()==='schema'?'A3':modePlans(), pages=[{svg:DESSIN.sommaire(specSommaire(md)).svg,nom:'F01 SOMMAIRE'}];
   if(exec()){ EXD=EXEC.collecter(); if(EXD.problemes.length) throw new Error('cahier d\'exécution bloqué : '+EXD.problemes.length+' platine(s) à vérifier dans AN1 (voir la carte « Exécution »)'); }
   for(const T of L){ const cs=exec()?T.configs:[null]; for(const c of cs){ $('etat').innerHTML=`<div class="msg info">⏳ Plan ${h(c?repere(T,c):T.nom)}…</div>`; A.charger(T.etat); A.appliquerCotes({...T.cotes0,...((c||T.configs[0]).cotes||{})}); if(c) T.decal=A.decalCotes(retourT(T)); pages.push({svg:A.plancheVec(argsPlanche(T,A,md,c)),nom:`F${String(pageDe(T,c)).padStart(2,'0')} ${c?repere(T,c):T.nom}`}); } }
+  if(modePlans()!=='schema') for(const d of detList()){ $('etat').innerHTML=`<div class="msg info">⏳ Détail ${h(LIAIS_TITRE[d.lia])}…</div>`; pages.push({svg:A.detailLiaison(argsDet(K.affaire,d),true),nom:`F${String(pageDeDet(d.lia)).padStart(2,'0')} DETAIL ${d.lia.toUpperCase()}`}); }
   $('etat').innerHTML=''; const o=DESSIN.dxf(pages), a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([o],{type:'application/dxf'}));
   a.download=DESSIN.nomFichierPlans(cartPlan(K.affaire,L[0]||{})); document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); });
 const occupe=async(b,fn)=>{ b.disabled=true; try{ await fn(); }catch(e){ alert('Calcul impossible : '+e.message); } finally{ b.disabled=false; } };
 $('recalc').onclick=()=>occupe($('recalc'),()=>recalculer(false));
 $('genFiches').onclick=()=>occupe($('genFiches'),()=>recalculer(true));
-const besoinImages=()=>sec('plans')&&K.types.some(T=>T.kind==='s1'&&T.etat&&(exec()?T.configs.some(c=>!c.planche):modePlans()==='schema'?!IMG[T.id]:!T.vues?.planche));
+const besoinImages=()=>sec('plans')&&(modePlans()!=='schema'&&detList().some(d=>!DET[d.lia])||false)||sec('plans')&&K.types.some(T=>T.kind==='s1'&&T.etat&&(exec()?T.configs.some(c=>!c.planche):modePlans()==='schema'?!IMG[T.id]:!T.vues?.planche));
 async function preparer(){ if(K.aRecalc||besoinImages()||K.types.some(T=>T.kind==='s1'&&T.etat&&T.configs.some(c=>!c.resume))) await recalculer(sec('plans')); }
 async function imprimer(){ try{ await preparer(); }catch(e){} setTimeout(()=>window.print(),120); }
 
@@ -405,7 +417,7 @@ const cleAN1CS=(T,lib)=>'CS|'+(K.affaire.num||'')+'|'+T.id+'|'+lib;
 const NOM_PL={sol:'Platines de pied',mur:'Platines murales',plafond:'Platines de plafond',murPied:'Pattes de pied de jambe'};
 function an1Type(T){ const par={};
   T.configs.forEach(c=>(c.resume?.an1||[]).forEach(p=>{ const k=p.k+'|'+p.profil+'|'+JSON.stringify(p.A)+'|'+JSON.stringify(p.plaque);
-    const o=par[k]||(par[k]={k:p.k,A:p.A,plaque:p.plaque,profil:p.profil,info:p.info,L:[],confs:new Set(),libs:[]}); o.confs.add(repere(T,c)); if(!o.libs.includes(p.lib)) o.libs.push(p.lib); o.L.push(...p.C.map(x=>({...x,_pl:p.lib,nom:repere(T,c)+' – '+x.nom}))); }));
+    const o=par[k]||(par[k]={k:p.k,A:p.A,plaque:p.plaque,profil:p.profil,parois:p.parois,info:p.info,L:[],confs:new Set(),libs:[]}); o.confs.add(repere(T,c)); if(!o.libs.includes(p.lib)) o.libs.push(p.lib); o.L.push(...p.C.map(x=>({...x,_pl:p.lib,nom:repere(T,c)+' – '+x.nom}))); }));
   return Object.values(par).map(o=>{ o.lib=o.libs.length>1?`${NOM_PL[o.k]||'Platines'} ×${o.libs.length} (${o.libs.join(', ')})`:o.libs[0];
     if(o.libs.length>1) o.L.forEach(x=>{ x.nom=x.nom.replace(/^(\S+) – /,`$1 – ${x._pl} – `); }); const xs=o.A.map(a=>a.x), ys=o.A.map(a=>a.y), a1=(Math.max(...xs)-Math.min(...xs))||100, a2=(Math.max(...ys)-Math.min(...ys))||100;
     const crit=[c=>c.N,c=>-c.N,c=>Math.hypot(c.Vx,c.Vy),c=>Math.abs(c.Mx),c=>Math.abs(c.My),c=>Math.abs(c.Mz),c=>c.N/4+Math.abs(c.Mx)*1000/(2*a2)+Math.abs(c.My)*1000/(2*a1)], C=[];
@@ -415,7 +427,7 @@ function an1Type(T){ const par={};
 function retourT(T){ const R={}; try{ an1Type(T).forEach(o=>{ const r=TOPO.retour(o.cle); if(r&&!R[o.k]) R[o.k]=r; }); }catch(e){} return R; }
 const epCourant=T=>Math.max(0,...Object.entries(retourT(T)).filter(([k])=>['sol','plafond','mur'].includes(k)).map(([,r])=>+r.tp||0));
 function ouvrirAN1CS(ti,lib){ const T=K.types[ti], o=an1Type(T).find(x=>x.lib===lib); if(!o) return;
-  const pre={t:Date.now(),src:`cahier ${K.affaire.num?K.affaire.num+' – ':''}${T.nom} – ${o.lib}`,srcCourt:'cahier',retour:'../cahier/',cle:o.cle,emp:o.emp,profil:o.profil,C:o.C,A:o.A,plaque:o.plaque,
+  const pre={t:Date.now(),src:`cahier ${K.affaire.num?K.affaire.num+' – ':''}${T.nom} – ${o.lib}`,srcCourt:'cahier',retour:'../cahier/',cle:o.cle,emp:o.emp,profil:o.profil,parois:o.parois,C:o.C,A:o.A,plaque:o.plaque,
     info:`enveloppe de ${o.confs.length} configuration(s) (${o.confs.join(', ')})${o.libs.length>1?` et de ${o.libs.length} platines identiques (${o.libs.join(', ')})`:''} ; ${o.info||''}`};
   try{ localStorage.setItem('fip.an1.pre',JSON.stringify(pre)); }catch(e){} location.href='../ancrages/'; }
 /* texte du résultat renvoyé par AN1 (fiches, nomenclature) */
@@ -502,7 +514,7 @@ function fiches(){
       s+=`<h3>Vérifications (configuration la plus sollicitée par critère)</h3><table><tr><th>Critère</th><th class="n">Taux maxi</th><th>Configuration</th></tr>`+
         (r.lignes||[]).map((l,i)=>{ let best={r:-1,c:null}; T.configs.forEach(c=>{ const x=c.resume?.lignes?.[i]; if(x&&x.r>best.r) best={r:x.r,c}; }); return `<tr><td>${h(l.n)}</td><td class="n">${best.c?f(best.r*100,0)+' %':'—'}</td><td>${best.c?h(repere(T,best.c)):''}</td></tr>`; }).join('')+
         `</table><div class="note">Alertes de conception : ${A.length?A.map(h).join(' ; '):'aucune'}.</div>`; }
-    return pre+s+'</div>'; }).join('');
+    return pre+s+'</div>'; }).join('')+(modePlans()!=='schema'&&S.plans?detList().map(d=>DET[d.lia]?`<div class="planche ${modePlans()}">${DET[d.lia]}</div>`:'').join(''):'');
 }
 
 /* ---------------- exécution : platines (laser), nomenclature de fabrication ---------------- */
@@ -544,10 +556,10 @@ window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); 
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=2.93"></script>
-<script src="../commun/aide.js?v=2.93"></script>
-<script src="aide-cs.js?v=2.93"></script>
-<script src="../commun/export.js?v=2.93"></script>
+<script src="../commun/replier.js?v=2.94"></script>
+<script src="../commun/aide.js?v=2.94"></script>
+<script src="aide-cs.js?v=2.94"></script>
+<script src="../commun/export.js?v=2.94"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>
