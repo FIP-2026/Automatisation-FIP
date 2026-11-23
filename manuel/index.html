@@ -4,27 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.95"></script>
+<script src="../commun/auth.js?v=2.96"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.95">
-<script src="../commun/apps.js?v=2.95"></script>
-<script src="../commun/data/profils.js?v=2.95"></script>
-<script src="../commun/barres3d.js?v=2.95"></script>
-<script src="../commun/acier.js?v=2.95"></script>
-<script src="../commun/data/tuyauterie.js?v=2.95"></script>
-<script src="../commun/charges.js?v=2.95"></script>
-<script src="../commun/coefvent.js?v=2.95"></script>
-<script src="../commun/tendues.js?v=2.95"></script>
-<script src="../commun/portique.js?v=2.95"></script>
-<script src="../commun/chevilles.js?v=2.95"></script>
-<script src="../commun/cbfem.js?v=2.95"></script>
-<script src="../commun/topo.js?v=2.95"></script>
-<script src="../commun/zip.js?v=2.95"></script>
-<script src="../commun/laser.js?v=2.95"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.96">
+<script src="../commun/apps.js?v=2.96"></script>
+<script src="../commun/data/profils.js?v=2.96"></script>
+<script src="../commun/barres3d.js?v=2.96"></script>
+<script src="../commun/acier.js?v=2.96"></script>
+<script src="../commun/data/tuyauterie.js?v=2.96"></script>
+<script src="../commun/charges.js?v=2.96"></script>
+<script src="../commun/coefvent.js?v=2.96"></script>
+<script src="../commun/tendues.js?v=2.96"></script>
+<script src="../commun/portique.js?v=2.96"></script>
+<script src="../commun/chevilles.js?v=2.96"></script>
+<script src="../commun/cbfem.js?v=2.96"></script>
+<script src="../commun/topo.js?v=2.96"></script>
+<script src="../commun/zip.js?v=2.96"></script>
+<script src="../commun/laser.js?v=2.96"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -355,6 +355,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.96</td><td>S1</td><td>Vue 3D : liaison tuyau / support représentée (patin, tôle, plat, cale PTFE, guides latéraux ; étrier seulement pour le type 4), avec les mêmes solides que le plan.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.95</td><td>S1, CS, AN1</td><td>Cale téflon liée à μ = 0,1 (dessin, nomenclature, BOM, cale percée au passage de l'étrier) ; suppression de la hauteur de sabot globale ; types de liaison filtrés selon le DN ; entraxes et platines automatiques arrondis à 10 mm en crapautage et sandwich ; sabot identique à gauche et à droite (une vérification AN1).</td><td>Hauteur des tuyaux sur étrier : 10 mm si cale PTFE (au lieu de la hauteur de sabot saisie) ; entraxes imposés en crapautage / sandwich.</td></tr>
 <tr><td>2.94</td><td>CS, S1, AN1</td><td>Cahier d'exécution : trous, entraxes et dimensions des platines sur les plans ; plans de détail des liaisons (types 1 à 5) en fin de cahier avec nomenclature L × l × e ; sabot de la traverse vérifié par le CBFEM d'AN1 (plats soudés).</td><td>Calculs inchangés ; nouvelle famille de profilé dans AN1.</td></tr>
 <tr><td>2.93</td><td>CS, S1, AN1</td><td>Cahier d'exécution : plans cotés par configuration, platines et chevilles d'AN1 (blocage tant qu'elles ne sont pas vérifiées), DXF de découpe laser par platine différente, classeur Excel (fichier DXF, matière, épaisseur, quantité totale), nomenclature de fabrication avec repères et tôles L × l × e ; AN1 renvoie la disposition des chevilles ; 3 tests.</td><td>Nouvelles sorties ; calculs inchangés.</td></tr>
@@ -578,6 +579,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.95"></script>
+<script src="../commun/replier.js?v=2.96"></script>
 </body>
 </html>
