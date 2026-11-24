@@ -4,27 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.98"></script>
+<script src="../commun/auth.js?v=2.99"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.98">
-<script src="../commun/apps.js?v=2.98"></script>
-<script src="../commun/data/profils.js?v=2.98"></script>
-<script src="../commun/barres3d.js?v=2.98"></script>
-<script src="../commun/acier.js?v=2.98"></script>
-<script src="../commun/data/tuyauterie.js?v=2.98"></script>
-<script src="../commun/charges.js?v=2.98"></script>
-<script src="../commun/coefvent.js?v=2.98"></script>
-<script src="../commun/tendues.js?v=2.98"></script>
-<script src="../commun/portique.js?v=2.98"></script>
-<script src="../commun/chevilles.js?v=2.98"></script>
-<script src="../commun/cbfem.js?v=2.98"></script>
-<script src="../commun/topo.js?v=2.98"></script>
-<script src="../commun/zip.js?v=2.98"></script>
-<script src="../commun/laser.js?v=2.98"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=2.99">
+<script src="../commun/apps.js?v=2.99"></script>
+<script src="../commun/data/profils.js?v=2.99"></script>
+<script src="../commun/barres3d.js?v=2.99"></script>
+<script src="../commun/acier.js?v=2.99"></script>
+<script src="../commun/data/tuyauterie.js?v=2.99"></script>
+<script src="../commun/charges.js?v=2.99"></script>
+<script src="../commun/coefvent.js?v=2.99"></script>
+<script src="../commun/tendues.js?v=2.99"></script>
+<script src="../commun/portique.js?v=2.99"></script>
+<script src="../commun/chevilles.js?v=2.99"></script>
+<script src="../commun/cbfem.js?v=2.99"></script>
+<script src="../commun/topo.js?v=2.99"></script>
+<script src="../commun/zip.js?v=2.99"></script>
+<script src="../commun/laser.js?v=2.99"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -329,7 +329,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 <li><b>Mention de phase</b> : bandeau « NON VALABLE POUR EXÉCUTION – PHASE APS/APD » en tête du bloc cartouche, phase rappelée au cartouche ; sur A3, bandeau et tableaux passent à gauche de la nomenclature si l'échelle y gagne.</li>
 <li><b>Cotes données</b> : géométrie du support et positionnement des tuyauteries ; platines, fixations et altimétrie hors planche (note de chevillage, plan d'implantation).</li>
 <li><b>DXF</b> (2.56) : DXF 2000 (AC1015) ASCII, mm, code page ANSI 1252. <b>Une présentation par folio</b> (nom « F01 repère », format A3 ou A4, traceur « None », papier ISO full bleed) contenant dans l'espace papier le cadre, le cartouche, le tableau des révisions, les tableaux, la nomenclature, le bandeau de phase et les notes ; <b>espace objet</b> : vues en vraie grandeur (coordonnées de feuille × échelle, folios côte à côte), textes et cotes multipliés par l'échelle ; fenêtre de présentation sur la zone de dessin, échelle 1:éch (hauteur de vue = hauteur de fenêtre × éch), zoom verrouillé, calque FENETRES non imprimé ; $PSLTSCALE = 1 (types de ligne identiques sur papier). Calques CADRE, CONTOUR, FIN, AXES (CENTER), CACHE (DASHED), PIECES_VOISINES (PHANTOM), COTES, REPERES, TEXTE, OUVRAGE, CARTOUCHE, FILIGRANE ; cotes non associatives. Nom du fichier : n° de document du cartouche (Projet-Doc-Lot-Chrono) suivi de « _Rev » et de l'indice. Contrôle : relecture ezdxf (audit sans erreur, présentations, fenêtres et échelles vérifiées, rendu de la présentation).</li>
-<li><b>Gabarit FIP A3 et A2 (2.84)</b> (<code>commun/data/gabarit-a3.js</code>, <code>gabarit-a2.js</code>, extraits des gabarits AutoCAD FIP) : cadre (bloc « FIP - FORMAT A3 / A2 »), puis cartouche « Titre 1 / 2 / 3 » (bloc « CARTOUCHE », 170 × 144 mm, logo FIP, textes fixes, révisions sur 6 lignes) remplaçant l'ancien cartouche (Client, Titre plan, Projet / Doc / Lot / Chrono / Page / Rev, Bon pour). Champs : PROJECT_TITLE (client – site), DOC_TITLE_1 à 3 (cahier de supportage, support type, phase), CTR_DOC_REF (n° du document : projet-PLA-PIP-chrono-page-indice), SHEET (folio n / total), SCALE (1:éch ou SANS), FORMAT, TYPE (PLA), DISC (PIP), REV_i, DATE_i, REV_MEMO_i, ISSUE_i (rédacteur), CHECK_i (vérificateur), i = 0 à 5 ; le champ « Approuvé » et « Bon pour » n'existent plus ; les textes de saisie « NOM DU PROJET » et « LOGO CLIENT » ne sont pas repris (case du logo client laissée vide, à compléter sous AutoCAD) ; hauteur de texte réduite si la valeur dépasse la case. Dans le DXF, les champs sont des attributs du bloc « CARTOUCHE » (les définitions d'attributs du gabarit sont dans le bloc « Border IKIKE A1H Remp », fusionnées ici dans le même bloc).</li></ul>
+<li><b>Gabarit FIP A3 et A2 (2.84)</b> (<code>commun/data/gabarit-a3.js</code>, <code>gabarit-a2.js</code>, extraits des gabarits AutoCAD FIP) : cadre (bloc « FIP - FORMAT A3 / A2 »), puis cartouche « Titre 1 / 2 / 3 » (bloc « CARTOUCHE », 170 × 144 mm, logo FIP, textes fixes, révisions sur 6 lignes) remplaçant l'ancien cartouche (Client, Titre plan, Projet / Doc / Lot / Chrono / Page / Rev, Bon pour). Champs : PROJECT_TITLE (client – site), DOC_TITLE_1 à 3 (cahier de supportage, support type, phase), CTR_DOC_REF (n° du document : projet-PLA-PIP-chrono-page-indice), SHEET (folio n / total), SCALE (1:éch ou SANS), FORMAT, TYPE (PLA), DISC (PIP), REV_i, DATE_i, REV_MEMO_i, ISSUE_i (rédacteur), CHECK_i (vérificateur), i = 0 à 5 ; le champ « Approuvé » et « Bon pour » n'existent plus ; les textes de saisie « NOM DU PROJET » et « LOGO CLIENT » ne sont pas repris (depuis 2.99, le logo client de la fiche affaire est placé dans la case « LOGO CLIENT » comme image référencée logo_client.png, livrée avec le DXF dans un ZIP ; sinon case vide) ; hauteur de texte réduite si la valeur dépasse la case. Dans le DXF, les champs sont des attributs du bloc « CARTOUCHE » (les définitions d'attributs du gabarit sont dans le bloc « Border IKIKE A1H Remp », fusionnées ici dans le même bloc).</li></ul>
 </article>
 
 <article class="card" id="ndc"><div class="theme">Sorties</div><h2>14. Notes de calcul</h2>
@@ -356,6 +356,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>2.99</td><td>CS, S1 (plans DXF)</td><td>Logo du client repris dans le DXF comme image référencée (entité IMAGE, définition « logo_client.png » en chemin relatif, calque CARTOUCHE, case « LOGO CLIENT » de chaque présentation) ; l'export « Plans DXF » livre une archive ZIP (DXF + logo_client.png à extraire dans le même dossier) ; sans logo, DXF seul comme avant.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.98</td><td>CS, S1 (plans)</td><td>Logo du client (fiche affaire du cahier) dans la case « LOGO CLIENT » du cartouche, à l'écran, à l'impression et en PDF (non repris dans le DXF : image à insérer sous AutoCAD) ; nom du projet réduit pour tenir dans sa case ; tableau de la page de garde agrandi en A2.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>2.97</td><td>S1, CS</td><td>Liaisons : patin boulonné (½ IPE 200 L 200, deux colliers en demi-colliers boulonnés), coquilles cintrées (types 2, 2a, 3), étrier guidé ou serré selon la fonction, pas de guide si glissant ; plans, 3D, nomenclature et plans de détail.</td><td>Aucun calcul modifié (hauteurs inchangées).</td></tr>
 <tr><td>2.96</td><td>S1</td><td>Vue 3D : liaison tuyau / support représentée (patin, tôle, plat, cale PTFE, guides latéraux ; étrier seulement pour le type 4), avec les mêmes solides que le plan.</td><td>Aucun calcul modifié.</td></tr>
@@ -582,6 +583,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=2.98"></script>
+<script src="../commun/replier.js?v=2.99"></script>
 </body>
 </html>

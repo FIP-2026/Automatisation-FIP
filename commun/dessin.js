@@ -412,7 +412,8 @@ const DESSIN = (() => {
   const encTexte = (t) => [...String(t).replace(/[   ≈≤≥→−₀-₉⁴]/g, (c) => ASCII[c] || c).replace(/Ø/g, "%%c").replace(/±/g, "%%p").replace(/°/g, "%%d")].map((c) => { const k = c.codePointAt(0); if (k < 128 || (k >= 160 && k < 256) || CP1252.includes(c)) return c; return "\\U+" + k.toString(16).toUpperCase().padStart(4, "0"); }).join("");
   function enOctets(str) { const out = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) { const c = str[i], k = c.charCodeAt(0), j = CP1252.indexOf(c); out[i] = k < 128 || (k >= 160 && k < 256) ? k : j >= 0 ? 128 + j : 63; } return out; }
   const nomPres = (t) => String(t).replace(/[<>\/\\":;?*|,=`]/g, "-").slice(0, 60);
-  function dxf(pages) {
+  /* opt.image : { fichier: 'logo_client.png', w, h } (pixels) – image du client référencée (comme une xref d'image AutoCAD) dans la case « LOGO CLIENT » de chaque folio ; le PNG est fourni à côté du DXF */
+  function dxf(pages, opt = {}) {
     const nb = (v) => (Math.abs(v) < 1e-9 ? 0 : +(+v).toFixed(4));
     /* ---- 1. lecture des planches : entités { sp: 'M' (objet) | 'P' (papier), f: folio, t: type, L: calque, d: données } ---- */
     const ENT = [], FOL = [];
@@ -478,6 +479,7 @@ const DESSIN = (() => {
     /* ---- 2. écriture DXF 2000 : poignées, tables, blocs, entités, objets ---- */
     let hs = 0x20; const H = () => (hs++).toString(16).toUpperCase();
     const hT = { VPORT: H(), LTYPE: H(), LAYER: H(), STYLE: H(), VIEW: H(), UCS: H(), APPID: H(), DIMSTYLE: H(), BLOCK_RECORD: H() };
+    const IMG = opt.image && opt.image.w > 0 && opt.image.h > 0 ? opt.image : null, hImgDict = H(), hImgDef = H(), hImgVars = H(), IMGS = [];
     const hDict = H(), hGroup = H(), hLay = H(), hMls = H(), hMlsStd = H(), hPlot = H(), hPsn = H(), hPh = H();
     const brM = H(), layM = H(), blkM = [H(), H()];
     FOL.forEach((fo, i) => { fo.br = H(); fo.lay = H(); fo.blk = [H(), H()]; fo.nomBloc = i === 0 ? "*Paper_Space" : "*Paper_Space" + (i - 1); });
@@ -492,6 +494,7 @@ const DESSIN = (() => {
     const entite = (e, own, papier) => {
       const h = H(), d = e.d, col = e.col ? `\n62\n${e.col}` : "";
       if (e.t === "LINE") return ent0("LINE", h, own, e.L, papier, col) + `\n100\nAcDbLine${P3(10, d.a)}${P3(11, d.b)}`;
+      if (e.t === "IMAGE") return ent0("IMAGE", d.h, own, e.L, papier) + `\n100\nAcDbRasterImage\n90\n0${P3(10, d.p)}\n11\n${nb(d.s)}\n21\n0\n31\n0\n12\n0\n22\n${nb(d.s)}\n32\n0\n13\n${d.w}\n23\n${d.hp}\n340\n${hImgDef}\n70\n7\n280\n0\n281\n50\n282\n50\n283\n0\n360\n${d.hr}\n71\n1\n91\n2\n14\n-0.5\n24\n-0.5\n14\n${d.w - 0.5}\n24\n${d.hp - 0.5}`;
       if (e.t === "CIRCLE") return ent0("CIRCLE", h, own, e.L, papier, col) + `\n100\nAcDbCircle${P3(10, d.p)}\n40\n${nb(d.r)}`;
       if (e.t === "SOLID") return ent0("SOLID", h, own, e.L, papier, col) + `\n100\nAcDbTrace${P3(10, d.q[0])}${P3(11, d.q[1])}${P3(12, d.q[2])}${P3(13, d.q[3])}`;
       if (e.t === "TEXT") return ent0("TEXT", h, own, e.L, papier) + texte(d);
@@ -509,6 +512,8 @@ const DESSIN = (() => {
       L.push({ t: "VIEWPORT", d: { c: [cx, cy], w: x1 - x0, h: hz, st: 2, id: 2, vc: [fo.oxm + cx * fo.k, cy * fo.k], vh: hz * fo.k, fl: 49248 } });   // 49248 = 32768 + 16384 (zoom verrouillé) + 96 (icône SCU)
       if (GB) fo.ins.forEach((V) => KS.forEach((k2) => { const B = GBX[k2], X = B.o[0], Y = B.o[1];
         L.push({ t: "INSERT", L: "CARTOUCHE", d: { nom: NOMS[k2], p: [X, Y], att: B.a.map((a) => ({ tag: a[0], p: [X + a[2], Y + a[3]], h: hAj(a[0], a[4], V[a[0]] ?? ""), ha: a[5], va: a[6], t: V[a[0]] ?? "" })) } }); }));
+      if (GB && IMG && fo.ins.length && GBX.C) { const [ox, oy] = GBX.C.o, sc = Math.min(41 / IMG.w, 20 / IMG.h), W = IMG.w * sc, Hh = IMG.h * sc;
+        const d = { h: H(), hr: H(), p: [ox - 178 + (41 - W) / 2, oy + 76 + (20 - Hh) / 2], s: sc, w: IMG.w, hp: IMG.h }; IMGS.push(d); L.push({ t: "IMAGE", L: "CARTOUCHE", d }); }
       ENT.filter((e) => e.sp === "P" && e.f === i).forEach((e) => L.push(e));
       return L; });
     const modele = ENT.filter((e) => e.sp === "M");
@@ -550,13 +555,17 @@ const DESSIN = (() => {
     const plot = (nom) => `\n100\nAcDbPlotSettings\n1\n\n2\nNone\n4\n${nom}\n6\n\n40\n0\n41\n0\n42\n0\n43\n0\n44\n0\n45\n0\n46\n0\n47\n0\n48\n0\n49\n0\n140\n0\n141\n0\n142\n1\n143\n1\n70\n688\n72\n1\n73\n0\n74\n5\n7\n\n75\n16\n76\n0\n77\n2\n78\n300\n147\n1\n148\n0\n149\n0`;
     const layout = (h, nom, ordre, br, vp, W, Hh) => `0\nLAYOUT\n5\n${h}\n330\n${hLay}${plot(W > 500 ? "ISO_full_bleed_A2_(594.00_x_420.00_MM)" : W > 300 ? "ISO_full_bleed_A3_(420.00_x_297.00_MM)" : "ISO_full_bleed_A4_(297.00_x_210.00_MM)")}\n100\nAcDbLayout\n1\n${nom}\n70\n1\n71\n${ordre}\n10\n0\n20\n0\n11\n${W}\n21\n${Hh}\n12\n0\n22\n0\n32\n0\n14\n0\n24\n0\n34\n0\n15\n${W}\n25\n${Hh}\n35\n0\n146\n0\n13\n0\n23\n0\n33\n0\n16\n1\n26\n0\n36\n0\n17\n0\n27\n1\n37\n0\n76\n1\n330\n${br}` + (vp ? `\n331\n${vp}` : "");
     const dict = (h, own, E2, x = "") => `0\nDICTIONARY\n5\n${h}\n330\n${own}\n100\nAcDbDictionary\n281\n1${E2.map(([n, r]) => `\n3\n${n}\n350\n${r}`).join("")}${x}`;
-    const objets = [dict(hDict, 0, [["ACAD_GROUP", hGroup], ["ACAD_LAYOUT", hLay], ["ACAD_MLINESTYLE", hMls], ["ACAD_PLOTSETTINGS", hPlot], ["ACAD_PLOTSTYLENAME", hPsn]]),
+    const objImg = IMGS.length ? [dict(hImgDict, hDict, [[String(IMG.fichier).replace(/\.[^.]+$/, ""), hImgDef]]),
+      `0\nIMAGEDEF\n5\n${hImgDef}\n102\n{ACAD_REACTORS\n330\n${hImgDict}${IMGS.map((d) => "\n330\n" + d.hr).join("")}\n102\n}\n330\n${hImgDict}\n100\nAcDbRasterImageDef\n90\n0\n1\n${IMG.fichier}\n10\n${IMG.w}\n20\n${IMG.h}\n11\n1\n21\n1\n280\n1\n281\n0`,
+      ...IMGS.map((d) => `0\nIMAGEDEF_REACTOR\n5\n${d.hr}\n330\n${d.h}\n100\nAcDbRasterImageDefReactor\n90\n2\n330\n${d.h}`),
+      `0\nRASTERVARIABLES\n5\n${hImgVars}\n330\n${hDict}\n100\nAcDbRasterVariables\n90\n0\n70\n0\n71\n1\n72\n5`] : [];
+    const objets = [dict(hDict, 0, [["ACAD_GROUP", hGroup], ...(IMGS.length ? [["ACAD_IMAGE_DICT", hImgDict], ["ACAD_IMAGE_VARS", hImgVars]] : []), ["ACAD_LAYOUT", hLay], ["ACAD_MLINESTYLE", hMls], ["ACAD_PLOTSETTINGS", hPlot], ["ACAD_PLOTSTYLENAME", hPsn]]), ...objImg,
       dict(hGroup, hDict, []), dict(hLay, hDict, [["Model", layM], ...FOL.map((fo) => [fo.nom, fo.lay])]), dict(hMls, hDict, [["Standard", hMlsStd]]), dict(hPlot, hDict, []),
       `0\nACDBDICTIONARYWDFLT\n5\n${hPsn}\n330\n${hDict}\n100\nAcDbDictionary\n281\n1\n3\nNormal\n350\n${hPh}\n100\nAcDbDictionaryWithDefault\n340\n${hPh}`,
       `0\nACDBPLACEHOLDER\n5\n${hPh}\n330\n${hPsn}`,
       `0\nMLINESTYLE\n5\n${hMlsStd}\n330\n${hMls}\n100\nAcDbMlineStyle\n2\nStandard\n70\n0\n3\n\n62\n256\n51\n90\n52\n90\n71\n2\n49\n0.5\n62\n256\n6\nBYLAYER\n49\n-0.5\n62\n256\n6\nBYLAYER`,
       layout(layM, "Model", 0, brM, null, 420, 297), ...FOL.map((fo, i) => layout(fo.lay, fo.nom, i + 1, fo.br, null, fo.PW, fo.PH))];
-    const corps = `0\nSECTION\n2\nCLASSES\n0\nCLASS\n1\nACDBDICTIONARYWDFLT\n2\nAcDbDictionaryWithDefault\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nACDBPLACEHOLDER\n2\nAcDbPlaceHolder\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nLAYOUT\n2\nAcDbLayout\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nENDSEC\n` +
+    const corps = `0\nSECTION\n2\nCLASSES\n0\nCLASS\n1\nACDBDICTIONARYWDFLT\n2\nAcDbDictionaryWithDefault\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nACDBPLACEHOLDER\n2\nAcDbPlaceHolder\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nLAYOUT\n2\nAcDbLayout\n3\nObjectDBX Classes\n90\n0\n280\n0\n281\n0\n${IMGS.length ? "0\nCLASS\n1\nIMAGEDEF\n2\nAcDbRasterImageDef\n3\nISM\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nIMAGEDEF_REACTOR\n2\nAcDbRasterImageDefReactor\n3\nISM\n90\n1\n280\n0\n281\n0\n0\nCLASS\n1\nRASTERVARIABLES\n2\nAcDbRasterVariables\n3\nISM\n90\n0\n280\n0\n281\n0\n0\nCLASS\n1\nIMAGE\n2\nAcDbRasterImage\n3\nISM\n90\n2175\n280\n0\n281\n1\n" : ""}0\nENDSEC\n` +
       `0\nSECTION\n2\nTABLES\n${tables.join("\n")}\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n${blocs.join("\n")}\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n${ents.join("\n")}${ents.length ? "\n" : ""}0\nENDSEC\n0\nSECTION\n2\nOBJECTS\n${objets.join("\n")}\n0\nENDSEC\n0\nEOF\n`;
     const W0 = FOL.length ? FOL[0].PW : 420, H0 = FOL.length ? FOL[0].PH : 297;
     const entete = `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1015\n9\n$ACADMAINTVER\n70\n6\n9\n$DWGCODEPAGE\n3\nANSI_1252\n9\n$INSBASE\n10\n0\n20\n0\n30\n0\n9\n$EXTMIN\n10\n0\n20\n0\n30\n0\n9\n$EXTMAX\n10\n${nb(oxm)}\n20\n${nb(H0 * Math.max(1, ...FOL.map((f2) => f2.k)))}\n30\n0\n9\n$LIMMIN\n10\n0\n20\n0\n9\n$LIMMAX\n10\n${W0}\n20\n${H0}\n9\n$LTSCALE\n40\n1\n9\n$PSLTSCALE\n70\n1\n9\n$TEXTSTYLE\n7\nISO\n9\n$CLAYER\n8\n0\n9\n$DIMSTYLE\n2\nStandard\n9\n$EXTNAMES\n290\n1\n9\n$HANDSEED\n5\n${(hs + 1).toString(16).toUpperCase()}\n9\n$TILEMODE\n70\n0\n9\n$INSUNITS\n70\n4\n9\n$MEASUREMENT\n70\n1\n9\n$PLIMMIN\n10\n0\n20\n0\n9\n$PLIMMAX\n10\n${W0}\n20\n${H0}\n9\n$PEXTMIN\n10\n0\n20\n0\n30\n0\n9\n$PEXTMAX\n10\n${W0}\n20\n${H0}\n30\n0\n0\nENDSEC\n`;
@@ -564,5 +573,13 @@ const DESSIN = (() => {
   }
   /* nom de fichier des plans : n° de document du cartouche (Projet-Doc-Lot-Chrono) suivi de la révision */
   const nomFichierPlans = (K = {}) => String([K.projet || "00-000", K.doc || "PLN", K.lot, K.chrono || "01"].filter(Boolean).join("-") + "_Rev" + (K.rev ?? "0")).replace(/[^\w.-]+/g, "_") + ".dxf";
-  return { prisme, boite, cylindre, cercle, planche, sommaire, dxf, nomFichierPlans, VUES, FORMATS };
+  /* téléchargement des plans : DXF seul, ou ZIP « DXF + logo_client.png » quand un logo client est défini (image référencée par le DXF, même dossier) */
+  async function telechargerPlans(pages, nom, logo) {
+    const dim = logo ? await new Promise((r) => { const im = new Image(); im.onload = () => r([im.naturalWidth, im.naturalHeight]); im.onerror = () => r(null); im.src = logo; }) : null;
+    const o = dxf(pages, dim ? { image: { fichier: "logo_client.png", w: dim[0], h: dim[1] } } : {});
+    let blob = new Blob([o], { type: "application/dxf" }), fic = nom;
+    if (dim && typeof ZIP !== "undefined") { const png = Uint8Array.from(atob(logo.split(",")[1]), (c) => c.charCodeAt(0)); blob = ZIP.creer([{ nom, donnees: o }, { nom: "logo_client.png", donnees: png }]); fic = nom.replace(/\.dxf$/i, "") + ".zip"; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fic; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); return fic;
+  }
+  return { telechargerPlans, prisme, boite, cylindre, cercle, planche, sommaire, dxf, nomFichierPlans, VUES, FORMATS };
 })();
