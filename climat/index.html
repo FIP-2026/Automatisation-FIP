@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.00"></script>
+<script src="../commun/auth.js?v=3.01"></script>
+<script src="../commun/suivi.js?v=3.01"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — C1 Charges climatiques et sismiques</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
@@ -12,11 +13,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../commun/lib/leaflet/leaflet.css">
 <script src="../commun/lib/leaflet/leaflet.js"></script>
-<script src="data/zonage.js?v=3.00"></script>
-<script src="data/communes.js?v=3.00"></script>
-<script src="data/departements.js?v=3.00"></script>
-<script src="../commun/coefvent.js?v=3.00"></script>
-<script src="../commun/charges.js?v=3.00"></script>
+<script src="data/zonage.js?v=3.01"></script>
+<script src="data/communes.js?v=3.01"></script>
+<script src="data/departements.js?v=3.01"></script>
+<script src="../commun/coefvent.js?v=3.01"></script>
+<script src="../commun/charges.js?v=3.01"></script>
 <style>
 :root{
   --fip-bleu:#114088; --fip-bleu-fonce:#0b2d63; --fip-rouge:#e30009; --fip-ciel:#0098db;
@@ -269,8 +270,8 @@ svg text{font-family:inherit}
     <div class="card">
       <h2>Données séisme</h2>
       <div class="row">
-        <div><label>Catégorie d'importance du bâtiment</label><select id="catI"><option value="I">I – γI 0,8 : sans activité humaine de longue durée</option><option value="II" selected>II – γI 1,0 : courant (industrie, bureaux ≤ 300 pers., ≤ 28 m)</option><option value="III">III – γI 1,2 : ERP cat. 1 à 3, &gt; 300 pers., &gt; 28 m, scolaire</option><option value="IV">IV – γI 1,4 : stratégique (secours, défense, énergie, eau potable)</option></select></div>
-        <div><label>Classe de sol</label><select id="sol"><option value="A">A – rocher (vs,30 &gt; 800 m/s)</option><option value="B" selected>B – dépôts raides, sables / argiles très denses (360 à 800 m/s)</option><option value="C">C – dépôts profonds moyennement denses (180 à 360 m/s)</option><option value="D">D – sols lâches à moyennement denses (&lt; 180 m/s)</option><option value="E">E – alluvions superficielles (5 à 20 m) sur rocher</option><option value="DE">Inconnue : enveloppe des classes D et E (sans étude de sol)</option></select></div>
+        <div><label>Catégorie d'importance du bâtiment</label><select id="catI"><option value="I">I – γI 0,8 : sans activité humaine de longue durée</option><option value="II">II – γI 1,0 : courant (industrie, bureaux ≤ 300 pers., ≤ 28 m)</option><option value="III">III – γI 1,2 : ERP cat. 1 à 3, &gt; 300 pers., &gt; 28 m, scolaire</option><option value="IV" selected>IV – γI 1,4 : stratégique (secours, défense, énergie, eau potable)</option></select></div>
+        <div><label>Classe de sol</label><select id="sol"><option value="A">A – rocher (vs,30 &gt; 800 m/s)</option><option value="B">B – dépôts raides, sables / argiles très denses (360 à 800 m/s)</option><option value="C">C – dépôts profonds moyennement denses (180 à 360 m/s)</option><option value="D">D – sols lâches à moyennement denses (&lt; 180 m/s)</option><option value="E">E – alluvions superficielles (5 à 20 m) sur rocher</option><option value="DE" selected>Inconnue : enveloppe des classes D et E (sans étude de sol)</option></select></div>
       </div>
       <div class="msg info small" id="seismeAide">Catégorie d'importance (arrêté du 22/10/2010, art. 2) : I bâtiments sans activité humaine nécessitant un séjour de longue durée ; II habitations individuelles, ERP de 4<sup>e</sup>-5<sup>e</sup> catégorie, bâtiments d'habitation, de bureaux ou industriels recevant au plus 300 personnes et de hauteur ≤ 28 m ; III ERP de 1<sup>re</sup> à 3<sup>e</sup> catégorie, bâtiments &gt; 28 m ou recevant plus de 300 personnes, établissements scolaires et sanitaires ; IV bâtiments indispensables à la sécurité civile, à la défense, au maintien de l'ordre, aux communications, à la production d'énergie ou d'eau potable. Classe de sol : sans étude de sol, retenir l'enveloppe D/E — E donne le plus grand coefficient de sol S (plateau du spectre et éléments non structuraux), mais D, avec un palier T<sub>C</sub> plus long, gouverne pour les périodes plus longues ; S1 et S2 (sols liquéfiables, argiles molles) imposent une étude spécifique.</div>
       <div class="row">
@@ -953,12 +954,12 @@ $('versS1').onclick=()=>{
   catch(e){alert('Stockage indisponible sur ce navigateur.');}
 };
 </script>
-<script src="../commun/cahier.js?v=3.00"></script>
+<script src="../commun/cahier.js?v=3.01"></script>
 <script>CAHIER.remplir({affaire:'affaire',auteur:'realise'});</script>
-<script src="../commun/replier.js?v=3.00"></script>
-<script src="../commun/aide.js?v=3.00"></script>
-<script src="aide-c1.js?v=3.00"></script>
-<script src="../commun/export.js?v=3.00"></script>
+<script src="../commun/replier.js?v=3.01"></script>
+<script src="../commun/aide.js?v=3.01"></script>
+<script src="aide-c1.js?v=3.01"></script>
+<script src="../commun/export.js?v=3.01"></script>
 <script>EXPORT.init({code:'C1',titre:'Charges climatiques et sismiques',
   zones:()=>[...document.querySelectorAll('#syn > .card')].concat(['ventRes','neigeRes','neigeToit','seismeRes','seismeGraph','seismeFa'].map(id=>document.getElementById(id).closest('.card'))),
   donnees:()=>[document.querySelector('.panneau'),...document.querySelectorAll('main .card')],

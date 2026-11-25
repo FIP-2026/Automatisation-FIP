@@ -58,7 +58,7 @@ const NDC_CSS = `.ndc{font-size:12.5px;line-height:1.45;color:#171a1e;max-width:
 const z0 = (v) => (Math.abs(v) < 0.005 ? 0 : v);
 const ok = (r) => r <= 1 ? `<span class="ok">✔ ${f(r * 100, 0)} %</span>` : `<span class="ko">✘ ${f(r * 100, 0)} %</span>`;
 function ndcIdent(D, V) {
-  const K = CAHIER.existe() ? CAHIER.lire().affaire : {}, ph = K.phase || "APS/APD";
+  const K = CAHIER.affaire(), ph = K.phase || "APS/APD";
   const I = NDC.ident || {};
   const L = [["Affaire", CAHIER.libAffaire ? (CAHIER.libAffaire(K) || $("affaire").value || "—") : ($("affaire").value || "—"), "Support", `${I.repere || $("repere").value || "—"} – ${TYPES[D.typ].n}`],
     ["Client / site", [K.client, K.site].filter(Boolean).join(" – ") || "—", "Quantité", String(I.qte ?? ($("qte").value || "1"))], ["Lignes / isométrique", I.lignes || $("zone").value || "—", "Phase", ph],
@@ -149,7 +149,7 @@ const lay2 = (a, b) => `<table class="lay"><tr><td style="width:50%">${a}</td><t
 
 /* ---------- document ---------- */
 async function ndcRendre(horsEcran) {
-  calc(); const { D, V } = dernier, K = CAHIER.existe() ? CAHIER.lire().affaire : {}, ph = K.phase || "APS/APD", simple = NDC.niveau === "simple";
+  calc(); const { D, V } = dernier, K = CAHIER.affaire(), ph = K.phase || "APS/APD", simple = NDC.niveau === "simple";
   const S = (k) => NDC.niveau === "complet" || (NDC.niveau === "perso" && NDC.sec[k]);
   const lg = V.lignes, verdict = V.gov.r <= 1, masse = V.Gm.B.reduce((s, b) => s + b.p.m * b.L, 0), fx = fixations(D, V);
   let h = `<div class="ndc ${simple ? "simple" : ""}"><h1>${escH(ndcTitre())}</h1>${ndcIdent(D, V)}${ndcExe(ph)}`;

@@ -19,6 +19,7 @@ Toute modification d'un outil (formule, valeur, nouvel outil, nouvelle option, c
 
 - **Identification (trame)** : chaque module a une carte « Identification » saisissable dans le module (`commun/ident.js`, `IDENT.init({cible, cle})`), reprise dans le cartouche Word (`EXPORT.init({affaire:()=>IDENT.lire()})`) et l'en-tête d'impression ; pas de dépendance au cahier de supportage (reprise facultative par bouton).
 - **Règles de conception et alertes** : chaque module affiche une carte « Règles de conception et alertes » (✔ / ⚠️ / ℹ️) : géométrie (angles de diagonales 30°–60°, nœuds de contreventement dans l'axe des pannes, pinces et entraxes, élancements…), dispositions constructives et limites du domaine.
+- **Projet de travail** : chaque page protégée charge `commun/suivi.js` juste après `commun/auth.js` (dates de modification, identification globale `fip.projet.ident` saisie en haut de l'accueil). Un module qui enregistre des données (`localStorage` « fip.* ») déclare ses clés dans `PROJET.MODULES` (`commun/projet.js`) pour l'état « modifié / à jour » de l'accueil ; il lit l'identification par `IDENT` ou `CAHIER.affaire()` (jamais `fip.cahier` en direct).
 - **Modules autonomes ou reliés** (à l'image de Robot) : un module (ex. assemblages) fonctionne seul et peut recevoir ses données d'un autre (A1 auvent, futur bâtiment fermé) par `localStorage` (`fip.<module>.pre`), avec un lien de retour.
 - **Schémas** : vues 2D cotées avec les valeurs des charges du cas affiché, vue 3D avec les profilés, schémas des éléments secondaires (pannes, lisses).
 

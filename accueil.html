@@ -5,14 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>FIP Études — Accueil</title>
-<script src="commun/auth.js?v=3.00"></script>
+<script src="commun/auth.js?v=3.01"></script>
+<script src="commun/suivi.js?v=3.01"></script>
 <script>calcProteger("");</script>
 <link rel="icon" href="commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="commun/style.css?v=3.00">
-<script src="commun/apps.js?v=3.00"></script>
-<script src="commun/projet.js?v=3.00"></script>
+<link rel="stylesheet" href="commun/style.css?v=3.01">
+<script src="commun/apps.js?v=3.01"></script>
+<script src="commun/ident.js?v=3.01"></script>
+<script src="commun/projet.js?v=3.01"></script>
 <style>
   body{background:#fff}
   .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
@@ -53,6 +55,10 @@
   .mod .vig{background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:10px;aspect-ratio:2.05/1;display:grid;place-items:center;overflow:hidden}
   .mod .vig svg{width:100%;height:100%}
   .mod .vig.vide{color:#9aa1ab;font-size:34px}
+  .projet-haut{border:1px solid #e1e3e7;border-radius:8px;padding:12px 16px;margin:0 0 22px;background:#fafbfc}
+  .projet-haut h2{font-size:15px;font-weight:800;margin:12px 0 6px;color:var(--ink)} .projet-haut h2:first-child{margin-top:0}
+  .projet-haut input,.projet-haut select{padding:5px 7px;border:1px solid #cfd4db;border-radius:4px;font:inherit;font-size:13px;background:#fff}
+  .etat-projet th,.etat-projet td{padding:4px 8px;border-bottom:1px solid #e6e8eb}
   footer{margin-top:44px;font-size:12px;color:var(--muted);border-top:1px solid #e1e3e7;padding-top:12px}
   @media (max-width:900px){
     .app{grid-template-columns:1fr}
@@ -78,6 +84,11 @@
     </div>
   </aside>
   <main>
+    <section class="projet-haut" id="projetHaut">
+      <div id="projet"></div>
+      <h2>Identification du projet</h2><div id="identProjet"></div>
+      <h2>État du projet par module</h2><div id="etatProjet"></div>
+    </section>
     <h1>Choisissez un outil</h1>
     <p class="lead">Chaque module applique les codes et normes cités (CODETI, EN 13480, ASME, Eurocodes et annexes nationales françaises), avec les paragraphes de référence rappelés dans les résultats. Vous saisissez à gauche, le schéma se redessine, le verdict s'affiche à droite.</p>
     <div class="etapes">
@@ -86,7 +97,6 @@
       <div class="etape"><b class="n">3 · JUSTIFIER</b>Le bouton <b>Imprimer / PDF</b> produit une note de calcul avec données, hypothèses, formules et références normatives.</div>
       <div class="etape"><b class="n">4 · COMPRENDRE</b>Pour bien comprendre le programme : dans chaque outil, le bouton <b>?</b> ouvre un <b>tutoriel pas à pas</b> et une FAQ ; le <a href="referentiel/">Référentiel</a> explique simplement les notions et les normes ; le <a href="manuel/">Manuel technique</a> détaille les formules, les paragraphes cités et les tests de validation.</div>
     </div>
-    <div id="projet" style="border:1px solid #e1e3e7;border-radius:8px;padding:10px 14px;margin:16px 0 0"></div>
     <div id="liste"></div>
     <footer>FIP Études – calculs, chiffrage et documents du bureau d'études. Outils d'aide : les résultats doivent être vérifiés par un ingénieur qualifié. · <span class="mono" id="ver2"></span></footer>
   </main>
@@ -110,7 +120,7 @@
       <div class="vig ${a.vignette?'':'vide'}">${a.vignette||'＋'}</div></a>`).join('')+
     `</div></section>`).join('');
 </script>
-<script>PROJET.barre('projet');</script>
-<script src="commun/replier.js?v=3.00"></script>
+<script>PROJET.barre('projet','',{etat:'etatProjet'}); PROJET.identification('identProjet',()=>PROJET.majEtat());</script>
+<script src="commun/replier.js?v=3.01"></script>
 </body>
 </html>

@@ -150,7 +150,7 @@ const EXPORT = (() => {
     const titre = o.titre || cfg.titre;
     const titreP = () => new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: titre, bold: true, size: 32, color: "114088" })] }), posTitre = enfants.length;
     // cartouche d'affaire (cahier de supportage) — provisoire, en attendant la trame Word FIP
-    let aff = cfg.affaire ? cfg.affaire() : null; if (!aff && !o.zones) try { const o = JSON.parse(localStorage.getItem("fip.cahier")); if (o && o.affaire && (o.affaire.num || o.affaire.intitule || o.affaire.client)) aff = o.affaire; } catch (e) { }   // cfg.affaire : identification saisie dans le module (IDENT)
+    let aff = cfg.affaire ? cfg.affaire() : null; if (!aff && !o.zones) try { const c = JSON.parse(localStorage.getItem("fip.cahier")); let a = c && c.affaire || null; if (typeof SUIVI !== "undefined") a = SUIVI.appliquer(a || {}); if (a && (a.num || a.intitule || a.client)) aff = a; } catch (e) { }   // identification globale du projet appliquée   // cfg.affaire : identification saisie dans le module (IDENT)
     let logoClient = null, dimLogo = { width: 64, height: 32 };
     TRAME = !!aff && cfg.trame !== false && o.trame !== false;
     if (aff) {
