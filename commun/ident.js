@@ -59,15 +59,19 @@ const IDENT = (() => {
   function init(c) {
     cle = c.cle; el = document.getElementById(c.cible); if (!el) return;
     const opt = (L) => L.map((v) => `<option>${v}</option>`).join("");
-    el.innerHTML = `<h2>Identification</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">${CHAMPS.map(([k, l, t]) => `<div><label>${l}</label>${t === "sel" ? `<select data-id="${k}">${opt(PHASES)}</select>` : t === "bp" ? `<select data-id="${k}">${opt(BON_POUR)}</select>` : `<input data-id="${k}" ${t === "date" ? 'type="date"' : ""}>`}</div>`).join("")}</div>
-      <div data-logo style="margin-top:6px"></div><div data-revs></div>
-      <div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" data-rep>↺ Reprendre l'affaire enregistrée (cahier / note d'hypothèses)</button></div><div class="note">Champs repris dans la trame FIP de la note de calcul (page de garde, tableau des révisions, en-tête et pied de page Word) et dans le cartouche des plans. Saisie propre à ce module.</div>`;
+    const PROJ = ["num", "intitule", "client", "site", "phase"], champ = ([k, l, t]) => `<div><label>${l}</label>${t === "sel" ? `<select data-id="${k}">${opt(PHASES)}</select>` : t === "bp" ? `<select data-id="${k}">${opt(BON_POUR)}</select>` : `<input data-id="${k}" ${t === "date" ? 'type="date"' : ""}>`}</div>`;
+    const glob = typeof SUIVI !== "undefined";                                     // projet relié : champs du projet repris de l'accueil (lecture seule ici)
+    el.innerHTML = `<h2>Identification</h2>${glob ? `<div class="msg info" data-projet style="margin:0 0 6px"></div>` : ""}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">${CHAMPS.filter((c) => !glob || !PROJ.includes(c[0])).map(champ).join("")}</div>
+      ${glob ? `<div hidden>${CHAMPS.filter((c) => PROJ.includes(c[0])).map(champ).join("")}</div>` : ""}<div data-logo style="margin-top:6px" ${glob ? "hidden" : ""}></div><div data-revs></div>
+      <div class="actions noprint" style="margin-top:6px" ${glob ? "hidden" : ""}><button type="button" class="sec" data-rep>↺ Reprendre l'affaire enregistrée (cahier / note d'hypothèses)</button></div><div class="note">Champs repris dans la trame FIP de la note de calcul (page de garde, tableau des révisions, en-tête et pied de page Word) et dans le cartouche des plans. ${glob ? "N° de document, indice, date, repère, lot, motif et auteurs : propres à ce module." : "Saisie propre à ce module."}</div>`;
     const o = lireCle(); if (o) remplir(glob(o)); else { const a = affaireCahier(); remplir({ phase: "APS", indice: "0", bonPour: "CONSULTATION", date: new Date().toISOString().slice(0, 10), repere: c.repere || "", ...(a || {}) }); }
     const maj = () => { const a = lire(); ecrire(a); if (typeof SUIVI !== "undefined") SUIVI.majIdent(a); if (c.change) c.change(); };   // champs du projet reportés dans l'identification globale
     const rRevs = editeurRevs(el.querySelector("[data-revs]"), lire, (a, champs) => { extra.revs = a.revs || []; if (champs) remplirForce(a); maj(); });
     const rLogo = logoChamp(el.querySelector("[data-logo]"), () => extra.logo, (l) => { extra.logo = l; maj(); });
     function remplirForce(a) { ["indice", "motif", "date"].forEach((k) => { const i = el.querySelector(`[data-id="${k}"]`); if (i) i.value = a[k] ?? ""; }); }
     el.addEventListener("input", (e) => { if (e.target.closest("[data-id]")) { maj(); if (/^(indice|motif|realise|controle|approuve|date)$/.test(e.target.dataset.id)) rRevs(); } });
+    const resume = () => { const z = el.querySelector("[data-projet]"); if (!z) return; const a = lire(); z.innerHTML = `<b>Projet</b> : ${esc([a.num, a.intitule].filter(Boolean).join(" – ") || "—")}${a.client ? " · " + esc(a.client) : ""}${a.site ? " · " + esc(a.site) : ""}${a.phase ? " · phase " + esc(a.phase) : ""}${a.logo ? " · logo client ✓" : ""} — identification saisie à l'<a href="../accueil.html">accueil</a>.`; };
+    resume();
     el.querySelector("[data-rep]").onclick = () => { const a = affaireCahier(); if (!a) { alert("Aucune affaire enregistrée dans ce navigateur."); return; } remplir(a); maj(); rRevs(); rLogo(); };
   }
   const libelle = (a) => [a.num, a.intitule].filter(Boolean).join(" – ") + (a.repere ? ` · ${a.repere}` : "") + (a.doc ? ` · note ${a.doc}${a.indice ? " ind. " + a.indice : ""}` : "") + (a.phase ? ` · ${a.phase}` : "");

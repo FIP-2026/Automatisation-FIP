@@ -4,29 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.01"></script>
-<script src="../commun/suivi.js?v=3.01"></script>
+<script src="../commun/auth.js?v=3.02"></script>
+<script src="../commun/suivi.js?v=3.02"></script>
+<script src="../commun/projet.js?v=3.02"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.01">
-<script src="../commun/apps.js?v=3.01"></script>
-<script src="../commun/data/profils.js?v=3.01"></script>
-<script src="../commun/barres3d.js?v=3.01"></script>
-<script src="../commun/acier.js?v=3.01"></script>
-<script src="../commun/data/tuyauterie.js?v=3.01"></script>
-<script src="../commun/charges.js?v=3.01"></script>
-<script src="../commun/coefvent.js?v=3.01"></script>
-<script src="../commun/tendues.js?v=3.01"></script>
-<script src="../commun/portique.js?v=3.01"></script>
-<script src="../commun/chevilles.js?v=3.01"></script>
-<script src="../commun/cbfem.js?v=3.01"></script>
-<script src="../commun/topo.js?v=3.01"></script>
-<script src="../commun/zip.js?v=3.01"></script>
-<script src="../commun/laser.js?v=3.01"></script>
-<script src="../commun/fluides.js?v=3.01"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.02">
+<script src="../commun/apps.js?v=3.02"></script>
+<script src="../commun/data/profils.js?v=3.02"></script>
+<script src="../commun/barres3d.js?v=3.02"></script>
+<script src="../commun/acier.js?v=3.02"></script>
+<script src="../commun/data/tuyauterie.js?v=3.02"></script>
+<script src="../commun/charges.js?v=3.02"></script>
+<script src="../commun/coefvent.js?v=3.02"></script>
+<script src="../commun/tendues.js?v=3.02"></script>
+<script src="../commun/portique.js?v=3.02"></script>
+<script src="../commun/chevilles.js?v=3.02"></script>
+<script src="../commun/cbfem.js?v=3.02"></script>
+<script src="../commun/topo.js?v=3.02"></script>
+<script src="../commun/zip.js?v=3.02"></script>
+<script src="../commun/laser.js?v=3.02"></script>
+<script src="../commun/fluides.js?v=3.02"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -75,6 +76,11 @@
 </article>
 
 <article class="card" id="usage"><div class="theme">Généralités</div><h2>2. Mode d'emploi général</h2>
+<h3>Projet collaboratif et modules reliés (3.02)</h3>
+<ul><li><b>Modules reliés</b> : les données de base sont saisies une fois et reprises automatiquement : identification (accueil) dans tous les modules ; climat et séisme de C1 dans S1 (q<sub>p</sub> recalculé à la hauteur du support) et dans le cahier (supports « à recalculer » si C1 change) ; chevilles définies et vérifiées dans AN1, dont S1 reprend les entraxes (encombrement des chevilles de la platine vérifiée) ; notes de calcul dans la famille « Rapports de calcul ». Sans module source dans le projet, la saisie manuelle reste possible et est signalée.</li>
+<li><b>Enregistrer</b> (💾 sur chaque page, Ctrl+S) : valide l'état de toutes les données (empreinte FNV-1a de chaque clé) et met à jour la liste des projets. État d'un module : <i>non renseigné</i> (aucune saisie : les écritures automatiques à l'ouverture, sans action de l'utilisateur, ne comptent pas), <i>modifié, non enregistré</i>, <i>enregistré</i> ; colonne fichier projet : jamais exporté, à exporter, à jour.</li>
+<li><b>Responsables</b> : un module attribué à un utilisateur est en consultation seule pour les autres (saisies désactivées, écritures de ses données refusées) ; « Modifier quand même » lève le verrou pour la session et l'inscrit au journal du projet. Le responsable de l'identification attribue les modules. Protection d'organisation (site statique, connexion de politesse).</li>
+<li><b>Conflits</b> : le fichier projet porte un identifiant de projet. À l'ouverture d'un fichier du même projet, chaque module est comparé à la référence commune (dernier export ou import) : modifié seulement dans le fichier → repris ; seulement ici → conservé ; des deux côtés → alerte « CONFLIT » (auteurs et dates), l'utilisateur garde sa version ou prend celle du fichier ; décision par module (toutes ses données du même côté), tracée au journal.</li></ul>
 <h3>Enchaînement type d'une affaire de supportage</h3>
 <ol>
 <li><b>Accueil – projet (3.01)</b> : choisir le projet de travail dans la liste déroulante (projets enregistrés dans le navigateur) ou en créer un ; saisir l'<b>identification du projet</b> (n° d'affaire, intitulé, client, site, phase, logo ; bon pour et auteurs par défaut), reprise dans toutes les calculettes, le cahier et les cartouches ; suivre l'<b>état de chaque module</b> (non renseigné, jamais exporté, modifié depuis le dernier export, à jour).</li>
@@ -202,7 +208,7 @@
 <p>Cornières : axes principaux u, v, vérification élastique (classe 3 au mieux), sans déversement. Résistances : W = W<sub>pl</sub> (classes 1–2) ou W<sub>el</sub> ; cornières W<sub>u</sub>, W<sub>v</sub>.</p>
 <h3 id="s1-fix">8.6 Fixations</h3>
 <div class="form">Groupe de 4 fixations aux angles d'un rectangle a<sub>1</sub> × a<sub>2</sub>, platine rigide, axe neutre au centre (prudent) :<br>traction T = max(N; 0)/4 + |M<sub>1</sub>|/(2a<sub>2</sub>) + |M<sub>2</sub>|/(2a<sub>1</sub>) ; cisaillement V = √(V<sub>1</sub>² + V<sub>2</sub>²)/4 + M<sub>t</sub>/(4r), r = √(a<sub>1</sub>² + a<sub>2</sub>²)/2<br>Tiges filetées (NF EN 1993-1-8 Tab. 3.4) : F<sub>t,Rd</sub> = 0,9·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> ; F<sub>v,Rd</sub> = 0,6·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub> ; F<sub>v</sub>/F<sub>v,Rd</sub> + F<sub>t</sub>/(1,4·F<sub>t,Rd</sub>) ≤ 1<br>Crapaud maison (§3.9) : F<sub>p,C</sub> = 0,7·f<sub>ub</sub>·A<sub>s</sub> ; F<sub>s,Rd</sub> = μ·(F<sub>p,C</sub> − 0,8·F<sub>t</sub>)/γ<sub>M3</sub> (k<sub>s</sub> = 1, n = 1)</div>
-<p>Chevilles : efforts par fixation fournis pour le choix fournisseur (ETE) ; non vérifiées par l'outil.</p>
+<p>Chevilles : définies et vérifiées dans AN1 (NF EN 1992-4 + AN) ; S1 n'en saisit plus les entraxes (3.02) : il reprend l'encombrement a<sub>1</sub> × a<sub>2</sub> des chevilles de la platine vérifiée dans AN1 (retour d'AN1, par nature d'appui), sinon 120 × 120 mm (80 × 80 au pied de jambe de force) provisoires, et donne les efforts par fixation (carte placée après les vérifications). Disposition à plus de 4 chevilles : S1 calcule avec 4 fixations à l'encombrement, AN1 fait la vérification réelle. Climat et séisme : repris de C1 à chaque calcul (3.02). Perspective : imprimée et reprise dans les rapports, masquée à l'écran. Notes de calcul : Rapport de calcul (RC).</p>
 <h3 id="s1-ddc">8.7 Descentes de charges, diagrammes, alertes</h3>
 <ul><li>DDC : réactions changées de signe (effort du support sur l'ouvrage), par cas caractéristique et en enveloppe ELU / sismique, composante par composante (non concomitantes, prudent).</li>
 <li>Diagrammes : efforts internes de la combinaison choisie ; déformée par interpolation d'Hermite des déplacements nodaux + flèche locale q·s²(L − s)²/(24EI).</li>
@@ -263,6 +269,7 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <p><b>Qualification prévue</b> : 5 notes PROFIS anonymisées (V1 à V5 : HAS-U M12, M16, M27 ; HST4 M16 ; béton fissuré et non fissuré) et exemples du guide Hilti chap. 6 ; recalculs déjà vérifiés à la main : N⁰<sub>Rk,c</sub> = 7,7 × √25 × 214<sup>1,5</sup> = 12 052 daN (V5), 12,7 × √25 × 105<sup>1,5</sup> = 6 832 daN (V4), ψ<sub>M,N</sub> = 2 − z/(1,5h<sub>ef</sub>) = 1,156 (V5).</p>
 <p><b>Note de calcul (2.67)</b> : deux niveaux, sur le modèle PROFIS. Simplifiée : résultats globaux (taux maxi et mode déterminant de chaque combinaison, résumé des vérifications du cas dimensionnant), chevillage (cheville, ETE, béton, platine, profilé, méthode, plan coté, vue 3D), conclusion. Détaillée : objet, résultats globaux, hypothèses, géométrie, combinaisons, vérification du seul cas dimensionnant avec, pour chaque mode, la formule de la NF EN 1992-4 (7.1)–(7.3), (7.13)–(7.14), (7.23)–(7.24), (7.35), (7.39), (7.40)–(7.42), (7.54)–(7.56) ou (C.9), les variables et la comparaison E<sub>d</sub> / R<sub>d</sub> ; figures CBFEM, règles, conclusion. Le PDF reprend le même contenu.</p>
 <p><b>Note de calcul Word (2.62, remplacée)</b> : bouton « Word » de l'en-tête, trame FIP (page de garde, révisions, sommaire) dès qu'une identification est saisie. Plan : 1. objet et références ; 2. hypothèses (béton, cheville et ETE, pose, séisme, méthode) ; 3. géométrie (plan coté et perspective) ; 4. combinaisons (efforts au centre du profilé, transport au centre de la platine) ; 5. vérifications : tableau récapitulatif, puis pour chaque combinaison efforts par cheville, modes de rupture (E<sub>d</sub>, R<sub>d</sub>, taux, paragraphe), interactions, alertes ; valeurs intermédiaires de la combinaison déterminante (note simplifiée) ou de toutes (note complète) ; 6. règles de conception ; 7. conclusion. Mention « non valable pour exécution ».</p>
+<p><b>Combinaison affichée (3.02)</b> : la plus défavorable (taux maximal) est cochée par défaut et suivie à chaque calcul tant que l'utilisateur n'en coche pas une autre. Raideur automatique des chevilles : règle de ce chapitre (qualification ci-dessous), libellée « Automatique » dans l'outil.</p>
 <p><b>Import depuis S1 (2.62)</b> : carte « Fixations sur l'ouvrage », bouton « Vérifier les chevilles dans AN1 » par platine chevillée. Effort de l'ouvrage sur l'appui F = −R (axes globaux X le long des tuyauteries, Y, Z vertical), projeté dans les axes de la platine (x, y dans son plan, z sortant du béton, trièdre direct) : N = F·z (&gt; 0 en traction), V<sub>x</sub> = F·x, V<sub>y</sub> = F·y, M<sub>x</sub> = M·x, M<sub>y</sub> = M·y, M<sub>z</sub> = M·z, avec sol (x, y, z) = (X, Y, Z), plafond (X, −Y, −Z), mur (−X, Z, Y) : vue de face, y vers le haut (<code>CHEV.effortsPlatine</code>). kN → ×100 daN, kN·m → ×100 daN·m. Combinaisons transmises : parmi les ELU et, séparément, les sismiques, celles qui rendent extrêmes N, −N, |V|, |M<sub>x</sub>|, |M<sub>y</sub>|, |M<sub>z</sub>| et la traction estimée N/4 + |M<sub>x</sub>|/(2a<sub>2</sub>) + |M<sub>y</sub>|/(2a<sub>1</sub>). Chevilles : 4 aux angles a<sub>1</sub> × a<sub>2</sub> ; platine max(a + 80 ; 150) mm.</p>
 <p><b>Import depuis A1 (2.62)</b> : carte « Descente de charges aux pieds de poteaux », bouton « Vérifier l'ancrage des pieds dans AN1 ». Pour chaque pied (files A et B, portique courant et de pignon), combinaisons ELU donnant V<sub>min</sub>, V<sub>max</sub>, H<sub>max</sub>, H<sub>min</sub> (réactions complètes de la combinaison, amplification comprise) : N = −V (V &gt; 0 en compression), V<sub>x</sub> = H<sub>X</sub> (de A vers B), M = 0 (pieds articulés). Efforts longitudinaux des pieds de palée à ajouter manuellement. Profilé : poteau de A1 (platine agrandie à h + 100 × b + 100 mm au moins).</p>
 <h3>Platine flexible – CBFEM (2.63)</h3>
@@ -311,6 +318,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 </article>
 
 <article class="card" id="cs"><div class="theme">CS – Cahier de supportage</div><h2>12. CS – Cahier de supportage</h2>
+<p><b>Projet (3.02)</b> : identification du projet reprise de l'accueil (carte « Document (cahier) » : n° de document, indice, date, lot, motif, bon pour, chrono, révisions) ; climat C1 repris automatiquement ; chevilles de la nomenclature générale issues d'AN1 (les platines non vérifiées sont comptées à part, plus de forfait par platine) ; bouton « ⬇ DXF » en tête de page ; fichier, notes de calcul et échanges gérés à l'accueil et dans RC.</p>
 <ul><li><b>Type</b> = un support S1 (profilés, tuyauteries, actions) ; <b>configuration</b> = même type avec cotes différentes (H, L, h, a<sub>i</sub>…). Chaque configuration est recalculée par le moteur S1 (page S1 chargée en arrière-plan, mêmes formules).</li>
 <li><b>Schéma coté (2.57)</b> : pour chaque type calculé, vues de face et de côté en lettres (mêmes vues que les plans schématiques), générées automatiquement par le moteur S1 sur la 1<sup>re</sup> configuration et enregistrées avec le type ; légende des cotes (lettre, libellé) ; la lettre de la case active du tableau est surlignée sur le schéma. Repliable, état mémorisé.</li>
 <li><b>Descentes de charges (retirées du cahier en 2.81)</b> : le cahier ne porte plus ni DDC, ni SCU, ni repérage d'appuis ; la DDC sert uniquement au plan d'implantation génie civil, issue de S1 ou de Robot.</li>
@@ -360,6 +368,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.02</td><td>Tous modules, accueil, S1, CS, AN1, C1, T1</td><td>Projet collaboratif : modules reliés (C1 transmis automatiquement à S1 et au cahier ; chevilles de S1 définies dans AN1, entraxes repris d'AN1 ; identification du projet reprise de l'accueil dans les cartes d'identification) ; bouton « 💾 Enregistrer » / Ctrl+S sur chaque page ; module « renseigné » seulement après une saisie ; responsables des modules (consultation seule pour les autres, forçage tracé) ; journal du projet ; conflits signalés à l'ouverture d'un fichier projet du même projet (décision par module). Accueil : bouton Aide. S1 : cartes Projet, Note de calcul et Perspective (écran) retirées, fixations après les vérifications, climat C1 en lecture. CS : identification du projet reprise de l'accueil, fichier du cahier, carte « Plans DXF et notes » et forfait de chevilles retirés, C1 automatique, identification en tête, « ⬇ DXF » dans l'en-tête. AN1 : combinaison la plus défavorable cochée par défaut, libellés sans nom de logiciel. Liste des fluides T1 / S1 / G1 : essence et distillat moyen (ρ à 15 °C). 4 tests ajoutés.</td><td>S1 en chevilles : efforts par fixation calculés avec les entraxes d'AN1 dès que la platine y est vérifiée (sinon 120 × 120 provisoires, comme avant). S1 : q<sub>p</sub>, s<sub>k</sub>, α·S toujours ceux de C1 quand le projet en a. BOM du cahier : chevilles non forfaitaires. Autres calculs inchangés.</td></tr>
 <tr><td>3.01</td><td>Accueil, tous modules, C1, S1, CS, H1</td><td>Accueil : bloc « Projet » en tête (projet de travail choisi dans une liste déroulante des projets enregistrés dans le navigateur, base IndexedDB ; identification globale du projet reprise dans tous les modules, le cahier et les cartouches, et mise à jour depuis eux ; état de chaque module : non renseigné, jamais exporté, modifié depuis le dernier export, à jour, avec la date de modification) ; commun/suivi.js chargé par toutes les pages ; familles réordonnées (Hypothèses de charges, Tuyauterie et fluides avec le cahier de supportage en premier, Structure acier, Assemblages, Rapports, Aide). C1 : catégorie d'importance IV et classe de sol « enveloppe D/E » par défaut. S1 / CS : cornières de guidage L 30×20×3 (au lieu de L 50×5), dessinées en L, en butée à 10 mm de la semelle du patin. H1 : distillat moyen (générique). 7 tests ajoutés.</td><td>C1 : valeurs sismiques par défaut plus élevées (γ<sub>I</sub> 1,4 au lieu de 1,0 ; sol D/E au lieu de B) tant que l'utilisateur ne les change pas. S1 / CS : nomenclature et masse des guides en cornière modifiées. Autres calculs inchangés.</td></tr>
 <tr><td>3.00</td><td>S1, CS, manuel</td><td>Migration vers le dépôt de l'entreprise ; références à une spécification client nommée remplacées par « spécification client » (alertes et plans de détail des liaisons tuyau / support, aides, manuel).</td><td>Aucun calcul modifié ; libellés seuls.</td></tr>
 <tr><td>2.99</td><td>CS, S1 (plans DXF)</td><td>Logo du client repris dans le DXF comme image référencée (entité IMAGE, définition « logo_client.png » en chemin relatif, calque CARTOUCHE, case « LOGO CLIENT » de chaque présentation) ; l'export « Plans DXF » livre une archive ZIP (DXF + logo_client.png à extraire dans le même dossier) ; sans logo, DXF seul comme avant.</td><td>Aucun calcul modifié.</td></tr>
@@ -593,12 +602,17 @@ function tests(){
     const e=SUIVI.empreinte('{"x":1}');
     ajout('Projet – état d\'une donnée : vide / jamais exportée / à jour / modifiée','4 états attendus (1 = conforme)',[SUIVI.etatDe(null,e),SUIVI.etatDe('{"x":1}',undefined),SUIVI.etatDe('{"x":1}',e),SUIVI.etatDe('{"x":2}',e)].join()==='vide,nouveau,ajour,modifie'?1:0,1,'',0); }
   if(typeof CALC_CATEGORIES!=='undefined') ajout('Accueil – ordre des familles et premier outil Tuyauterie','hypothèses, tuyauterie, acier, assemblages, rapports, aide ; CS en tête (1 = conforme)',CALC_CATEGORIES.map(c=>c.id).join()==='clim,tuy,acier,asm,rap,ress,avenir'&&CALC_APPS.find(a=>a.categorie==='tuy').code==='CS'?1:0,1,'',0);
+  if(typeof PROJET!=='undefined'&&PROJET.decisionModule){ const D=PROJET.decisionModule, c=[D([{hL:'a',hF:'a',hB:'a'}]),D([{hL:'a',hF:'b',hB:'a'}]),D([{hL:'b',hF:'a',hB:'a'}]),D([{hL:'b',hF:'c',hB:'a'}]),D([{hL:'b',hF:'a',hB:'a'},{hL:'a',hF:'c',hB:'a'}])].join();
+    ajout('Projet – import : décision par module (identique / fichier / local / conflit)','modifié dans le fichier seul → fichier ; ici seul → local ; des deux côtés → conflit (1 = conforme)',c==='identique,fichier,local,conflit,conflit'?1:0,1,'',0);
+    ajout('Projet – donnée absente : état « non renseigné »','SUIVI.etatCle (1 = conforme)',SUIVI.etatCle('fip.test.absente').etat==='vide'?1:0,1,'',0);
+    ajout('Projet – modules et pages reliés (C1, CS, S1, AN1…)','SUIVI.moduleDeCle (1 = conforme)',['fip.hyp.C','fip.climat','fip.cahier','fip.an1','fip.projet.droits'].map(SUIVI.moduleDeCle).join()==='C1,C1,CS,AN1,ID'?1:0,1,'',0); }
+  if(typeof FLUIDS!=='undefined'&&typeof FLUIDS_ORDRE!=='undefined') ajout('T1 / S1 / G1 – liste des fluides : distillat et essence, « Personnalisé » en dernier','ρ₁₅ distillat 850 kg/m³ (1 = conforme)',FLUIDS[FLUIDS_ORDRE[FLUIDS_ORDRE.length-1]].r===null&&FLUIDS.some(x=>/Distillat/.test(x.n)&&x.r===850)&&FLUIDS.some(x=>/Essence/.test(x.n))?1:0,1,'',0);
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
     T.map(t=>`<tr><td>${t.n}</td><td>${t.ref}</td><td class="n">${f(t.v,4)} ${t.unit}</td><td class="n">${f(t.vr,4)} ${t.unit}</td><td class="n">${f(Math.abs(t.v-t.vr)/Math.max(Math.abs(t.vr),1e-12)*100,3)} %</td><td class="${t.ok?'ok':'ko'}">${t.ok?'✔':'✘'}</td></tr>`).join('')+'</table>';
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.01"></script>
+<script src="../commun/replier.js?v=3.02"></script>
 </body>
 </html>

@@ -61,5 +61,9 @@ const FLUIDS=[
  {n:'Eau glycolée 30 %',r:1040},{n:'Gazole',r:840},{n:'Fioul lourd',r:980},
  {n:'Acide sulfurique 98 %',r:1830},{n:'Acide nitrique 65 %',r:1390},{n:'Acide chlorhydrique 33 %',r:1160},
  {n:'Soude caustique 50 %',r:1525},{n:'Gaz / air / vapeur (négligé)',r:0},{n:'Personnalisé',r:null},
+ {n:'Essence (SP95, SP98, E10) (15 °C)',r:745},{n:'Distillat moyen (15 °C)',r:850},
 ];
+/* Liste commune T1, S1, G1 (masse du contenu). Les indices sont enregistrés (S1, G1, cahier) : ajouter les fluides en fin de liste ;
+   FLUIDS_ORDRE = ordre d'affichage (Personnalisé en dernier). Essence et distillat : ρ à 15 °C (valeurs de base de H1). */
+const FLUIDS_ORDRE=FLUIDS.map((x,i)=>i).sort((a,b)=>(FLUIDS[a].r===null)-(FLUIDS[b].r===null)||a-b);
 

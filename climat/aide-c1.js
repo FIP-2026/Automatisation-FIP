@@ -9,6 +9,7 @@ AIDE.init({
     { t: "Vent", html: "Catégorie de terrain (rugosité la plus défavorable autour du site), hauteur du bâtiment et hauteur de référence. Orographie : laisser c₀ = 1, sauf site en relief (procédure 1 automatique avec l'IGN) ou étude spécifique (valeur saisie).", cible: "#terrain" },
     { t: "Neige", html: "Toiture à un ou deux versants, pentes en degrés, pente d'écoulement de l'eau (si < 5 %, majoration de l'AN) et C<sub>e</sub> (1,25 seulement si le site est abrité en permanence).", cible: "#ntype" },
     { t: "Séisme", html: "Catégorie d'importance du bâtiment, classe de sol et coefficient de comportement. Par défaut : catégorie IV (γ<sub>I</sub> = 1,4) et classe de sol inconnue (enveloppe des spectres D et E), les hypothèses les plus défavorables : les réduire seulement sur justification (catégorie du bâtiment, étude de sol).", cible: "#p-seisme" },
+    { t: "Données transmises au projet", html: "Vent, neige et séisme sont transmis automatiquement aux supports S1 et au cahier de supportage à chaque calcul (plus de bouton d'envoi) : S1 recalcule q<sub>p</sub> à la hauteur de chaque support ; le cahier marque ses supports « à recalculer » si les données changent.", cible: "#versS1" },
     { t: "Coefficients de vent", html: "Profilés (transmis à S1), bâtiment fermé, toiture isolée, mur isolé : cocher « note » pour les faire figurer dans la note d'hypothèses.", cible: "#p-cv" },
     { t: "Sortir la note", html: "Onglet Synthèse, puis Word, Excel ou Imprimer.", cible: "#tabs" },
   ],
