@@ -12,7 +12,7 @@
    ===================================================================== */
 const PROJET = (() => {
   const EXCLUS = SUIVI.EXCLUS, META = SUIVI.META, ACTIF = SUIVI.ACTIF, MODULES = SUIVI.MODULES, cles = SUIVI.cles;
-  const LIB = { "fip.projet.ident": "Identification du projet", "fip.projet.droits": "Responsables des modules", "fip.cahier": "Cahier de supportage", "fip.climat": "C1 – données transmises à S1 et au cahier", "fip.hyp.C": "C1 – charges climatiques et sismiques", "fip.hyp.G": "G1 – charges permanentes",
+  const LIB = { "fip.projet.ident": "Identification du projet", "fip.cahier": "Cahier de supportage", "fip.climat": "C1 – données transmises à S1 et au cahier", "fip.hyp.C": "C1 – charges climatiques et sismiques", "fip.hyp.G": "G1 – charges permanentes",
     "fip.hyp.Q": "Q1 – charges d'exploitation", "fip.hyp.gen": "NH – hypothèses générales et documents", "fip.a1": "A1 – données de l'auvent", "fip.a1.res": "A1 – résultats",
     "fip.rc": "RC – options du rapport", "fip.rc.as1": "AS1 – attaches du rapport", "fip.s1.ndc": "S1 – options de note", "fip.reactions": "S1 – réactions transmises",
     "fip.an1": "AN1 – platines et chevilles", "fip.an1.pre": "AN1 – efforts reçus", "fip.an1.retour": "AN1 – résultats renvoyés aux modules", "fip.s1.num": "S1 – affichage des numéros", "fip.a1.num": "A1 – affichage des numéros" };
@@ -48,7 +48,7 @@ const PROJET = (() => {
     L.forEach((k) => { rec.cles[k] = localStorage.getItem(k); }); const mv = localStorage.getItem(META); if (mv != null) rec.cles[META] = mv;
     await tx("readwrite", (s) => s.put(rec)); return rec;
   }
-  const effacer = () => { [...cles(), META].forEach((k) => SUIVI.rem0.call(localStorage, k)); };   // sans contrôle des droits : changement de projet
+  const effacer = () => { [...cles(), META].forEach((k) => SUIVI.rem0.call(localStorage, k)); };   // changement de projet : écritures non datées
   const poser = (C) => { Object.entries(C || {}).forEach(([k, v]) => { if (/^fip\./.test(k) && k !== ACTIF && v != null) SUIVI.set0.call(localStorage, k, v); }); };
   async function ouvrir(id, apres) {
     if (actif() && actif().id === id) return;
@@ -132,20 +132,17 @@ const PROJET = (() => {
   }
   /* ---------- affichage : état des modules, responsables, journal ---------- */
   function etatHTML(base) {
-    const m = SUIVI.lireMeta(), connus = new Set(MODULES.flatMap((x) => x[2])), D = SUIVI.droits(), moi = SUIVI.user();
-    let users = []; try { users = (typeof CALC_UTILISATEURS !== "undefined" ? CALC_UTILISATEURS.map((x) => x.u) : []).filter((u) => u && u !== "identifiant"); } catch (e) { }
-    users = [...new Set([...users, moi, ...Object.values(D)].filter(Boolean))].sort();
-    const selR = (c) => `<select data-droit="${c}" style="font-size:12px;padding:2px 4px"><option value="">— libre —</option>${users.map((u) => `<option ${D[c] === u ? "selected" : ""}>${esc(u)}</option>`).join("")}</select>`;
+    const m = SUIVI.lireMeta(), connus = new Set(MODULES.flatMap((x) => x[2]));
     const ligne = (code, nom, K, u) => { const e = etatModule(K), [ic, txt, col] = ETATS[e.etat], F = e.fichier && FICHIER[e.fichier], h = u ? base + u : "";
-      return `<tr><td><span class="mono">${esc(code)}</span></td><td>${h ? `<a href="${esc(h)}">${esc(nom)}</a>` : esc(nom)}</td><td>${code === "··" ? "" : selR(code)}</td><td style="color:${col};font-weight:600;white-space:nowrap">${ic} ${txt}</td>
-        <td style="white-space:nowrap;${F ? `color:${F[2]}` : ""}">${F ? `${F[0]} ${F[1]}` : "—"}</td><td class="note" style="white-space:nowrap">${e.maj ? dateFr(e.maj) + (e.par ? " · " + esc(e.par) : "") : "—"}</td></tr>`; };
+      return `<tr><td><span class="mono">${esc(code)}</span></td><td>${h ? `<a href="${esc(h)}">${esc(nom)}</a>` : esc(nom)}</td><td style="color:${col};font-weight:600;white-space:nowrap">${ic} ${txt}</td>
+        <td style="white-space:nowrap;${F ? `color:${F[2]}` : ""}">${F ? `${F[0]} ${F[1]}` : "—"}</td><td class="note" style="white-space:nowrap">${e.maj ? dateFr(e.maj) : "—"}</td><td style="white-space:nowrap">${e.par ? esc(e.par) : "—"}</td></tr>`; };
     const autres = cles().filter((k) => !connus.has(k) && !/^fip\.(s1|a1)\.num$/.test(k) && k !== "fip.an1.pre");
     const nE = MODULES.filter((x) => etatModule(x[2]).etat === "modifie").length, nX = MODULES.filter((x) => ["aexporter", "jamais"].includes(etatModule(x[2]).fichier)).length;
     const J = (m.journal || []).slice(-8).reverse();
     return `<div class="note" style="margin:6px 0 4px">${m.saveDate ? `Dernier enregistrement : <b>${dateFr(m.saveDate)}</b>` : "Projet jamais enregistré"} · ${nE ? `<b style="color:#e30009">${nE} module(s) modifié(s) non enregistré(s)</b>` : "tout est enregistré"} · ${m.refDate ? `dernier échange de fichier : ${dateFr(m.refDate)}` : "fichier projet jamais exporté"}${nX ? ` · <b style="color:#b26a00">${nX} module(s) à exporter</b>` : ""}</div>
-      <table class="etat-projet" style="width:100%;border-collapse:collapse;font-size:13px"><tr><th style="text-align:left">Code</th><th style="text-align:left">Module</th><th style="text-align:left" title="Seul le responsable modifie le module ; les autres le consultent (ou forcent, avec trace au journal)">Responsable</th><th style="text-align:left">État</th><th style="text-align:left">Fichier projet</th><th style="text-align:left">Dernière modification</th></tr>
+      <table class="etat-projet" style="width:100%;border-collapse:collapse;font-size:13px"><tr><th style="text-align:left">Code</th><th style="text-align:left">Module</th><th style="text-align:left">État</th><th style="text-align:left">Fichier projet</th><th style="text-align:left">Dernière modification</th><th style="text-align:left" title="Utilisateur connecté qui a fait la dernière modification">Modifié par</th></tr>
       ${MODULES.map(([c, n, K, u]) => ligne(c, n, K, u)).join("")}${autres.length ? ligne("··", "Autres données (" + autres.map(lib).join(", ") + ")", autres) : ""}</table>
-      <div class="note" style="margin-top:4px">T1, H1, P1 et P2 calculent à la volée : rien n'est enregistré. Un module est « renseigné » après une saisie ; « 💾 Enregistrer » (chaque page, Ctrl+S) valide les modifications. Responsable : seul lui modifie le module (les autres le consultent ; « Modifier quand même » est tracé au journal) ; le responsable de l'identification attribue les modules.</div>
+      <div class="note" style="margin-top:4px">T1, H1, P1 et P2 calculent à la volée : rien n'est enregistré. Un module est « renseigné » après une saisie ; « 💾 Enregistrer » (chaque page, Ctrl+S) valide les modifications. « Modifié par » : utilisateur connecté qui a fait la dernière modification du module (journal du projet ci-dessous).</div>
       ${J.length ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-weight:600;font-size:13px">Journal du projet (${(m.journal || []).length})</summary><table style="font-size:12px;width:100%">${J.map((j) => `<tr><td class="note" style="white-space:nowrap">${dateFr(j.d)}</td><td>${esc(j.u || "")}</td><td><b>${esc(j.a)}</b>${j.m ? " – " + esc(j.m) : ""}${j.txt ? ` <span class="note">${esc(j.txt)}</span>` : ""}</td></tr>`).join("")}</table></details>` : ""}`;
   }
   /* barre : PROJET.barre('idConteneur', base = '' (accueil) ou '../' (modules), opt.etat = id du conteneur de l'état des modules) */
@@ -157,8 +154,7 @@ const PROJET = (() => {
         <span style="flex:1"></span><button type="button" class="sec" data-pj="new">🗋 Nouveau projet</button><button type="button" data-pj="exp">⬇ Exporter le fichier projet</button><button type="button" class="sec" data-pj="imp">⬆ Ouvrir un fichier projet</button><button type="button" class="sec" data-pj="del" hidden>🗑 Supprimer de la liste</button></div>
       ${opt.etat ? "" : '<div data-pj="etat"></div>'}
       <div class="note" style="margin-top:4px">La liste déroulante donne les projets enregistrés dans ce navigateur : choisir un projet l'ouvre (le projet en cours est enregistré dans la liste). Pour échanger un projet entre postes (projeteur ↔ calculateur) : un seul fichier .json, à conserver sur le réseau FIP / SharePoint, jamais sur un dépôt public. Fermez les autres onglets FIP Études avant de changer de projet.</div>`;
-    const zEtat = opt.etat ? document.getElementById(opt.etat) : el.querySelector('[data-pj="etat"]'), majEtat = () => { if (zEtat) { zEtat.innerHTML = etatHTML(base); if (SUIVI.verrou("ID")) zEtat.querySelectorAll("[data-droit]").forEach((s) => { s.disabled = true; }); } };
-    if (zEtat) zEtat.addEventListener("change", (e) => { const s = e.target.closest("[data-droit]"); if (!s) return; SUIVI.setDroit(s.dataset.droit, s.value); majEtat(); });
+    const zEtat = opt.etat ? document.getElementById(opt.etat) : el.querySelector('[data-pj="etat"]'), majEtat = () => { if (zEtat) zEtat.innerHTML = etatHTML(base); };
     majEtat(); barre.majEtat = majEtat;
     const sel = el.querySelector('[data-pj="sel"]'), del = el.querySelector('[data-pj="del"]');
     (async () => { try { await sauverCourant(); const P = await liste(), cur = actif();

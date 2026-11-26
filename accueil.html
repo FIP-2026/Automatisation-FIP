@@ -5,17 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>FIP Études — Accueil</title>
-<script src="commun/auth.js?v=3.02"></script>
-<script src="commun/suivi.js?v=3.02"></script>
-<script src="commun/projet.js?v=3.02"></script>
+<script src="commun/auth.js?v=3.03"></script>
+<script src="commun/suivi.js?v=3.03"></script>
+<script src="commun/projet.js?v=3.03"></script>
 <script>calcProteger("");</script>
 <link rel="icon" href="commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="commun/style.css?v=3.02">
-<script src="commun/apps.js?v=3.02"></script>
-<script src="commun/utilisateurs.js?v=3.02"></script>
-<script src="commun/ident.js?v=3.02"></script>
+<link rel="stylesheet" href="commun/style.css?v=3.03">
+<script src="commun/apps.js?v=3.03"></script>
+<script src="commun/ident.js?v=3.03"></script>
 <style>
   body{background:#fff}
   .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
@@ -123,19 +122,19 @@
     `</div></section>`).join('');
 </script>
 <script>PROJET.barre('projet','',{etat:'etatProjet'}); PROJET.identification('identProjet',()=>PROJET.majEtat());</script>
-<script src="commun/replier.js?v=3.02"></script>
-<script src="commun/aide.js?v=3.02"></script>
+<script src="commun/replier.js?v=3.03"></script>
+<script src="commun/aide.js?v=3.03"></script>
 <script>document.getElementById('quiProjet').textContent=(calcSession()||{}).u?'Utilisateur : '+calcSession().u:'';
 AIDE.init({titre:"Aide – Accueil et projet",entete:"#enteteAccueil",
-  intro:"FIP Études fonctionne par projet : l'identification et les données de base sont saisies une fois et reprises par tous les modules (climat C1 → supports S1 et cahier, efforts S1 → ancrages AN1 → S1, cahier → rapport de calcul). Le bloc « Projet » de l'accueil choisit le projet de travail, porte son identification, les responsables des modules et l'état de chaque module.",
+  intro:"FIP Études fonctionne par projet : l'identification et les données de base sont saisies une fois et reprises par tous les modules (climat C1 → supports S1 et cahier, efforts S1 → ancrages AN1 → S1, cahier → rapport de calcul). Le bloc « Projet » de l'accueil choisit le projet de travail, porte son identification et l'état de chaque module (avec l'auteur de la dernière modification).",
   etapes:[{t:"Choisir ou créer le projet",html:"Liste déroulante : projets enregistrés dans ce navigateur (le projet en cours est enregistré avant d'en ouvrir un autre). « Nouveau projet » repart d'un projet vide ; « Ouvrir un fichier projet » lit le .json reçu d'un collègue.",cible:"#projet"},
     {t:"Identifier le projet",html:"N° d'affaire, intitulé, client, site, phase et logo : repris dans tous les modules, le cahier, les cartouches et les notes. Bon pour et auteurs : valeurs par défaut.",cible:"#identProjet"},
-    {t:"Attribuer les modules",html:"Colonne « Responsable » : seul le responsable modifie le module ; les autres le consultent et peuvent forcer une modification (inscrite au journal). Le responsable de l'identification attribue les modules.",cible:"#etatProjet"},
+    {t:"Suivre l'état du projet",html:"Tableau « État du projet par module » : non renseigné, modifié non enregistré, enregistré ; état du fichier projet ; date et auteur (utilisateur connecté) de la dernière modification. Le journal du projet retrace enregistrements, exports, imports et conflits.",cible:"#etatProjet"},
     {t:"Enregistrer et échanger",html:"« 💾 Enregistrer » (ou Ctrl+S, sur chaque page) valide les modifications. « Exporter le fichier projet » produit le .json à déposer sur SharePoint ; à l'ouverture d'un fichier du même projet, les modules modifiés des deux côtés depuis le dernier échange sont signalés (conflit) et vous choisissez la version à garder.",cible:"#projet"}],
   faq:[{q:"Pourquoi un module est « Non renseigné » alors que je l'ai ouvert ?",r:"Un module n'est renseigné qu'après une saisie de votre part : les valeurs par défaut écrites à l'ouverture ne comptent pas."},
     {q:"Mes données sont-elles perdues si je n'enregistre pas ?",r:"Non : les saisies restent dans le navigateur. « Enregistrer » valide une version (état « Enregistré », liste des projets, journal) ; l'état « Modifié, non enregistré » signale ce qui n'a pas été validé."},
-    {q:"Deux personnes ont modifié le même module : que se passe-t-il ?",r:"À l'ouverture du fichier projet de l'autre poste, FIP Études compare chaque module au dernier échange : si les deux versions ont changé, une alerte « CONFLIT » indique qui a modifié quoi et quand ; vous gardez la vôtre ou prenez celle du fichier. Le choix est inscrit au journal. Pour l'éviter, attribuer chaque module à un responsable."},
-    {q:"La connexion et les droits protègent-ils vraiment les données ?",r:"Non : ce sont des protections d'organisation dans un site statique (pas de serveur). Les données confidentielles restent sur le réseau FIP / SharePoint."}],
-  liens:[["#projetHaut","projet","Projets, identification et droits"]]});</script>
+    {q:"Deux personnes ont modifié le même module : que se passe-t-il ?",r:"À l'ouverture du fichier projet de l'autre poste, FIP Études compare chaque module au dernier échange : si les deux versions ont changé, une alerte « CONFLIT » indique qui a modifié quoi et quand ; vous gardez la vôtre ou prenez celle du fichier. Le choix est inscrit au journal. Pour l'éviter, convenir entre vous de qui modifie quel module."},
+    {q:"La connexion protège-t-elle vraiment les données ?",r:"Non : c'est une protection d'organisation dans un site statique (pas de serveur). Les données confidentielles restent sur le réseau FIP / SharePoint."}],
+  liens:[["#projetHaut","projet","Projets, identification, enregistrement"]]});</script>
 </body>
 </html>

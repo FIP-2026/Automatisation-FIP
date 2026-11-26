@@ -21,6 +21,7 @@ outils/generer_base_prix.py ← régénère le modèle de base de prix
 outils/generer_profils.py  ← régénère commun/data/profils.js (I, U, cornières, tubes)
 outils/proprietes_cornieres.py ← caractéristiques des cornières (axes principaux)
 outils/extraire_excel.py   ← régénère climat/data/ à partir du classeur Excel
+outils/deja-fait.sh        ← avant une modification : déjà faite ou en cours ? (main, branches, journal)
 commun/
   utilisateurs.js          ← comptes autorisés (identifiant + empreinte du mot de passe)
   apps.js                  ← liste des calculettes affichées sur l'accueil
