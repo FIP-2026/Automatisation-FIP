@@ -4,27 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.01"></script>
-<script src="../commun/suivi.js?v=3.01"></script>
+<script src="../commun/auth.js?v=3.02"></script>
+<script src="../commun/suivi.js?v=3.02"></script>
+<script src="../commun/projet.js?v=3.02"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — CS Cahier de supportage</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.01">
-<script src="../commun/acier.js?v=3.01"></script>
-<script src="../commun/cahier.js?v=3.01"></script>
-<script src="../commun/pictos-s1.js?v=3.01"></script>
-<script src="../commun/notes.js?v=3.01"></script>
-<script src="../commun/ident.js?v=3.01"></script>
-<script src="../commun/data/gabarit-a3.js?v=3.01"></script>
-<script src="../commun/data/gabarit-a2.js?v=3.01"></script>
-<script src="../commun/dessin.js?v=3.01"></script>
-<script src="../commun/topo.js?v=3.01"></script>
-<script src="../commun/zip.js?v=3.01"></script>
-<script src="../commun/laser.js?v=3.01"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.02">
+<script src="../commun/acier.js?v=3.02"></script>
+<script src="../commun/cahier.js?v=3.02"></script>
+<script src="../commun/pictos-s1.js?v=3.02"></script>
+<script src="../commun/notes.js?v=3.02"></script>
+<script src="../commun/ident.js?v=3.02"></script>
+<script src="../commun/data/gabarit-a3.js?v=3.02"></script>
+<script src="../commun/data/gabarit-a2.js?v=3.02"></script>
+<script src="../commun/dessin.js?v=3.02"></script>
+<script src="../commun/topo.js?v=3.02"></script>
+<script src="../commun/zip.js?v=3.02"></script>
+<script src="../commun/laser.js?v=3.02"></script>
 <script src="../commun/lib/xlsx/xlsx.mini.min.js"></script>
-<script src="exec.js?v=3.01"></script>
+<script src="exec.js?v=3.02"></script>
 <style>
   .picto{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;padding:2px 8px 2px 2px;background:#fff;font-size:12.5px;cursor:default}
   .picto.choix{cursor:pointer;border-color:#1f6fd1}.picto svg{width:44px;height:35px}.picto.mini{padding:0;border:0;background:none}.picto.mini svg{width:30px;height:24px}
@@ -68,24 +69,21 @@
     <h1><span class="code">CS</span>Cahier de supportage</h1>
     <div class="sub">Supports types et configurations · supports spéciaux · BOM · plans types cotés</div>
   </div>
+  <button type="button" class="sec" id="dxfCS" title="Plans du cahier en DXF : un folio par support type (format de « Présentation des plans types », A3 par défaut), présentation avec cartouche en espace papier, vues en espace objet, DXF 2000, mm, calques ISO">⬇ DXF</button>
   <button onclick="imprimer()">🖨️ Imprimer / PDF</button>
 </header>
 
 <main>
 <section id="form">
   <div class="card">
-    <h2>Affaire</h2>
-    <div class="row"><div><label>N° d'affaire</label><input id="a_num" data-a="num"></div><div><label>Intitulé</label><input id="a_intitule" data-a="intitule"></div></div>
-    <div class="row"><div><label>Client</label><input id="a_client" data-a="client"></div><div><label>Site / localisation</label><input id="a_site" data-a="site"></div></div>
+    <h2>Document (cahier)</h2>
+    <div class="msg info" id="projetInfo"></div>
     <div class="row3"><div><label>N° de document</label><input id="a_doc" data-a="doc"></div><div><label>Indice</label><input id="a_indice" data-a="indice"></div><div><label>Date</label><input id="a_date" type="date" data-a="date"></div></div>
-    <div class="row"><div><label>Phase</label><select id="a_phase" data-a="phase"><option>APS</option><option>APD</option></select></div><div><label>Réalisé par</label><input id="a_realise" data-a="realise"></div></div>
-    <div class="row"><div><label>Contrôlé par</label><input id="a_controle" data-a="controle"></div><div><label>Approuvé par</label><input id="a_approuve" data-a="approuve"></div></div>
     <div class="row3"><div><label>Lot</label><input id="a_lot" data-a="lot"></div><div><label>Motif de l'émission (indice en cours)</label><input id="a_motif" data-a="motif" placeholder="Création du document"></div><div><label>Bon pour</label><select id="a_bonPour" data-a="bonPour"><option>CONSULTATION</option><option>APPROBATION</option><option>INFORMATION</option><option>EXÉCUTION</option></select></div></div>
     <div class="row"><div><label>Chrono des plans</label><input id="a_chronoPlan" data-a="chronoPlan" placeholder="01"></div><div><label>N° des plans (cartouche)</label><input value="Lot PIP · code doc PLA" disabled title="Imposé : lot PIP, code document PLA"></div></div>
     <div id="aRevs"></div>
-    <label>Logo du client (PNG / JPG, repris dans les exports Word)</label>
-    <div class="row noprint" style="align-items:center"><input type="file" id="logoFic" accept="image/png,image/jpeg"><div><img id="logoImg" class="logoAff" alt="" hidden> <button class="sec" id="logoSup" type="button" hidden>✕</button></div></div>
-    <div class="note">Ces informations remplissent automatiquement les champs « Affaire », « Rédacteur », « N° de note » des calculettes, la trame FIP des exports Word (page de garde, révisions, en-tête, pied de page) et le cartouche FIP des plans A3 (Projet = N° d'affaire, Lot = PIP et Doc = PLA imposés, Chrono, Page = n° du type, Rev = indice).</div>
+    <div class="note">N° de document, indice, date, lot, motif, bon pour et révisions sont propres au cahier ; ils remplissent la trame FIP des exports Word et le cartouche FIP des plans.</div>
+    <div hidden><div class="row"><div><label>N° d'affaire</label><input id="a_num" data-a="num"></div><div><label>Intitulé</label><input id="a_intitule" data-a="intitule"></div></div><div class="row"><div><label>Client</label><input id="a_client" data-a="client"></div><div><label>Site / localisation</label><input id="a_site" data-a="site"></div></div><div class="row"><div><label>Phase</label><select id="a_phase" data-a="phase"><option>APS</option><option>APD</option></select></div><div><label>Réalisé par</label><input id="a_realise" data-a="realise"></div></div><div class="row"><div><label>Contrôlé par</label><input id="a_controle" data-a="controle"></div><div><label>Approuvé par</label><input id="a_approuve" data-a="approuve"></div></div><div class="row noprint" style="align-items:center"><input type="file" id="logoFic" accept="image/png,image/jpeg"><div><img id="logoImg" class="logoAff" alt="" hidden> <button class="sec" id="logoSup" type="button" hidden>✕</button></div></div></div>   <!-- identification du projet : accueil (fip.projet.ident) -->
   </div>
 
   <div class="card">
@@ -100,7 +98,7 @@
     <div class="row"><div><label>Préfixe supports types</label><input id="g_prefST" data-g="prefST"></div><div><label>Préfixe supports spéciaux</label><input id="g_prefSPE" data-g="prefSPE"></div></div>
     <div class="row"><div><label>Traitement des supports (par défaut)</label><select id="g_trait" data-g="trait"><option value="galva">Galvanisation à chaud (NF EN ISO 1461)</option><option value="peinture">Peinture (NF EN ISO 12944)</option></select></div><div></div></div>
     <div class="row"><div><label>Documents projet de référence (page de garde, un par ligne)</label><textarea id="g_docsRef" data-g="docsRef" rows="3" placeholder="200-SILK2-25-L-01d-03 - PLAN DE REPERAGE DES SUPPORTS"></textarea></div><div><label>Notes générales (une par ligne ; vide = notes automatiques)</label><textarea id="g_notesGen" data-g="notesGen" rows="3" placeholder="ENSEMBLE DU SUPPORT EN ACIER S235 GALVANISE A CHAUD"></textarea></div></div>
-    <div class="row"><div><label>Chevilles par platine (forfait)</label><input id="g_chev" data-g="chev" type="number" min="0" step="1"></div><div><label>Majoration accessoires (%)</label><input id="g_majo" data-g="majo" type="number" min="0" step="1"></div></div>
+    <div class="row"><div><label>Majoration accessoires (%)</label><input id="g_majo" data-g="majo" type="number" min="0" step="1"></div><div></div></div>
   </div>
 
   <div class="card">
@@ -108,26 +106,17 @@
     <div class="note">Appliqués à tous les supports types S1 (à l'ouverture dans S1 et au recalcul).</div>
     <div id="params"></div>
     <h3>Climat et séisme (C1)</h3>
-    <div class="actions noprint"><button class="sec" id="impC1" type="button">⤓ Importer les données de C1</button><button class="sec" id="supC1" type="button">✕ Retirer</button></div>
     <div id="infoC1" class="note"></div>
   </div>
 
-  <div class="card noprint">
-    <h2>Fichier du cahier</h2>
-    <div class="note">Le cahier est enregistré dans ce navigateur. Pour l'archiver, le transmettre ou le reprendre sur un autre poste : exporter / importer le fichier .json.</div>
-    <div class="actions">
-      <button class="sec" id="expJson" type="button">⤓ Exporter (.json)</button>
-      <button class="sec" type="button" onclick="$('impJson').click()">⤒ Importer (.json)</button><input type="file" id="impJson" accept=".json,application/json" hidden>
-      <button class="sec" id="nouveau" type="button" style="color:var(--bad);border-color:var(--bad)">🗑 Nouvelle affaire</button>
-    </div>
-  </div>
 </section>
 
 <section id="res">
   <div class="printhead"><img src="../commun/img/logo-fip.png" alt="FIP"><strong id="phTitre">Cahier de supportage</strong><br><span id="phInfo"></span></div>
+  <div class="card" id="secCart"><h2>Identification</h2><div id="rCartouche"></div></div>
   <div class="card noprint" id="cGestion"><h2>Supports du cahier</h2>
     <div class="actions" style="margin-top:0">
-      <a href="../supports/?v=3.01"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
+      <a href="../supports/?v=3.02"><button type="button" title="Créer et calculer un support type dans S1, puis « Ajouter au cahier »">➕ Type calculé (S1)</button></a>
       <button class="sec" id="addNC" type="button" title="Réserver un type (quantités, repères) à calculer plus tard dans S1">➕ Type à calculer</button>
       <button class="sec" id="addSPE" type="button" title="Support spécial dessiné à part (AutoCAD, Plant 3D, Advance Steel)">➕ Support spécial</button>
       <button class="sec" id="recalc" type="button">⟳ Recalculer tout</button>
@@ -136,11 +125,7 @@
     <div id="etat"></div>
     <div id="rGestion"></div>
   </div>
-  <div class="card noprint" id="cSorties"><h2>Plans DXF et notes de calcul</h2>
-    <div class="actions"><button type="button" class="sec" id="dxfCS" title="Un folio par support type : une présentation par folio (cartouche en espace papier, vues en espace objet), DXF 2000, mm, calques ISO">⬇ Plans DXF</button> <a href="../rapport-calcul/"><button type="button" style="background:#2b579a;border-color:#2b579a">📘 Notes de calcul → Rapport de calcul (RC)</button></a></div>
-    <div class="note">Plans DXF au format choisi dans « Présentation des plans types » (A3 par défaut), avec tableau des configurations. Les notes de calcul détaillées des supports types (simplifiées ou complètes, une par type ou par configuration) sont produites dans le <b>Rapport de calcul</b>, avec l'ossature et les assemblages de l'ouvrage.</div></div>
   <div id="ndcHorsCS" aria-hidden="true" style="position:absolute;left:-12000px;top:0;width:760px;background:#fff"></div>
-  <div class="card" id="secCart"><h2>Identification</h2><div id="rCartouche"></div></div>
   <div class="card noprint" id="secExec" hidden><h2>Exécution : platines, découpe laser et nomenclature de fabrication</h2><div id="rExec"></div></div>
   <div class="card" id="secBom"><h2>Nomenclature générale des supports (BOM)</h2><div id="rBom"></div></div>
   <div class="card" id="secListing"><h2>Listing des repères</h2><div id="rListing"></div></div>
@@ -195,6 +180,7 @@ const prochain=(pref,pad)=>{ let n=1; const nom=i=>pref+(pad?String(i).padStart(
 /* champs du cartouche FIP A3 (gabarit) : Projet . Doc . Lot . Chrono . Page . Rev + révisions */
 const cartPlan=(a,T,c)=>({logo:a.logo||'',client1:a.client||'',client2:a.site||'',projectTitle:[a.client,a.site].filter(Boolean).join(' – ')||a.intitule||'',projet:a.num||'00-000',doc:'PLA',lot:'PIP',chrono:a.chronoPlan||'01',page:String(pageDe(T,c)).padStart(2,'0'),folio:`${String(pageDe(T,c)).padStart(2,'0')}/${String(plansList().length+1).padStart(2,'0')}`,rev:a.indice||'0',bonPour:a.bonPour||'CONSULTATION',revisions:IDENT.revisions(a)});
 function afficherAffaire(){
+  { const a=K.affaire; $('projetInfo').innerHTML=`<b>Projet</b> : ${h([a.num,a.intitule].filter(Boolean).join(' – ')||'—')}${a.client?' · '+h(a.client):''}${a.site?' · '+h(a.site):''}${a.phase?' · phase '+h(a.phase):''}${a.logo?' · logo client ✓':''} — identification saisie à l'<a href="../accueil.html">accueil</a>.`; }
   document.querySelectorAll('[data-a]').forEach(el=>{ el.value=K.affaire[el.dataset.a]||''; });
   document.querySelectorAll('[data-g]').forEach(el=>{ el.value=K.reglages[el.dataset.g]??''; });
   $('logoImg').hidden=$('logoSup').hidden=!K.affaire.logo; if(K.affaire.logo) $('logoImg').src=K.affaire.logo;
@@ -239,11 +225,10 @@ function afficherParams(){
 }
 function infoC1(){ const c=K.climat;
   $('infoC1').innerHTML=c?`✓ ${h(c.lieu||'')} : vent zone ${h(c.vent?.zone??'—')} (v<sub>b</sub> = ${c.vent?f(c.vent.vb,1):'—'} m/s, cat. ${h(c.vent?.cat??'—')}) ; neige s<sub>k</sub> = ${c.neige?f(c.neige.sk,2):'—'} kN/m² ; séisme zone ${h(c.seisme?.zone??'—')} (α·S = ${c.seisme?f(c.seisme.alpha*c.seisme.S,3):'—'}). q<sub>p</sub>(z) est recalculé par S1 pour la hauteur Z de chaque configuration.`
-    :'Aucune donnée climatique commune : chaque support garde ses propres valeurs de q<sub>p</sub>, s<sub>k</sub>, α·S.'; }
-$('impC1').onclick=()=>{ let o=null; try{o=JSON.parse(localStorage.getItem('fip.climat'));}catch(e){}
-  if(!o){ alert('Aucune donnée C1 : dans C1 (Climat et séisme), cliquer « ➜ Supports S1 ».'); return; }
-  K.climat=o; infoC1(); invalider(); };
-$('supC1').onclick=()=>{ K.climat=null; infoC1(); invalider(); };
+    :'⚠ Pas de données C1 dans le projet : chaque support garde ses propres valeurs de q<sub>p</sub>, s<sub>k</sub>, α·S. <a href="../climat/">Renseigner C1</a> : ses données sont ensuite reprises automatiquement.'; }
+/* climat et séisme du projet : repris automatiquement de C1 (fip.climat) ; invalide les supports si les données changent */
+function syncC1(){ let o=null; try{o=JSON.parse(localStorage.getItem('fip.climat'));}catch(e){}
+  if(o&&JSON.stringify(o)!==JSON.stringify(K.climat)){ const avant=!!K.climat; K.climat=o; if(avant) invalider(); else enr(); } infoC1(); }
 function invalider(T){ (T?[T]:K.types).forEach(t=>{ if(t.kind==='s1'&&t.etat) t.configs.forEach(c=>c.resume=null); }); K.aRecalc=true; enr(); tout(); }
 
 /* ---------------- moteur S1 (iframe même origine) ---------------- */
@@ -470,14 +455,14 @@ function bom(){
       else if(fm==='crap'&&['sol','mur','plafond','murPied'].includes(a.k)) FX['Crapaud / pince-poutre (sur profilé existant)']=(FX['Crapaud / pince-poutre (sur profilé existant)']||0)+4*q;
       else { const o=AN.find(x=>x.libs.includes(String(a.lib).replace(/<[^>]+>/g,''))), rr=o&&TOPO.retour(o.cle);
         if(rr&&rr.n){ const t=`Chevilles ${rr.produit} ${rr.diam}${rr.cl?' '+rr.cl:''} – h_ef ${rr.hef} mm (AN1${rr.emp!==o.emp?', à relancer':''})`; FX[t]=(FX[t]||0)+rr.n*q; } else nPl+=q; } }); }));
-  const L=Object.values(P).sort((a,b)=>a.profil.localeCompare(b.profil,'fr',{numeric:true})), tot=L.reduce((s,o)=>s+o.L*o.m,0), maj=+K.reglages.majo||0, chev=+K.reglages.chev||0;
+  const L=Object.values(P).sort((a,b)=>a.profil.localeCompare(b.profil,'fr',{numeric:true})), tot=L.reduce((s,o)=>s+o.L*o.m,0), maj=+K.reglages.majo||0;
   const mSp=SP.reduce((s,x)=>s+(x.m||0)*x.q,0);
   let html='';
   if(manq.length) html+=`<div class="msg jaune">Non comptés (non calculés ou à recalculer) : ${manq.map(h).join(', ')}.</div>`;
   html+=`<h3>Profilés</h3>`+(L.length?`<table><tr><th>Profilé</th><th>Nuance</th><th>Détail (repère : qté × longueur)</th><th class="n">Longueur totale (m)</th><th class="n">kg/m</th><th class="n">Masse (kg)</th></tr>`+
     L.map(o=>`<tr><td><b>${h(o.profil)}</b></td><td>${h(o.nuance||'')}</td><td style="font-size:12px">${o.det.map(h).join(' ; ')}</td><td class="n">${f(o.L,2)}</td><td class="n">${f(o.m,2)}</td><td class="n">${f(o.L*o.m,1)}</td></tr>`).join('')+
     `<tr><td colspan="5"><b>Total profilés</b></td><td class="n"><b>${f(tot,1)} kg</b></td></tr><tr><td colspan="5">Majoration platines, goussets, boulonnerie, soudures (${maj} %)</td><td class="n">${f(tot*maj/100,1)} kg</td></tr></table>`:'<div class="note">—</div>');
-  const acc=[...Object.entries(PL).map(([k,n])=>[k,n,'u']),...Object.entries(FX).map(([k,n])=>[k,n,'u']),...(nPl&&chev?[[`Chevilles (forfait ${chev} par platine non vérifiée dans AN1)`,nPl*chev,'u']]:[]),...Object.entries(E).sort().map(([k,n])=>[k,n,'u'])];
+  const acc=[...Object.entries(PL).map(([k,n])=>[k,n,'u']),...Object.entries(FX).map(([k,n])=>[k,n,'u']),...(nPl?[[`Platines chevillées non vérifiées dans AN1 (chevilles comptées après vérification)`,nPl,'u']]:[]),...Object.entries(E).sort().map(([k,n])=>[k,n,'u'])];
   html+=`<h3>Platines, fixations et étriers</h3>`+(acc.length?`<table><tr><th>Désignation</th><th class="n">Quantité</th></tr>${acc.map(([k,n])=>`<tr><td>${h(k)}</td><td class="n">${n}</td></tr>`).join('')}</table><div class="note">Platines et chevilles à dimensionner (hors périmètre S1). Un étrier par tuyauterie et par support ; diamètre automatique indicatif ou saisi dans S1.</div>`:'<div class="note">—</div>');
   const TR={}; K.types.forEach(T=>{ const q=qteT(T); if(q) TR[traitementT(T)]=(TR[traitementT(T)]||[]).concat(T.nom); });
   html+=`<h3>Traitement de surface</h3><table><tr><th>Traitement</th><th>Types</th></tr>${Object.entries(TR).map(([k,L])=>`<tr><td>${h(TRAIT[k])}</td><td>${L.map(h).join(', ')}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>'}</table>`;
@@ -542,25 +527,16 @@ function tout(){
 }
 
 /* ---------------- fichier ---------------- */
-$('expJson').onclick=()=>{ const a=document.createElement('a'), nom=`CS_${(K.affaire.num||'affaire').replace(/[^A-Za-z0-9_-]+/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(K,null,1)],{type:'application/json'})); a.download=nom; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); };
-$('impJson').onchange=e=>{ const fi=e.target.files[0]; if(!fi) return; const r=new FileReader();
-  r.onload=()=>{ try{ const o=JSON.parse(r.result); if(!o.version||!o.affaire||!(Array.isArray(o.types)||Array.isArray(o.supports))) throw new Error('fichier non reconnu');
-      if(K.types.length&&!confirm('Remplacer le cahier actuel par le fichier importé ?')) return;
-      CAHIER.ecrire(CAHIER.migrer(o)); K=CAHIER.lire(); IMG={}; demarrer(); }catch(err){ alert('Import impossible : '+err.message); } finally{ e.target.value=''; } };
-  r.readAsText(fi); };
-$('nouveau').onclick=()=>{ if(!confirm('Effacer le cahier actuel (affaire, paramètres et supports) ? Pensez à l\'exporter en .json avant.')) return; K=CAHIER.vide(); enr(); IMG={}; demarrer(); };
-
 const CFG={code:'CS',titre:'Cahier de supportage',zones:()=>[...document.querySelectorAll('#res > .card:not(.noprint):not([hidden]), #rTypes > .card')],donnees:()=>[],avant:async()=>{ await preparer(); },nom:()=>K.affaire.num||K.affaire.intitule};
-function demarrer(){ afficherAffaire(); majRevs(); afficherOpts(); afficherParams(); tout(); }
-window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE){ K=CAHIER.lire(); demarrer(); } });
+function demarrer(){ syncC1(); afficherAffaire(); majRevs(); afficherOpts(); afficherParams(); tout(); }
+window.addEventListener('storage',e=>{ if(e.key===CAHIER.CLE||e.key==='fip.climat'){ K=CAHIER.lire(); demarrer(); } });
 if(!CAHIER.existe()) enr(); else enr();               // enregistre la migration éventuelle (v1 → v2)
 initRevs(); demarrer();
 </script>
-<script src="../commun/replier.js?v=3.01"></script>
-<script src="../commun/aide.js?v=3.01"></script>
-<script src="aide-cs.js?v=3.01"></script>
-<script src="../commun/export.js?v=3.01"></script>
+<script src="../commun/replier.js?v=3.02"></script>
+<script src="../commun/aide.js?v=3.02"></script>
+<script src="aide-cs.js?v=3.02"></script>
+<script src="../commun/export.js?v=3.02"></script>
 <script>EXPORT.init(CFG);</script>
 </body>
 </html>

@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.01"></script>
-<script src="../commun/suivi.js?v=3.01"></script>
-<script src="../commun/data/tuyauterie.js?v=3.01"></script>
+<script src="../commun/auth.js?v=3.02"></script>
+<script src="../commun/suivi.js?v=3.02"></script>
+<script src="../commun/projet.js?v=3.02"></script>
+<script src="../commun/data/tuyauterie.js?v=3.02"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — T1 Portée de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
@@ -240,7 +241,7 @@ function initUI(){
   $('dn').value=PIPES.findIndex(p=>p.dn===100);
   MATS.forEach(m=>$('mat').add(new Option(m.name,m.id)));
   $('mat').value='P265GH';
-  FLUIDS.forEach((f,i)=>$('fluid').add(new Option(f.n+(f.r!==null?` (${f.r} kg/m³)`:''),i)));
+  FLUIDS_ORDRE.forEach(i=>{const f=FLUIDS[i];$('fluid').add(new Option(f.n+(f.r!==null?` (${f.r} kg/m³)`:''),i));});
   $('fluid').value=0; $('rhof').value=1000;
   Object.entries(MODELS).forEach(([k,m])=>$('model').add(new Option(m.n,k)));
   fillSch('40');
@@ -252,7 +253,7 @@ function initUI(){
     if(m.fam==='F'&&/S$/.test($('sch').value)) {fillSch('40');}
     calc();};
   $('fluid').onchange=()=>{const f=FLUIDS[$('fluid').value];if(f.r!==null)$('rhof').value=f.r;calc()};
-  $('rhof').oninput=()=>{const f=FLUIDS[$('fluid').value];if(f.r!==null&&+$('rhof').value!==f.r)$('fluid').value=FLUIDS.length-1;calc()};
+  $('rhof').oninput=()=>{const f=FLUIDS[$('fluid').value];if(f.r!==null&&+$('rhof').value!==f.r)$('fluid').value=FLUIDS.findIndex(x=>x.r===null);calc()};
   document.querySelectorAll('input,select').forEach(el=>{if(!el.onchange&&!el.oninput)el.addEventListener('input',calc)});
   document.querySelectorAll('input[name=mode]').forEach(r=>r.addEventListener('change',()=>{$('spanBox').style.display=mode()==='check'?'block':'none';calc()}));
   $('D').oninput=$('en').oninput=()=>{$('dn').value='custom';fillSch();calc()};
@@ -520,12 +521,12 @@ function schemaSVG(o){
 
 initUI();calc();
 </script>
-<script src="../commun/cahier.js?v=3.01"></script>
+<script src="../commun/cahier.js?v=3.02"></script>
 <script>CAHIER.remplir({affaire:'affaire',auteur:'realise'});</script>
-<script src="../commun/replier.js?v=3.01"></script>
-<script src="../commun/aide.js?v=3.01"></script>
-<script src="aide-t1.js?v=3.01"></script>
-<script src="../commun/export.js?v=3.01"></script>
+<script src="../commun/replier.js?v=3.02"></script>
+<script src="../commun/aide.js?v=3.02"></script>
+<script src="aide-t1.js?v=3.02"></script>
+<script src="../commun/export.js?v=3.02"></script>
 <script>EXPORT.init({code:'T1',titre:'Portée maximale entre supports de tuyauterie',
   zones:()=>[...document.querySelectorAll('#results > .card')], donnees:()=>[document.getElementById('form')],
   avant:()=>calc(), nom:()=>document.getElementById('ligne').value||document.getElementById('affaire').value});</script>

@@ -4,27 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.01"></script>
-<script src="../commun/suivi.js?v=3.01"></script>
+<script src="../commun/auth.js?v=3.02"></script>
+<script src="../commun/suivi.js?v=3.02"></script>
+<script src="../commun/projet.js?v=3.02"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.01">
+<link rel="stylesheet" href="../commun/calc.css?v=3.02">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=3.01"></script>
-<script src="../commun/data/tuyauterie.js?v=3.01"></script>
-<script src="../commun/acier.js?v=3.01"></script>
-<script src="../commun/barres3d.js?v=3.01"></script>
-<script src="../commun/data/gabarit-a3.js?v=3.01"></script>
-<script src="../commun/data/gabarit-a2.js?v=3.01"></script>
-<script src="../commun/dessin.js?v=3.01"></script>
-<script src="../commun/zip.js?v=3.01"></script>
-<script src="../commun/coefvent.js?v=3.01"></script>
-<script src="../commun/cahier.js?v=3.01"></script>
-<script src="../commun/chevilles.js?v=3.01"></script>
-<script src="../commun/topo.js?v=3.01"></script>
+<script src="../commun/data/profils.js?v=3.02"></script>
+<script src="../commun/data/tuyauterie.js?v=3.02"></script>
+<script src="../commun/acier.js?v=3.02"></script>
+<script src="../commun/barres3d.js?v=3.02"></script>
+<script src="../commun/data/gabarit-a3.js?v=3.02"></script>
+<script src="../commun/data/gabarit-a2.js?v=3.02"></script>
+<script src="../commun/dessin.js?v=3.02"></script>
+<script src="../commun/zip.js?v=3.02"></script>
+<script src="../commun/coefvent.js?v=3.02"></script>
+<script src="../commun/cahier.js?v=3.02"></script>
+<script src="../commun/chevilles.js?v=3.02"></script>
+<script src="../commun/topo.js?v=3.02"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -41,6 +42,7 @@
   .dgCtl{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:flex-end;margin-bottom:8px}.dgCtl .vues{margin:0;flex-wrap:wrap}.dgSel{min-width:240px;flex:1 1 260px}.dgSel select{width:100%}
   @media (max-width:950px){.vue2d{grid-template-columns:1fr}}
   table.ddc td.n{min-width:62px}
+  @media print{#persp[data-ok="1"]{display:block!important}}   /* perspective : imprimée, masquée à l'écran */
 </style>
 </head>
 <body>
@@ -57,14 +59,8 @@
 
 <main>
 <section id="form">
-  <div class="card">
-    <h2>Projet</h2>
-    <div id="bandeauCahier" class="msg info noprint" hidden></div>
-    <div class="row"><div><label>Affaire</label><input id="affaire"></div><div><label>Repère du support type</label><input id="repere" value="SUP-01"></div></div>
-    <div class="row"><div><label>Quantité</label><input id="qte" type="number" step="1" min="1" value="1"></div><div><label>Repères concernés</label><input id="reperes" placeholder="ex. S-101 à S-110"></div></div>
-    <div class="row"><div><label>Ligne(s) / isométrique</label><input id="zone"></div><div><label>Rédacteur</label><input id="auteur"></div></div>
-  </div>
-
+  <div id="bandeauCahier" class="msg info noprint" hidden></div>
+  <div hidden><input id="affaire"><input id="qte" type="number" value="1"><input id="reperes"><input id="zone"><input id="auteur"></div>   <!-- identification : accueil (projet) ; quantité, repères, lignes : configurations du cahier -->
   <div class="card">
     <h2>Type de support</h2>
     <div class="types" id="types">
@@ -80,6 +76,7 @@
       <label><input type="radio" name="type" value="TS"><svg viewBox="0 0 80 64"><line x1="4" y1="60" x2="76" y2="60" stroke="#171a1e"/><rect x="8" y="46" width="64" height="6" fill="#c7cdd6" stroke="#171a1e"/><rect x="6" y="52" width="14" height="8" fill="#9aa3ad" stroke="#171a1e"/><rect x="60" y="52" width="14" height="8" fill="#9aa3ad" stroke="#171a1e"/><circle cx="26" cy="36" r="6" fill="#0098db"/><circle cx="54" cy="36" r="6" fill="#0098db"/></svg>Traverse sur sabots (caniveau)</label>
     </div>
     <div class="note" id="noteType"></div>
+    <div class="row"><div><label>Repère du support type</label><input id="repere" value="SUP-01"></div><div class="note" style="align-self:end">Projet, client et rédacteur : identification de l'accueil ; quantités, repères et lignes : configurations du cahier.</div></div>
   </div>
 
   <div class="card">
@@ -116,6 +113,7 @@
       <div><label>Mode de fixation de la platine</label><select id="fix"></select></div>
       <div id="bFixP"><label>Pied de jambe de force : entraxes a<sub>1</sub> × a<sub>2</sub> (mm)</label><div class="row"><input id="fp1" type="number" step="10" value="80" title="a1 : entraxe horizontal (axe X) des 4 fixations de la patte de pied"><input id="fp2" type="number" step="10" value="80" title="a2 : entraxe vertical des 4 fixations de la patte de pied"></div></div>
       <div id="bFixN"><label>Fixations (4) : entraxes a<sub>1</sub> × a<sub>2</sub> (mm)</label><div class="row"><input id="fa1" type="number" step="10" value="120" title="a1 : entraxe le long de l'axe u1 (X pour mur et plafond)"><input id="fa2" type="number" step="10" value="120" title="a2 : entraxe le long de l'axe u2"></div></div>
+    <div id="bFixAN1" class="msg info noprint" style="margin-top:6px" hidden></div>
     </div>
     <div class="row" id="bFixT">
       <div><label>Tiges filetées : diamètre / classe</label><div class="row"><select id="tD"><option>10</option><option selected>12</option><option>16</option><option>20</option><option>24</option></select><select id="tCl"><option>4.6</option><option>5.6</option><option selected>8.8</option></select></div></div>
@@ -157,24 +155,19 @@
     <label class="chk"><input type="checkbox" id="cS"> Neige sur tuyaux (S) — support extérieur</label>
     <label class="chk"><input type="checkbox" id="cE"> Séisme (A<sub>Ed</sub>, éléments non structuraux)</label>
     <label class="chk"><input type="checkbox" id="cEP"> Épreuve hydraulique (eau en Q, lignes à fluide plus léger que l'eau)</label>
-    <h3>Données climatiques et sismiques</h3>
-    <button class="sec noprint" id="impC1" style="width:100%">⬇ Importer les hypothèses de la calculette C1</button>
+    <h3>Climat et séisme du projet (C1)</h3>
     <div class="note" id="infoC1"></div>
+    <div id="blocC1man">
+      <div class="row"><div><label>q<sub>p</sub>(z) (kN/m²)</label><input id="qp" type="number" step="0.01" value="0.70"></div><div><label>s<sub>k</sub> (kN/m²)</label><input id="sk" type="number" step="0.05" value="0.45"></div></div>
+      <div class="row"><div><label>Neige (ψ)</label><select id="altN"><option value="0">Alt. ≤ 1000 m</option><option value="1">Alt. > 1000 m</option></select></div><div><label>α·S = a<sub>g</sub>·S/g</label><input id="aS" type="number" step="0.01" value="0.10"></div></div>
+    </div>
+    <h3>Coefficients propres au support</h3>
     <div class="row3">
-      <div><label>q<sub>p</sub>(z) (kN/m²)</label><input id="qp" type="number" step="0.01" value="0.70"></div>
       <div><label>c<sub>f</sub> tuyau</label><input id="cft" type="number" step="0.1" value="1.2"></div>
       <div><label>c<sub>f</sub> profilé (vide = AN par famille)</label><input id="cfp" type="number" step="0.1" value="" placeholder="AN fig. 7.39–7.50"></div>
-    </div>
-    <div class="row3">
-      <div><label>s<sub>k</sub> (kN/m²)</label><input id="sk" type="number" step="0.05" value="0.45"></div>
       <div><label>μ<sub>1</sub>·C<sub>e</sub>·C<sub>t</sub></label><input id="mus" type="number" step="0.1" value="0.8"></div>
-      <div><label>Neige (ψ)</label><select id="altN"><option value="0">Alt. ≤ 1000 m</option><option value="1">Alt. > 1000 m</option></select></div>
     </div>
-    <div class="row3">
-      <div><label>α·S = a<sub>g</sub>·S/g</label><input id="aS" type="number" step="0.01" value="0.10"></div>
-      <div><label>z/H bâtiment</label><input id="zH" type="number" step="0.1" value="1"></div>
-      <div><label>T<sub>a</sub>/T<sub>1</sub></label><input id="TaT" type="number" step="0.1" value="1"></div>
-    </div>
+    <div class="row"><div><label>z/H bâtiment</label><input id="zH" type="number" step="0.1" value="1"></div><div><label>T<sub>a</sub>/T<sub>1</sub></label><input id="TaT" type="number" step="0.1" value="1"></div></div>
     <div class="row"><div><label>q<sub>a</sub></label><input id="qa" type="number" step="0.5" value="1"></div><div><label>γ<sub>a</sub></label><input id="ga" type="number" step="0.1" value="1"></div></div>
   </div>
 
@@ -215,8 +208,9 @@
     <div id="pInd" style="display:none"><div id="vInd" style="border:1px solid var(--line);border-radius:6px;overflow:hidden"></div><div class="note" id="nInd"></div></div>
     <div id="p3d" class="noprint" style="display:none"><div id="v3d"><span class="aide">Glisser pour tourner · molette / pincer pour zoomer · flèches : charges G (rouge), vent (bleu), frottement (orange)</span></div></div>
   </div>
-  <div class="card" id="persp" hidden><h2>Perspective</h2><img id="imgPersp" alt="Perspective du support" style="width:100%;max-width:760px;display:block;margin:auto;border:1px solid var(--line);border-radius:6px"><div class="note" style="text-align:center">Vue isométrique : charges G (rouge), vent (bleu), frottement / dilatation (orange) · X axe des tuyaux, Z vertical</div></div>
+  <div class="card printonly" id="persp" hidden><h2>Perspective</h2><img id="imgPersp" alt="Perspective du support" style="width:100%;max-width:760px;display:block;margin:auto;border:1px solid var(--line);border-radius:6px"><div class="note" style="text-align:center">Vue isométrique : charges G (rouge), vent (bleu), frottement / dilatation (orange) · X axe des tuyaux, Z vertical</div></div>
   <div class="card"><h2>Vérifications (taux = sollicitation / résistance)</h2><div id="rRatios"></div></div>
+  <div class="card"><h2>Fixations sur l'ouvrage (efforts par fixation)</h2><div id="rFix"></div></div>
   <div class="card"><h2>Synthèse par barre</h2><div id="rBarres"></div></div>
   <div class="card"><h2>Diagrammes des efforts (N, V, M) et déformée</h2>
     <div class="dgCtl noprint"><div class="vues" id="dgK"></div>
@@ -225,22 +219,13 @@
       <div class="vues" id="dgV" title="Vue de la déformée"></div></div>
     <div class="vue2d"><div id="vDiag"></div><div id="vDef"></div></div><div id="rDiag"></div></div>
   <div class="card"><h2>Descente de charges sur l'ouvrage (platines / fixations)</h2><div id="rDDC"></div></div>
-  <div class="card"><h2>Fixations sur l'ouvrage (efforts par fixation)</h2><div id="rFix"></div></div>
   <div class="card"><h2>Charges des tuyauteries par cas</h2><div id="rCharges"></div></div>
   <div class="card"><h2>Entraxes entre tuyauteries</h2><div id="rEntraxes"></div></div>
   <div class="card"><h2>Données de calcul</h2><div id="rData"></div></div>
   <div class="card"><details><summary>Combinaisons d'actions générées</summary><div id="rComb"></div></details></div>
   <div class="card"><h2>Hypothèses et limites</h2><div id="rNotes"></div></div>
-  <div class="card noprint"><h2>Note de calcul</h2><div id="ndcOpts"></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" id="ndcVoir">👁 Aperçu</button><button type="button" id="ndcWord" style="background:#2b579a;border-color:#2b579a">📄 Word</button><button type="button" id="ndcImp" class="sec">🖨 Imprimer / PDF</button></div>
-    <div class="note">Note simplifiée : une page (vue, synthèse des taux, profilés, actions, DDC ELU). Note complète ou personnalisée : sections au choix. Export Word sur la trame FIP (page de garde, révisions, en-tête et pied de page) quand l'affaire est renseignée dans le cahier.</div></div>
 </section>
 </main>
-<div id="ndcModal" class="noprint" hidden style="position:fixed;inset:0;background:rgba(10,20,40,.5);z-index:60;overflow:auto">
-  <div style="background:#fff;max-width:880px;margin:18px auto;padding:14px 18px;border-radius:8px">
-    <div style="display:flex;gap:6px;justify-content:flex-end;position:sticky;top:0;background:#fff;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:8px">
-      <button type="button" onclick="$('ndcWord').click()" style="background:#2b579a;border-color:#2b579a">📄 Word</button><button type="button" class="sec" onclick="$('ndcImp').click()">🖨 Imprimer</button><button type="button" class="sec" onclick="$('ndcModal').hidden=true">✕ Fermer</button></div>
-    <div id="ndcCorps"></div></div></div>
 <div id="ndcHors" aria-hidden="true" style="position:absolute;left:-12000px;top:0;width:760px;background:#fff"></div>
 
 <script>
@@ -310,7 +295,7 @@ function cartesTuyaux(){
       ${t.mode==='base'?`<div><label>DN</label><select data-k="dn">${opt(PIPES.map(p=>[p.dn,'DN'+p.dn+' ('+p.nps+')']),t.dn)}</select></div>
       <div><label>Schedule</label><select data-k="sch">${opt(SCH_ORDER.filter(s=>P.s[s]!==undefined).map(s=>[s,s]),t.sch)}</select></div>
       <div><label>Matériau</label><select data-k="mat">${opt(MATS.map(m=>[m.id,m.id]),t.mat)}</select></div>
-      <div><label>Fluide</label><select data-k="fluide">${opt(FLUIDS.map((x,k)=>[k,x.n]),t.fluide)}</select></div>
+      <div><label>Fluide</label><select data-k="fluide">${opt(FLUIDS_ORDRE.map(k=>[k,FLUIDS[k].n]),t.fluide)}</select></div>
       <div><label>ρ fluide (kg/m³)</label><input data-k="rho" type="number" value="${t.rho}"></div>`
       :`<div><label>q tuyau rempli (kN/m)</label><input data-k="qd" type="number" step="0.01" value="${t.qd}"></div><div><label>Ø ext. (mm)</label><input data-k="Dd" type="number" value="${t.Dd}"></div>`}
       <div><label>Calorifuge (mm)</label><input data-k="ecal" type="number" value="${t.ecal}"></div>
@@ -604,12 +589,12 @@ function majFormulaire(){
   $('bloc2').style.display=multi?'':'none'; $('bloc3').style.display=multi||typ==='TS'?'':'none'; $('blocHj').style.display=typ==='murJ'?'':'none'; $('blocNc').style.display=typ==='L'||typ==='Lplaf'?'':'none';  $('labOff').innerHTML=typ==='Lplaf'?'Décalage de la 1<sup>re</sup> console au-dessus du bas o (m)':'Décalage de la 1<sup>re</sup> console sous le sommet o (m)'; $('blocHj').style.display=typ==='murJ'?'':'none';
   const fx=$('fix'), SUR=['plafond','Lplaf','U','T','Lmur','mur','murJ'].includes(typ), opts=[['chev','Chevilles (efforts transmis au fournisseur)']].concat(['mur','murJ'].includes(typ)?[['tige','Tiges filetées traversantes + contre-plaque (mur)']]:[]).concat(SUR?[['crap','Crapautage sur profilé existant'],['sand','Sandwich du profilé existant : platine, tiges filetées et contre-plaque']]:[]);
   if(fx.dataset.t!==typ||fx.options.length!==opts.length){ const v=fx.value; fx.innerHTML=opts.map(([k,l])=>`<option value="${k}">${l}</option>`).join(''); if(opts.some(o=>o[0]===v)) fx.value=v; fx.dataset.t=typ; }
-  $('bFixT').style.display=fx.value==='tige'||fx.value==='sand'?'':'none'; $('bEMur').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'||fx.value==='sand'?'':'none'; $('bFixP').style.display=typ==='murJ'?'':'none';
+  $('bFixT').style.display=fx.value==='tige'||fx.value==='sand'?'':'none'; $('bEMur').style.display=fx.value==='tige'?'':'none'; $('bFixC').style.display=fx.value==='crap'||fx.value==='sand'?'':'none'; $('bFixP').style.display=typ==='murJ'&&fx.value!=='chev'?'':'none'; $('bFixN').style.display=fx.value==='chev'?'none':'';
   { const mur=['mur','murJ','Lmur'].includes(typ), cd=$('crDir'), v=cd.value, L=mur?[['Z','∥ Z (poteau vertical)'],['X','∥ X (poutre horizontale)']]:[['X','∥ X (axe des tuyaux)'],['Y','∥ Y (transversal)']];
     if(cd.dataset.m!==String(mur)){ cd.innerHTML=L.map(([k,t])=>`<option value="${k}">${t}</option>`).join(''); cd.value=cd.dataset.m===undefined&&L.some(o=>o[0]===v)?v:L[0][0]; cd.dataset.m=String(mur); }
     $('bCrAng').style.display=['plafond','Lplaf'].includes(typ)?'':'none'; $('bCrType').style.display=fx.value==='crap'?'':'none'; }
   $('bCrCat').style.display=fx.value==='crap'&&$('crType').value==='cat'?'':'none'; $('bCrMa').style.display=fx.value==='crap'&&$('crType').value==='maison'?'':'none';
-  $('noteFix').innerHTML={chev:'Platine fixée par 4 chevilles : les efforts par cheville (traction, cisaillement) sont donnés pour le choix fournisseur (Hilti PROFIS, Fischer…).',tige:'Mur peu résistant ou mince : 4 tiges filetées traversantes, contre-plaque côté opposé (platine de la console et patte du pied de jambe de force). Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; mur (écrasement sous contre-plaque) non vérifié.',sand:'Sandwich : la platine du support et une contre-plaque de l\'autre côté du profilé existant (poutre, poteau) sont reliées par 4 tiges filetées passant de part et d\'autre de la semelle (sans perçage du profilé). Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; profilé existant (flexion locale de la semelle, effort tranchant) à justifier par ailleurs. Entraxe des tiges ≥ largeur de la semelle + diamètre + jeu ; profilé tourné de 90° possible.',crap:'Platine pincée par 4 crapauds sur la semelle d\'un profilé existant (sans perçage). Traction et glissement à comparer aux valeurs du catalogue (Lindapter, Kee Klamp…) ; le glissement le long du profilé est le point sensible, aggravé par l\'inclinaison θ.'}[fx.value]||'';
+  $('noteFix').innerHTML={chev:'Platine fixée par des chevilles : produit, diamètre, disposition et platine sont définis et vérifiés dans AN1 (NF EN 1992-4) ; S1 en reprend les entraxes et donne les efforts par fixation.',tige:'Mur peu résistant ou mince : 4 tiges filetées traversantes, contre-plaque côté opposé (platine de la console et patte du pied de jambe de force). Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; mur (écrasement sous contre-plaque) non vérifié.',sand:'Sandwich : la platine du support et une contre-plaque de l\'autre côté du profilé existant (poutre, poteau) sont reliées par 4 tiges filetées passant de part et d\'autre de la semelle (sans perçage du profilé). Tiges vérifiées NF EN 1993-1-8 Tab. 3.4 ; profilé existant (flexion locale de la semelle, effort tranchant) à justifier par ailleurs. Entraxe des tiges ≥ largeur de la semelle + diamètre + jeu ; profilé tourné de 90° possible.',crap:'Platine pincée par 4 crapauds sur la semelle d\'un profilé existant (sans perçage). Traction et glissement à comparer aux valeurs du catalogue (Lindapter, Kee Klamp…) ; le glissement le long du profilé est le point sensible, aggravé par l\'inclinaison θ.'}[fx.value]||'';
   $('labOr').textContent=typ==='TS'?'Orientation de la traverse':['mur','murJ'].includes(typ)?'Orientation de la console (et de la jambe)':['plafond','Lplaf'].includes(typ)?'Orientation de la suspente':'Orientation du montant';
   $('bloc2').querySelector('label').textContent=typ==='murJ'?'Profilé de la jambe de force':'Profilé de la traverse / des consoles';
   $('blocSj').style.display=$('platine').value==='saisie'?'':'none';
@@ -628,6 +613,7 @@ function autoEntraxes(){ const m=$('fix').value, auto=(m==='crap'||m==='sand')&&
     const x1=ap.k==='plafond'||Math.abs(dt(G.ex,[1,0,0]))>0.7, [i1,i2]=ap.k==='murPied'?['fp1','fp2']:['fa1','fa2'];
     $(i1).value=x1?sEx:sLat; $(i2).value=x1?sLat:sEx; }); }
 function calc(){
+  appliquerC1();                                                                   // climat et séisme du projet (C1)
   majFormulaire(); autoEntraxes();
   const D=donnees(); if(!D.pm||(TYPES[D.typ].multi&&!D.pt)) return;
   let V; try{ V=verifier(D); }catch(e){ $('rHero').innerHTML=`<div class="msg bad">${escH(e.message)}</div>`; return; }
@@ -656,6 +642,8 @@ function calc(){
   if(vue3dActive) majVue3D();
   if(modeIndus) majIndus();
   planifierPerspective();
+  if(majEntraxesAN1(V)) return calc();                                              // disposition AN1 changée : recalcul avec ses entraxes
+  blocChevillesAN1(V);
 }
 
 /* =====================================================================
@@ -816,7 +804,17 @@ function svgFix(X,Y,ih,ep){
 }
 let GM_COUR=null; const Gm_courant=()=>GM_COUR;
 const MURAL=k=>k==='mur'||k==='murPied';
-const entraxesAp=k=>k==='murPied'?[Math.max(num('fp1',80),20)/1000,Math.max(num('fp2',80),20)/1000]:[Math.max(num('fa1',120),20)/1000,Math.max(num('fa2',120),20)/1000];
+/* entraxes des 4 fixations (m) : chevilles → disposition vérifiée dans AN1 (ENTR_AN1, encombrement des chevilles), sinon saisie (tiges, crapauds, ou chevilles pas encore vérifiées : 120 × 120 / 80 × 80) */
+let ENTR_AN1={};
+const entraxesAp=k=>($('fix').value==='chev'&&ENTR_AN1[k])?ENTR_AN1[k]:k==='murPied'?[Math.max(num('fp1',80),20)/1000,Math.max(num('fp2',80),20)/1000]:[Math.max(num('fa1',120),20)/1000,Math.max(num('fa2',120),20)/1000];
+/* après calcul : entraxes repris des platines vérifiées dans AN1 (retour fip.an1.retour) ; vrai si la disposition a changé (recalcul) */
+function majEntraxesAN1(V){ const R={}; if($('fix').value==='chev') V.Gm.appuis.forEach((a,ia)=>{ if(R[a.k]||!chevillable(a.k)) return; const r=TOPO.retour(cleAN1S1(ia));
+    if(r&&Array.isArray(r.A)&&r.A.length>1){ const X=r.A.map(c=>c.x), Y=r.A.map(c=>c.y), a1=(Math.max(...X)-Math.min(...X))/1000, a2=(Math.max(...Y)-Math.min(...Y))/1000; if(a1>0.01&&a2>0.01) R[a.k]=[a1,a2]; } });
+  const ch=JSON.stringify(R)!==JSON.stringify(ENTR_AN1); ENTR_AN1=R; return ch; }
+function blocChevillesAN1(V){ const el=$('bFixAN1'); if(!el) return; const on=$('fix').value==='chev'; el.hidden=!on; if(!on) return;
+  const L=V.Gm.appuis.map((a,ia)=>({a,ia})).filter(({a})=>chevillable(a.k));
+  el.innerHTML=`<b>Chevilles : définies et vérifiées dans AN1</b> (produit, diamètre, disposition, platine). S1 reprend leurs entraxes pour les efforts par fixation.`+
+    L.map(({a,ia})=>{ const [a1,a2]=entraxesAp(a.k).map(v=>Math.round(v*1000)); return `<div class="actions" style="align-items:center;margin-top:4px"><button type="button" class="sec" onclick="ouvrirAN1(${ia})">⚓ Vérifier les chevilles dans AN1 – ${escH(a.lib.replace(/<[^>]+>/g,''))}</button> ${badgeAN1S1(ia)} <span class="note">entraxes ${a1} × ${a2} mm${ENTR_AN1[a.k]?' (AN1)':' (provisoires, à vérifier dans AN1)'}</span></div>`; }).join(''); }
 function fixations(D,V){
   const mode=$('fix').value||'chev';
   const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]], dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
@@ -1468,8 +1466,8 @@ async function perspective(){
     if(!V3.rOff){ V3.rOff=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); V3.rOff.setPixelRatio(1); V3.rOff.setSize(W,H); }
     const cam=new T.PerspectiveCamera(32,W/H,0.01,100); cam.up.set(0,0,1);
     cam.position.copy(ctr.clone().add(new T.Vector3(sz*0.85,cotéCam()*sz*1.05,sz*0.6))); cam.lookAt(ctr);
-    V3.rOff.render(sc,cam); $('imgPersp').src=V3.rOff.domElement.toDataURL('image/png'); $('persp').hidden=false;
-  }catch(e){ console.warn('Perspective indisponible',e); $('persp').hidden=true; }
+    V3.rOff.render(sc,cam); $('imgPersp').src=V3.rOff.domElement.toDataURL('image/png'); $('persp').dataset.ok='1';   // image gardée pour l'impression et les rapports (carte masquée à l'écran)
+  }catch(e){ console.warn('Perspective indisponible',e); $('persp').dataset.ok=''; }
 }
 let tPersp=null; const planifierPerspective=()=>{clearTimeout(tPersp);tPersp=setTimeout(perspective,700);};
 async function imprimerS1(){ calc(); await perspective(); setTimeout(()=>window.print(),80); }
@@ -1579,16 +1577,19 @@ function optimiser(){
     if(!sol) alert(`Aucun profilé des familles choisies ne vérifie tous les critères au taux cible de ${f(D0.cible*100,0)} % (résistance, déplacement, pince des étriers) : changer de famille, de nuance ou de géométrie.`);
   },30);
 }
-function importerC1(){
+/* données climatiques et sismiques du projet (C1, fip.climat) appliquées à chaque calcul ; sans C1 : saisie manuelle */
+function appliquerC1(){
   let o=null; try{o=JSON.parse(localStorage.getItem('fip.climat'));}catch(e){}
-  if(!o){$('infoC1').textContent='Aucune donnée : dans C1, cliquer « Envoyer vers les supports S1 ».';return;}
+  $('blocC1man').hidden=!!o;
+  if(!o){$('infoC1').innerHTML='⚠ Pas de données C1 dans le projet : valeurs saisies ci-dessous. <a href="../climat/">Renseigner C1</a> pour les relier au projet.';return false;}
   const z=Math.max(num('zsol',2)+(['mur','murJ'].includes(typeSup())?0:num('Lm',1)),0.1);
   if(o.vent){const v=o.vent;const co=v.coMode==='p1'&&v.dAc!=null?Math.max(1,1+0.004*v.dAc*Math.exp(-0.014*(Math.max(z,10)-10))):(v.co||1),zz=Math.max(z,v.zmin),cr=v.kr*Math.log(zz/v.z0),vm=cr*co*v.vb,Iv=v.kI/Math.log(zz/v.z0);$('qp').value=((1+7*Iv)*0.5*v.rho*vm*vm/1000).toFixed(3);}
   if(o.neige){$('sk').value=o.neige.sk.toFixed(3);$('altN').value=o.neige.alt>1000?'1':'0';}
   if(o.seisme){$('aS').value=(o.seisme.alpha*o.seisme.S).toFixed(4);}
-  $('infoC1').innerHTML=`✓ C1 : ${escH(o.lieu||'')} – q<sub>p</sub> recalculé à z = ${f(z,1)} m (sol + support)${o.vent?`, c<sub>o</sub>(z) = ${f(o.vent.coMode==='p1'&&o.vent.dAc!=null?Math.max(1,1+0.004*o.vent.dAc*Math.exp(-0.014*(Math.max(z,10)-10))):(o.vent.co||1),3)}`:''} ; s<sub>k</sub> = ${o.neige?f(o.neige.sk,2):'—'} kN/m² ; α·S = ${o.seisme?f(o.seisme.alpha*o.seisme.S,3):'—'}.`;
-  calc();
+  $('infoC1').innerHTML=`✓ Données du projet (C1, mises à jour automatiquement) : ${escH(o.lieu||'')} – q<sub>p</sub> recalculé à z = ${f(z,1)} m (sol + support)${o.vent?`, c<sub>o</sub>(z) = ${f(o.vent.coMode==='p1'&&o.vent.dAc!=null?Math.max(1,1+0.004*o.vent.dAc*Math.exp(-0.014*(Math.max(z,10)-10))):(o.vent.co||1),3)}`:''} ; s<sub>k</sub> = ${o.neige?f(o.neige.sk,2):'—'} kN/m² ; α·S = ${o.seisme?f(o.seisme.alpha*o.seisme.S,3):'—'}. <a href="../climat/">Modifier dans C1</a>`;
+  return true;
 }
+function importerC1(){ appliquerC1(); calc(); }
 function remplirCr(sel){const fa=$('crFam').value;$('crProf').innerHTML=PROFILS.filter(p=>p.f===fa).sort((a,b)=>a.m-b.m).map(p=>`<option ${p.n===sel?'selected':''}>${p.n}</option>`).join('');}
 function remplirProfils(sel,i=''){const fa=$('fam'+i).value;$('prof'+i).innerHTML=PROFILS.filter(p=>p.f===fa).sort((a,b)=>a.m-b.m).map(p=>`<option ${p.n===sel?'selected':''}>${p.n}</option>`).join('');}
 /* valeurs par défaut de chaque type : vérifiées (taux ≤ taux cible, sans alerte) avec la tuyauterie d'exemple DN100 eau */
@@ -1617,7 +1618,7 @@ function init(){
   const famCr=['IPE','HEA','HEB','HEM','IPN','UPN','UPE'].filter(x=>PROFILS.some(p=>p.f===x));
   $('crFam').innerHTML=famCr.map(x=>`<option ${x==='IPE'?'selected':''}>${x}</option>`).join(''); remplirCr('IPE 200');
   $('crFam').onchange=()=>{remplirCr();calc();};
-  $('opti').onclick=optimiser; $('impC1').onclick=importerC1;
+  $('opti').onclick=optimiser;
   $('ajout').onclick=()=>{const d=tuyaux[tuyaux.length-1];tuyaux.push({...d,nom:'L'+(tuyaux.length+1),pos:+((+d.pos||0)+0.25).toFixed(2)});cartesTuyaux();calc();};
   document.querySelectorAll('input[name=type]').forEach(r=>r.onchange=()=>{appliquerDefauts(typeSup());cartesTuyaux();calc();});
   $('nc').addEventListener('change',()=>{cartesTuyaux();});
@@ -1652,7 +1653,8 @@ function chargerEtat(E){
 function appliquerParamsAffaire(){                        // paramètres communs de l'affaire (taux cible, règles, coefficients, C1)
   if(!CAHIER.existe()) return false; const K=CAHIER.lire();
   IDS_PARAMS.forEach(id=>{ const el=$(id); if(el&&K.params[id]!==undefined&&K.params[id]!=='') el.value=K.params[id]; });
-  if(K.climat){ try{localStorage.setItem('fip.climat',JSON.stringify(K.climat));}catch(e){} importerC1(); } else calc();
+  if(K.climat&&!localStorage.getItem('fip.climat')){ try{localStorage.setItem('fip.climat',JSON.stringify(K.climat));}catch(e){} }   // C1 du projet prioritaire
+  calc();
   return true;
 }
 /* platines du support (dimensions de fabrication) : épaisseur et trous provisoires de S1 tant que AN1 n'a pas vérifié la platine (le cahier d'exécution prend alors les valeurs d'AN1) */
@@ -1681,7 +1683,7 @@ function resumeS1(){                                     // résultats synthéti
 }
 window.S1API={ndc:async(o={})=>{ const sv={...NDC}; Object.assign(NDC,o); try{ const el=await ndcRendre(true), h=el.outerHTML; $('ndcHors').innerHTML=''; return h; } finally{ Object.keys(NDC).forEach(k=>delete NDC[k]); Object.assign(NDC,sv); } },ndcCSS:()=>NDC_CSS,
   decalCotes:(RET)=>{ const {D,V}=dernier, ep=epPlatine(RET||retoursAN1S1(V.Gm),V.Gm), typ=D.typ, o={}; if(surSol(typ)||typ==='plafond') o.Lm=ep; tuyaux.forEach((t,i)=>{ const b=V.Gm.B[(V.Gm.T[i]||{}).bi]; if(b&&((b.vert&&(surSol(typ)||typ==='plafond'))||(!b.vert&&surMur(typ)))) o['pos'+i]=ep; }); return o; },detailLiaison:(o,vec)=>{ const sp=specDetailLiaison({...o,sabot:+$('sabot').value||0}); return DESSIN.planche(vec?{...sp,vecteur:true}:sp).svg; },plancheVec:(o={})=>DESSIN.planche({...specDessin(dernier.D,dernier.V,{lettres:true,...o}),vecteur:true}).svg,cotes:()=>cotesDef(),cotesValeurs,appliquerCotes:C=>{appliquerCotes(C);cartesTuyaux();calc();},vues:(o={})=>({face:vueFace(dernier.D,dernier.V,{plan:true}),cote:vueCote(dernier.D,dernier.V,{plan:true}),planche:o.indus?planIndus(dernier.D,dernier.V,{lettres:o.lettres!==false,format:o.format,cartouche:o.cartouche,tableau:o.tableau,ddc:o.ddc,phase:o.phase,traitement:o.traitement,repSupport:o.repSupport,retourAN:o.retourAN,exec:o.exec,platEx:o.platEx,chevEx:o.chevEx}).svg:null}),etat:etatS1,charger:E=>{chargerEtat(E);appliquerParamsAffaire();calc();return true;},resume:resumeS1,
-  perspective:async()=>{await perspective();return $('persp').hidden?'':$('imgPersp').src;}};
+  perspective:async()=>{await perspective();return $('persp').dataset.ok?$('imgPersp').src:'';}};
 const QS=new URLSearchParams(location.search), ID_CAHIER=QS.get('cahier'), ID_CONF=QS.get('conf');
 function initCahier(){
   CAHIER.remplir({affaire:'affaire',auteur:'realise'});
@@ -1716,13 +1718,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=3.01"></script>
-<script src="../commun/aide.js?v=3.01"></script>
-<script src="../commun/notes.js?v=3.01"></script>
-<script src="ndc-s1.js?v=3.01"></script>
+<script src="../commun/replier.js?v=3.02"></script>
+<script src="../commun/aide.js?v=3.02"></script>
+<script src="../commun/notes.js?v=3.02"></script>
+<script src="ndc-s1.js?v=3.02"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=3.01"></script>
-<script src="../commun/export.js?v=3.01"></script>
+<script src="aide-s1.js?v=3.02"></script>
+<script src="../commun/export.js?v=3.02"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

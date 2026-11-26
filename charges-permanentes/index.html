@@ -4,19 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.01"></script>
-<script src="../commun/suivi.js?v=3.01"></script>
+<script src="../commun/auth.js?v=3.02"></script>
+<script src="../commun/suivi.js?v=3.02"></script>
+<script src="../commun/projet.js?v=3.02"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — G1 Charges permanentes</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.01">
-<script src="../commun/apps.js?v=3.01"></script>
-<script src="../commun/cahier.js?v=3.01"></script>
-<script src="../climat/data/zonage.js?v=3.01"></script>
-<script src="../commun/data/tuyauterie.js?v=3.01"></script>
-<script src="../commun/charges.js?v=3.01"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.02">
+<script src="../commun/apps.js?v=3.02"></script>
+<script src="../commun/cahier.js?v=3.02"></script>
+<script src="../climat/data/zonage.js?v=3.02"></script>
+<script src="../commun/data/tuyauterie.js?v=3.02"></script>
+<script src="../commun/charges.js?v=3.02"></script>
 <style>
   main{display:block;max-width:1400px}
   table.ed td,table.ed th{font-size:12.5px;vertical-align:middle}
@@ -124,7 +125,7 @@ function rendreTuy(){ const L=G.lineiques.map((l,i)=>[l,i]).filter(([l])=>l.type
   $('tuy').innerHTML=L.length?`<table class="ed"><tr><th>Ligne</th><th>DN / sch / matériau</th><th>Fluide</th><th class="n">ρ<sub>f</sub> (kg/m³)</th><th>Calorifuge</th><th class="n">q vide</th><th class="n">Service : G</th><th class="n">Épreuve : Q<sub>ép</sub> eau</th><th>note</th><th></th></tr>`+L.map(([l,i])=>{ const r=CH.qTuyau(l), P=PIPES.find(p=>p.dn==l.dn)||PIPES[0], sch=SCH_ORDER.filter(x=>P.s[x]!==undefined);
     return `<tr data-i="${i}"><td><input data-l="nom" value="${h(l.nom)}" style="width:90px"></td>
       <td><span class="inl">DN <select data-l="dn">${PIPES.map(p=>`<option ${p.dn==l.dn?'selected':''}>${p.dn}</option>`).join('')}</select> <select data-l="sch">${sch.map(x=>`<option ${x===l.sch?'selected':''}>${x}</option>`).join('')}</select> <select data-l="mat">${MATS.map(m=>`<option ${m.id===l.mat?'selected':''}>${m.id}</option>`).join('')}</select></span><div class="note">Ø${f(r.D,1)} × ${f(r.en,2)}</div></td>
-      <td><select data-l="fluide">${FLUIDS.map((x,k)=>`<option value="${k}" ${+l.fluide===k?'selected':''}>${h(x.n)}</option>`).join('')}</select></td>
+      <td><select data-l="fluide">${FLUIDS_ORDRE.map(k=>`<option value="${k}" ${+l.fluide===k?'selected':''}>${h(FLUIDS[k].n)}</option>`).join('')}</select></td>
       <td style="width:80px"><input data-l="rhoF" type="number" value="${l.rhoF}"></td>
       <td><span class="inl"><input data-l="ecal" type="number" value="${l.ecal}" style="width:55px"> mm × <input data-l="rhoCal" type="number" value="${l.rhoCal}" style="width:60px"> kg/m³</span></td>
       <td class="n">${f(r.qVide,3)}</td><td class="n"><b>${f(r.qServ,3)}</b></td><td class="n">${r.qEp>0?`<b style="color:#0098db">${f(r.qEp,3)}</b>`:'<span class="note">couverte</span>'}</td>
@@ -158,8 +159,8 @@ $('sym').innerHTML=CH.symboles();
 function maj(){ calcLin(); rendreCpx(); rendreLin(); rendreTuy(); rendrePon(); enr(); }
 maj(); rendreMat();
 </script>
-<script src="../commun/replier.js?v=3.01"></script>
-<script src="../commun/aide.js?v=3.01"></script>
+<script src="../commun/replier.js?v=3.02"></script>
+<script src="../commun/aide.js?v=3.02"></script>
 <script>AIDE.init({titre:"Aide – G1 Charges permanentes",manuel:"g1",intro:"G1 recense les charges permanentes de l'affaire autres que le poids propre des éléments calculés (ajouté automatiquement par S1, P1, P2, T1). Chaque élément coché « note » est repris dans la note d'hypothèses (NH).",
   etapes:[{t:"Complexes",html:"« ➕ Couverture / Bardage / Plancher / Autre » : choisir les couches dans le catalogue, saisir les épaisseurs (mode vol) ou une valeur libre ; la coupe de principe se dessine à droite.",cible:"#cCpx"},
     {t:"Charges linéiques",html:"Garde-corps (valeurs indicatives ou saisies) ou autre charge linéique.",cible:"#cLin"},

@@ -103,7 +103,7 @@ const CBFEM = (() => {
      Les déplacements à court terme des ETE (δ_N0) donnent des raideurs 2,5 à 7 fois plus faibles, donc moins d'effet de levier. */
   function raideurCheville(chimique, d, hef, t, fiss) {
     const As = 0.78 * Math.PI * d * d / 4, k = chimique ? ES * As / 80 : (fiss ? 125e3 : 160e3);
-    return { k, L: ES * As / k, As, src: chimique ? "tige E_s·A_s/L, L = 80 mm (calée sur 7 notes PROFIS, contrôlée sur 8, M10 à M30)" : `${fiss ? 125 : 160} kN/mm en béton ${fiss ? "" : "non "}fissuré (calée sur 4 notes PROFIS, contrôlée sur 4, HST4 M8 à M20)` };
+    return { k, L: ES * As / k, As, src: chimique ? "tige E_s·A_s/L, L = 80 mm (calée sur 7 notes de comparaison, contrôlée sur 8, M10 à M30)" : `${fiss ? 125 : 160} kN/mm en béton ${fiss ? "" : "non "}fissuré (calée sur 4 notes PROFIS, contrôlée sur 4, HST4 M8 à M20)` };
   }
 
   /* ---------- calcul ----------

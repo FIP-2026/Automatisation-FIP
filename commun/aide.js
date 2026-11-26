@@ -99,7 +99,7 @@ const AIDE = (() => {
   function init(c) {
     cfg = c; const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
     construire();
-    const hd = document.querySelector("header");
+    const hd = document.querySelector(c.entete || "header");                       // c.entete : conteneur des boutons (accueil)
     if (hd) { const b = document.createElement("button"); b.type = "button"; b.className = "sec noprint"; b.textContent = "❓ Aide"; b.title = "Tutoriel, questions fréquentes et recherche dans l'aide";
       b.onclick = () => panneau.classList.toggle("on"); const p = hd.querySelector(":scope > button, :scope > a.noprint"); if (p) p.before(b); else hd.appendChild(b); }
     poserBulles(); poserLiens(); let att = false; new MutationObserver(() => { if (att) return; att = true; requestAnimationFrame(() => { att = false; poserBulles(); poserLiens(); }); }).observe(document.body, { childList: true, subtree: true });
