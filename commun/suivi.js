@@ -7,25 +7,21 @@
       - champs par défaut (realise, controle, approuve, bonPour) : proposés aux modules dont le champ est vide.
       Migration : sans identification globale, celle de l'affaire du cahier (fip.cahier.affaire) est reprise.
    2. Modifications (« fip.projet.suivi ») : une écriture d'une clé « fip.* » n'est datée (maj[clé], par[clé] =
-      utilisateur) que si elle suit une action de l'utilisateur sur la page (saisie, choix, bouton de calcul) :
+      utilisateur connecté, affiché dans l'état des modules et le journal) que si elle suit une action de l'utilisateur sur la page (saisie, choix, bouton de calcul) :
       les écritures automatiques à l'ouverture d'un module (valeurs par défaut) ne rendent pas le module « renseigné ».
       save[clé] = empreinte au dernier « Enregistrer » (bouton 💾 de chaque page, Ctrl+S) ; ref[clé] = empreinte
       au dernier export / import du fichier projet ; journal[] = enregistrements, forçages, conflits, imports.
-   3. Droits (collaboratif) : « fip.projet.droits » = { module : responsable } (accueil). Un module attribué à un
-      autre utilisateur est en consultation seule (saisies désactivées, écritures de ses données refusées) ;
-      « Modifier quand même » lève le verrou pour la session du navigateur et l'inscrit au journal.
-      Connexion « de politesse » (commun/auth.js) : protection d'organisation, pas de sécurité.
-   4. Projet de travail (« fip.projet.actif », commun/projet.js) : si un autre onglet change de projet,
+   3. Projet de travail (« fip.projet.actif », commun/projet.js) : si un autre onglet change de projet,
       la page est rechargée pour ne pas écrire les données de l'ancien projet dans le nouveau.
    ===================================================================== */
 const SUIVI = (() => {
-  const META = "fip.projet.suivi", ACTIF = "fip.projet.actif", IDENT = "fip.projet.ident", DROITS = "fip.projet.droits";
+  const META = "fip.projet.suivi", ACTIF = "fip.projet.actif", IDENT = "fip.projet.ident";
   const HORS = [/^fip\.replie\./, /^fip\.projet\.(suivi|actif)$/, /^fip\.(as1|an1)\.pre$/, /^fip\.an1\.retour$/, /^fip\.(s1|a1)\.num$/];
   const EXCLUS = [/^fip\.replie\./, /^fip\.as1\.pre$/, /^fip\.projet\.(actif|suivi)$/];       // hors données du projet
   const CP = ["num", "intitule", "client", "site", "phase", "logo"], CD = ["realise", "controle", "approuve", "bonPour"];
   /* modules : code, nom, clés de données, page (T1, H1, P1, P2 calculent à la volée : rien d'enregistré) */
   const MODULES = [
-    ["ID", "Identification du projet et droits", [IDENT, DROITS], "accueil.html"],
+    ["ID", "Identification du projet", [IDENT], "accueil.html"],
     ["C1", "Charges climatiques et sismiques", ["fip.hyp.C", "fip.climat"], "climat/"], ["G1", "Charges permanentes", ["fip.hyp.G"], "charges-permanentes/"],
     ["Q1", "Charges d'exploitation", ["fip.hyp.Q"], "charges-exploitation/"], ["CS", "Cahier de supportage", ["fip.cahier"], "cahier/"],
     ["S1", "Supports standards", ["fip.s1.ndc", "fip.reactions"], "supports/"], ["A1", "Toiture isolée (auvent)", ["fip.a1", "fip.a1.res", "fip.ident.A1"], "auvent/"],
@@ -46,31 +42,22 @@ const SUIVI = (() => {
     for (let i = s.length - 1; i >= 0; i--) if (PAGES[s[i]]) return PAGES[s[i]]; return null; };
   /* ---------- action de l'utilisateur sur la page ---------- */
   let saisie = false;
-  const UTIL = /aide|replier|déplier|imprimer|pdf|dxf|word|excel|robot|accueil|enregistrer|nœuds|vues?\b|aperçu|planche|perspective|montrer|modifier quand même/i;
+  const UTIL = /aide|replier|déplier|imprimer|pdf|dxf|word|excel|robot|accueil|enregistrer|nœuds|vues?\b|aperçu|planche|perspective|montrer/i;
   if (typeof document !== "undefined") {
     ["input", "change"].forEach((t) => document.addEventListener(t, (e) => { if (e.isTrusted) saisie = true; }, true));
     document.addEventListener("click", (e) => { const b = e.target && e.target.closest && e.target.closest("button"); if (e.isTrusted && b && !UTIL.test(b.textContent + " " + (b.title || ""))) saisie = true; }, true);
   }
   /* ---------- journal ---------- */
   function journal(o) { const m = lireMeta(); (m.journal = m.journal || []).push({ d: new Date().toISOString(), u: user(), ...o }); m.journal = m.journal.slice(-200); ecrireMeta(m); }
-  /* ---------- droits ---------- */
-  const droits = () => { try { return JSON.parse(S.getItem(DROITS)) || {}; } catch (e) { return {}; } };
-  const force = (m) => { try { return sessionStorage.getItem("fip.forcer." + m) === "1"; } catch (e) { return false; } };
-  const verrou = (m) => { if (!m) return null; const r = droits()[m], u = user(); return r && u && r.toLowerCase() !== u.toLowerCase() && !force(m) ? r : null; };
-  const averti = {};
-  function refus(m, r) { if (!saisie || averti[m]) return; averti[m] = true;
-    setTimeout(() => alert(`Module ${m} attribué à ${r} : votre modification n'est pas enregistrée.\n\nDemandez à ${r}, ou utilisez « Modifier quand même » en tête du module (forçage inscrit au journal du projet).`), 0); }
-  /* ---------- écritures : verrou, dates, auteurs ---------- */
+  /* ---------- écritures : dates, auteurs ---------- */
   let tMaj = null; const majBoutonDiffere = () => { clearTimeout(tMaj); tMaj = setTimeout(majBouton, 150); };
   const noter = (k) => { if (!saisie) return; const m = lireMeta(); (m.maj = m.maj || {})[k] = new Date().toISOString(); (m.par = m.par || {})[k] = user(); ecrireMeta(m); majBoutonDiffere(); };
   if (S) {
     Storage.prototype.setItem = function (k, v) {
-      if (this === S && /^fip\./.test(k)) { const md = moduleDeCle(k), r = verrou(md); if (r) { refus(md, r); return; } }
       const t = this === S && suivie(k), old = t ? S.getItem(k) : null;
       set0.call(this, k, v); if (t && old !== String(v)) noter(k);
     };
     Storage.prototype.removeItem = function (k) {
-      if (this === S && /^fip\./.test(k)) { const md = moduleDeCle(k), r = verrou(md); if (r) { refus(md, r); return; } }
       const t = this === S && suivie(k) && S.getItem(k) !== null;
       rem0.call(this, k); if (t) noter(k);
     };
@@ -104,23 +91,13 @@ const SUIVI = (() => {
   function aEnregistrer() { const m = lireMeta(); return cles().filter((k) => etatCle(k, m).etat === "modifie"); }
   function majBouton() { const b = document.querySelector("[data-enr]"); if (!b) return; const n = aEnregistrer().length;
     b.textContent = n ? "💾 Enregistrer •" : "💾 Enregistrer"; b.title = (n ? "Modifications non enregistrées. " : "") + "Enregistrer le projet (Ctrl+S) : valide les modifications de tous les modules et met à jour la liste des projets."; }
-  /* ---------- page : bouton Enregistrer, verrou ---------- */
-  function verrouillerPage(md, r) {
-    const main = document.querySelector("main") || document.body, zone = md === "ID" ? document.getElementById("projetHaut") : (document.getElementById("form") || main);
-    const ban = document.createElement("div"); ban.className = "msg warn noprint"; ban.style.cssText = "margin:10px 16px";
-    ban.innerHTML = `🔒 Module ${esc(md)} attribué à <b>${esc(r)}</b> (responsable désigné à l'accueil) : consultation seule. <button type="button" class="sec" data-forcer>Modifier quand même</button>`;
-    (zone && zone.parentNode ? zone : main).before(ban);
-    const off = () => (zone || main).querySelectorAll("input,select,textarea").forEach((el) => { if (!el.dataset.vv && !el.closest("[data-pj]")) { el.dataset.vv = "1"; el.disabled = true; } });
-    off(); new MutationObserver(off).observe(zone || main, { childList: true, subtree: true });
-    ban.querySelector("[data-forcer]").onclick = () => { if (!confirm(`Ce module est attribué à ${r}.\n\nModifier quand même ? Le forçage est inscrit au journal du projet (${user() || "utilisateur"}) et visible par ${r} au prochain échange du fichier projet.`)) return;
-      try { sessionStorage.setItem("fip.forcer." + md, "1"); } catch (e) { } journal({ a: "Modification forcée", m: md, txt: "responsable " + r }); location.reload(); };
-  }
+  /* ---------- page : bouton Enregistrer ---------- */
   if (typeof document !== "undefined") {
     document.addEventListener("DOMContentLoaded", () => {
       const hd = document.getElementById("enteteAccueil") || document.querySelector("body > header");
       if (hd && !hd.querySelector("[data-enr]")) { const b = document.createElement("button"); b.type = "button"; b.dataset.enr = "1"; b.className = "noprint"; b.onclick = () => enregistrer(b);
         const p = hd.querySelector(":scope > button"); if (p) p.before(b); else hd.appendChild(b); majBouton(); }
-      const md = module(), r = verrou(md); if (r) verrouillerPage(md, r);
+      try { if (S.getItem("fip.projet.droits") != null) rem0.call(S, "fip.projet.droits"); } catch (e) { }   // responsables (3.02) : abandonnés en 3.03
     });
     document.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && String(e.key).toLowerCase() === "s") { e.preventDefault(); enregistrer(document.querySelector("[data-enr]")); } });
   }
@@ -145,8 +122,6 @@ const SUIVI = (() => {
     return o;
   }
   const libelle = (g) => { g = g || ident(); return [g.num, g.intitule].filter(Boolean).join(" – "); };
-  function setDroit(md, u) { const d = droits(), avant = d[md] || ""; if (avant === (u || "")) return; if (u) d[md] = u; else delete d[md];
-    saisie = true; S.setItem(DROITS, JSON.stringify(d)); if (verrou("ID") == null) journal({ a: "Responsable", m: md, txt: (avant || "libre") + " → " + (u || "libre") }); }
-  return { META, ACTIF, IDENT, DROITS, CP, CD, MODULES, EXCLUS, suivie, empreinte, etatDe, etat, etatCle, figer, lireMeta, ecrireMeta, ident, majIdent, appliquer, libelle,
-    set0, rem0, cles, moduleDeCle, module, user, droits, verrou, setDroit, journal, enregistrer, aEnregistrer, majBouton };
+  return { META, ACTIF, IDENT, CP, CD, MODULES, EXCLUS, suivie, empreinte, etatDe, etat, etatCle, figer, lireMeta, ecrireMeta, ident, majIdent, appliquer, libelle,
+    set0, rem0, cles, moduleDeCle, module, user, journal, enregistrer, aEnregistrer, majBouton };
 })();

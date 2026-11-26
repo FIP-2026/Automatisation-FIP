@@ -4,30 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.02"></script>
-<script src="../commun/suivi.js?v=3.02"></script>
-<script src="../commun/projet.js?v=3.02"></script>
+<script src="../commun/auth.js?v=3.03"></script>
+<script src="../commun/suivi.js?v=3.03"></script>
+<script src="../commun/projet.js?v=3.03"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.02">
-<script src="../commun/apps.js?v=3.02"></script>
-<script src="../commun/data/profils.js?v=3.02"></script>
-<script src="../commun/barres3d.js?v=3.02"></script>
-<script src="../commun/acier.js?v=3.02"></script>
-<script src="../commun/data/tuyauterie.js?v=3.02"></script>
-<script src="../commun/charges.js?v=3.02"></script>
-<script src="../commun/coefvent.js?v=3.02"></script>
-<script src="../commun/tendues.js?v=3.02"></script>
-<script src="../commun/portique.js?v=3.02"></script>
-<script src="../commun/chevilles.js?v=3.02"></script>
-<script src="../commun/cbfem.js?v=3.02"></script>
-<script src="../commun/topo.js?v=3.02"></script>
-<script src="../commun/zip.js?v=3.02"></script>
-<script src="../commun/laser.js?v=3.02"></script>
-<script src="../commun/fluides.js?v=3.02"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.03">
+<script src="../commun/apps.js?v=3.03"></script>
+<script src="../commun/data/profils.js?v=3.03"></script>
+<script src="../commun/barres3d.js?v=3.03"></script>
+<script src="../commun/acier.js?v=3.03"></script>
+<script src="../commun/data/tuyauterie.js?v=3.03"></script>
+<script src="../commun/charges.js?v=3.03"></script>
+<script src="../commun/coefvent.js?v=3.03"></script>
+<script src="../commun/tendues.js?v=3.03"></script>
+<script src="../commun/portique.js?v=3.03"></script>
+<script src="../commun/chevilles.js?v=3.03"></script>
+<script src="../commun/cbfem.js?v=3.03"></script>
+<script src="../commun/topo.js?v=3.03"></script>
+<script src="../commun/zip.js?v=3.03"></script>
+<script src="../commun/laser.js?v=3.03"></script>
+<script src="../commun/fluides.js?v=3.03"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -79,7 +79,7 @@
 <h3>Projet collaboratif et modules reliés (3.02)</h3>
 <ul><li><b>Modules reliés</b> : les données de base sont saisies une fois et reprises automatiquement : identification (accueil) dans tous les modules ; climat et séisme de C1 dans S1 (q<sub>p</sub> recalculé à la hauteur du support) et dans le cahier (supports « à recalculer » si C1 change) ; chevilles définies et vérifiées dans AN1, dont S1 reprend les entraxes (encombrement des chevilles de la platine vérifiée) ; notes de calcul dans la famille « Rapports de calcul ». Sans module source dans le projet, la saisie manuelle reste possible et est signalée.</li>
 <li><b>Enregistrer</b> (💾 sur chaque page, Ctrl+S) : valide l'état de toutes les données (empreinte FNV-1a de chaque clé) et met à jour la liste des projets. État d'un module : <i>non renseigné</i> (aucune saisie : les écritures automatiques à l'ouverture, sans action de l'utilisateur, ne comptent pas), <i>modifié, non enregistré</i>, <i>enregistré</i> ; colonne fichier projet : jamais exporté, à exporter, à jour.</li>
-<li><b>Responsables</b> : un module attribué à un utilisateur est en consultation seule pour les autres (saisies désactivées, écritures de ses données refusées) ; « Modifier quand même » lève le verrou pour la session et l'inscrit au journal du projet. Le responsable de l'identification attribue les modules. Protection d'organisation (site statique, connexion de politesse).</li>
+<li><b>Auteurs</b> (3.03) : chaque modification datée est attribuée à l'utilisateur connecté (colonne « Modifié par » de l'état du projet, journal du projet). La désignation de responsables avec verrou de consultation (3.02) est retirée : la répartition du travail se fait entre les personnes.</li>
 <li><b>Conflits</b> : le fichier projet porte un identifiant de projet. À l'ouverture d'un fichier du même projet, chaque module est comparé à la référence commune (dernier export ou import) : modifié seulement dans le fichier → repris ; seulement ici → conservé ; des deux côtés → alerte « CONFLIT » (auteurs et dates), l'utilisateur garde sa version ou prend celle du fichier ; décision par module (toutes ses données du même côté), tracée au journal.</li></ul>
 <h3>Enchaînement type d'une affaire de supportage</h3>
 <ol>
@@ -368,6 +368,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.03</td><td>Accueil, tous modules, dépôt</td><td>Responsables des modules et verrou de consultation (3.02) retirés ; l'état du projet garde l'auteur de chaque modification (colonne « Modifié par », journal). Dépôt : règle « déjà fait ? » des sessions Claude Code (CLAUDE.md) et script outils/deja-fait.sh (branches non fusionnées, commits, journal du manuel) avant toute modification.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>3.02</td><td>Tous modules, accueil, S1, CS, AN1, C1, T1</td><td>Projet collaboratif : modules reliés (C1 transmis automatiquement à S1 et au cahier ; chevilles de S1 définies dans AN1, entraxes repris d'AN1 ; identification du projet reprise de l'accueil dans les cartes d'identification) ; bouton « 💾 Enregistrer » / Ctrl+S sur chaque page ; module « renseigné » seulement après une saisie ; responsables des modules (consultation seule pour les autres, forçage tracé) ; journal du projet ; conflits signalés à l'ouverture d'un fichier projet du même projet (décision par module). Accueil : bouton Aide. S1 : cartes Projet, Note de calcul et Perspective (écran) retirées, fixations après les vérifications, climat C1 en lecture. CS : identification du projet reprise de l'accueil, fichier du cahier, carte « Plans DXF et notes » et forfait de chevilles retirés, C1 automatique, identification en tête, « ⬇ DXF » dans l'en-tête. AN1 : combinaison la plus défavorable cochée par défaut, libellés sans nom de logiciel. Liste des fluides T1 / S1 / G1 : essence et distillat moyen (ρ à 15 °C). 4 tests ajoutés.</td><td>S1 en chevilles : efforts par fixation calculés avec les entraxes d'AN1 dès que la platine y est vérifiée (sinon 120 × 120 provisoires, comme avant). S1 : q<sub>p</sub>, s<sub>k</sub>, α·S toujours ceux de C1 quand le projet en a. BOM du cahier : chevilles non forfaitaires. Autres calculs inchangés.</td></tr>
 <tr><td>3.01</td><td>Accueil, tous modules, C1, S1, CS, H1</td><td>Accueil : bloc « Projet » en tête (projet de travail choisi dans une liste déroulante des projets enregistrés dans le navigateur, base IndexedDB ; identification globale du projet reprise dans tous les modules, le cahier et les cartouches, et mise à jour depuis eux ; état de chaque module : non renseigné, jamais exporté, modifié depuis le dernier export, à jour, avec la date de modification) ; commun/suivi.js chargé par toutes les pages ; familles réordonnées (Hypothèses de charges, Tuyauterie et fluides avec le cahier de supportage en premier, Structure acier, Assemblages, Rapports, Aide). C1 : catégorie d'importance IV et classe de sol « enveloppe D/E » par défaut. S1 / CS : cornières de guidage L 30×20×3 (au lieu de L 50×5), dessinées en L, en butée à 10 mm de la semelle du patin. H1 : distillat moyen (générique). 7 tests ajoutés.</td><td>C1 : valeurs sismiques par défaut plus élevées (γ<sub>I</sub> 1,4 au lieu de 1,0 ; sol D/E au lieu de B) tant que l'utilisateur ne les change pas. S1 / CS : nomenclature et masse des guides en cornière modifiées. Autres calculs inchangés.</td></tr>
 <tr><td>3.00</td><td>S1, CS, manuel</td><td>Migration vers le dépôt de l'entreprise ; références à une spécification client nommée remplacées par « spécification client » (alertes et plans de détail des liaisons tuyau / support, aides, manuel).</td><td>Aucun calcul modifié ; libellés seuls.</td></tr>
@@ -605,7 +606,7 @@ function tests(){
   if(typeof PROJET!=='undefined'&&PROJET.decisionModule){ const D=PROJET.decisionModule, c=[D([{hL:'a',hF:'a',hB:'a'}]),D([{hL:'a',hF:'b',hB:'a'}]),D([{hL:'b',hF:'a',hB:'a'}]),D([{hL:'b',hF:'c',hB:'a'}]),D([{hL:'b',hF:'a',hB:'a'},{hL:'a',hF:'c',hB:'a'}])].join();
     ajout('Projet – import : décision par module (identique / fichier / local / conflit)','modifié dans le fichier seul → fichier ; ici seul → local ; des deux côtés → conflit (1 = conforme)',c==='identique,fichier,local,conflit,conflit'?1:0,1,'',0);
     ajout('Projet – donnée absente : état « non renseigné »','SUIVI.etatCle (1 = conforme)',SUIVI.etatCle('fip.test.absente').etat==='vide'?1:0,1,'',0);
-    ajout('Projet – modules et pages reliés (C1, CS, S1, AN1…)','SUIVI.moduleDeCle (1 = conforme)',['fip.hyp.C','fip.climat','fip.cahier','fip.an1','fip.projet.droits'].map(SUIVI.moduleDeCle).join()==='C1,C1,CS,AN1,ID'?1:0,1,'',0); }
+    ajout('Projet – modules et pages reliés (C1, CS, S1, AN1…)','SUIVI.moduleDeCle (1 = conforme)',['fip.hyp.C','fip.climat','fip.cahier','fip.an1','fip.projet.ident'].map(SUIVI.moduleDeCle).join()==='C1,C1,CS,AN1,ID'?1:0,1,'',0); }
   if(typeof FLUIDS!=='undefined'&&typeof FLUIDS_ORDRE!=='undefined') ajout('T1 / S1 / G1 – liste des fluides : distillat et essence, « Personnalisé » en dernier','ρ₁₅ distillat 850 kg/m³ (1 = conforme)',FLUIDS[FLUIDS_ORDRE[FLUIDS_ORDRE.length-1]].r===null&&FLUIDS.some(x=>/Distillat/.test(x.n)&&x.r===850)&&FLUIDS.some(x=>/Essence/.test(x.n))?1:0,1,'',0);
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
@@ -613,6 +614,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.02"></script>
+<script src="../commun/replier.js?v=3.03"></script>
 </body>
 </html>
