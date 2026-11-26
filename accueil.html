@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>FIP Études — Accueil</title>
-<script src="commun/auth.js?v=3.03"></script>
-<script src="commun/suivi.js?v=3.03"></script>
-<script src="commun/projet.js?v=3.03"></script>
+<script src="commun/auth.js?v=3.04"></script>
+<script src="commun/suivi.js?v=3.04"></script>
+<script src="commun/projet.js?v=3.04"></script>
 <script>calcProteger("");</script>
 <link rel="icon" href="commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="commun/style.css?v=3.03">
-<script src="commun/apps.js?v=3.03"></script>
-<script src="commun/ident.js?v=3.03"></script>
+<link rel="stylesheet" href="commun/style.css?v=3.04">
+<script src="commun/apps.js?v=3.04"></script>
+<script src="commun/ident.js?v=3.04"></script>
 <style>
   body{background:#fff}
   .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
@@ -122,8 +122,8 @@
     `</div></section>`).join('');
 </script>
 <script>PROJET.barre('projet','',{etat:'etatProjet'}); PROJET.identification('identProjet',()=>PROJET.majEtat());</script>
-<script src="commun/replier.js?v=3.03"></script>
-<script src="commun/aide.js?v=3.03"></script>
+<script src="commun/replier.js?v=3.04"></script>
+<script src="commun/aide.js?v=3.04"></script>
 <script>document.getElementById('quiProjet').textContent=(calcSession()||{}).u?'Utilisateur : '+calcSession().u:'';
 AIDE.init({titre:"Aide – Accueil et projet",entete:"#enteteAccueil",
   intro:"FIP Études fonctionne par projet : l'identification et les données de base sont saisies une fois et reprises par tous les modules (climat C1 → supports S1 et cahier, efforts S1 → ancrages AN1 → S1, cahier → rapport de calcul). Le bloc « Projet » de l'accueil choisit le projet de travail, porte son identification et l'état de chaque module (avec l'auteur de la dernière modification).",

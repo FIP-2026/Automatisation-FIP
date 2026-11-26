@@ -4,28 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.03"></script>
-<script src="../commun/suivi.js?v=3.03"></script>
-<script src="../commun/projet.js?v=3.03"></script>
+<script src="../commun/auth.js?v=3.04"></script>
+<script src="../commun/suivi.js?v=3.04"></script>
+<script src="../commun/projet.js?v=3.04"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — S1 Supports de tuyauterie</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.03">
+<link rel="stylesheet" href="../commun/calc.css?v=3.04">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/data/profils.js?v=3.03"></script>
-<script src="../commun/data/tuyauterie.js?v=3.03"></script>
-<script src="../commun/acier.js?v=3.03"></script>
-<script src="../commun/barres3d.js?v=3.03"></script>
-<script src="../commun/data/gabarit-a3.js?v=3.03"></script>
-<script src="../commun/data/gabarit-a2.js?v=3.03"></script>
-<script src="../commun/dessin.js?v=3.03"></script>
-<script src="../commun/zip.js?v=3.03"></script>
-<script src="../commun/coefvent.js?v=3.03"></script>
-<script src="../commun/cahier.js?v=3.03"></script>
-<script src="../commun/chevilles.js?v=3.03"></script>
-<script src="../commun/topo.js?v=3.03"></script>
+<script src="../commun/data/profils.js?v=3.04"></script>
+<script src="../commun/data/tuyauterie.js?v=3.04"></script>
+<script src="../commun/libertes.js?v=3.04"></script>
+<script src="../commun/acier.js?v=3.04"></script>
+<script src="../commun/barres3d.js?v=3.04"></script>
+<script src="../commun/data/gabarit-a3.js?v=3.04"></script>
+<script src="../commun/data/gabarit-a2.js?v=3.04"></script>
+<script src="../commun/dessin.js?v=3.04"></script>
+<script src="../commun/zip.js?v=3.04"></script>
+<script src="../commun/coefvent.js?v=3.04"></script>
+<script src="../commun/cahier.js?v=3.04"></script>
+<script src="../commun/chevilles.js?v=3.04"></script>
+<script src="../commun/topo.js?v=3.04"></script>
 <style>
   .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
   .types label{margin:0;border:1px solid #cfd4db;border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--ink);font-size:12px;font-weight:600;background:#fff}
@@ -304,17 +305,17 @@ function cartesTuyaux(){
       ${typ==='L'||typ==='Lplaf'?`<div><label>Console n°</label><select data-k="cons">${opt([...Array($('sideC').value==='2'?2*$('nc').value:+$('nc').value)].map((_,k)=>{ const nc=+$('nc').value, g=k>=nc, j=k%nc; return [k+1,'Console '+(j+1)+(j?'':typ==='Lplaf'?' (bas)':' (tête)')+($('sideC').value==='2'?(g?' – gauche':' – droite'):'')]; }),t.cons||1)}</select></div>`:''}
       <div><label>${pos}</label><input data-k="pos" type="number" step="0.05" value="${t.pos}"></div>
       <div><label>${['sol','plafond'].includes(typ)?'Excentr. e (m)':'Excentr. vert. (m)'}</label><input data-k="e" type="number" step="0.01" value="${t.e}" placeholder="auto"></div>
-      <div><label>Fonction</label><select data-k="fonc">${opt([['glissant','Glissant'],['guide','Guidé'],['fixe','Point fixe']],t.fonc)}</select></div>
+      <div><label>Liberté (type CAESAR II)</label><select data-k="fonc" title="${escH(LIBERTES.txt(t.fonc))}">${opt(Object.keys(LIBERTES.T).map(k=>[k,LIBERTES.libelle(k)]),t.fonc)}</select></div>
       <div><label>Liaison tuyau / support (spécification client §11.4)</label><select data-k="liaison">${opt(Object.entries(LIAISONS).filter(([k])=>liaisonOK(k,propsTuyau(t).De)),t.liaison||'etrier')}</select></div>
-      <div><label>Guide latéral (§11.3.1)</label><select data-k="guide" ${t.fonc==='glissant'?'disabled title="Fonction glissante : pas de guide"':''}>${opt(Object.entries(GUIDES),t.fonc==='glissant'?'non':t.guide||'non')}</select></div>
+      <div><label>Guide latéral (§11.3.1)</label><select data-k="guide" ${!LIBERTES.bloque(t.fonc,'Tr')?'disabled title="Transversal libre : pas de guide"':''}>${opt(Object.entries(GUIDES),!LIBERTES.bloque(t.fonc,'Tr')?'non':t.guide||'non')}</select></div>
       <div><label>Hauteur de l'élément sous le tuyau (mm)</label><input data-k="hl" type="number" step="5" value="${t.hl??''}" placeholder="auto"></div>
       <div><label>μ frottement</label><select data-k="mu">${opt([[0.3,'0,3 acier/acier'],[0.1,'0,1 PTFE (cale téflon ép. 10)'],[0,'0 (aucun)']],t.mu)}</select></div>
-      ${t.fonc!=='glissant'?`${t.fonc==='fixe'?`<div><label>F<sub>x</sub> therm. (kN)</label><input data-k="Fx" type="number" step="0.1" value="${t.est?ancrage(t).F.toFixed(2):t.Fx}" ${t.est?'disabled title="Estimé (voir ci-dessous)"':''}></div>`:''}
-        <div><label>F<sub>y</sub> therm. (kN)</label><input data-k="Fy" type="number" step="0.1" value="${t.Fy}"></div>
-        ${t.fonc==='fixe'?`<div><label>F<sub>z</sub> therm. (kN)</label><input data-k="Fz" type="number" step="0.1" value="${t.Fz}"></div>`:''}`:''}
+      ${LIBERTES.bloque(t.fonc,'Lo')?`<div><label>F<sub>x</sub> sur le support (kN)</label><input data-k="Fx" type="number" step="0.1" value="${t.fonc==='fixe'&&t.est?ancrage(t).F.toFixed(2):t.Fx}" ${t.fonc==='fixe'&&t.est?'disabled title="Estimé (voir ci-dessous)"':''} title="Effort axial transmis au support (résultat du calcul de tuyauterie)"></div>`:''}
+      ${LIBERTES.bloque(t.fonc,'Tr')?`<div><label>F<sub>y</sub> sur le support (kN)</label><input data-k="Fy" type="number" step="0.1" value="${t.Fy}"></div>`:''}
+      ${LIBERTES.bloque(t.fonc,'Vr')?`<div><label>F<sub>z</sub> sur le support (kN, &gt; 0 soulèvement)</label><input data-k="Fz" type="number" step="0.1" value="${t.Fz}"></div>`:''}
       <div><label>G suppl. (kN)</label><input data-k="Gsup" type="number" step="0.1" value="${t.Gsup}"></div>
       <div><label>Ø étrier (mm)</label><input data-k="etrier" type="number" step="2" value="${t.etrier??''}" placeholder="auto"></div>
-    </div>${t.fonc==='fixe'?blocAncrage(t):''}<div class="note">${escH(propsTuyau(t).desc)} · q<sub>service</sub> = ${f(propsTuyau(t).qop,3)} kN/m</div></div>`;}).join('');
+    </div>${t.fonc==='fixe'?blocAncrage(t):''}<div class="note">${escH(propsTuyau(t).desc)} · q<sub>service</sub> = ${f(propsTuyau(t).qop,3)} kN/m · <b>${escH(LIBERTES.de(t.fonc).code)}</b> : ${escH(LIBERTES.txt(t.fonc))}</div></div>`;}).join('');
   $('tuyaux').querySelectorAll('[data-k]').forEach(el=>el.addEventListener('change',e=>{
     const i=+el.closest('.tuyau').dataset.i, k=el.dataset.k, t=tuyaux[i];
     t[k]=el.type==='checkbox'?el.checked:el.type==='number'?(el.value===''?'':+el.value):el.value;
@@ -322,7 +323,7 @@ function cartesTuyaux(){
     if(k==='dn'){const P=PIPES.find(p=>p.dn==t.dn);if(P&&P.s[t.sch]===undefined)t.sch=P.s['40']!==undefined?'40':Object.keys(P.s)[0];}
     if(['dn','mode','Dd','liaison'].includes(k)&&!liaisonOK(liaisonT(t),propsTuyau(t).De)) t.liaison=liaisonT(t)==='t2'?'t2a':liaisonT(t)==='t2a'?'t2':'etrier';   // liaison suivant le diamètre
     if(k==='liaison'&&el.value==='etrier') t.mu=0.1;
-    if(k==='fonc'&&el.value==='glissant') t.guide='non';                                                                // glissant : pas de guide latéral                                                                    // type 4 : étrier serré sur cale téflon
+    if(k==='fonc'&&!LIBERTES.bloque(el.value,'Tr')) t.guide='non';                                                                // glissant : pas de guide latéral                                                                    // type 4 : étrier serré sur cale téflon
     if(['mode','dn','Dd','fluide','fonc','est','elt','liaison','mu'].includes(k)||t.est) cartesTuyaux(); else { const n=el.closest('.tuyau').querySelector('.note'); if(n) n.innerHTML=`${escH(propsTuyau(t).desc)} · q<sub>service</sub> = ${f(propsTuyau(t).qop,3)} kN/m`; }
     calc();}));
   $('tuyaux').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(tuyaux.length>1){tuyaux.splice(+b.dataset.del,1);cartesTuyaux();calc();}});
@@ -462,7 +463,7 @@ function casDeCharge(D,Gm){
   for(const t of Gm.T){
     const P=t.P, Lp=+t.portee||0, G=P.qop*Lp+(+t.Gsup||0), d={nom:t.nom,G,T:[0,0,0],S:0,W:0,EP:0,E:0};
     add('G',t.n,transfert(t,[0,0,-G]));
-    if(D.cT){ const fr=(+t.mu||0)*G; let Ft=[fr,0,0]; if(t.fonc==='guide') Ft=[fr,+t.Fy||0,0]; if(t.fonc==='fixe') Ft=[t.est?(ancrage(t,P).F||0):(+t.Fx||0),+t.Fy||0,+t.Fz||0]; d.T=Ft; add('T',t.n,transfert(t,Ft)); }
+    if(D.cT){ const Ft=LIBERTES.efforts(t.fonc,G,t.mu,{x:t.fonc==='fixe'&&t.est?(ancrage(t,P).F||0):t.Fx,y:t.Fy,z:t.Fz}); d.T=Ft; add('T',t.n,transfert(t,Ft)); }   // libertés de l'appui (commun/libertes.js)
     if(D.cS){ d.S=D.mus*D.sk*P.Dc/1000*Lp; add('S',t.n,transfert(t,[0,0,-d.S])); }
     if(D.cW){ d.W=D.qp*D.cft*P.Dc/1000*Lp; add('WY',t.n,transfert(t,[0,d.W,0])); }
     // épreuve hydraulique (fluide moins dense que l'eau) : situation où le fluide de service est remplacé par l'eau, classée Q.
@@ -942,7 +943,7 @@ function combos(V){
 const LIAISONS={etrier:'Étrier (type 4) : guidé avec jeu ou serré en point fixe, sur cale téflon si μ = 0,1',t1:'Patin boulonné : ½ IPE 200 L 200 + 2 colliers plats ép. 5 en demi-colliers boulonnés (type 1)',t2:'Coquille (tôle intermédiaire cintrée) + ½ IPE 200 (type 2, DN 25 à 200)',t2a:'Coquille (tôle intermédiaire cintrée) + support mécano-soudé (type 2a, DN > 200)',t3:'Coquille (tôle intermédiaire cintrée) posée sur le support (type 3)',t5:'Tuyau posé sur plat (type 5)'};
 const LIAIS_NOM={t1:'type 1 – patin boulonné ½ IPE 200 + 2 colliers',t2:'type 2 – coquille ép. 5 + ½ IPE 200',t2a:'type 2a – coquille ép. 5 + support mécano-soudé',t3:'type 3 – coquille ép. 5',t5:'type 5 – plat sous le tuyau'};
 const GUIDES={non:'Sans',corn:'Cornières L 30×20×3',plat:'Plats 50×5',rond:'Ronds Ø12'};
-const CORN_G={h:0.030,b:0.020,t:0.003};   // cornière de guidage L 30×20×3 (EN 10056-1) : aile verticale 30 (butée), aile horizontale 20 soudée sur le profilé
+const CORN_G={h:0.020,b:0.030,t:0.003};   // cornière de guidage L 30×20×3 (EN 10056-1) : petite aile (20) verticale, soudée sur le profilé (butée latérale) ; grande aile (30) horizontale en tête, tournée vers le patin, au-dessus du bord de la semelle
 const liaisonT=t=>t.liaison||'etrier', avecEtrier=t=>liaisonT(t)==='etrier';
 /* cale téflon : présente dès que le frottement retenu est celui du PTFE (μ = 0,1) – lien direct calcul / plan / nomenclature ; épaisseur 10 mm */
 const EP_CALE=10, caleT=t=>Math.abs(+t.mu-0.1)<1e-6;
@@ -1018,13 +1019,16 @@ function alertes(D,V){
       if(dA<bord) add('warn',`Tuyauterie trop près ${extr('A')} – ${nom}`,`Bord du tuyau (calorifuge compris) à ${f(dA,0)} mm (mini ${bord} mm).`);
       if(dB<bord) add('warn',`Tuyauterie trop près ${extr('B')} – ${nom}`,`Bord du tuyau (calorifuge compris) à ${f(dB,0)} mm (mini ${bord} mm).`);
     }
-    if(t.fonc==='fixe'&&/^(LI?|U)/.test(p.f)) add('warn',`Point fixe sur profilé ouvert – ${nom}`,'Les efforts de point fixe génèrent flexion déviée et torsion : préférer un tube carré, un double profilé ou un support en U.');
-    if(b.vert&&t.fonc==='glissant') add('bloq',`Tuyauterie « glissante » sur ${['plafond','Lplaf'].includes(D.typ)?'une suspente verticale':'un montant vertical'} – ${nom}`,`Sur un profilé vertical, la tuyauterie est tenue latéralement par l'étrier : elle ne peut pas être simplement posée (elle tomberait). Choisir « Guidé » ou « Point fixe ».`,'Règle de l\'art supportage',b.role);
+    if(LIBERTES.bloque(t.fonc,'Lo')&&/^(LI?|U)/.test(p.f)) add('warn',`${t.fonc==='fixe'?'Point fixe':'Butée axiale'} sur profilé ouvert – ${nom}`,'Les efforts axiaux de la tuyauterie génèrent flexion déviée et torsion : préférer un tube carré, un double profilé ou un support en U.');
+    if(b.vert&&!LIBERTES.bloque(t.fonc,'Tr')) add('bloq',`Tuyauterie sans guidage transversal (${LIBERTES.de(t.fonc).code}) sur ${['plafond','Lplaf'].includes(D.typ)?'une suspente verticale':'un montant vertical'} – ${nom}`,`Sur un profilé vertical, la tuyauterie est tenue latéralement par l'étrier : elle ne peut pas être simplement posée (elle tomberait). Choisir une liberté à transversal bloqué (GUI, GUI LIM ou ANC).`,'Règle de l\'art supportage',b.role);
     if(t.fonc==='fixe'&&t.est){ const o=ancrage(t,t.P);
       add(o.err?'warn':'info',`Point fixe – effort d'ancrage estimé – ${nom}`,`${txtAncrage(o)}. Estimation simplifiée (ligne droite, supports à frottement μ, console guidée pour le coude) : moments et efforts transversaux non estimés, à confirmer par l'étude de flexibilité.`,'Méthode de la console guidée (M.W. Kellogg) ; compensateurs : EJMA (poussée de pression sur points fixes principaux)'); }
     else if(t.fonc==='fixe'){ const nul=!(+t.Fx)&&!(+t.Fy)&&!(+t.Fz);
       add(nul?'warn':'info',`Point fixe – ${nom}`,nul?'Efforts de dilatation nuls : sur un point fixe, ce sont les réactions issues de l\'étude de flexibilité (CAESAR II, ROHR2…) qui gouvernent, souvent plus que le poids. Les saisir (F<sub>x</sub>, F<sub>y</sub>, F<sub>z</sub>) ou les estimer prudemment.':`Efforts F<sub>x</sub> = ${f(+t.Fx||0,2)}, F<sub>y</sub> = ${f(+t.Fy||0,2)}, F<sub>z</sub> = ${f(+t.Fz||0,2)} kN : à confirmer par l'étude de flexibilité de la ligne (hors prédimensionnement rapide).`,'Étude de flexibilité (EN 13480-3 §12 / ASME B31.3 §319)'); }
-    if(t.fonc==='guide') add('info',`Guidage – ${nom}`,'Prévoir des butées latérales soudées (jeu de guidage à préciser) ; vérifier leur soudure en exécution.');
+    if(LIBERTES.bloque(t.fonc,'Tr')&&t.fonc!=='fixe') add('info',`Guidage (${LIBERTES.de(t.fonc).code}) – ${nom}`,'Prévoir des butées latérales soudées (jeu de guidage à préciser) ; vérifier leur soudure en exécution.');
+    if(['lim','limp','limm','guilim'].includes(t.fonc)){ const d=LIBERTES.de(t.fonc), Fx=+t.Fx||0, sensLibre=(d.Lo==='+'&&Fx>=0)||(d.Lo==='-'&&Fx<=0);
+      add(!Fx?'warn':'info',`Butée axiale (${d.code}) – ${nom}`,!Fx?'Effort axial nul : saisir l\'effort sur la butée issu de l\'étude de flexibilité (CAESAR II, ROHR2…).':`F<sub>x</sub> = ${f(Fx,2)} kN.${sensLibre&&d.Lo!=='bloque'?' Effort dans le sens libre de la butée : elle ne travaille pas, la tuyauterie glisse (frottement μ·G retenu).':''} Butées soudées sur le patin et le profilé (ou étrier serré) : à dessiner et vérifier en exécution. Convention CAESAR II : « +LIM » = déplacement +Lo libre, −Lo bloqué.`); }
+    if(t.fonc==='bilat') add('info',`Appui bilatéral (anti-soulèvement) – ${nom}`,'Le soulèvement est repris (F<sub>z</sub> saisi &gt; 0 vers le haut) : étrier serré, ou cornières de guidage dont l\'aile supérieure retient la semelle du patin (jeu à préciser).');
   }
   fixations(D,V).forEach(o=>{ const lib=escH(o.ap.lib);
     if(o.I&&o.I.v>1) add('bloq',`Tiges filetées insuffisantes – ${lib}`,`Interaction traction + cisaillement ${f(o.I.v*100,0)} % : augmenter le diamètre, la classe ou l'entraxe.`,'NF EN 1993-1-8 Tab. 3.4');
@@ -1246,7 +1250,7 @@ function elementsLiaison(S,o){ const {lia,De,r,guide,c,pt,up,side}=o, ec=o.cale?
   if(guide&&guide!=='non'){ const hg=Math.max(hl,0.06)+0.03; [-1,1].forEach(sg=>{ const ds=sg*(r+0.01+0.004), base=add3(add3(pt,mul3(up,hi0)),mul3(side,ds));
     if(guide==='rond') S.push(DESSIN.cylindre(base.map((v,k)=>k===0?X0-0.03:v),add3(base,mul3(up,hg)).map((v,k)=>k===0?X0-0.03:v),0.006,0));
     else if(guide==='corn'){ const w0=({t1:0.05,t2:0.05,t2a:0.07,t5:0.05}[lia]??r)+0.01, {h:hc,b:bc,t:tc}=CORN_G;   // butée contre la semelle du patin (ou le tuyau), jeu 10 mm
-      S.push(rect(ctrAt(hc/2,sg*(w0+tc/2)),0.10,tc,hc)); S.push(rect(ctrAt(tc/2,sg*(w0+bc/2)),0.10,bc,tc)); }
+      S.push(rect(ctrAt(hc/2,sg*(w0+tc/2)),0.10,tc,hc)); S.push(rect(ctrAt(hc-tc/2,sg*(w0+tc-bc/2)),0.10,bc,tc)); }   // petite aile (20) verticale soudée sur le profilé ; grande aile (30) horizontale en tête, au-dessus du bord de la semelle
     else S.push(rect(ctrAt(hg/2,ds),0.10,0.008,hg)); }); }
 }
 /* pièces fabriquées d'une liaison : L × l × e (mm) */
@@ -1398,7 +1402,7 @@ function specDessin(D,V,opt={}){
     if(pm&&!crap){ const P=pm.pt; reperes.push(pm.k==='mur'?{vue:vCote,p:[cx*0.3,0,P[2]+cz*0.3],n:String(rep),dx:-1,dy:-1}:{vue:'dessus',p:[cx*0.3,P[1]-cz*0.3,P[2]],n:String(rep),dx:-1,dy:1}); }
     if(tige){ rep++; nom.push([rep,nP+pl.filter(p=>p.k==='murPied').length,(opt.platEx&&opt.platEx.mur?'Contre-plaque '+opt.platEx.mur.id+' – '+opt.platEx.mur.lx+' × '+opt.platEx.mur.ly+' × '+opt.platEx.mur.tp+' mm':'Contre-plaque – dimensions selon note de chevillage'),$('nuance').value,'—','—']); }
     if(sandE){ rep++; nom.push([rep,pl.filter(p=>['sol','mur','plafond','murPied'].includes(p.k)).length,(opt.platEx&&Object.values(opt.platEx)[0]?'Contre-plaque '+Object.values(opt.platEx)[0].id+' – '+Object.values(opt.platEx)[0].lx+' × '+Object.values(opt.platEx)[0].ly+' × '+Object.values(opt.platEx)[0].tp+' mm (face opposée du profilé existant)':'Contre-plaque (face opposée du profilé existant)'),$('nuance').value,'—','—']); } }
-  const ge=new Map(); Gm.T.forEach(t=>{ if(!avecEtrier(t)) return; const d=diamEtrier(t), k=`Étrier (U-bolt) M${d} pour Ø${f(t.P.De,1)} – ${t.fonc==='fixe'?'serré (point fixe)':'avec jeu (guidé / glissant)'}`; ge.set(k,(ge.get(k)||0)+1); });
+  const ge=new Map(); Gm.T.forEach(t=>{ if(!avecEtrier(t)) return; const d=diamEtrier(t), k=`Étrier (U-bolt) M${d} pour Ø${f(t.P.De,1)} – ${LIBERTES.bloque(t.fonc,'Lo')||t.fonc==='bilat'?'serré ('+LIBERTES.de(t.fonc).code+')':'avec jeu (guidé / glissant)'}`; ge.set(k,(ge.get(k)||0)+1); });
   const gl=new Map(), glM={}; Gm.T.forEach(t=>{ const l=liaisonT(t);
     if(caleT(t)){ const w=l==='etrier'?Math.ceil((t.P.De+2*diamEtrier(t)+50)/10)*10:Math.ceil(Math.min(Math.max(0.6*t.P.De,100),300)/10)*10, kc=l==='etrier'?`Cale PTFE 120 × ${w} × ${EP_CALE} percée 2 × Ø${diamEtrier(t)+2} (tenue par l'étrier) pour Ø${f(t.P.De,1)}`:`Cale PTFE ${l==='t1'||l==='t2'?220:120} × ${w} × ${EP_CALE} sous patin pour Ø${f(t.P.De,1)}`; gl.set(kc,(gl.get(kc)||0)+1); glM[kc]='PTFE'; }
     if(l==='etrier') return; const k=`Patin ${LIAIS_NOM[l]} pour Ø${f(t.P.De,1)} (h = ${f(hLiaison(t,D),0)} mm)`; gl.set(k,(gl.get(k)||0)+1);
@@ -1601,7 +1605,7 @@ const DEFAUTS={sol:{Lm:1.0,pos:[0.8,0.45],p:['UPN','UPN 100']},plafond:{Lm:1.0,p
   Lplaf:{Lm:1.2,Lt:0.5,nc:2,hc:0.4,pos:[0.3,0.3],cons:[1,2],fa:[200,200],p:['SHS','SHS 120x120x4'],p2:['UPN','UPN 100']}};
 function appliquerDefauts(typ){
   const d=DEFAUTS[typ]; $('Lm').value=d.Lm; if(d.Lt) $('Lt').value=d.Lt; $('fa1').value=(d.fa||[120,120])[0]; $('fa2').value=(d.fa||[120,120])[1];   // entraxes : fixations hors de l'emprise du profilé if(d.hj) $('hj').value=d.hj; if(d.nc){$('nc').value=d.nc;$('hc').value=d.hc;}
-  tuyaux.forEach((t,i)=>{ if(['sol','plafond'].includes(typ)&&t.fonc==='glissant') t.fonc='guide'; t.pos=i<d.pos.length?d.pos[i]:+(d.pos[d.pos.length-1]+0.25*(i-d.pos.length+1)).toFixed(2); t.cons=d.cons?(d.cons[i]||1):1; });
+  tuyaux.forEach((t,i)=>{ if(['sol','plafond'].includes(typ)&&!LIBERTES.bloque(t.fonc,'Tr')) t.fonc='guide'; t.pos=i<d.pos.length?d.pos[i]:+(d.pos[d.pos.length-1]+0.25*(i-d.pos.length+1)).toFixed(2); t.cons=d.cons?(d.cons[i]||1):1; });
   if(d.p){ $('fam').value=d.p[0]; remplirProfils(d.p[1]); } if(d.p2){ $('fam2').value=d.p2[0]; remplirProfils(d.p2[1],'2'); }
   $('orient').value='0'; if($('off')) $('off').value=0;
 }
@@ -1718,13 +1722,13 @@ function initCahier(){
 
 init();
 </script>
-<script src="../commun/replier.js?v=3.03"></script>
-<script src="../commun/aide.js?v=3.03"></script>
-<script src="../commun/notes.js?v=3.03"></script>
-<script src="ndc-s1.js?v=3.03"></script>
+<script src="../commun/replier.js?v=3.04"></script>
+<script src="../commun/aide.js?v=3.04"></script>
+<script src="../commun/notes.js?v=3.04"></script>
+<script src="ndc-s1.js?v=3.04"></script>
 <script>document.head.insertAdjacentHTML("beforeend",`<style>${NDC_CSS}</style>`); ndcUI();</script>
-<script src="aide-s1.js?v=3.03"></script>
-<script src="../commun/export.js?v=3.03"></script>
+<script src="aide-s1.js?v=3.04"></script>
+<script src="../commun/export.js?v=3.04"></script>
 <script>EXPORT.init({code:'S1',titre:'Support de tuyauterie',
   zones:()=>[...document.querySelectorAll('#res > .card')], donnees:()=>[document.getElementById('form')],
   avant:async()=>{calc();await perspective();}, nom:()=>document.getElementById('repere').value||document.getElementById('affaire').value});</script>

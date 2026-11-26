@@ -239,12 +239,19 @@ const FICHES = [
   <ul><li><b>f</b> : contrainte admissible du matériau à chaud (R<sub>p0,2,t</sub>/1,5 ; R<sub>m</sub>/2,4).</li><li>Le tuyau est chargé <b>plein</b> (fluide ou eau d'épreuve) + calorifuge.</li>
   <li>Ordre de grandeur : DN100 acier plein d'eau ≈ 5 à 6 m entre supports.</li></ul>`,
   refs: "CODETI Div. 1 ; NF EN 13480-3 §5, §12 ; ASME B31.3 §302.", calc: "T1" },
-{ id: "supportage", theme: "Tuyauterie", titre: "Glissant, guidé, point fixe : la dilatation",
+{ id: "supportage", theme: "Tuyauterie", titre: "Glissant, guidé, butée, point fixe : libertés des supports et dilatation",
   bref: "Un tuyau chaud s'allonge (≈ 1,2 mm par mètre pour 100 °C). Les supports le laissent glisser (glissant), le guident (guidé) ou le bloquent (point fixe).",
   corps: `<div class="form">Allongement : Δ = α·ΔT·L (acier α ≈ 12·10⁻⁶ /K) &nbsp; Frottement sur un support : F = μ·G (μ = 0,3 acier/acier ; 0,1 PTFE)</div>
   <ul><li><b>Glissant</b> : posé, libre dans le plan horizontal. Sur un montant vertical il est impossible (le tuyau tomberait).</li>
   <li><b>Guidé</b> : libre dans l'axe, bloqué latéralement (butées).</li>
-  <li><b>Point fixe</b> : bloqué ; il reprend le frottement de toute la ligne qui se dilate vers lui, plus la réaction de la lyre, du coude ou du compensateur.</li></ul>
+  <li><b>Point fixe</b> : bloqué ; il reprend le frottement de toute la ligne qui se dilate vers lui, plus la réaction de la lyre, du coude ou du compensateur.</li>
+  <li><b>Butée</b> : bloquée dans l'axe (dans un sens ou les deux), libre latéralement ; <b>appui bilatéral</b> : retient aussi le soulèvement.</li></ul>
+  <table><tr><th>Type (CAESAR II)</th><th>Lo (axial)</th><th>Tr (transversal)</th><th>Vr (vertical)</th></tr>
+  <tr><td>+Vr – support poids</td><td>libre</td><td>libre</td><td>appui</td></tr><tr><td>Vr – bilatéral</td><td>libre</td><td>libre</td><td>bloqué</td></tr>
+  <tr><td>GUI – guide</td><td>libre</td><td>bloqué</td><td>appui</td></tr><tr><td>LIM – butée</td><td>bloqué</td><td>libre</td><td>appui</td></tr>
+  <tr><td>+LIM / −LIM – butée un sens</td><td>+ libre / − bloqué (ou l'inverse)</td><td>libre</td><td>appui</td></tr><tr><td>GUI LIM</td><td>bloqué</td><td>bloqué</td><td>appui</td></tr>
+  <tr><td>ANC – ancrage</td><td>bloqué</td><td>bloqué</td><td>bloqué</td></tr></table>
+  <p>Un axe libre transmet le frottement μ·G (axe du tuyau), un axe bloqué l'effort de l'étude de flexibilité ; une butée un sens ne reprend l'effort que dans son sens bloqué.</p>
   <div class="form">Estimation APS d'un point fixe : F<sub>x</sub> ≈ μ·q·L<sub>r</sub> + 12·E·I·Δ/L<sub>b</sub>³ (coude, méthode de la console guidée) ou c·Δ + P·A<sub>eff</sub> (compensateur, point fixe principal)</div>
   <p>Les vraies valeurs viennent de l'étude de flexibilité (CAESAR II, ROHR2).</p>`,
   refs: "NF EN 13480-3 §12, §13 ; ASME B31.3 §319 ; EJMA (compensateurs) ; méthode de la console guidée (M.W. Kellogg).", calc: "S1" },
