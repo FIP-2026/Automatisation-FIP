@@ -4,19 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.99"></script>
+<script src="../commun/auth.js?v=3.01"></script>
+<script src="../commun/suivi.js?v=3.01"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — NH Note d'hypothèses</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.99">
-<script src="../commun/apps.js?v=2.99"></script>
-<script src="../commun/cahier.js?v=2.99"></script>
-<script src="../climat/data/zonage.js?v=2.99"></script>
-<script src="../commun/data/tuyauterie.js?v=2.99"></script>
-<script src="../commun/charges.js?v=2.99"></script>
-<script src="../commun/notes.js?v=2.99"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.01">
+<script src="../commun/apps.js?v=3.01"></script>
+<script src="../commun/cahier.js?v=3.01"></script>
+<script src="../climat/data/zonage.js?v=3.01"></script>
+<script src="../commun/data/tuyauterie.js?v=3.01"></script>
+<script src="../commun/charges.js?v=3.01"></script>
+<script src="../commun/notes.js?v=3.01"></script>
 <style>
   main{grid-template-columns:minmax(300px,380px) 1fr}
   .src{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
@@ -83,7 +84,7 @@ function sources(){ const S=[['C1','Climat et séisme','../climat/',CH.lire('C')
 /* ---------- note ---------- */
 function rendre(){
   sources();
-  const niv=$('niv').value, K=CAHIER.existe()?CAHIER.lire().affaire:{}, G=CH.lire('G'), Q=CH.lire('Q'), C=CH.lire('C'), S=gen.secs; let n=0; const T2=t=>`<h2>${++n}. ${t}</h2>`;
+  const niv=$('niv').value, K=CAHIER.affaire(), G=CH.lire('G'), Q=CH.lire('Q'), C=CH.lire('C'), S=gen.secs; let n=0; const T2=t=>`<h2>${++n}. ${t}</h2>`;
   let x=`<h1>Note d'hypothèses${niv==='simple'?' (simplifiée)':''}</h1><table>`+[['Affaire',CAHIER.libAffaire(K)||'—','Client',K.client||'—'],['Site',[K.site,C&&C.res&&C.res.lieu].filter(Boolean).join(' – ')||'—','Phase',K.phase||'—'],['N° de document',K.doc||'—','Indice / date',`${K.indice||'—'} du ${K.date?new Date(K.date).toLocaleDateString('fr-FR'):'—'}`],['Réalisé',K.realise||'—','Contrôlé / approuvé',[K.controle,K.approuve].filter(Boolean).join(' / ')||'—']].map(r=>`<tr><th style="width:16%">${r[0]}</th><td>${h(r[1])}</td><th style="width:16%">${r[2]}</th><td>${h(r[3])}</td></tr>`).join('')+'</table>';
   x+=T2('Objet')+`<p>${h(gen.objet).replace(/\n/g,'<br>')}</p>`;
   // références
@@ -134,10 +135,10 @@ function imprimerNH(){ rendre(); const w=window.open('','_blank'); if(!w) return
 /* export Word : bouton « Word » de l'en-tête (EXPORT.init) */
 rendre();
 </script>
-<script src="../commun/replier.js?v=2.99"></script>
-<script src="../commun/export.js?v=2.99"></script>
-<script>EXPORT.init({code:'NH',titre:'Note d\'hypothèses',excel:false,avant:()=>rendre(),zones:()=>[document.getElementById('nh')],nom:()=>{ const K=CAHIER.existe()?CAHIER.lire().affaire:{}; return K.doc||K.num||'affaire'; }});</script>
-<script src="../commun/aide.js?v=2.99"></script>
+<script src="../commun/replier.js?v=3.01"></script>
+<script src="../commun/export.js?v=3.01"></script>
+<script>EXPORT.init({code:'NH',titre:'Note d\'hypothèses',excel:false,avant:()=>rendre(),zones:()=>[document.getElementById('nh')],nom:()=>{ const K=CAHIER.affaire(); return K.doc||K.num||'affaire'; }});</script>
+<script src="../commun/aide.js?v=3.01"></script>
 <script>AIDE.init({titre:"Aide – NH Note d'hypothèses",manuel:"nh",intro:"NH rassemble les hypothèses saisies dans C1 (climat, séisme), G1 (charges permanentes) et Q1 (charges d'exploitation), complétées des hypothèses générales, et produit la note d'hypothèses de l'affaire.",
   etapes:[{t:"Vérifier les sources",html:"Le tableau « Sources » indique si C1, G1 et Q1 sont renseignés (date de dernière mise à jour). Cliquer pour compléter.",cible:"#src"},
     {t:"Hypothèses générales",html:"Objet, durée d'utilisation, classe de conséquences, matériaux, limites de déformation, remarques.",cible:"#cGen"},

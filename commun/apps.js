@@ -10,14 +10,14 @@
    vignette : petit schéma SVG affiché sur la carte (facultatif)
    marqueur de catégorie : ● ▬ → ■ ◆ … (couleur d'accent FIP)
    ===================================================================== */
-const CALC_VERSION = "v2.99";
+const CALC_VERSION = "v3.01";
 
 const CALC_CATEGORIES = [
   { id: "clim", nom: "Hypothèses de charges", sousTitre: "Charges climatiques et sismiques, permanentes et d'exploitation de l'affaire · NF EN 1990, NF EN 1991-1-1 / 1-3 / 1-4, NF EN 1998-1 + AN, arrêté du 22/10/2010", couleur: "#e30009", marqueur: "▬" },
-  { id: "rap", nom: "Rapports de calcul", sousTitre: "Note d'hypothèses et rapport de calcul de l'ouvrage (ossature, supportage, assemblages, descentes de charges) · simplifiés, complets ou au choix, Word / PDF", couleur: "#e30009", marqueur: "■" },
   { id: "tuy", nom: "Tuyauterie et fluides", sousTitre: "Propriétés des fluides, portées entre supports, supports standards, cahier de supportage et descentes de charges · CODETI / NF EN 13480-3, ASME B31.3, Eurocodes + AN", couleur: "#e30009", marqueur: "●" },
   { id: "acier", nom: "Structure acier – éléments et ossatures", sousTitre: "Poutres et poteaux, portiques de toitures isolées (auvents) : prédimensionnement APS/APD · NF EN 1990, NF EN 1991-1-3 / 1-4, NF EN 1993-1-1 + AN", couleur: "#e30009", marqueur: "◆" },
   { id: "asm", nom: "Assemblages et ancrages", sousTitre: "Attaches boulonnées des barres tendues (cornières, UPN) et ancrages des platines sur béton (chevilles mécaniques et chimiques) ; reliés aux outils d'ossature et de supportage · NF EN 1993-1-8 + AN, NF EN 1992-4 + AN, ETE", couleur: "#e30009", marqueur: "▲" },
+  { id: "rap", nom: "Rapports de calcul", sousTitre: "Note d'hypothèses et rapport de calcul de l'ouvrage (ossature, supportage, assemblages, descentes de charges) · simplifiés, complets ou au choix, Word / PDF", couleur: "#e30009", marqueur: "■" },
   { id: "ress", nom: "Aide et ressources", sousTitre: "Pour comprendre et contrôler : manuel technique (mode d'emploi, formules, tests de validation), référentiel des normes vulgarisé, bases de données", couleur: "#e30009", marqueur: "◇" },
   { id: "avenir", nom: "À venir", sousTitre: "Emplacements réservés pour les prochaines calculettes", couleur: "#e30009", marqueur: "■" },
 ];
@@ -76,6 +76,25 @@ const CALC_APPS = [
 </svg>`,
   },
   {
+    code: "CS",
+    titre: "Cahier de supportage",
+    description: "Supports types et configurations (ST-01.1), supports spéciaux (SPE-1.1), BOM, plans types cotés avec perspective, traitement de surface, aperçu du plan, cahier d'exécution (DXF laser, Excel). Modèles BOM / simplifié / complet. Identification du projet (saisie en haut de l'accueil) reprise dans toutes les calculettes et le cartouche Word.",
+    url: "cahier/",
+    categorie: "tuy",
+    normes: ["S1", "NF EN 1990", "NF EN 1993-1-1"],
+    statut: "ok",
+    vignette: `
+<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
+  <rect x="40" y="18" width="150" height="160" rx="6" fill="#fff" stroke="#171a1e"/><rect x="40" y="18" width="150" height="26" rx="6" fill="#114088"/>
+  <text x="115" y="36" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">AFFAIRE</text>
+  ${[0,1,2,3,4].map(i=>`<line x1="54" y1="${62+i*22}" x2="150" y2="${62+i*22}" stroke="#8a929c" stroke-width="3"/><circle cx="170" cy="${62+i*22}" r="5" fill="${i===3?'#d4a300':'#2e8540'}"/>`).join("")}
+  <rect x="220" y="40" width="7" height="110" fill="#8a929c"/><rect x="220" y="40" width="80" height="7" fill="#8a929c"/><circle cx="270" cy="30" r="10" fill="#0b5d73"/>
+  <rect x="320" y="60" width="7" height="90" fill="#8a929c"/><rect x="300" y="60" width="50" height="7" fill="#8a929c"/><circle cx="335" cy="50" r="9" fill="#0b5d73"/>
+  <line x1="205" y1="150" x2="370" y2="150" stroke="#171a1e"/>
+  <text x="290" y="172" font-size="10" fill="#5f6670" text-anchor="middle">nomenclature · DDC · fiches</text>
+</svg>`,
+  },
+  {
     code: "T1",
     titre: "Portée entre supports de tuyauterie",
     description: "Portée maximale ou vérification d'une portée, critère dimensionnant, charges à vide / rempli et descente de charges G / fluide.",
@@ -106,7 +125,7 @@ const CALC_APPS = [
   {
     code: "H1",
     titre: "Propriétés des fluides",
-    description: "Masse volumique, viscosités et pression de vapeur en fonction de la température : eau, éthanol, essence, naphta, kérosène, gazole, fioul, brut, émulseurs, fluide saisi. Tableau, courbes, ébullition et NPSH.",
+    description: "Masse volumique, viscosités et pression de vapeur en fonction de la température : eau, éthanol, essence, naphta, kérosène, gazole, distillat moyen, fioul, brut, émulseurs, fluide saisi. Tableau, courbes, ébullition et NPSH.",
     url: "fluides/",
     categorie: "tuy",
     normes: ["IAPWS", "ASTM D1250", "AP-42", "ASTM D341"],
@@ -138,25 +157,6 @@ const CALC_APPS = [
   <circle cx="190" cy="83" r="12" fill="#0b5d73"/><circle cx="228" cy="86" r="9" fill="#0b5d73"/>
   <line x1="275" y1="22" x2="380" y2="22" stroke="#171a1e" stroke-width="2"/><rect x="322" y="23" width="7" height="110" fill="#8a929c"/><circle cx="346" cy="118" r="14" fill="#0b5d73"/>
   <text x="20" y="190" font-size="10" fill="#5f6670">sol · mur · plafond — DDC cas simples + enveloppe ELU</text>
-</svg>`,
-  },
-  {
-    code: "CS",
-    titre: "Cahier de supportage",
-    description: "Supports types et configurations (ST-01.1), supports spéciaux (SPE-1.1), BOM, plans types cotés avec perspective, traitement de surface, aperçu du plan, cahier d'exécution (DXF laser, Excel). Modèles BOM / simplifié / complet. Informations d'affaire reprises dans toutes les calculettes et le cartouche Word.",
-    url: "cahier/",
-    categorie: "tuy",
-    normes: ["S1", "NF EN 1990", "NF EN 1993-1-1"],
-    statut: "ok",
-    vignette: `
-<svg viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Arial,sans-serif">
-  <rect x="40" y="18" width="150" height="160" rx="6" fill="#fff" stroke="#171a1e"/><rect x="40" y="18" width="150" height="26" rx="6" fill="#114088"/>
-  <text x="115" y="36" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">AFFAIRE</text>
-  ${[0,1,2,3,4].map(i=>`<line x1="54" y1="${62+i*22}" x2="150" y2="${62+i*22}" stroke="#8a929c" stroke-width="3"/><circle cx="170" cy="${62+i*22}" r="5" fill="${i===3?'#d4a300':'#2e8540'}"/>`).join("")}
-  <rect x="220" y="40" width="7" height="110" fill="#8a929c"/><rect x="220" y="40" width="80" height="7" fill="#8a929c"/><circle cx="270" cy="30" r="10" fill="#0b5d73"/>
-  <rect x="320" y="60" width="7" height="90" fill="#8a929c"/><rect x="300" y="60" width="50" height="7" fill="#8a929c"/><circle cx="335" cy="50" r="9" fill="#0b5d73"/>
-  <line x1="205" y1="150" x2="370" y2="150" stroke="#171a1e"/>
-  <text x="290" y="172" font-size="10" fill="#5f6670" text-anchor="middle">nomenclature · DDC · fiches</text>
 </svg>`,
   },
   {

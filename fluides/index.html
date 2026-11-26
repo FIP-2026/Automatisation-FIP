@@ -4,16 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=2.99"></script>
+<script src="../commun/auth.js?v=3.01"></script>
+<script src="../commun/suivi.js?v=3.01"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — H1 Propriétés des fluides</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=2.99">
-<script src="../commun/acier.js?v=2.99"></script>
-<script src="../commun/fluides.js?v=2.99"></script>
-<script src="../commun/cahier.js?v=2.99"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.01">
+<script src="../commun/acier.js?v=3.01"></script>
+<script src="../commun/fluides.js?v=3.01"></script>
+<script src="../commun/cahier.js?v=3.01"></script>
 <style>.graphes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}</style>
 </head>
 <body>
@@ -22,7 +23,7 @@
   <a href="../accueil.html" class="back">← Accueil</a>
   <div style="flex:1 1 auto">
     <h1><span class="code">H1</span>Propriétés des fluides</h1>
-    <div class="sub">Masse volumique, viscosité, pression de vapeur en fonction de la température · eau, éthanol, hydrocarbures, émulseurs</div>
+    <div class="sub">Masse volumique, viscosité, pression de vapeur en fonction de la température · eau, éthanol, hydrocarbures (essences, distillats, fiouls, brut), émulseurs</div>
   </div>
   <button onclick="window.print()">🖨️ Imprimer / PDF</button>
 </header>
@@ -121,20 +122,21 @@ $('fluide').addEventListener('change',changeFluide);
 changeFluide();
 </script>
 <script>CAHIER.remplir({affaire:'affaire'});</script>
-<script src="../commun/replier.js?v=2.99"></script>
-<script src="../commun/aide.js?v=2.99"></script>
+<script src="../commun/replier.js?v=3.01"></script>
+<script src="../commun/aide.js?v=3.01"></script>
 <script>AIDE.init({titre:"Aide – H1 Propriétés des fluides",
   intro:"Choisir le fluide et la température de calcul : H1 donne la masse volumique, les viscosités et la pression de vapeur, utiles pour les pertes de charge (AFT Fathom, calculs manuels), le NPSH des pompes et la masse des tuyauteries.",
-  etapes:[{t:"Choisir le fluide",html:"Eau, éthanol, hydrocarbures (essence, naphta, kérosène, gazole, fioul, brut), émulseur, ou fluide saisi.",cible:"#fluide"},
+  etapes:[{t:"Choisir le fluide",html:"Eau, éthanol, hydrocarbures (essence, naphta, kérosène, gazole, distillat moyen, fioul, brut), émulseur, ou fluide saisi.",cible:"#fluide"},
     {t:"Température et altitude",html:"Température de calcul (service, minimale pour la viscosité, maximale pour la pression de vapeur) et altitude pour la pression atmosphérique.",cible:"#t"},
     {t:"Données du produit",html:"Pour les mélanges, remplacer les valeurs typiques par celles de la fiche produit : ρ à 15 °C, RVP, viscosités.",cible:"#param"},
     {t:"Lire et exporter",html:"Propriétés, tableau en température et courbes ; Word, Excel ou impression.",cible:"#rHero"}],
   faq:[{q:"Quelle température prendre ?",r:"Pour les pertes de charge, la température la plus froide (viscosité maximale). Pour le NPSH et la cavitation, la plus chaude (pression de vapeur maximale)."},
     {q:"C'est quoi la RVP ?",r:"Pression de vapeur Reid : pression de vapeur mesurée à 37,8 °C (100 °F) selon un essai normalisé ; elle figure dans les spécifications des essences (été / hiver). La pression de vapeur vraie à une autre température en est déduite (AP-42)."},
+    {q:"Distillat moyen : quand le choisir ?",r:"Pour une coupe moyenne (gazole, fioul domestique, gazole non routier…) dont on ne connaît que la masse volumique à 15 °C : saisir ρ<sub>15</sub> et, si possible, deux viscosités de la fiche produit. Corrélations : groupe « fiouls » de l'API MPMS 11.1 (Tab. 54B) et distillate fuel oil No. 2 de l'AP-42."},
     {q:"Viscosité dynamique ou cinématique ?",r:"Dynamique μ (mPa·s = cP) : frottement interne. Cinématique ν = μ/ρ (mm²/s = cSt) : utilisée dans le nombre de Reynolds Re = V·D/ν. Les fiches pétrolières donnent souvent ν à 40 °C."}],
   bulles:{t:"Température du fluide en °C.",alt:"Altitude du site : sert à calculer la pression atmosphérique (NPSH, ébullition).",fluide:"Fluide transporté."},
   liens:[["#rNotes","fluides","Propriétés des fluides"]]});</script>
-<script src="../commun/export.js?v=2.99"></script>
+<script src="../commun/export.js?v=3.01"></script>
 <script>EXPORT.init({code:'H1',titre:'Propriétés des fluides',zones:()=>[...document.querySelectorAll('#res > .card')],donnees:()=>[document.getElementById('form')],nom:()=>document.getElementById('repere').value||document.getElementById('fluide').value});</script>
 </body>
 </html>

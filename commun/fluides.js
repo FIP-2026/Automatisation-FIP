@@ -8,6 +8,7 @@
    - Produits pétroliers : masse volumique API MPMS 11.1 / ASTM D1250 (Tableau 54B, groupes de produits) ;
                pression de vapeur US EPA AP-42 §7.1 (essence et naphta à partir de la RVP, brut à partir de la RVP,
                distillats : constantes A et B du tableau 7.1-2) ; viscosité ASTM D341 (Walther) entre deux points.
+   - Distillat moyen (générique, v3.01) : groupe « fiouls » du Tab. 54B et constantes AP-42 du distillate fuel oil No. 2 ; ρ15 et viscosités typiques.
    - Émulseur : fiche produit (ρ à 20 °C, viscosité) ; dilatation et pression de vapeur prises égales à celles de l'eau.
    ===================================================================== */
 const FLU = (() => {
@@ -55,6 +56,7 @@ const FLU = (() => {
     { id: "jet", n: "Kérosène / Jet A-1", g: "jet", rho15: 800, pv: [12.390, 8933], v: [20, 1.6, 40, 1.2], plage: [-40, 100], ref: "API MPMS 11.1 Tab. 54B ; AP-42 Tab. 7.1-2 (jet kerosene)" },
     { id: "jp4", n: "Carburéacteur large coupe (JP-4)", g: "jet", rho15: 760, pv: [11.368, 5784.3], v: [20, 1.0, 40, 0.8], plage: [-40, 60], ref: "API MPMS 11.1 Tab. 54B ; AP-42 Tab. 7.1-2 (jet naphtha JP-4)" },
     { id: "gazole", n: "Gazole (diesel EN 590)", g: "fioul", rho15: 835, pv: [12.101, 8907], v: [20, 5.0, 40, 3.0], plage: [-10, 120], ref: "API MPMS 11.1 Tab. 54B ; AP-42 Tab. 7.1-2 (distillate fuel oil No. 2)" },
+    { id: "distillat", n: "Distillat moyen (coupe gazole / fioul domestique, générique)", g: "fioul", rho15: 850, pv: [12.101, 8907], v: [20, 5.5, 40, 3.3], plage: [-10, 120], ref: "API MPMS 11.1 Tab. 54B (groupe fiouls / distillats) ; AP-42 Tab. 7.1-2 (distillate fuel oil No. 2) ; viscosités typiques à confirmer par la fiche produit" },
     { id: "fod", n: "Fioul domestique", g: "fioul", rho15: 845, pv: [12.101, 8907], v: [20, 6.0, 40, 3.5], plage: [-10, 120], ref: "API MPMS 11.1 Tab. 54B ; AP-42 Tab. 7.1-2 (distillate fuel oil No. 2)" },
     { id: "fol", n: "Fioul lourd (n° 6)", g: "fioul", rho15: 980, pv: [10.781, 10475.5], v: [50, 380, 100, 40], plage: [20, 150], ref: "API MPMS 11.1 Tab. 54B ; AP-42 Tab. 7.1-2 (residual oil No. 6)" },
     { id: "brut", n: "Pétrole brut", g: "brut", rho15: 850, rvp: 5, v: [20, 10, 40, 5], plage: [-10, 80], ref: "API MPMS 11.1 Tab. 54A ; AP-42 §7.1 (brut, à partir de la RVP)" },

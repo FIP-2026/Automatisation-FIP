@@ -28,21 +28,27 @@ const CAHIER = (() => {
     o.reglages = { ...REGLAGES, ...(o.reglages || {}) }; o.rapport = o.rapport || { niveau: "simple" }; o.types = o.types || [];
     return o;
   }
-  function lire() { try { const o = JSON.parse(localStorage.getItem(CLE)); if (o && o.version) { o.params = { ...vide().params, ...(o.params || {}) }; return migrer(o); } } catch (e) { } return vide(); }
-  function ecrire(o) { try { localStorage.setItem(CLE, JSON.stringify(o)); return true; } catch (e) { alert("Enregistrement impossible dans ce navigateur (stockage plein ou désactivé). Exporter le cahier en .json."); return false; } }
+  /* identification globale du projet (commun/suivi.js) : appliquée à l'affaire à la lecture, mise à jour à l'écriture */
+  const glob = (a) => typeof SUIVI !== "undefined" ? SUIVI.appliquer(a) : a;
+  function lire() { let o = null; try { o = JSON.parse(localStorage.getItem(CLE)); if (o && o.version) { o.params = { ...vide().params, ...(o.params || {}) }; o = migrer(o); } else o = null; } catch (e) { o = null; }
+    o = o || vide(); o.affaire = glob(o.affaire || {}); return o; }
+  function ecrire(o) { try { localStorage.setItem(CLE, JSON.stringify(o)); } catch (e) { alert("Enregistrement impossible dans ce navigateur (stockage plein ou désactivé). Exporter le cahier en .json."); return false; }
+    if (typeof SUIVI !== "undefined" && o && o.affaire) SUIVI.majIdent(o.affaire); return true; }
   const existe = () => { try { return !!localStorage.getItem(CLE); } catch (e) { return false; } };
+  /* informations d'affaire : celles du cahier s'il existe, sinon l'identification globale du projet (accueil) */
+  const affaire = () => existe() ? lire().affaire : glob({});
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const repere = (t, c) => t.nom + "." + c.n;
   const libAffaire = (a) => [a.num, a.intitule].filter(Boolean).join(" – ");
   /* Remplit les champs vides d'une calculette avec les informations d'affaire.
      carte : { idChamp: clé } avec clé ∈ affaire, doc, realise, client… ou fonction(a) */
   function remplir(carte) {
-    if (!existe()) return; const a = lire().affaire;
+    const a = affaire();
     Object.entries(carte).forEach(([id, k]) => {
       const el = document.getElementById(id); if (!el || el.value) return;
       const v = typeof k === "function" ? k(a) : k === "affaire" ? libAffaire(a) : k === "doc" ? [a.doc, a.indice && "ind. " + a.indice].filter(Boolean).join(" ") : a[k];
       if (v) { el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); }
     });
   }
-  return { CLE, PARAMS, REGLAGES, vide, migrer, repere, lire, ecrire, existe, uid, libAffaire, remplir };
+  return { CLE, PARAMS, REGLAGES, vide, migrer, repere, lire, ecrire, existe, affaire, uid, libAffaire, remplir };
 })();

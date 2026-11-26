@@ -18,7 +18,9 @@ const IDENT = (() => {
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const lireCle = () => { try { return JSON.parse(localStorage.getItem("fip.ident." + cle)) || null; } catch (e) { return null; } };
   const ecrire = (o) => { try { localStorage.setItem("fip.ident." + cle, JSON.stringify(o)); } catch (e) { alert("Enregistrement impossible (logo trop lourd ?)."); } };
-  const affaireCahier = () => { try { const o = JSON.parse(localStorage.getItem("fip.cahier")); return o && o.affaire ? o.affaire : null; } catch (e) { return null; } };
+  const glob = (a) => typeof SUIVI !== "undefined" ? SUIVI.appliquer(a) : a;      // identification globale du projet (accueil, commun/suivi.js)
+  const affaireCahier = () => { let a = null; try { const o = JSON.parse(localStorage.getItem("fip.cahier")); a = o && o.affaire ? o.affaire : null; } catch (e) { }
+    if (typeof SUIVI !== "undefined") { const g = SUIVI.ident(); if (a || Object.keys(g).length) return SUIVI.appliquer(a || {}, g); } return a; };
   const dateFr = (d) => { if (!d) return ""; const t = new Date(d); return isNaN(t) ? String(d) : t.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit" }); };
   /* indice suivant : 0 → 1, A → B, B2 → B3 */
   const suivant = (i) => { const s = String(i ?? "").trim(); if (!s) return "0"; const m = /^(.*?)(\d+)$/.exec(s); if (m) return m[1] + (+m[2] + 1); if (/^[A-Y]$/i.test(s)) return String.fromCharCode(s.charCodeAt(0) + 1); return s + "1"; };
@@ -52,7 +54,7 @@ const IDENT = (() => {
     zone.addEventListener("click", (e) => { if (e.target.closest("[data-ls]")) { set(""); rendre(); } });
     rendre(); return rendre;
   }
-  function lire() { if (!el) return lireCle() || {}; const o = { ...extra }; CHAMPS.forEach(([k]) => { const i = el.querySelector(`[data-id="${k}"]`); if (i) o[k] = i.value; }); return o; }
+  function lire() { if (!el) return glob(lireCle() || {}); const o = { ...extra }; CHAMPS.forEach(([k]) => { const i = el.querySelector(`[data-id="${k}"]`); if (i) o[k] = i.value; }); return o; }
   function remplir(o) { CHAMPS.forEach(([k]) => { const i = el.querySelector(`[data-id="${k}"]`); if (i && o[k] != null && o[k] !== "") i.value = o[k]; }); if (o.revs) extra.revs = o.revs; if (o.logo != null && o.logo !== "") extra.logo = o.logo; }
   function init(c) {
     cle = c.cle; el = document.getElementById(c.cible); if (!el) return;
@@ -60,8 +62,8 @@ const IDENT = (() => {
     el.innerHTML = `<h2>Identification</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">${CHAMPS.map(([k, l, t]) => `<div><label>${l}</label>${t === "sel" ? `<select data-id="${k}">${opt(PHASES)}</select>` : t === "bp" ? `<select data-id="${k}">${opt(BON_POUR)}</select>` : `<input data-id="${k}" ${t === "date" ? 'type="date"' : ""}>`}</div>`).join("")}</div>
       <div data-logo style="margin-top:6px"></div><div data-revs></div>
       <div class="actions noprint" style="margin-top:6px"><button type="button" class="sec" data-rep>↺ Reprendre l'affaire enregistrée (cahier / note d'hypothèses)</button></div><div class="note">Champs repris dans la trame FIP de la note de calcul (page de garde, tableau des révisions, en-tête et pied de page Word) et dans le cartouche des plans. Saisie propre à ce module.</div>`;
-    const o = lireCle(); if (o) remplir(o); else { const a = affaireCahier(); remplir({ phase: "APS", indice: "0", bonPour: "CONSULTATION", date: new Date().toISOString().slice(0, 10), repere: c.repere || "", ...(a || {}) }); }
-    const maj = () => { ecrire(lire()); if (c.change) c.change(); };
+    const o = lireCle(); if (o) remplir(glob(o)); else { const a = affaireCahier(); remplir({ phase: "APS", indice: "0", bonPour: "CONSULTATION", date: new Date().toISOString().slice(0, 10), repere: c.repere || "", ...(a || {}) }); }
+    const maj = () => { const a = lire(); ecrire(a); if (typeof SUIVI !== "undefined") SUIVI.majIdent(a); if (c.change) c.change(); };   // champs du projet reportés dans l'identification globale
     const rRevs = editeurRevs(el.querySelector("[data-revs]"), lire, (a, champs) => { extra.revs = a.revs || []; if (champs) remplirForce(a); maj(); });
     const rLogo = logoChamp(el.querySelector("[data-logo]"), () => extra.logo, (l) => { extra.logo = l; maj(); });
     function remplirForce(a) { ["indice", "motif", "date"].forEach((k) => { const i = el.querySelector(`[data-id="${k}"]`); if (i) i.value = a[k] ?? ""; }); }
