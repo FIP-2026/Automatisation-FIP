@@ -61,11 +61,6 @@ const PROJET = (() => {
     try { await sauverCourant(); } catch (e) { if (!confirm("Enregistrement dans la liste impossible (" + e.message + ") : les données du projet de travail seront perdues si vous ne l'avez pas exporté. Continuer ?")) return; }
     effacer(); ecrireActif(uid()); location.reload();
   }
-  async function supprimer(id) {
-    const r = await lireP(id); if (!r) return;
-    if (!confirm(`Supprimer définitivement le projet « ${r.nom} » de la liste de ce navigateur ?\n\nExportez-le d'abord si vous voulez le conserver.`)) return;
-    await tx("readwrite", (s) => s.delete(id)); location.reload();
-  }
   /* ---------- fichier projet ---------- */
   function exporter() {
     const L = cles(); if (!L.length) { alert("Aucune donnée d'affaire dans ce navigateur."); return; }
@@ -146,23 +141,64 @@ const PROJET = (() => {
       ${J.length ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-weight:600;font-size:13px">Journal du projet (${(m.journal || []).length})</summary><table style="font-size:12px;width:100%">${J.map((j) => `<tr><td class="note" style="white-space:nowrap">${dateFr(j.d)}</td><td>${esc(j.u || "")}</td><td><b>${esc(j.a)}</b>${j.m ? " – " + esc(j.m) : ""}${j.txt ? ` <span class="note">${esc(j.txt)}</span>` : ""}</td></tr>`).join("")}</table></details>` : ""}`;
   }
   /* barre : PROJET.barre('idConteneur', base = '' (accueil) ou '../' (modules), opt.etat = id du conteneur de l'état des modules) */
+  /* ---------- recherche dans la liste des projets ---------- */
+  const sansAccent = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  /* texte de recherche d'un projet enregistré : nom + identification (n°, intitulé, client, site, phase) */
+  const texteProjet = (p) => { let g = {}; try { g = JSON.parse((p.cles || {})["fip.projet.ident"] || "{}") || {}; } catch (e) { }
+    return [p.nom, g.num, g.intitule, g.client, g.site, g.phase].filter(Boolean).join(" "); };
+  /* filtre : tous les mots saisis doivent figurer (sans accents ni casse) ; P = projets, q = texte saisi */
+  const filtrer = (P, q) => { const M = sansAccent(q).split(/\s+/).filter(Boolean); return M.length ? P.filter((p) => { const s = sansAccent(texteProjet(p)); return M.every((m) => s.includes(m)); }) : P.slice(); };
+  /* suppression d'un projet de la liste ; le projet de travail supprimé laisse place à un projet vide */
+  async function supprimerProjet(id) {
+    const r = await lireP(id), cur = actif() && actif().id === id, nom = r ? r.nom : nomCourant();
+    if (!confirm(`Supprimer définitivement le projet « ${nom} » de ce navigateur ?${cur ? "\n\nC'est le projet ouvert : ses données de travail sont effacées et un projet vide est ouvert." : ""}\n\nExportez-le d'abord (fichier projet) si vous voulez le conserver.`)) return false;
+    await tx("readwrite", (s) => s.delete(id));
+    if (cur) { effacer(); ecrireActif(uid()); }
+    return true;
+  }
+  /* barre : PROJET.barre('idConteneur', base = '' (accueil) ou '../' (modules), opt.etat = id du conteneur de l'état des modules) */
   function barre(id, base = "", opt = {}) {
     const el = document.getElementById(id); if (!el) return;
-    const a = actif(), L = cles();
+    if (!document.getElementById("pjStyle")) { const st = document.createElement("style"); st.id = "pjStyle";
+      st.textContent = `.pj-choix{position:relative;flex:1 1 340px;max-width:560px}.pj-choix input{width:100%;box-sizing:border-box}
+        .pj-liste{position:absolute;z-index:40;left:0;right:0;top:100%;margin-top:2px;background:#fff;border:1px solid #cfd4db;border-radius:6px;box-shadow:0 8px 24px rgba(23,26,30,.14);max-height:340px;overflow:auto}
+        .pj-ligne{display:flex;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid #eef0f3;cursor:pointer;font-size:13px}.pj-ligne:last-child{border-bottom:0}
+        .pj-ligne.on,.pj-ligne:hover{background:#f1f5fb}.pj-ligne .t{flex:1;min-width:0}.pj-ligne .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .pj-ligne .t span{color:#5f6670;font-size:12px}.pj-ligne mark{background:#fff1a8;padding:0}.pj-ligne button{padding:2px 8px;font-size:12px}.pj-vide{padding:8px 10px;color:#5f6670;font-size:13px}`;
+      document.head.appendChild(st); }
     el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><b>Projet de travail</b>
-        <select data-pj="sel" style="min-width:260px;max-width:100%" title="Projets enregistrés dans ce navigateur"><option value="">${esc(nomCourant())} (en cours)</option></select>
-        <span style="flex:1"></span><button type="button" class="sec" data-pj="new">🗋 Nouveau projet</button><button type="button" data-pj="exp">⬇ Exporter le fichier projet</button><button type="button" class="sec" data-pj="imp">⬆ Ouvrir un fichier projet</button><button type="button" class="sec" data-pj="del" hidden>🗑 Supprimer de la liste</button></div>
+        <div class="pj-choix"><input data-pj="cherche" type="search" autocomplete="off" placeholder="🔎 ${esc(nomCourant())} (en cours) – rechercher : n°, intitulé, client, site…" title="Projets enregistrés dans ce navigateur : taper un mot clé pour filtrer, ↑ ↓ puis Entrée pour ouvrir"><div class="pj-liste" data-pj="liste" hidden></div></div>
+        <span style="flex:1"></span><button type="button" class="sec" data-pj="new">🗋 Nouveau projet</button><button type="button" data-pj="exp">⬇ Exporter le fichier projet</button><button type="button" class="sec" data-pj="imp">⬆ Ouvrir un fichier projet</button></div>
       ${opt.etat ? "" : '<div data-pj="etat"></div>'}
-      <div class="note" style="margin-top:4px">La liste déroulante donne les projets enregistrés dans ce navigateur : choisir un projet l'ouvre (le projet en cours est enregistré dans la liste). Pour échanger un projet entre postes (projeteur ↔ calculateur) : un seul fichier .json, à conserver sur le réseau FIP / SharePoint, jamais sur un dépôt public. Fermez les autres onglets FIP Études avant de changer de projet.</div>`;
+      <div class="note" style="margin-top:4px">Projets enregistrés dans ce navigateur : cliquer dans le champ (ou taper un mot clé : n°, intitulé, client, site, phase) pour les lister, puis « Ouvrir » (le projet en cours est enregistré dans la liste) ou « 🗑 » pour supprimer. Pour échanger un projet entre postes (projeteur ↔ calculateur) : un seul fichier .json, à conserver sur le réseau FIP / SharePoint, jamais sur un dépôt public. Fermez les autres onglets FIP Études avant de changer de projet.</div>`;
     const zEtat = opt.etat ? document.getElementById(opt.etat) : el.querySelector('[data-pj="etat"]'), majEtat = () => { if (zEtat) zEtat.innerHTML = etatHTML(base); };
     majEtat(); barre.majEtat = majEtat;
-    const sel = el.querySelector('[data-pj="sel"]'), del = el.querySelector('[data-pj="del"]');
-    (async () => { try { await sauverCourant(); const P = await liste(), cur = actif();
-        sel.innerHTML = P.map((p) => `<option value="${esc(p.id)}" ${cur && cur.id === p.id ? "selected" : ""}>${esc(p.nom)}${cur && cur.id === p.id ? " (en cours)" : ""} – ${dateFr(p.maj)}</option>`).join("") || `<option value="">${esc(nomCourant())} (en cours)</option>`;
-        sel.onchange = () => { del.hidden = !sel.value || (actif() && actif().id === sel.value); if (sel.value && !(actif() && actif().id === sel.value)) { if (confirm(`Ouvrir le projet « ${sel.options[sel.selectedIndex].text.replace(/ – [^–]*$/, "")} » ?\n\nLe projet en cours est enregistré dans la liste.`)) ouvrir(sel.value); else { sel.value = (actif() || {}).id || ""; del.hidden = true; } } };
-        sel.oncontextmenu = null; del.hidden = true;
-        el.querySelector('[data-pj="del"]').onclick = () => supprimer(sel.value);
-      } catch (e) { sel.disabled = true; sel.title = "Liste des projets indisponible dans ce navigateur (" + e.message + ") : utiliser le fichier projet."; } })();
+    const inp = el.querySelector('[data-pj="cherche"]'), box = el.querySelector('[data-pj="liste"]');
+    let P = [], vus = [], sel = -1;
+    const marquer = (s, q) => { s = String(s ?? ""); const n = sansAccent(s), on = new Array(s.length).fill(false);   // surligne chaque mot saisi (sans accents)
+      sansAccent(q).split(/\s+/).filter(Boolean).forEach((m) => { let i = n.indexOf(m); while (i >= 0) { for (let k = i; k < i + m.length; k++) on[k] = true; i = n.indexOf(m, i + m.length); } });
+      let h = "", ouvert = false; for (let k = 0; k < s.length; k++) { if (on[k] !== ouvert) { h += on[k] ? "<mark>" : "</mark>"; ouvert = on[k]; } h += esc(s[k]); } return h + (ouvert ? "</mark>" : ""); };
+    const rendre = () => { const q = inp.value, cur = actif(); vus = filtrer(P, q); if (sel >= vus.length) sel = vus.length - 1;
+      box.innerHTML = vus.length ? vus.map((p, i) => { let g = {}; try { g = JSON.parse((p.cles || {})["fip.projet.ident"] || "{}") || {}; } catch (e) { } const enCours = cur && cur.id === p.id;
+        return `<div class="pj-ligne ${i === sel ? "on" : ""}" data-i="${i}"><div class="t"><b>${marquer(p.nom, q)}${enCours ? ' <span style="color:#1d8a3a">(en cours)</span>' : ""}</b><span>${marquer([g.client, g.site, g.phase].filter(Boolean).join(" · "), q)}${g.client || g.site || g.phase ? " · " : ""}modifié le ${dateFr(p.maj)}</span></div>
+          ${enCours ? "" : `<button type="button" data-ouvrir="${i}">Ouvrir</button>`}<button type="button" class="sec" data-suppr="${i}" title="Supprimer ce projet de ce navigateur">🗑</button></div>`; }).join("")
+        : `<div class="pj-vide">${P.length ? "Aucun projet ne correspond à « " + esc(q) + " »." : "Aucun projet enregistré dans ce navigateur."}</div>`; };
+    const ouvrirP = (p) => { if (!p || (actif() && actif().id === p.id)) { box.hidden = true; return; } if (confirm(`Ouvrir le projet « ${p.nom} » ?\n\nLe projet en cours est enregistré dans la liste.`)) ouvrir(p.id); };
+    const charger = async () => { try { await sauverCourant(); P = await liste(); } catch (e) { inp.disabled = true; inp.placeholder = "Liste des projets indisponible (" + e.message + ") : utiliser le fichier projet"; } };
+    const montrer = async () => { if (box.hidden) await charger(); box.hidden = false; rendre(); };   // liste relue à chaque ouverture (projet en cours enregistré d'abord)
+    inp.addEventListener("focus", montrer); inp.addEventListener("click", montrer);
+    inp.addEventListener("input", () => { sel = 0; box.hidden = false; rendre(); });
+    inp.addEventListener("keydown", (e) => { if (box.hidden && ["ArrowDown", "Enter"].includes(e.key)) { montrer(); return; }
+      if (e.key === "ArrowDown") { e.preventDefault(); sel = Math.min(sel + 1, vus.length - 1); rendre(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(sel - 1, 0); rendre(); }
+      else if (e.key === "Enter") { e.preventDefault(); ouvrirP(vus[Math.max(sel, 0)]); }
+      else if (e.key === "Escape") { box.hidden = true; inp.blur(); } });
+    box.addEventListener("mousedown", (e) => e.preventDefault());                    // garder le focus dans le champ
+    box.addEventListener("click", async (e) => { const o = e.target.closest("[data-ouvrir]"), s = e.target.closest("[data-suppr]"), l = e.target.closest(".pj-ligne");
+      if (s) { const p = vus[+s.dataset.suppr]; if (p && await supprimerProjet(p.id)) { if (!actif() || !P.some((x) => x.id === actif().id) || actif().id === p.id) { location.reload(); return; } P = await liste(); rendre(); } return; }
+      if (o) { ouvrirP(vus[+o.dataset.ouvrir]); return; } if (l) ouvrirP(vus[+l.dataset.i]); });
+    document.addEventListener("click", (e) => { if (!el.querySelector(".pj-choix").contains(e.target)) box.hidden = true; });
+    charger();
     el.querySelector('[data-pj="exp"]').onclick = () => { exporter(); majEtat(); };
     el.querySelector('[data-pj="imp"]').onclick = () => importer();
     el.querySelector('[data-pj="new"]').onclick = () => nouveau();
@@ -181,5 +217,5 @@ const PROJET = (() => {
     if (typeof IDENT !== "undefined") IDENT.logoChamp(el.querySelector("[data-ig-logo]"), () => SUIVI.ident().logo || "", (l) => { SUIVI.majIdent({ logo: l }, true); if (apres) apres(); });
   }
   const majEtat = () => { if (barre.majEtat) barre.majEtat(); };
-  return { exporter, importer, fusionner, decisionModule, nouveau, ouvrir, supprimer, liste, sauverCourant, barre, majEtat, identification, etatHTML, etatModule, cles, lib, MODULES, ETATS };
+  return { exporter, importer, fusionner, decisionModule, filtrer, texteProjet, nouveau, ouvrir, supprimer: supprimerProjet, liste, sauverCourant, barre, majEtat, identification, etatHTML, etatModule, cles, lib, MODULES, ETATS };
 })();
