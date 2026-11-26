@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.04"></script>
-<script src="../commun/suivi.js?v=3.04"></script>
-<script src="../commun/projet.js?v=3.04"></script>
+<script src="../commun/auth.js?v=3.05"></script>
+<script src="../commun/suivi.js?v=3.05"></script>
+<script src="../commun/projet.js?v=3.05"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.04">
-<script src="../commun/apps.js?v=3.04"></script>
-<script src="../commun/data/profils.js?v=3.04"></script>
-<script src="../commun/barres3d.js?v=3.04"></script>
-<script src="../commun/acier.js?v=3.04"></script>
-<script src="../commun/data/tuyauterie.js?v=3.04"></script>
-<script src="../commun/charges.js?v=3.04"></script>
-<script src="../commun/coefvent.js?v=3.04"></script>
-<script src="../commun/tendues.js?v=3.04"></script>
-<script src="../commun/portique.js?v=3.04"></script>
-<script src="../commun/chevilles.js?v=3.04"></script>
-<script src="../commun/cbfem.js?v=3.04"></script>
-<script src="../commun/topo.js?v=3.04"></script>
-<script src="../commun/zip.js?v=3.04"></script>
-<script src="../commun/laser.js?v=3.04"></script>
-<script src="../commun/fluides.js?v=3.04"></script>
-<script src="../commun/libertes.js?v=3.04"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.05">
+<script src="../commun/apps.js?v=3.05"></script>
+<script src="../commun/data/profils.js?v=3.05"></script>
+<script src="../commun/barres3d.js?v=3.05"></script>
+<script src="../commun/acier.js?v=3.05"></script>
+<script src="../commun/data/tuyauterie.js?v=3.05"></script>
+<script src="../commun/charges.js?v=3.05"></script>
+<script src="../commun/coefvent.js?v=3.05"></script>
+<script src="../commun/tendues.js?v=3.05"></script>
+<script src="../commun/portique.js?v=3.05"></script>
+<script src="../commun/chevilles.js?v=3.05"></script>
+<script src="../commun/cbfem.js?v=3.05"></script>
+<script src="../commun/topo.js?v=3.05"></script>
+<script src="../commun/zip.js?v=3.05"></script>
+<script src="../commun/laser.js?v=3.05"></script>
+<script src="../commun/fluides.js?v=3.05"></script>
+<script src="../commun/libertes.js?v=3.05"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -84,7 +84,7 @@
 <li><b>Conflits</b> : le fichier projet porte un identifiant de projet. À l'ouverture d'un fichier du même projet, chaque module est comparé à la référence commune (dernier export ou import) : modifié seulement dans le fichier → repris ; seulement ici → conservé ; des deux côtés → alerte « CONFLIT » (auteurs et dates), l'utilisateur garde sa version ou prend celle du fichier ; décision par module (toutes ses données du même côté), tracée au journal.</li></ul>
 <h3>Enchaînement type d'une affaire de supportage</h3>
 <ol>
-<li><b>Accueil – projet (3.01)</b> : choisir le projet de travail dans la liste déroulante (projets enregistrés dans le navigateur) ou en créer un ; saisir l'<b>identification du projet</b> (n° d'affaire, intitulé, client, site, phase, logo ; bon pour et auteurs par défaut), reprise dans toutes les calculettes, le cahier et les cartouches ; suivre l'<b>état de chaque module</b> (non renseigné, jamais exporté, modifié depuis le dernier export, à jour).</li>
+<li><b>Accueil – projet (3.01)</b> : choisir le projet de travail dans la liste des projets enregistrés dans le navigateur (champ de recherche par mot clé : n°, intitulé, client, site, phase ; ouverture et suppression, 3.05) ou en créer un ; saisir l'<b>identification du projet</b> (n° d'affaire, intitulé, client, site, phase, logo ; bon pour et auteurs par défaut), reprise dans toutes les calculettes, le cahier et les cartouches ; suivre l'<b>état de chaque module</b> (non renseigné, jamais exporté, modifié depuis le dernier export, à jour).</li>
 <li><b>Cahier de supportage (CS)</b> : compléter l'affaire du cahier (n° de document, indice, réalisé / contrôlé). Les champs du projet sont ceux de l'accueil et y reviennent s'ils sont modifiés ici.</li>
 <li><b>Climat (C1)</b> : localiser le site, obtenir les zones de vent, neige, séisme, q<sub>p</sub>(z), s<sub>k</sub>, a<sub>g</sub> ; les importer dans le cahier (paramètres communs).</li>
 <li><b>Portée de tuyauterie (T1)</b> : portées admissibles entre supports par ligne (contrainte, flèche, fréquence).</li>
@@ -370,6 +370,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.05</td><td>Accueil, RC</td><td>Liste des projets : la liste déroulante est remplacée par un champ de recherche par mot clé (n°, intitulé, client, site, phase ; sans accents ni casse ; tous les mots), clavier ↑ ↓ Entrée ; chaque projet peut être ouvert ou supprimé (le bouton de suppression de la 3.01 n'était pas accessible). Supprimer le projet ouvert efface ses données de travail et ouvre un projet vide. 1 test ajouté.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>3.04</td><td>S1, CS</td><td>Libertés des appuis à la manière de CAESAR II (commun/libertes.js) : +Vr, Vr bilatéral, GUI, LIM, +LIM, −LIM, GUI LIM, ANC, avec les efforts saisis sur les axes bloqués ; alertes (butée axiale, bilatéral, transversal libre sur profilé vertical) ; étrier serré si l'axe est bloqué. Cornières de guidage L 30×20×3 retournées : petite aile (20) verticale soudée sur le profilé à côté de la semelle du patin, grande aile (30) horizontale en tête au-dessus du bord de la semelle. 2 tests ajoutés.</td><td>S1 : glissant, guidé et point fixe inchangés ; nouvelles libertés (butées, bilatéral) avec leurs efforts. Plans et 3D : orientation des cornières de guidage.</td></tr>
 <tr><td>3.03</td><td>Accueil, tous modules, dépôt</td><td>Responsables des modules et verrou de consultation (3.02) retirés ; l'état du projet garde l'auteur de chaque modification (colonne « Modifié par », journal). Dépôt : règle « déjà fait ? » des sessions Claude Code (CLAUDE.md) et script outils/deja-fait.sh (branches non fusionnées, commits, journal du manuel) avant toute modification.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>3.02</td><td>Tous modules, accueil, S1, CS, AN1, C1, T1</td><td>Projet collaboratif : modules reliés (C1 transmis automatiquement à S1 et au cahier ; chevilles de S1 définies dans AN1, entraxes repris d'AN1 ; identification du projet reprise de l'accueil dans les cartes d'identification) ; bouton « 💾 Enregistrer » / Ctrl+S sur chaque page ; module « renseigné » seulement après une saisie ; responsables des modules (consultation seule pour les autres, forçage tracé) ; journal du projet ; conflits signalés à l'ouverture d'un fichier projet du même projet (décision par module). Accueil : bouton Aide. S1 : cartes Projet, Note de calcul et Perspective (écran) retirées, fixations après les vérifications, climat C1 en lecture. CS : identification du projet reprise de l'accueil, fichier du cahier, carte « Plans DXF et notes » et forfait de chevilles retirés, C1 automatique, identification en tête, « ⬇ DXF » dans l'en-tête. AN1 : combinaison la plus défavorable cochée par défaut, libellés sans nom de logiciel. Liste des fluides T1 / S1 / G1 : essence et distillat moyen (ρ à 15 °C). 4 tests ajoutés.</td><td>S1 en chevilles : efforts par fixation calculés avec les entraxes d'AN1 dès que la platine y est vérifiée (sinon 120 × 120 provisoires, comme avant). S1 : q<sub>p</sub>, s<sub>k</sub>, α·S toujours ceux de C1 quand le projet en a. BOM du cahier : chevilles non forfaitaires. Autres calculs inchangés.</td></tr>
@@ -614,12 +615,15 @@ function tests(){
   if(typeof LIBERTES!=='undefined'){ const E=(f,F)=>LIBERTES.efforts(f,10,0.3,F).join('/'), F={x:-4,y:2,z:1};
     ajout('S1 – libertés CAESAR II : +Vr, GUI, LIM, ANC (G = 10 kN, μ = 0,3, F = (−4 ; 2 ; 1) kN)','[3/0/0] ; [3/2/0] ; [−4/0/0] ; [−4/2/1] (1 = conforme)',E('glissant',F)==='3/0/0'&&E('guide',F)==='3/2/0'&&E('lim',F)==='-4/0/0'&&E('fixe',F)==='-4/2/1'?1:0,1,'',0);
     ajout('S1 – butée un sens : +LIM reprend F_x < 0, −LIM glisse (frottement −μ·G) ; Vr bilatéral reprend F_z','[−4/0/0] ; [−3/0/0] ; [3/0/1] (1 = conforme)',E('limp',F)==='-4/0/0'&&E('limm',F)==='-3/0/0'&&E('bilat',F)==='3/0/1'?1:0,1,'',0); }
+  if(typeof PROJET!=='undefined'&&PROJET.filtrer){ const id=o=>JSON.stringify(o), L=[{id:'a',nom:'24-001 – Dépôt Est',cles:{'fip.projet.ident':id({num:'24-001',intitule:'Dépôt Est',client:'Client A',site:'Lyon'})}},{id:'b',nom:'25-010 – Réservoirs',cles:{'fip.projet.ident':id({num:'25-010',client:'Client B',site:'Le Havre',phase:'APD'})}}];
+    const r=q=>PROJET.filtrer(L,q).map(p=>p.id).join();
+    ajout('Projets – recherche par mot clé (sans accents ni casse, tous les mots)','« depot » → a ; « havre apd » → b ; « client » → a,b ; « lyon apd » → aucun (1 = conforme)',r('depot')==='a'&&r('havre apd')==='b'&&r('client')==='a,b'&&r('lyon apd')===''&&r('')==='a,b'?1:0,1,'',0); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
     T.map(t=>`<tr><td>${t.n}</td><td>${t.ref}</td><td class="n">${f(t.v,4)} ${t.unit}</td><td class="n">${f(t.vr,4)} ${t.unit}</td><td class="n">${f(Math.abs(t.v-t.vr)/Math.max(Math.abs(t.vr),1e-12)*100,3)} %</td><td class="${t.ok?'ok':'ko'}">${t.ok?'✔':'✘'}</td></tr>`).join('')+'</table>';
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.04"></script>
+<script src="../commun/replier.js?v=3.05"></script>
 </body>
 </html>
