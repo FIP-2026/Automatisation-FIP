@@ -4,30 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.03"></script>
-<script src="../commun/suivi.js?v=3.03"></script>
-<script src="../commun/projet.js?v=3.03"></script>
+<script src="../commun/auth.js?v=3.04"></script>
+<script src="../commun/suivi.js?v=3.04"></script>
+<script src="../commun/projet.js?v=3.04"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.03">
-<script src="../commun/apps.js?v=3.03"></script>
-<script src="../commun/data/profils.js?v=3.03"></script>
-<script src="../commun/barres3d.js?v=3.03"></script>
-<script src="../commun/acier.js?v=3.03"></script>
-<script src="../commun/data/tuyauterie.js?v=3.03"></script>
-<script src="../commun/charges.js?v=3.03"></script>
-<script src="../commun/coefvent.js?v=3.03"></script>
-<script src="../commun/tendues.js?v=3.03"></script>
-<script src="../commun/portique.js?v=3.03"></script>
-<script src="../commun/chevilles.js?v=3.03"></script>
-<script src="../commun/cbfem.js?v=3.03"></script>
-<script src="../commun/topo.js?v=3.03"></script>
-<script src="../commun/zip.js?v=3.03"></script>
-<script src="../commun/laser.js?v=3.03"></script>
-<script src="../commun/fluides.js?v=3.03"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.04">
+<script src="../commun/apps.js?v=3.04"></script>
+<script src="../commun/data/profils.js?v=3.04"></script>
+<script src="../commun/barres3d.js?v=3.04"></script>
+<script src="../commun/acier.js?v=3.04"></script>
+<script src="../commun/data/tuyauterie.js?v=3.04"></script>
+<script src="../commun/charges.js?v=3.04"></script>
+<script src="../commun/coefvent.js?v=3.04"></script>
+<script src="../commun/tendues.js?v=3.04"></script>
+<script src="../commun/portique.js?v=3.04"></script>
+<script src="../commun/chevilles.js?v=3.04"></script>
+<script src="../commun/cbfem.js?v=3.04"></script>
+<script src="../commun/topo.js?v=3.04"></script>
+<script src="../commun/zip.js?v=3.04"></script>
+<script src="../commun/laser.js?v=3.04"></script>
+<script src="../commun/fluides.js?v=3.04"></script>
+<script src="../commun/libertes.js?v=3.04"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -221,7 +222,8 @@
 <p><b>Liaisons tuyau / support (2.92)</b> : par tuyauterie, type de liaison de la spécification client (§11.3 et §11.4) : étrier serré sur cale téflon (4, défaut), patin collier plat ép. 5 + ½ IPE 200 soudé (1), tôle intermédiaire + ½ IPE 200 (2, DN 25 à 200), tôle intermédiaire + support mécano-soudé (2a, DN &gt; 200), tôle intermédiaire posée (3), tuyau posé sur plat (5) ; guide latéral (cornières L 30×20×3, plats 50 × 5 ou ronds Ø12, jeu 10 mm) ; hauteur de l'élément sous le tuyau (étrier : hauteur de sabot ; types 1 et 2 : 105 mm = ½ IPE 200 + 5 mm ; 2a : 150 mm ; 3 : 5 mm ; 5 : 10 mm), modifiable. <b>Effet sur le calcul</b> : la hauteur décale l'axe du tuyau au-dessus du profilé (excentrement vertical des charges) ; la fonction (glissant, guidé, point fixe) et le coefficient de frottement restent saisis. L'étrier, sa pince et ses alertes ne s'appliquent qu'au type 4 ; alertes sur les types 2 / 2a selon le DN, sur les guides non prévus pour le type, et rappel du perçage Ø8 des tôles. Dessin du patin, des tôles et des guides, nomenclature et BOM du cahier. Le patin « Hilti DN » demandé sur un projet particulier n'est pas repris.</p>
 <p><b>Sabot vérifié dans AN1 (2.94)</b> : pour la traverse sur sabots, S1 transmet à AN1 les efforts ramenés à la platine et la géométrie du sabot comme un « profilé » de plats soudés (butée d'extrémité ép. 8 mm à 12 mm du bord, longueur L<sub>x</sub> − 40 mm ; deux goussets ép. 8 mm de part et d'autre de la traverse, 100 mm de long) : le CBFEM d'AN1 calcule les contraintes de la platine, la pression sur le béton et les efforts des chevilles pour le sabot lui-même, sans simulation annexe ; famille « Plats soudés (sabot) » (<code>CBFEM.parois</code> accepte des parois libres dans le repère de la platine). Un sabot gauche et un sabot droit sont vérifiés séparément (butée de part et d'autre) ; le cahier d'exécution exige les deux.</p>
 <p><b>Liaisons, cale téflon, entraxes automatiques et sabot symétrique (2.95)</b> : <b>cale PTFE</b> : présente dès que le frottement retenu est celui du PTFE (μ = 0,1) – lien direct entre le calcul (frottement) et le plan : cale de 10 mm dessinée sous l'étrier ou sous le patin et nomenclaturée (sous l'étrier : 120 × (Ø + 2·d + 50) × 10, percée de deux trous Ø d + 2 au passage de l'étrier qui la maintient) ; choisir le type 4 (étrier) fixe μ = 0,1 ; la « hauteur de sabot / cale » globale est supprimée : la hauteur sous le tuyau = élément de liaison (½ IPE 200 + 5 mm = 105 mm, tôle 5 mm, plat 10 mm…) + cale éventuelle. <b>Types selon le diamètre</b> : la liste ne propose que les types admis (type 2 du DN 25 au DN 200, type 2a au-delà) et bascule automatiquement de l'un à l'autre si le DN change ; alerte bloquante sinon. <b>Crapautage et sandwich</b> : entraxes des fixations calculés automatiquement et arrondis à la dizaine supérieure (cotes de fabrication) : le long du profilé existant, emprise du profilé du support + 3·d<sub>0</sub> (mini 100 mm) ; en travers, sandwich : largeur de semelle + d<sub>0</sub> + 2 × 10 mm, crapauds : largeur de semelle + 2 × 12 mm ; platine = entraxes + 80 mm (multiple de 10). <b>Sabot</b> : le même sabot à gauche et à droite (comme les pieds d'un U) : géométrie du sabot gauche, efforts du sabot droit symétrisés (V<sub>y</sub>, M<sub>x</sub>, M<sub>z</sub> changés de signe) ; une seule vérification AN1 sur l'enveloppe des deux.</p>
-<p><b>Géométrie des liaisons (2.97)</b> : type 1 = <b>patin boulonné</b> : ½ IPE 200 de 200 mm (semelle 100 × 8,5, âme 5,6) et deux colliers plats 40 × 5, un à chaque extrémité, chacun en deux demi-colliers (bas soudé sur le Té, haut boulonné par deux pattes et deux boulons M12) ; types 2, 2a et 3 : <b>coquille</b> (tôle intermédiaire cintrée sur 120° sous le tuyau, 250 mm, ép. 5, développé π(Ø + 5)/3) ; type 4 : étrier avec jeu (guidé ou glissant) ou serré (point fixe), selon la fonction de la tuyauterie ; une tuyauterie <b>glissante</b> n'a pas de guide latéral (choix bloqué sur « Sans »). <b>Guide en cornières (3.01)</b> : 2 cornières L 30×20×3 (EN 10056-1) de 100 mm, aile de 30 verticale en butée, aile de 20 soudée sur le profilé, placées à 10 mm de la semelle du patin (types 1 et 2 : ½ IPE 200 de 100 mm ; 2a : 140 mm ; 5 : plat de 100 mm) ou du tuyau (type 3) ; nomenclature en largeur développée 30 + 20 − 3 = 47 mm.</p>
+<p><b>Libertés des appuis (3.04, commun/libertes.js)</b> : par tuyauterie, type de support à la manière de CAESAR II, dans les axes du tuyau Lo (X), Tr (Y), Vr (Z) : +Vr (support poids glissant), Vr (bilatéral, soulèvement repris), +Vr GUI (guidé), +Vr LIM (butée axiale), +Vr +LIM / −LIM (butée un sens ; convention CAESAR II : +LIM = déplacement +Lo libre), +Vr GUI LIM, ANC (ancrage). Cas T transmis au support : Lo libre → frottement μ·G ; axe bloqué → effort saisi (étude de flexibilité, effort sur le support) ; butée +LIM → F<sub>x</sub> si F<sub>x</sub> &lt; 0, sinon frottement +μ·G (la tuyauterie glisse) ; −LIM → F<sub>x</sub> si F<sub>x</sub> &gt; 0, sinon −μ·G ; Tr libre → 0 ; Vr bloqué → F<sub>z</sub> (&gt; 0 soulèvement). Les fonctions historiques sont conservées (glissant = +Vr, guidé = +Vr GUI, point fixe = ANC). Butées axiales non dessinées (à définir en exécution).</p>
+<p><b>Géométrie des liaisons (2.97)</b> : type 1 = <b>patin boulonné</b> : ½ IPE 200 de 200 mm (semelle 100 × 8,5, âme 5,6) et deux colliers plats 40 × 5, un à chaque extrémité, chacun en deux demi-colliers (bas soudé sur le Té, haut boulonné par deux pattes et deux boulons M12) ; types 2, 2a et 3 : <b>coquille</b> (tôle intermédiaire cintrée sur 120° sous le tuyau, 250 mm, ép. 5, développé π(Ø + 5)/3) ; type 4 : étrier avec jeu (guidé ou glissant) ou serré (point fixe), selon la fonction de la tuyauterie ; une tuyauterie <b>glissante</b> n'a pas de guide latéral (choix bloqué sur « Sans »). <b>Guide en cornières (3.01, orientation 3.04)</b> : 2 cornières L 30×20×3 (EN 10056-1) de 100 mm, petite aile (20) verticale soudée sur le profilé (butée latérale), grande aile (30) horizontale en tête tournée vers le patin, au-dessus du bord de la semelle (retenue au soulèvement avec jeu), aile verticale placée à 10 mm de la semelle du patin (types 1 et 2 : ½ IPE 200 de 100 mm ; 2a : 140 mm ; 5 : plat de 100 mm) ou du tuyau (type 3) ; nomenclature en largeur développée 30 + 20 − 3 = 47 mm.</p>
 </article>
 
 <article class="card" id="p1"><div class="theme">P1 – Poutre</div><h2>9. P1 – Poutre isostatique</h2>
@@ -368,6 +370,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.04</td><td>S1, CS</td><td>Libertés des appuis à la manière de CAESAR II (commun/libertes.js) : +Vr, Vr bilatéral, GUI, LIM, +LIM, −LIM, GUI LIM, ANC, avec les efforts saisis sur les axes bloqués ; alertes (butée axiale, bilatéral, transversal libre sur profilé vertical) ; étrier serré si l'axe est bloqué. Cornières de guidage L 30×20×3 retournées : petite aile (20) verticale soudée sur le profilé à côté de la semelle du patin, grande aile (30) horizontale en tête au-dessus du bord de la semelle. 2 tests ajoutés.</td><td>S1 : glissant, guidé et point fixe inchangés ; nouvelles libertés (butées, bilatéral) avec leurs efforts. Plans et 3D : orientation des cornières de guidage.</td></tr>
 <tr><td>3.03</td><td>Accueil, tous modules, dépôt</td><td>Responsables des modules et verrou de consultation (3.02) retirés ; l'état du projet garde l'auteur de chaque modification (colonne « Modifié par », journal). Dépôt : règle « déjà fait ? » des sessions Claude Code (CLAUDE.md) et script outils/deja-fait.sh (branches non fusionnées, commits, journal du manuel) avant toute modification.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>3.02</td><td>Tous modules, accueil, S1, CS, AN1, C1, T1</td><td>Projet collaboratif : modules reliés (C1 transmis automatiquement à S1 et au cahier ; chevilles de S1 définies dans AN1, entraxes repris d'AN1 ; identification du projet reprise de l'accueil dans les cartes d'identification) ; bouton « 💾 Enregistrer » / Ctrl+S sur chaque page ; module « renseigné » seulement après une saisie ; responsables des modules (consultation seule pour les autres, forçage tracé) ; journal du projet ; conflits signalés à l'ouverture d'un fichier projet du même projet (décision par module). Accueil : bouton Aide. S1 : cartes Projet, Note de calcul et Perspective (écran) retirées, fixations après les vérifications, climat C1 en lecture. CS : identification du projet reprise de l'accueil, fichier du cahier, carte « Plans DXF et notes » et forfait de chevilles retirés, C1 automatique, identification en tête, « ⬇ DXF » dans l'en-tête. AN1 : combinaison la plus défavorable cochée par défaut, libellés sans nom de logiciel. Liste des fluides T1 / S1 / G1 : essence et distillat moyen (ρ à 15 °C). 4 tests ajoutés.</td><td>S1 en chevilles : efforts par fixation calculés avec les entraxes d'AN1 dès que la platine y est vérifiée (sinon 120 × 120 provisoires, comme avant). S1 : q<sub>p</sub>, s<sub>k</sub>, α·S toujours ceux de C1 quand le projet en a. BOM du cahier : chevilles non forfaitaires. Autres calculs inchangés.</td></tr>
 <tr><td>3.01</td><td>Accueil, tous modules, C1, S1, CS, H1</td><td>Accueil : bloc « Projet » en tête (projet de travail choisi dans une liste déroulante des projets enregistrés dans le navigateur, base IndexedDB ; identification globale du projet reprise dans tous les modules, le cahier et les cartouches, et mise à jour depuis eux ; état de chaque module : non renseigné, jamais exporté, modifié depuis le dernier export, à jour, avec la date de modification) ; commun/suivi.js chargé par toutes les pages ; familles réordonnées (Hypothèses de charges, Tuyauterie et fluides avec le cahier de supportage en premier, Structure acier, Assemblages, Rapports, Aide). C1 : catégorie d'importance IV et classe de sol « enveloppe D/E » par défaut. S1 / CS : cornières de guidage L 30×20×3 (au lieu de L 50×5), dessinées en L, en butée à 10 mm de la semelle du patin. H1 : distillat moyen (générique). 7 tests ajoutés.</td><td>C1 : valeurs sismiques par défaut plus élevées (γ<sub>I</sub> 1,4 au lieu de 1,0 ; sol D/E au lieu de B) tant que l'utilisateur ne les change pas. S1 / CS : nomenclature et masse des guides en cornière modifiées. Autres calculs inchangés.</td></tr>
@@ -608,12 +611,15 @@ function tests(){
     ajout('Projet – donnée absente : état « non renseigné »','SUIVI.etatCle (1 = conforme)',SUIVI.etatCle('fip.test.absente').etat==='vide'?1:0,1,'',0);
     ajout('Projet – modules et pages reliés (C1, CS, S1, AN1…)','SUIVI.moduleDeCle (1 = conforme)',['fip.hyp.C','fip.climat','fip.cahier','fip.an1','fip.projet.ident'].map(SUIVI.moduleDeCle).join()==='C1,C1,CS,AN1,ID'?1:0,1,'',0); }
   if(typeof FLUIDS!=='undefined'&&typeof FLUIDS_ORDRE!=='undefined') ajout('T1 / S1 / G1 – liste des fluides : distillat et essence, « Personnalisé » en dernier','ρ₁₅ distillat 850 kg/m³ (1 = conforme)',FLUIDS[FLUIDS_ORDRE[FLUIDS_ORDRE.length-1]].r===null&&FLUIDS.some(x=>/Distillat/.test(x.n)&&x.r===850)&&FLUIDS.some(x=>/Essence/.test(x.n))?1:0,1,'',0);
+  if(typeof LIBERTES!=='undefined'){ const E=(f,F)=>LIBERTES.efforts(f,10,0.3,F).join('/'), F={x:-4,y:2,z:1};
+    ajout('S1 – libertés CAESAR II : +Vr, GUI, LIM, ANC (G = 10 kN, μ = 0,3, F = (−4 ; 2 ; 1) kN)','[3/0/0] ; [3/2/0] ; [−4/0/0] ; [−4/2/1] (1 = conforme)',E('glissant',F)==='3/0/0'&&E('guide',F)==='3/2/0'&&E('lim',F)==='-4/0/0'&&E('fixe',F)==='-4/2/1'?1:0,1,'',0);
+    ajout('S1 – butée un sens : +LIM reprend F_x < 0, −LIM glisse (frottement −μ·G) ; Vr bilatéral reprend F_z','[−4/0/0] ; [−3/0/0] ; [3/0/1] (1 = conforme)',E('limp',F)==='-4/0/0'&&E('limm',F)==='-3/0/0'&&E('bilat',F)==='3/0/1'?1:0,1,'',0); }
   const nok=T.filter(t=>!t.ok).length, ver=typeof CALC_VERSION!=='undefined'?CALC_VERSION:'';
   $('tests').innerHTML=`<div class="msg ${nok?'bad':'ok'}">${nok?`✘ ${nok} test(s) en écart`:`✔ ${T.length} tests conformes`} – moteur ${ver} – ${new Date().toLocaleString('fr-FR')}</div><table><tr><th>Cas</th><th>Référence</th><th class="n">Outil</th><th class="n">Référence</th><th class="n">Écart</th><th></th></tr>`+
     T.map(t=>`<tr><td>${t.n}</td><td>${t.ref}</td><td class="n">${f(t.v,4)} ${t.unit}</td><td class="n">${f(t.vr,4)} ${t.unit}</td><td class="n">${f(Math.abs(t.v-t.vr)/Math.max(Math.abs(t.vr),1e-12)*100,3)} %</td><td class="${t.ok?'ok':'ko'}">${t.ok?'✔':'✘'}</td></tr>`).join('')+'</table>';
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.03"></script>
+<script src="../commun/replier.js?v=3.04"></script>
 </body>
 </html>
