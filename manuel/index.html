@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.09"></script>
-<script src="../commun/suivi.js?v=3.09"></script>
-<script src="../commun/projet.js?v=3.09"></script>
+<script src="../commun/auth.js?v=3.10"></script>
+<script src="../commun/suivi.js?v=3.10"></script>
+<script src="../commun/projet.js?v=3.10"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.09">
-<script src="../commun/apps.js?v=3.09"></script>
-<script src="../commun/data/profils.js?v=3.09"></script>
-<script src="../commun/barres3d.js?v=3.09"></script>
-<script src="../commun/acier.js?v=3.09"></script>
-<script src="../commun/data/tuyauterie.js?v=3.09"></script>
-<script src="../commun/charges.js?v=3.09"></script>
-<script src="../commun/coefvent.js?v=3.09"></script>
-<script src="../commun/tendues.js?v=3.09"></script>
-<script src="../commun/portique.js?v=3.09"></script>
-<script src="../commun/chevilles.js?v=3.09"></script>
-<script src="../commun/cbfem.js?v=3.09"></script>
-<script src="../commun/topo.js?v=3.09"></script>
-<script src="../commun/zip.js?v=3.09"></script>
-<script src="../commun/laser.js?v=3.09"></script>
-<script src="../commun/fluides.js?v=3.09"></script>
-<script src="../commun/libertes.js?v=3.09"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.10">
+<script src="../commun/apps.js?v=3.10"></script>
+<script src="../commun/data/profils.js?v=3.10"></script>
+<script src="../commun/barres3d.js?v=3.10"></script>
+<script src="../commun/acier.js?v=3.10"></script>
+<script src="../commun/data/tuyauterie.js?v=3.10"></script>
+<script src="../commun/charges.js?v=3.10"></script>
+<script src="../commun/coefvent.js?v=3.10"></script>
+<script src="../commun/tendues.js?v=3.10"></script>
+<script src="../commun/portique.js?v=3.10"></script>
+<script src="../commun/chevilles.js?v=3.10"></script>
+<script src="../commun/cbfem.js?v=3.10"></script>
+<script src="../commun/topo.js?v=3.10"></script>
+<script src="../commun/zip.js?v=3.10"></script>
+<script src="../commun/laser.js?v=3.10"></script>
+<script src="../commun/fluides.js?v=3.10"></script>
+<script src="../commun/libertes.js?v=3.10"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -283,7 +283,13 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <li><b>Jonction raidisseur – tube</b> : le raidisseur n'est plus lié à la platine sur la première maille contre le tube (la platine y est déjà tenue par la paroi), ce qui supprime des efforts parasites opposés ; résultat stable pour une maille de 8 à 20 mm (cheville la plus tendue : +0,2 % à +4,2 %).</li>
 <li><b>Soudures des raidisseurs sur la platine</b> (tous profilés) : ajout du cisaillement longitudinal v = V·S<sub>f</sub>/I (flux de cisaillement entre le raidisseur et la bande de platine de la section en T) et de la pointe locale (effort lissé, hors d'une zone de 2,5·t au pied) : σ<sub>w</sub> = max[σ<sub>w</sub>(q, v<sub>max</sub>) ; σ<sub>w</sub>(q<sub>local</sub>, v<sub>local</sub>)], q étant l'effort après redistribution plastique sur tout le cordon.</li>
 </ul>
-<p>AN1 / note R4 : tractions des chevilles 2 / 29 / 2 707 / 2 599 / 2 713 / 2 835 daN contre 0 / 13 / 2 296 / 2 188 / 2 759 / 2 829 (cheville la plus tendue +0,2 % ; rang médian +18 %, côté sécurité ; somme +8 %) ; platine plastifiée dans les deux cas (ε<sub>pl</sub> 0,01 % / 0,03 %) ; raidisseurs plastifiés dans les deux cas (ε<sub>pl</sub> 0,14 % / 0,38 %) ; soudure du tube 112 / 110 N/mm² (valeur sensible au maillage : 112 à 260 N/mm² pour une maille de 8 à 20 mm, du côté de la sécurité) ; soudures des six raidisseurs sur la platine 92, 235, 73, 151, 67, 239 / 111, 320, 148, 218, 142, 325 N/mm² (cordon le plus chargé −26 %, taux 66 % contre 93 %, <b>non sécuritaire</b>). La pointe de la note en bout de raidisseur (325 N/mm²) dépasse ce qu'un raidisseur de 5 mm plastifié peut transmettre à deux cordons de 4 mm (f<sub>y</sub>·t = 1 175 N/mm, soit σ<sub>w</sub> ≈ 208 N/mm²) : AN1, où le raidisseur plastifie en pointe, plafonne vers 240 N/mm² – écart <b>à vérifier</b>. Soudure verticale raidisseur – tube (note : 30 à 130 N/mm²) : non vérifiée par AN1. Effet du nouveau contrôle des soudures de raidisseurs sur les autres notes : R1 cordon le plus chargé 304 / 284 N/mm² (+7 % ; 286 en 3.08), R2 229 / 288 N/mm² (−20 % ; −32 % en 3.08). Tube rond <b>sans raidisseur</b> : la platine n'étant plus encastrée sur la paroi, les tractions augmentent (+17 % sur le cas R4 sans ses raidisseurs) – non comparé à une note, <b>à vérifier</b>.</p>
+<p>AN1 / note R4 : tractions des chevilles 2 / 29 / 2 707 / 2 599 / 2 713 / 2 835 daN contre 0 / 13 / 2 296 / 2 188 / 2 759 / 2 829 (cheville la plus tendue +0,2 % ; rang médian +18 %, côté sécurité ; somme +8 %) ; platine plastifiée dans les deux cas (ε<sub>pl</sub> 0,01 % / 0,03 %) ; raidisseurs plastifiés dans les deux cas (ε<sub>pl</sub> 0,14 % / 0,38 %) ; soudure du tube 112 / 110 N/mm² (valeur sensible au maillage : 112 à 260 N/mm² pour une maille de 8 à 20 mm, du côté de la sécurité) ; soudures des six raidisseurs sur la platine 92, 235, 73, 151, 67, 239 / 111, 320, 148, 218, 142, 325 N/mm² (cordon le plus chargé −26 %, taux 66 % contre 93 %, <b>non sécuritaire</b> ; corrigé en 3.10 par un coefficient de pointe, voir plus bas). La pointe de la note en bout de raidisseur (325 N/mm²) dépasse ce qu'un raidisseur de 5 mm plastifié peut transmettre à deux cordons de 4 mm (f<sub>y</sub>·t = 1 175 N/mm, soit σ<sub>w</sub> ≈ 208 N/mm²) : AN1, où le raidisseur plastifie en pointe, plafonne vers 240 N/mm² – écart <b>à vérifier</b>. Soudure verticale raidisseur – tube (note : 30 à 130 N/mm²) : non vérifiée par AN1. Effet du nouveau contrôle des soudures de raidisseurs sur les autres notes : R1 cordon le plus chargé 304 / 284 N/mm² (+7 % ; 286 en 3.08), R2 229 / 288 N/mm² (−20 % ; −32 % en 3.08). Tube rond <b>sans raidisseur</b> : la platine n'étant plus encastrée sur la paroi, les tractions augmentent (+17 % sur le cas R4 sans ses raidisseurs) – non comparé à une note, <b>à vérifier</b>.</p>
+<p><b>Quatrième note détaillée, tube carré (3.10)</b> : note R3 reprise avec ses résultats par élément (tube carré 80 × 3, platine 200 × 200 × 10, 4 chevilles à expansion M12 en béton fissuré, 8 raidisseurs triangulaires 50 × 120 × 4 dans le prolongement des parois – disposition déduite des vues en 3.06, confirmée –, un cordon a = 4 mm sur le tube, deux cordons a = 4 mm sur les raidisseurs ; N = 3 500 daN, M<sub>y</sub> = 500 daN·m, V<sub>y</sub> = −462 daN). Avec le modèle de la 3.09 : chevilles +5,6 %, platine et raidisseurs plastifiés comme dans la note, mais soudure du tube 201 contre 96 N/mm² et cordon de raidisseur le plus chargé 188 contre 222 N/mm² (−15 %). Deux corrections, pour les <b>tubes</b> (ronds, carrés, rectangulaires) :</p>
+<ul>
+<li><b>Jonction raidisseur – tube</b> : comme sur le tube rond (3.09), le raidisseur n'est plus lié à la platine sur la première maille contre le tube ; les efforts parasites opposés à la jonction (plusieurs fois l'effort appliqué) disparaissent : la résultante des parois du tube passe de 3 791 daN (supérieure à N) à 1 120 daN, le reste passant par les raidisseurs. Chevilles, platine et contrainte des raidisseurs inchangées (moins de 0,3 %).</li>
+<li><b>Coefficient de pointe</b> sur les cordons des raidisseurs : σ<sub>w</sub> multipliée par 1,35 (<code>CBFEM.K_POINTE_TUBE</code>). Les deux notes détaillées sur tubes donnent le même rapport AN1 / note sans coefficient : 165 / 222 = 0,74 (tube carré) et 239 / 325 = 0,74 (tube rond), la note dépassant ce que le raidisseur plastifié en traction simple peut transmettre (f<sub>y</sub>·t). Explications possibles, non modélisées : état de contrainte biaxial du raidisseur (jusqu'à 1,155·f<sub>y</sub>), partage inégal entre les deux cordons (écarts de ±3 à ±12 % relevés entre les deux côtés). <b>Coefficient empirique, à vérifier.</b></li>
+</ul>
+<p>AN1 / note R3 : cheville la plus tendue 2 565 / 2 428 daN (+5,7 %) ; platine plastifiée (ε<sub>pl</sub> 0,04 % / 0,05 %) ; raidisseurs 235 / 235 N/mm² (ε<sub>pl</sub> 0 / 0,08 %) ; soudure du tube 88 / 96 N/mm² (57 sur la paroi tendue dans la note ; valeur AN1 sensible au maillage : 54 à 119 N/mm² pour une maille de 6 à 12 mm) ; soudures des huit raidisseurs 222, 222, 191, 196 (côté tendu), 203, 201 (vers le côté comprimé), 23, 22 (côté comprimé) contre 220, 222, 200, 199, 133, 140, 26, 22 N/mm² (cordon le plus chargé : 0 %, taux 62 % / 62 %). Note R4 avec le coefficient : 125, 318, 98, 204, 90, 322 / 111, 320, 148, 218, 142, 325 N/mm² (cordon le plus chargé −1 %, taux 89 % / 93 % ; deux raidisseurs côté comprimé restent sous-estimés de 35 %). Profilés en I (notes R1 et R2) : modèle inchangé – la suppression de la liaison au pied y dégraderait la comparaison (soudures des ailes raidies sous-estimées de moitié).</p>
 <p><b>Cartes de couleurs (3.07)</b> : en plus de la platine, la vue 3D et le plan 2D colorent les raidisseurs (σ<sub>x</sub> = 12·M·(ζ − ½)/(t·h²), τ = 1,5·V/(t·h)·(1 − (2ζ − 1)²), von Mises, rapporté à f<sub>y</sub>), le pied des parois du profilé (σ = |q|/t, seule grandeur du profilé donnée par le modèle à parois indéformables) et, dans la carte « Soudures », les cordons (σ<sub>w</sub> local lissé ; tube : répartition linéaire du groupe). Les valeurs locales des cordons peuvent dépasser la valeur vérifiée, calculée après redistribution plastique le long du cordon.</p>
 <p><b>Espace annulaire (3.06)</b> : case « espace annulaire comblé » non cochée par défaut pour une nouvelle étude et désormais mémorisée (les études antérieures gardent « comblé »). Alertes avec bouton « Combler l'espace annulaire » : chevilles cisaillées près d'un bord avec jeu (hors domaine au-delà de 1, 2 ou 4 chevilles, NF EN 1992-4 Fig. 1.2) ; combinaison sismique cisaillée avec jeu (α<sub>gap</sub> = 0,5, annexe C.5).</p>
 <p><b>Combinaison affichée (3.02)</b> : la plus défavorable (taux maximal) est cochée par défaut et suivie à chaque calcul tant que l'utilisateur n'en coche pas une autre. Raideur automatique des chevilles : règle de ce chapitre (qualification ci-dessous), libellée « Automatique » dans l'outil.</p>
@@ -385,6 +391,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.10</td><td>AN1 (CBFEM)</td><td>Calage sur une quatrième note détaillée (R3, tube carré à 8 raidisseurs). Tubes ronds, carrés et rectangulaires : raidisseur non lié à la platine sur la première maille contre le tube (jonction) ; contrainte des cordons des raidisseurs multipliée par un coefficient de pointe de 1,35 (empirique, calé sur les deux notes détaillées sur tubes, à vérifier), affiché dans le détail par cordon. 4 tests ajoutés, 1 resserré.</td><td>Tubes avec raidisseurs : soudure du tube réduite (R3 : 201 → 88 N/mm², note 96) ; soudures des raidisseurs augmentées (R3 : 188 → 222, note 222 ; R4 : 239 → 322, note 325). Chevilles, platine et contrainte des raidisseurs : moins de 0,3 %. Profilés en I, U et cornières : inchangés.</td></tr>
 <tr><td>3.09</td><td>AN1 (CBFEM)</td><td>Calage sur une troisième note détaillée (R4, tube rond à 6 raidisseurs). Tube rond : platine retenue en rotation par la rigidité de coque de la paroi (plus d'encastrement), raidisseurs à pied semi-rigide (k<sub>r</sub> = 1,5·E·t³·H³/r³, à vérifier), jonction raidisseur – tube corrigée. Soudures des raidisseurs sur la platine (tous profilés) : cisaillement longitudinal (flux raidisseur – platine) et pointe locale ajoutés ; colonne « v » et mention « (pointe) » dans le détail par cordon. 9 tests ajoutés.</td><td>Tube rond avec raidisseurs : cheville la plus tendue augmentée (note R4 : −11 % → +0,2 %). Tube rond sans raidisseur : tractions augmentées (jusqu'à +17 % sur l'exemple). Soudures des raidisseurs : taux augmentés (R1 : 286 → 304 N/mm² ; R2 : 195 → 229 ; R4 : 139 → 239). Profilés en I, U, cornières et tubes carrés : chevilles, platine et raidisseurs inchangés.</td></tr>
 <tr><td>3.08</td><td>AN1 (CBFEM)</td><td>Calage sur une deuxième note détaillée (R2). Raidisseurs en section en T (platine pour semelle). Soudures d'une paroi sans raidisseur : effort au moins égal à celui du profilé seul (théorie des poutres) et, avec deux cordons, moment de la platine transmis à la paroi (cordon le plus chargé q/2 + Δm/(t + a)) ; détail par cordon complété (q du modèle, q du profilé seul, Δm). 5 tests ajoutés.</td><td>Taux des soudures des parois non raidies augmentés (aile tendue de la note R2 : 251 N/mm² au lieu de 82) ; contrainte des raidisseurs augmentée de quelques % à 40 % (section en T) ; tractions des chevilles modifiées de moins de 4 % en présence de raidisseurs. Sans raidisseur : chevilles et platine inchangées, soudures du profilé au moins égales à celles du profilé seul.</td></tr>
 <tr><td>3.07</td><td>AN1 (CBFEM)</td><td>Soudures vérifiées par la contrainte équivalente dans la gorge (méthode directionnelle, NF EN 1993-1-8 §4.5.3.2) au lieu de la méthode simplifiée ; jonction âme – aile attribuée à l'aile ; détail par cordon et par raidisseur dans les résultats ; cartes de couleurs sur les raidisseurs, le pied des parois du profilé et les cordons de soudure (vue 3D, plan 2D, note). Calage sur une note détaillée (R1) : cordon le plus chargé 273 contre 284 N/mm² ; 5 tests ajoutés.</td><td>Taux des soudures réduits par rapport à la 3.06 (résistance +22 % pour un effort transversal ; âme des profilés en I moins chargée). Tractions des chevilles, platine et raidisseurs inchangés.</td></tr>
@@ -616,11 +623,11 @@ function tests(){
         ajout('CBFEM – raidisseurs, note R1 (HEA 100, platine 240 × 240 × 15, 6 raidisseurs chanfreinés 50 × 120 × 6, M20 chimique), combinaison 1 : cheville la plus tendue','PROFIS CBFEM 2 700,2 daN (tolérance 10 %)',Math.max(...g1.T)/10,2700.2,'daN',0.10);
         ajout('Idem, combinaison 2 (flexion dominante)','PROFIS CBFEM 3 269,8 daN (tolérance 10 %)',Math.max(...g2.T)/10,3269.8,'daN',0.10);
         const g3=cas({f:'SHS',h:80,b:80,t:3},{lx:200,ly:200,t:10,fy:235},gr([-75,75],[-75,75]),125e3,12,3500,0,500,[0,1,2,3].flatMap(k=>[{face:k+'e',pos:1.5},{face:k+'e',pos:75.5}]).map(r=>({...r,L:50,H:120,t:4,forme:'tri'})));
-        ajout('CBFEM – raidisseurs, note R3 (tube carré 80 × 3, platine 200 × 200 × 10, 8 raidisseurs triangulaires 50 × 120 × 4 aux angles – disposition déduite des vues) : cheville la plus tendue','PROFIS CBFEM 2 427,7 daN (tolérance 10 %)',Math.max(...g3.T)/10,2427.7,'daN',0.10);
+        ajout('CBFEM – raidisseurs, note R3 (tube carré 80 × 3, platine 200 × 200 × 10, 8 raidisseurs triangulaires 50 × 120 × 4 dans le prolongement des parois – disposition confirmée en 3.10) : cheville la plus tendue','PROFIS CBFEM 2 427,7 daN (tolérance 10 %)',Math.max(...g3.T)/10,2427.7,'daN',0.10);
         const ipe={f:'IPE',h:140,b:73,tw:4.7,tf:6.9}, g6=cas(ipe,{lx:250,ly:250,t:10,fy:235},gr([-90,90],[-90,90]),160e3,16,4000,0,0,['0a','0b','1a','1b'].map(face=>({face,L:50,H:120,t:4,forme:'tri'})));
         ajout('CBFEM – raidisseurs, note R6 (IPE 140, platine 250 × 250 × 10, 4 raidisseurs en bout d\'ailes – disposition déduite des vues) : cheville la plus tendue','PROFIS CBFEM 1 164,5 daN (tolérance 10 %)',Math.max(...g6.T)/10,1164.5,'daN',0.10);
         ajout('Idem : équilibre des cordons (parois + raidisseurs)','Σ F = N = 4 000 daN',CBFEM.cordons(g6,3,false).reduce((s,c)=>s+c.F,0)/10,4000,'daN',2e-3);
-        { const par=CBFEM.paroisPlacees(hea,{}), Cd=CBFEM.cordons(g2,3,false,par), swR=(c)=>Math.max(CBFEM.sigmaSoudure(c.q,c.v,2,4),CBFEM.sigmaSoudure(c.ql,c.vl,2,4)), sw=(k)=>swR(Cd.find(c=>c.type==='raid'&&c.i===k));      // 3.09 : cisaillement longitudinal et pointe locale
+        { const par=CBFEM.paroisPlacees(hea,{}), Cd=CBFEM.cordons(g2,3,false,par), swR=(c)=>(c.kw||1)*Math.max(CBFEM.sigmaSoudure(c.q,c.v,2,4),CBFEM.sigmaSoudure(c.ql,c.vl,2,4)), sw=(k)=>swR(Cd.find(c=>c.type==='raid'&&c.i===k));      // 3.09 : cisaillement longitudinal et pointe locale
           ajout('CBFEM – soudures, note R1 combinaison 2 (gorge 4 mm des deux côtés) : contrainte équivalente du cordon le plus chargé','note détaillée 284 N/mm² (tolérance 10 %)',Math.max(...Cd.filter(c=>c.type==='raid').map(swR)),284,'N/mm²',0.10);
           ajout('Idem : cordons des raidisseurs en bout d\'aile côté tendu (moyenne des deux)','note détaillée (195 + 248)/2 = 221,5 N/mm² (tolérance 10 %)',(sw(4)+sw(5))/2,221.5,'N/mm²',0.10);
           ajout('Idem : contrainte équivalente de la platine','note détaillée 184 N/mm² (tolérance 15 %)',g2.sigMax,184,'N/mm²',0.15);
@@ -642,7 +649,13 @@ function tests(){
             ajout('Idem : somme des tractions','note 10 083,4 daN (tolérance 10 %)',r4.T.reduce((a,b)=>a+b,0)/10,10083.4,'daN',0.10);
             ajout('Idem : raidisseur le plus sollicité, plastifié','note 236 N/mm² (f_y atteinte, ε_pl = 0,38 % ; tolérance 2 %)',Math.max(...r4.raid.map(x=>x.sig)),236,'N/mm²',0.02);
             ajout('Idem : soudure du tube sur la platine (un cordon a = 4 mm)','note détaillée 110 N/mm² (tolérance 15 %)',CBFEM.sigmaSoudure(C4.find(c=>c.type==='tube').q,0,1,4),110,'N/mm²',0.15);
-            ajout('Idem : soudure du raidisseur le plus chargé sur la platine (deux cordons a = 4 mm)','note détaillée 325 N/mm² en pointe (tolérance 30 %, AN1 non sécuritaire : le raidisseur plastifié ne transmet pas plus de f_y·t)',Math.max(...C4.filter(c=>c.type==='raid').map(swR)),325,'N/mm²',0.30);
+            ajout('Idem : soudure du raidisseur le plus chargé sur la platine (deux cordons a = 4 mm, coefficient de pointe 1,35)','note détaillée 325 N/mm² en pointe (tolérance 10 %)',Math.max(...C4.filter(c=>c.type==='raid').map(swR)),325,'N/mm²',0.10);
+            { /* note R3 détaillée (3.10) : tube carré 80 × 3, 8 raidisseurs 50 × 120 × 4 dans le prolongement des parois, un cordon a = 4 mm sur le tube, deux sur les raidisseurs */
+              const shs={f:'SHS',h:80,b:80,t:3}, p3=CBFEM.paroisPlacees(shs,{}), C3=CBFEM.cordons(g3,4,true,p3,{fy:235,N:35000,Mx:0,My:500e4});
+              ajout('CBFEM – note R3 détaillée (tube carré 80 × 3, 8 raidisseurs) : soudure du tube sur la platine (un cordon a = 4 mm)','note détaillée 96 N/mm² (tolérance 15 %)',CBFEM.sigmaSoudure(C3.find(c=>c.type==='tube').q,4620/p3.reduce((s,w)=>s+Math.hypot(w.b[0]-w.a[0],w.b[1]-w.a[1]),0),1,4),96,'N/mm²',0.15);
+              ajout('Idem : soudure du raidisseur le plus chargé sur la platine (coefficient de pointe 1,35)','note détaillée 222 N/mm² (tolérance 10 %)',Math.max(...C3.filter(c=>c.type==='raid').map(swR)),222,'N/mm²',0.10);
+              ajout('Idem : raidisseur le plus sollicité','note 235 N/mm² (f_y atteinte, ε_pl = 0,08 % ; tolérance 2 %)',Math.max(...g3.raid.map(x=>x.sig)),235,'N/mm²',0.02);
+              ajout('Raidisseur sur tube : non lié à la platine contre le tube, coefficient de pointe','rac = vrai sur tube carré et rond, faux sur profilé en I ; K_POINTE_TUBE = 1,35 (1 = conforme)',CBFEM.raidisseur(shs,{},{face:'0e',pos:1.5,L:50,H:120,t:4}).rac&&R4[0].rac&&!CBFEM.raidisseur(hea,{},{face:'0a',L:50,H:100,t:6}).rac&&CBFEM.K_POINTE_TUBE===1.35?1:0,1,'',0); }
             ajout('Tube rond – rigidité de rotation du bord de la paroi 168,3 × 5 (coque)','2·β·D, β = [3(1 − ν²)]^¼/√(r·t) = 0,06362 mm⁻¹, D = E·t³/(12(1 − ν²)) = 2 403 846 N·mm → 305 860 N',p4[0].kr,2*Math.pow(3*0.91,0.25)/Math.sqrt(81.65*5)*210000*125/(12*0.91),'N',1e-6);
             ajout('Raidisseur sur tube rond – rigidité de rotation du pied (H = 200 mm)','k_r = 1,5·E·t³·H³/r³ = 1,5 × 210 000 × 125 × 8·10⁶/81,65³ = 5,787·10⁸ N·mm/rad ; pied non adossé (1 = conforme)',R4[0].kr/(1.5*210000*125*8e6/Math.pow(81.65,3))*(R4[0].enc?0:1),1,'',1e-6); }
           ajout('Soudure d\'angle – méthode directionnelle : σ_w pour q = 1 000 N/mm, deux cordons a = 4 mm','q/(√2·a) = 176,78 N/mm² (NF EN 1993-1-8 §4.5.3.2)',CBFEM.sigmaSoudure(1000,0,2,4),1000/(Math.SQRT2*4),'N/mm²'); }
@@ -680,6 +693,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.09"></script>
+<script src="../commun/replier.js?v=3.10"></script>
 </body>
 </html>
