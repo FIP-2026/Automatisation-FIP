@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.05"></script>
-<script src="../commun/suivi.js?v=3.05"></script>
-<script src="../commun/projet.js?v=3.05"></script>
+<script src="../commun/auth.js?v=3.06"></script>
+<script src="../commun/suivi.js?v=3.06"></script>
+<script src="../commun/projet.js?v=3.06"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.05">
-<script src="../commun/apps.js?v=3.05"></script>
-<script src="../commun/data/profils.js?v=3.05"></script>
-<script src="../commun/barres3d.js?v=3.05"></script>
-<script src="../commun/acier.js?v=3.05"></script>
-<script src="../commun/data/tuyauterie.js?v=3.05"></script>
-<script src="../commun/charges.js?v=3.05"></script>
-<script src="../commun/coefvent.js?v=3.05"></script>
-<script src="../commun/tendues.js?v=3.05"></script>
-<script src="../commun/portique.js?v=3.05"></script>
-<script src="../commun/chevilles.js?v=3.05"></script>
-<script src="../commun/cbfem.js?v=3.05"></script>
-<script src="../commun/topo.js?v=3.05"></script>
-<script src="../commun/zip.js?v=3.05"></script>
-<script src="../commun/laser.js?v=3.05"></script>
-<script src="../commun/fluides.js?v=3.05"></script>
-<script src="../commun/libertes.js?v=3.05"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.06">
+<script src="../commun/apps.js?v=3.06"></script>
+<script src="../commun/data/profils.js?v=3.06"></script>
+<script src="../commun/barres3d.js?v=3.06"></script>
+<script src="../commun/acier.js?v=3.06"></script>
+<script src="../commun/data/tuyauterie.js?v=3.06"></script>
+<script src="../commun/charges.js?v=3.06"></script>
+<script src="../commun/coefvent.js?v=3.06"></script>
+<script src="../commun/tendues.js?v=3.06"></script>
+<script src="../commun/portique.js?v=3.06"></script>
+<script src="../commun/chevilles.js?v=3.06"></script>
+<script src="../commun/cbfem.js?v=3.06"></script>
+<script src="../commun/topo.js?v=3.06"></script>
+<script src="../commun/zip.js?v=3.06"></script>
+<script src="../commun/laser.js?v=3.06"></script>
+<script src="../commun/fluides.js?v=3.06"></script>
+<script src="../commun/libertes.js?v=3.06"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -271,6 +271,10 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <p><b>Qualification prévue</b> : 5 notes PROFIS anonymisées (V1 à V5 : HAS-U M12, M16, M27 ; HST4 M16 ; béton fissuré et non fissuré) et exemples du guide Hilti chap. 6 ; recalculs déjà vérifiés à la main : N⁰<sub>Rk,c</sub> = 7,7 × √25 × 214<sup>1,5</sup> = 12 052 daN (V5), 12,7 × √25 × 105<sup>1,5</sup> = 6 832 daN (V4), ψ<sub>M,N</sub> = 2 − z/(1,5h<sub>ef</sub>) = 1,156 (V5).</p>
 <p><b>Note de calcul (2.67)</b> : deux niveaux, sur le modèle PROFIS. Simplifiée : résultats globaux (taux maxi et mode déterminant de chaque combinaison, résumé des vérifications du cas dimensionnant), chevillage (cheville, ETE, béton, platine, profilé, méthode, plan coté, vue 3D), conclusion. Détaillée : objet, résultats globaux, hypothèses, géométrie, combinaisons, vérification du seul cas dimensionnant avec, pour chaque mode, la formule de la NF EN 1992-4 (7.1)–(7.3), (7.13)–(7.14), (7.23)–(7.24), (7.35), (7.39), (7.40)–(7.42), (7.54)–(7.56) ou (C.9), les variables et la comparaison E<sub>d</sub> / R<sub>d</sub> ; figures CBFEM, règles, conclusion. Le PDF reprend le même contenu.</p>
 <p><b>Note de calcul Word (2.62, remplacée)</b> : bouton « Word » de l'en-tête, trame FIP (page de garde, révisions, sommaire) dès qu'une identification est saisie. Plan : 1. objet et références ; 2. hypothèses (béton, cheville et ETE, pose, séisme, méthode) ; 3. géométrie (plan coté et perspective) ; 4. combinaisons (efforts au centre du profilé, transport au centre de la platine) ; 5. vérifications : tableau récapitulatif, puis pour chaque combinaison efforts par cheville, modes de rupture (E<sub>d</sub>, R<sub>d</sub>, taux, paragraphe), interactions, alertes ; valeurs intermédiaires de la combinaison déterminante (note simplifiée) ou de toutes (note complète) ; 6. règles de conception ; 7. conclusion. Mention « non valable pour exécution ».</p>
+<p><b>Raidisseurs (3.06, commun/cbfem.js)</b> : plats verticaux soudés au profilé et à la platine, placés sur une face du profilé (<code>CBFEM.facesProfil</code> : faces extérieure et intérieure de chaque paroi, bouts libres, pourtour d'un tube rond) à une position libre. Modèle : poutre de Timoshenko le long du pied, de hauteur h(s) (triangulaire : H → 0 ; chanfreinée : H sur le bord horizontal de tête puis linéaire jusqu'au bord vertical de pointe ; rectangulaire : H), I = t·h³/12, A<sub>v</sub> = 5/6·t·h ; flèche liée à celle de la platine (soudure) ; pied côté profilé lié au corps rigide du profilé en déplacement et, si le raidisseur est adossé (bout de paroi, autre paroi derrière le pied, tube rond), en rotation, sinon articulé ; acier élastique – parfaitement plastique (rigidité sécante, σ = √((6M/(t·h²))² + 3·(V/(t·h))²)). Taux = σ/f<sub>y</sub> ; plastifié : 100 % tant que ε<sub>pl</sub> ≤ 5 %. Non vérifiés : voilement du bord libre (alerte L/t &gt; 14·ε), soudure verticale sur le profilé.</p>
+<p><b>Soudures sur la platine (3.06)</b> : type par groupe (ailes, âme ou parois, raidisseurs) : cordons d'angle des deux côtés ou d'un seul, pleine pénétration, paroi non soudée (retirée du modèle) ; gorge a. Effort par millimètre F<sub>w,Ed</sub> = √(q² + v²) : q = |F|/L + 4·|M|/L² (résultante F et moment M des efforts linéiques du cordon : redistribution plastique le long du cordon ; tube : parois réunies en un groupe, q = |F|/ΣL + |M<sub>x</sub>|·y<sub>max</sub>/I<sub>x</sub> + |M<sub>y</sub>|·x<sub>max</sub>/I<sub>y</sub>) ; v = V/ΣL des parois soudées. Résistance n·a·f<sub>vw,d</sub> (NF EN 1993-1-8 §4.5.3.3) ; pleine pénétration : t·f<sub>y</sub> (§4.7.1). Les efforts linéiques point par point (pics opposés aux jonctions, surtout sur les tubes) ne sont pas utilisés directement. Soudures et raidisseurs entrent dans le taux maximal de la platine.</p>
+<p><b>Qualification des raidisseurs et des soudures (3.06)</b> : six notes PROFIS anonymisées (R1 à R6) ; disposition complète des raidisseurs connue pour R1, déduite des vues pour R3, R4 et R6 (à confirmer), non exploitable pour R2 et R5. Cheville la plus tendue, AN1 / note : R1 (HEA 100, 6 raidisseurs chanfreinés 50 × 120 × 6, M20 chimique) : +8,8 % et +8,1 % (deux combinaisons ; −3 % et −7 % avec des raidisseurs rigides, +16 % et +23 % sans raidisseur) ; R3 (tube carré 80 × 3, 8 raidisseurs triangulaires) : +6,3 % ; R6 (IPE 140, 4 raidisseurs en bout d'ailes) : +1,3 % ; R4 (tube rond 168,3 × 5, 6 raidisseurs, platine de 12 mm plastifiée, chevilles à 108 %) : +39 % (répartition entre chevilles différente : raideur non linéaire des chevilles proches de leur résistance, non modélisée) – résultats du côté de la sécurité. Taux des raidisseurs : 75 / 96 / 73 % contre 87 / 93 / 66 % ; soudures (gorge supposée de 4 mm) : 111 / 35 / 6 % contre 79 / 99 / 16 %. <b>Vérifications indicatives, à vérifier</b> ; calage à reprendre avec les tableaux de raidisseurs et les gorges des notes.</p>
+<p><b>Espace annulaire (3.06)</b> : case « espace annulaire comblé » non cochée par défaut pour une nouvelle étude et désormais mémorisée (les études antérieures gardent « comblé »). Alertes avec bouton « Combler l'espace annulaire » : chevilles cisaillées près d'un bord avec jeu (hors domaine au-delà de 1, 2 ou 4 chevilles, NF EN 1992-4 Fig. 1.2) ; combinaison sismique cisaillée avec jeu (α<sub>gap</sub> = 0,5, annexe C.5).</p>
 <p><b>Combinaison affichée (3.02)</b> : la plus défavorable (taux maximal) est cochée par défaut et suivie à chaque calcul tant que l'utilisateur n'en coche pas une autre. Raideur automatique des chevilles : règle de ce chapitre (qualification ci-dessous), libellée « Automatique » dans l'outil.</p>
 <p><b>Import depuis S1 (2.62)</b> : carte « Fixations sur l'ouvrage », bouton « Vérifier les chevilles dans AN1 » par platine chevillée. Effort de l'ouvrage sur l'appui F = −R (axes globaux X le long des tuyauteries, Y, Z vertical), projeté dans les axes de la platine (x, y dans son plan, z sortant du béton, trièdre direct) : N = F·z (&gt; 0 en traction), V<sub>x</sub> = F·x, V<sub>y</sub> = F·y, M<sub>x</sub> = M·x, M<sub>y</sub> = M·y, M<sub>z</sub> = M·z, avec sol (x, y, z) = (X, Y, Z), plafond (X, −Y, −Z), mur (−X, Z, Y) : vue de face, y vers le haut (<code>CHEV.effortsPlatine</code>). kN → ×100 daN, kN·m → ×100 daN·m. Combinaisons transmises : parmi les ELU et, séparément, les sismiques, celles qui rendent extrêmes N, −N, |V|, |M<sub>x</sub>|, |M<sub>y</sub>|, |M<sub>z</sub>| et la traction estimée N/4 + |M<sub>x</sub>|/(2a<sub>2</sub>) + |M<sub>y</sub>|/(2a<sub>1</sub>). Chevilles : 4 aux angles a<sub>1</sub> × a<sub>2</sub> ; platine max(a + 80 ; 150) mm.</p>
 <p><b>Import depuis A1 (2.62)</b> : carte « Descente de charges aux pieds de poteaux », bouton « Vérifier l'ancrage des pieds dans AN1 ». Pour chaque pied (files A et B, portique courant et de pignon), combinaisons ELU donnant V<sub>min</sub>, V<sub>max</sub>, H<sub>max</sub>, H<sub>min</sub> (réactions complètes de la combinaison, amplification comprise) : N = −V (V &gt; 0 en compression), V<sub>x</sub> = H<sub>X</sub> (de A vers B), M = 0 (pieds articulés). Efforts longitudinaux des pieds de palée à ajouter manuellement. Profilé : poteau de A1 (platine agrandie à h + 100 × b + 100 mm au moins).</p>
@@ -370,6 +374,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.06</td><td>AN1 (CBFEM)</td><td>Raidisseurs : carte « Raidisseurs et soudures », dispositions types par famille de profilé et tableau des positions entièrement modifiable (face du profilé, position, longueur, hauteur, épaisseur, forme triangulaire / chanfreinée / rectangulaire), dessin 2D et 3D, modèle en poutres de hauteur variable élasto-plastiques. Soudures du profilé et des raidisseurs sur la platine : type, gorge, vérification par cordon (redistribution plastique, NF EN 1993-1-8 §4.5.3.3). Espace annulaire : non comblé par défaut (nouvelle étude), mémorisé, proposition de le combler quand la disposition ou le séisme le demande. Comparaison à six notes anonymisées (R1 à R6) ; 6 tests ajoutés.</td><td>CBFEM : tractions des chevilles réduites en présence de raidisseurs ; le taux maximal comprend désormais les soudures (gorge de 4 mm des deux côtés par défaut) et les raidisseurs. Nouvelle étude sans espace annulaire comblé : rupture du bord et cisaillement sismique plus sévères tant que la case n'est pas cochée. Sans raidisseur : tractions inchangées.</td></tr>
 <tr><td>3.05</td><td>Accueil, RC</td><td>Liste des projets : la liste déroulante est remplacée par un champ de recherche par mot clé (n°, intitulé, client, site, phase ; sans accents ni casse ; tous les mots), clavier ↑ ↓ Entrée ; chaque projet peut être ouvert ou supprimé (le bouton de suppression de la 3.01 n'était pas accessible). Supprimer le projet ouvert efface ses données de travail et ouvre un projet vide. 1 test ajouté.</td><td>Aucun calcul modifié.</td></tr>
 <tr><td>3.04</td><td>S1, CS</td><td>Libertés des appuis à la manière de CAESAR II (commun/libertes.js) : +Vr, Vr bilatéral, GUI, LIM, +LIM, −LIM, GUI LIM, ANC, avec les efforts saisis sur les axes bloqués ; alertes (butée axiale, bilatéral, transversal libre sur profilé vertical) ; étrier serré si l'axe est bloqué. Cornières de guidage L 30×20×3 retournées : petite aile (20) verticale soudée sur le profilé à côté de la semelle du patin, grande aile (30) horizontale en tête au-dessus du bord de la semelle. 2 tests ajoutés.</td><td>S1 : glissant, guidé et point fixe inchangés ; nouvelles libertés (butées, bilatéral) avec leurs efforts. Plans et 3D : orientation des cornières de guidage.</td></tr>
 <tr><td>3.03</td><td>Accueil, tous modules, dépôt</td><td>Responsables des modules et verrou de consultation (3.02) retirés ; l'état du projet garde l'auteur de chaque modification (colonne « Modifié par », journal). Dépôt : règle « déjà fait ? » des sessions Claude Code (CLAUDE.md) et script outils/deja-fait.sh (branches non fusionnées, commits, journal du manuel) avant toute modification.</td><td>Aucun calcul modifié.</td></tr>
@@ -591,6 +596,17 @@ function tests(){
           ajout('CBFEM – note '+id+' (traction centrée, platine 20 mm, '+lib+' non fissuré) : cheville la plus tendue','PROFIS CBFEM '+String(ref).replace('.',',')+' daN (tolérance '+Math.round(tol*100)+' %)',Math.max(...g.T)/10,ref,'daN',tol); });
         { const g=CBFEM.calculer({plaque:{lx:250,ly:250,t:10,fy:235},A:XY(A4c),ka:CBFEM.raideurCheville(true,20,200,10,false).k,kc:31000/30,dw:36,parois:heaG,comb:{N:40000,Mx:0,My:0}});
           ajout('CBFEM – note K4 (traction centrée, platine 10 mm, HAS 5.8 M20 h<sub>ef</sub> 200 non fissuré) : cheville la plus tendue','PROFIS CBFEM 1 515,2 daN (tolérance 10 %)',Math.max(...g.T)/10,1515.2,'daN',0.10); } } }
+      if(CBFEM.raidisseur){ const gr=(xs,ys)=>ys.flatMap(y=>xs.map(x=>({x,y}))), cas=(pf,pl,Aa,ka,d,N,Mx,My,Rr)=>CBFEM.calculer({plaque:pl,A:Aa,ka,kc:31000/30,dw:1.8*d,parois:CBFEM.paroisPlacees(pf,{}),raid:Rr.map(r=>CBFEM.raidisseur(pf,{},r)),comb:{N:N*10,Mx:Mx*1e4,My:My*1e4}});
+        const hea={f:'HEA',h:96,b:100,tw:5,tf:8}, R1=[['1e',50],['0e',50],['1a'],['1b'],['0a'],['0b']].map(([face,pos])=>({face,pos,L:50,H:120,t:6,forme:'chf',bh:10,bv:10})), kaM20=210000*0.78*Math.PI*100/80;
+        const g1=cas(hea,{lx:240,ly:240,t:15,fy:235},gr([-90,90],[-90,90]),kaM20,20,6393,171,47,R1), g2=cas(hea,{lx:240,ly:240,t:15,fy:235},gr([-90,90],[-90,90]),kaM20,20,31,131,898,R1);
+        ajout('CBFEM – raidisseurs, note R1 (HEA 100, platine 240 × 240 × 15, 6 raidisseurs chanfreinés 50 × 120 × 6, M20 chimique), combinaison 1 : cheville la plus tendue','PROFIS CBFEM 2 700,2 daN (tolérance 10 %)',Math.max(...g1.T)/10,2700.2,'daN',0.10);
+        ajout('Idem, combinaison 2 (flexion dominante)','PROFIS CBFEM 3 269,8 daN (tolérance 10 %)',Math.max(...g2.T)/10,3269.8,'daN',0.10);
+        const g3=cas({f:'SHS',h:80,b:80,t:3},{lx:200,ly:200,t:10,fy:235},gr([-75,75],[-75,75]),125e3,12,3500,0,500,[0,1,2,3].flatMap(k=>[{face:k+'e',pos:1.5},{face:k+'e',pos:75.5}]).map(r=>({...r,L:50,H:120,t:4,forme:'tri'})));
+        ajout('CBFEM – raidisseurs, note R3 (tube carré 80 × 3, platine 200 × 200 × 10, 8 raidisseurs triangulaires 50 × 120 × 4 aux angles – disposition déduite des vues) : cheville la plus tendue','PROFIS CBFEM 2 427,7 daN (tolérance 10 %)',Math.max(...g3.T)/10,2427.7,'daN',0.10);
+        const ipe={f:'IPE',h:140,b:73,tw:4.7,tf:6.9}, g6=cas(ipe,{lx:250,ly:250,t:10,fy:235},gr([-90,90],[-90,90]),160e3,16,4000,0,0,['0a','0b','1a','1b'].map(face=>({face,L:50,H:120,t:4,forme:'tri'})));
+        ajout('CBFEM – raidisseurs, note R6 (IPE 140, platine 250 × 250 × 10, 4 raidisseurs en bout d\'ailes – disposition déduite des vues) : cheville la plus tendue','PROFIS CBFEM 1 164,5 daN (tolérance 10 %)',Math.max(...g6.T)/10,1164.5,'daN',0.10);
+        ajout('Idem : équilibre des cordons (parois + raidisseurs)','Σ F = N = 4 000 daN',CBFEM.cordons(g6,3,false).reduce((s,c)=>s+c.F,0)/10,4000,'daN',2e-3);
+        ajout('CBFEM – faces d\'un profilé en I pour les raidisseurs','10 faces : 2 × (ext., int., 2 bouts) + 2 faces d\'âme ; raidisseur en bout d\'aile adossé (1 = conforme)',CBFEM.facesProfil(hea).length===10&&CBFEM.raidisseur(hea,{},{face:'0a',L:50,H:100,t:6}).enc&&!CBFEM.raidisseur(hea,{},{face:'0e',pos:10,L:50,H:100,t:6}).enc?1:0,1,'',0); }
       const e=CH.CAT_Q.find(c=>c.c==='ESC-I'); ajout('Q1 – escalier industriel NF E 85-015 : q_k','2 kN/m² (§5.1.2.1)',e.qk,2,'kN/m²'); ajout('Idem : Q_k sur 100 × 100 mm','1 kN (§5.1.2.1)',e.Qk,1,'kN'); } ajout('Q1 – α_A catégorie C1 (sans objet)','1',CH.alphaA('C1',20),1,'');
     { const dx=LASER.dxf({lx:250,ly:200,trous:[{x:-75,y:-50,d:14},{x:75,y:-50,d:14},{x:-75,y:50,d:14},{x:75,y:50,d:14}],repere:'PL-01',matiere:'S235',ep:20});
       ajout('Cahier d\'exécution – DXF laser : nombre de perçages','4 cercles (calque DECOUPE)',(dx.match(/\nCIRCLE\n/g)||[]).length,4,'');
@@ -624,6 +640,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.05"></script>
+<script src="../commun/replier.js?v=3.06"></script>
 </body>
 </html>
