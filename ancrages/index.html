@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.10"></script>
-<script src="../commun/suivi.js?v=3.10"></script>
-<script src="../commun/projet.js?v=3.10"></script>
+<script src="../commun/auth.js?v=3.11"></script>
+<script src="../commun/suivi.js?v=3.11"></script>
+<script src="../commun/projet.js?v=3.11"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — AN1 Ancrages</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.10">
+<link rel="stylesheet" href="../commun/calc.css?v=3.11">
 <script type="importmap">{"imports":{"three":"../commun/lib/three/three.module.min.js"}}</script>
-<script src="../commun/apps.js?v=3.10"></script>
-<script src="../commun/data/profils.js?v=3.10"></script>
-<script src="../commun/ident.js?v=3.10"></script>
-<script src="../commun/chevilles.js?v=3.10"></script>
-<script src="../commun/cbfem.js?v=3.10"></script>
-<script src="../commun/export.js?v=3.10"></script>
+<script src="../commun/apps.js?v=3.11"></script>
+<script src="../commun/data/profils.js?v=3.11"></script>
+<script src="../commun/ident.js?v=3.11"></script>
+<script src="../commun/chevilles.js?v=3.11"></script>
+<script src="../commun/cbfem.js?v=3.11"></script>
+<script src="../commun/export.js?v=3.11"></script>
 <style>
   /* mise en page type logiciel : panneau de saisie | vues | résultats, combinaisons en bas */
   main.app{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;grid-template-rows:auto auto;gap:12px;max-width:none;padding:12px}
@@ -317,6 +317,9 @@ function flexible(b,c){ const p=profilAN(); if(!p) throw new Error('CBFEM : choi
 const soudParam=(id)=>{ const ty=$('sd'+id+'T').value; return {ty,a:Math.max(1,+$('sd'+id+'A').value||4),n:ty==='double'?2:1}; };
 /* q : effort normal de la paroi (N/mm) ; dm : moment de la platine transmis par les deux cordons ; contrainte du cordon le plus chargé */
 const sigSoud=(S,q,v,tw,dm)=>S.ty==='pp'?Math.abs(q)/Math.max(tw,1):CBFEM.sigmaSoudure(CBFEM.effortCordon(Math.abs(q),dm||0,tw,S.a,S.n),v/S.n,1,S.a);
+/* pied des parois du profilé (3.11) : effort linéique et contrainte maximaux affichés = valeurs de la carte de couleurs (qd : valeur lissée ;
+   tube : répartition linéaire du groupe de parois, les pics opposés aux angles et aux jonctions avec les raidisseurs étant des artefacts du modèle) */
+const piedProfil=F=>{ const W=(F.lin||[]).filter(z=>z.raid==null&&z.qd!=null); return W.length?{q:Math.max(...W.map(z=>Math.abs(z.qd))),s:Math.max(...W.map(z=>Math.abs(z.qd)/Math.max(z.t,1)))}:{q:F.qmax,s:F.sprof}; };
 /* cordons d'un raidisseur sur la platine (3.09) : q normal à la platine et v le long du cordon (flux de cisaillement raidisseur – platine), N/mm */
 const sigSoudRaid=(S,q,v,t)=>S.ty==='pp'?Math.sqrt(q*q+3*v*v)/Math.max(t,1):CBFEM.sigmaSoudure(Math.abs(q),v||0,S.n,S.a);
 function verifSoud(F,c,amp){ const p=profilAN(), nu=$('nuP').value, fw=FU[nu]/(BW[nu]*1.25), fy=FY[nu]||235, o=combO(c), v=Math.hypot(o.Vx,o.Vy)*(amp||1)/Math.max(F.Lw,1), W=CBFEM.parois(p), tube=estTube(p), I=/^(HE|IP|UP)/.test(p.f||''), G={}, D=[];
@@ -426,7 +429,7 @@ function resultats(){ const r=RES[actif], F=efforts(), Nmax=Math.max(...F.map(x=
         b1=bb[1]-bb[0], d1=bb[3]-bb[2], b2=Math.max(b1,Math.min(3*b1,b1+Bd.h,b1+2*Math.min(lim(Bd.bords.xp)-bb[1],lim(Bd.bords.xm)+bb[0]))), d2=Math.max(d1,Math.min(3*d1,d1+Bd.h,d1+2*Math.min(lim(Bd.bords.yp)-bb[3],lim(Bd.bords.ym)+bb[2]))), kj=Math.sqrt(b2*d2/(b1*d1)), fjd=2/3*kj*fcd, nu=$('nuP').value, Tr=Math.max(...r.Trig), Tf=Math.max(...r.T), fyp=FY[nu];
       $('rCb').innerHTML=ligne('pl','Platine : ε<sub>pl</sub> / ε<sub>lim</sub>',r.uPl,`σ<sub>Ed</sub> = ${f(F.sigMax,0)} / ${f(F.fy,0)} N/mm² ; ε<sub>pl</sub> = ${f(F.eplMax*100,2)} % / 5 % (NF EN 1993-1-5 annexe C)`)+
         ligne('bet','Béton : pression moyenne de contact',F.pmoy/fjd,`σ<sub>c</sub> = ${f(F.pmoy,1)} / f<sub>jd</sub> = ${f(fjd,1)} N/mm² sur ${f(F.Ac/100,0)} cm² (NF EN 1993-1-8 §6.2.5 : β<sub>j</sub> = 2/3, diffusion k<sub>j</sub> = ${f(kj,2)} selon NF EN 1992-1-1 §6.7 ; pic local ${f(F.pmax,1)} N/mm² – indicatif)`)+
-        `<div class="mode" data-m="prf"><span>Profilé : contrainte en pied de paroi<br><span class="note">σ ≈ ${f(F.sprof,0)} N/mm² (indicatif${F.sprof>fyp?` ; &gt; f<sub>y</sub> = ${f(fyp,0)} : plastification locale à examiner`:''}) ; effort linéique maxi ${f(F.qmax,0)} N/mm</span></span><span class="p note">info</span></div>`+
+        `<div class="mode" data-m="prf"><span>Profilé : contrainte en pied de paroi<br><span class="note">σ ≈ ${f(piedProfil(F).s,0)} N/mm² (indicatif${piedProfil(F).s>fyp?` ; &gt; f<sub>y</sub> = ${f(fyp,0)} : plastification locale à examiner`:''}) ; effort linéique maxi ${f(piedProfil(F).q,0)} N/mm</span></span><span class="p note">info</span></div>`+
         (r.sd?r.sd.L.map(s=>ligne('sd','Soudures : '+s.lib.replace(/^Soudures? (des |de l\')/,'').replace(/^./,c=>c.toUpperCase()),s.u,`σ<sub>w</sub> = ${f(s.sw,0)} / ${f(s.lim,0)} N/mm² (q = ${f(s.q,0)} N/mm${s.v?`, v = ${f(s.v,0)} N/mm`:''}) ; ${s.txt} (NF EN 1993-1-8 §${s.ty==='pp'?'4.7.1':'4.5.3.2'}) – indicatif`)).join('')+
           `<details class="sous" style="margin:0 12px 6px"><summary style="font-size:12px">Détail par cordon et par raidisseur</summary><table style="font-size:11.5px"><tr><th>Cordon</th><th class="n">F (daN)</th><th class="n" title="Effort par mm issu du modèle, après redistribution plastique le long du cordon">q modèle</th><th class="n" title="Paroi non raidie : effort maximal du profilé seul (théorie des poutres)">q profilé seul</th><th class="n" title="Paroi non raidie à deux cordons : moment de la platine transmis à la paroi (N·mm/mm)">Δm</th><th class="n" title="Effort par mm le long du cordon : cisaillement V du profilé, ou flux de cisaillement raidisseur – platine">v</th><th class="n">σ<sub>w</sub> (N/mm²)</th><th class="n">Taux</th></tr>${r.sd.D.map(s=>`<tr><td>${s.nom}${s.raidie?' (raidie)':''}</td><td class="n">${daN(s.F)}</td><td class="n">${f(s.qFE,0)}</td><td class="n">${s.qbt?f(s.qbt,0):'—'}</td><td class="n">${s.dm?f(s.dm,0):'—'}</td><td class="n">${s.v?f(s.v,0):'—'}</td><td class="n">${f(s.sw,0)}${s.loc?' (pointe)':''}${s.kw>1?' ×'+f(s.kw,2):''}</td><td class="n">${f(s.u*100,0)} %</td></tr>`).join('')}</table>${r.rd&&r.rd.L.length?`<table style="font-size:11.5px;margin-top:4px"><tr><th>Raidisseur</th><th class="n">σ<sub>Ed</sub> (N/mm²)</th><th class="n">ε<sub>pl</sub> (%)</th><th class="n">Taux</th><th>Pied</th></tr>${r.rd.L.map(x=>`<tr><td>R${x.ir+1}</td><td class="n">${f(x.sig,0)}</td><td class="n">${f(x.epl*100,2)}</td><td class="n">${f(x.u*100,0)} %</td><td>${x.enc?'adossé':x.kr!=null?'semi-rigide (tube rond)':'articulé'}</td></tr>`).join('')}</table>`:''}<div class="note">F : résultante transmise à la platine (&gt; 0 : traction) ; q en N/mm. Paroi non raidie : q = max(modèle ; profilé seul) et, avec deux cordons, cordon le plus chargé q/2 + Δm/(t + a). Paroi raidie : q du modèle. Raidisseur : σ<sub>w</sub> = max[σ<sub>w</sub>(q, v) ; σ<sub>w</sub>(q, v) à la pointe locale, notée « (pointe) »], v = flux de cisaillement raidisseur – platine. Raidisseur sur tube : σ<sub>w</sub> multipliée par le coefficient de pointe ${f(CBFEM.K_POINTE_TUBE,2)} (calé sur deux notes détaillées, à vérifier). Tube rond : platine retenue en rotation par la rigidité de coque de la paroi (non encastrée).</div></details>`:'')+
         (r.rd&&r.rd.max?ligne('rd',`Raidisseurs : σ / f<sub>y</sub> (raidisseur ${r.rd.max.ir+1} sur ${r.rd.L.length})`,r.rd.u,`σ<sub>Ed</sub> = ${f(r.rd.max.sig,0)} / ${f(r.rd.max.fy,0)} N/mm² (von Mises : flexion et cisaillement du raidisseur)${r.rd.max.r>1?` ; plastifié, ε<sub>pl</sub> = ${f(r.rd.max.epl*100,2)} % / 5 %`:''} ; effort sur la platine ${daN(Math.abs(r.rd.max.F))} daN – indicatif`):'')+
@@ -458,11 +461,21 @@ function champ(F,mode){ const n=F.Wn.length, ES=210000;
 /* cartes des éléments en acier hors platine : segments colorés { a, b (repère de la platine), c (couleur), w (largeur en mm), v0, v1 }
    mode sig / eps : pied des parois du profilé (σ = |q|/t, échelle f_y de la platine) et raidisseurs (σ_vm/f_y ou ε_pl par élément) ;
    mode sw : cordons le long des parois et des raidisseurs (σ_w local) */
+/* côtés d'une paroi ou d'un raidisseur où dessiner le cordon (3.11) : [-1, 1] deux cordons d'angle ; [s] un seul cordon, du côté opposé au centre du profilé
+   (extérieur d'un tube, face extérieure d'une aile ; côté de la normale pour une paroi passant par le centre ou un raidisseur) ; [0] pleine pénétration (dans l'épaisseur).
+   Normale de référence : (−dy, dx) du segment a → b, comme pour le dessin. */
+function cotesSoud(F,k,a,b,ctr){ const p=profilAN(), raid=k[0]==='r', id=raid?'Raid':estTube(p)?'Aile':groupeParoi(p,F.wIdx[+k.slice(1)]), ty=$('sd'+id+'T')?$('sd'+id+'T').value:'double';
+  if(ty==='pp') return [0]; if(ty!=='simple') return [-1,1];
+  const dx=b[0]-a[0], dy=b[1]-a[1], s=((a[0]+b[0])/2-ctr[0])*-dy+((a[1]+b[1])/2-ctr[1])*dx; return [raid||Math.abs(s)<0.5*Math.hypot(dx,dy)?1:Math.sign(s)]; }      // s/l : distance signée du centre à la paroi (mm)
 function cartesAcier(F,L,md){ const S=[], ES=210000, parW=new Map(); F.lin.forEach(z=>{ const k=z.raid!=null?'r'+z.raid:'w'+z.iw; (parW.get(k)||parW.set(k,[]).get(k)).push(z); });
+  const Wp=F.lin.filter(z=>z.raid==null), ctr=Wp.length?[Wp.reduce((s,z)=>s+z.x*z.ds,0)/Wp.reduce((s,z)=>s+z.ds,0),Wp.reduce((s,z)=>s+z.y*z.ds,0)/Wp.reduce((s,z)=>s+z.ds,0)]:[0,0];
   const val=z=>md==='sw'?L.val(z.sw||0):md==='sig'?(Math.abs(z.qd||0)/z.t>F.fy*1.0005?null:Math.abs(z.qd||0)/z.t):Math.max(0,Math.abs(z.qd||0)/z.t/F.fy-1)*F.fy/ES*100;
   parW.forEach((P,k)=>{ if(k[0]==='r'&&md!=='sw') return; P.sort((a,b)=>a.k-b.k); const M=new Map(); P.forEach(z=>{ const o=M.get(z.k)||{x:0,y:0,n:0,v:0,nul:false,t:z.t}; const v=val(z); if(v==null) o.nul=true; else o.v=Math.max(o.v,v); o.x+=z.x; o.y+=z.y; o.n++; M.set(z.k,o); });      // deux faces d'une paroi : même abscisse k
     const Q=[...M.values()].map(o=>({x:o.x/o.n,y:o.y/o.n,v:o.nul?null:o.v,t:o.t}));
-    for(let i=0;i<Q.length-1;i++){ const a=Q[i], b=Q[i+1], v=a.v==null||b.v==null?null:(a.v+b.v)/2; S.push({a:[a.x,a.y],b:[b.x,b.y],c:couleurVal(L,v),w:md==='sw'?4:a.t,wt:a.t/2,paroi:k[0]==='w',v0:a.v,v1:b.v}); } });
+    const cotes=md==='sw'&&Q.length>1?cotesSoud(F,k,[Q[0].x,Q[0].y],[Q[Q.length-1].x,Q[Q.length-1].y],ctr):[-1,1], inv=cotes.length===1&&cotes[0]&&Q.length>1;
+    for(let i=0;i<Q.length-1;i++){ const a=Q[i], b=Q[i+1], v=a.v==null||b.v==null?null:(a.v+b.v)/2;
+      /* un seul cordon : côté recalculé avec la normale du segment (parois cintrées d'un tube rond : corde par corde) */
+      const ct=inv&&k[0]==='w'?cotesSoud(F,k,[a.x,a.y],[b.x,b.y],ctr):cotes; S.push({a:[a.x,a.y],b:[b.x,b.y],c:couleurVal(L,v),w:md==='sw'?4:a.t,wt:a.t/2,paroi:k[0]==='w',cotes:ct,v0:a.v,v1:b.v}); } });
   if(md!=='sw') (F.raid||[]).forEach(R=>{ const Lr=Math.hypot(R.b[0]-R.a[0],R.b[1]-R.a[1])||1, ux=(R.b[0]-R.a[0])/Lr, uy=(R.b[1]-R.a[1])/Lr;
     R.el.forEach(e=>{ const v=md==='sig'?(e.r>1.0005?null:Math.min(e.r,1)*F.fy):Math.max(0,e.r-1)*R.fy/ES*100; S.push({a:[R.a[0]+ux*e.s0,R.a[1]+uy*e.s0],b:[R.a[0]+ux*e.s1,R.a[1]+uy*e.s1],c:couleurVal(L,v),w:R.t,v0:v,v1:v}); }); });
   return S; }
@@ -576,7 +589,9 @@ function svgPlan(W,H,edit){ const lx=+$('lx').value, ly=+$('ly').value, B=bordsF
       g+=`<polygon points="${[[r.a[0]+nx,r.a[1]+ny],[r.b[0]+nx,r.b[1]+ny],[r.b[0]-nx,r.b[1]-ny],[r.a[0]-nx,r.a[1]-ny]].map(q=>`${q[0]*K},${-q[1]*K}`).join(' ')}" fill="#5f6b7a" stroke="#171a1e" stroke-width=".6"/><text x="${(r.b[0]+dx/L*7)*K}" y="${-(r.b[1]+dy/L*7)*K+3}" font-size="9" text-anchor="middle" fill="#5f6b7a" transform="rotate(${PR.a} ${(r.b[0]+dx/L*7)*K} ${-(r.b[1]+dy/L*7)*K})">R${ir+1}</text>`; });
     s+=`<g data-prof="1" transform="translate(${X(PR.x)},${Y(PR.y)}) rotate(${-PR.a})" style="cursor:${edit?'move':'default'}">${g}<circle r="3" fill="#e30009"/></g>`; }
   // cartes sur le profilé (pied de paroi), les raidisseurs et les soudures (repère de la platine)
-  { const cb=RES[actif]&&RES[actif].cb, md=$('carte').value, L=cb&&['sig','eps','sw'].includes(md)?champ(cb,md):null; if(L) s+=`<g pointer-events="none">${cartesAcier(cb,L,md).map(q=>`<line x1="${X(q.a[0])}" y1="${Y(q.a[1])}" x2="${X(q.b[0])}" y2="${Y(q.b[1])}" stroke="${rgb(q.c)}" stroke-width="${Math.max(3,q.w*k)}" stroke-linecap="butt"/>`).join('')}</g>`; }
+  { const cb=RES[actif]&&RES[actif].cb, md=$('carte').value, L=cb&&['sig','eps','sw'].includes(md)?champ(cb,md):null; if(L) s+=`<g pointer-events="none">${cartesAcier(cb,L,md).map(q=>{ const dx=q.b[0]-q.a[0], dy=q.b[1]-q.a[1], l=Math.hypot(dx,dy)||1, ep=Math.max(3,q.w*k);
+      /* carte des soudures : un trait par cordon, décalé du côté où il est déposé (pleine pénétration : dans l'axe de la paroi) */
+      return (md==='sw'?q.cotes:[0]).map(sg=>{ const d=md==='sw'&&sg?sg*((q.wt||0)+ep/(2*k)):0, ox=-dy/l*d, oy=dx/l*d; return `<line x1="${X(q.a[0]+ox)}" y1="${Y(q.a[1]+oy)}" x2="${X(q.b[0]+ox)}" y2="${Y(q.b[1]+oy)}" stroke="${rgb(q.c)}" stroke-width="${ep}" stroke-linecap="butt"/>`; }).join(''); }).join('')}</g>`; }
   // origine (centre de la platine) : petit repère discret
   s+=`<g stroke="#114088" stroke-width="1" pointer-events="none"><circle cx="${X(0)}" cy="${Y(0)}" r="4" fill="none"/><line x1="${X(0)-7}" y1="${Y(0)}" x2="${X(0)+7}" y2="${Y(0)}"/><line x1="${X(0)}" y1="${Y(0)-7}" x2="${X(0)}" y2="${Y(0)+7}"/></g>`;
   const F=efforts(), Nmax=Math.max(...F.map(x=>x.N),1);
@@ -685,8 +700,8 @@ async function vue3D(){ const box=$('v3d'); if(box.hidden) return;
   /* profilé : bande colorée en pied de paroi (contrainte σ = |q|/t, seule grandeur du profilé donnée par le modèle) ; soudures : cordons colorés */
   if(F3&&L3&&['sig','eps','sw'].includes(md3)){ const hbd=md3==='sw'?0:Math.min(60,Hp*0.2), pos=[], col=[], idx=[];
     cartesAcier(F3,L3,md3).forEach(q=>{ if(md3!=='sw'&&q.v0===undefined) return; const dx=q.b[0]-q.a[0], dy=q.b[1]-q.a[1], l=Math.hypot(dx,dy)||1, nx=-dy/l, ny=dx/l, c=colT(q.c);
-      if(md3==='sw'){ const w=7; for(const sg of [-1,1]){ const d0=sg*(q.wt||0);      // cordon : face inclinée du congé (7 mm) de chaque côté de la paroi
-          const o=pos.length/3; [[q.a,d0,w],[q.b,d0,w],[q.b,d0+sg*w,0.3],[q.a,d0+sg*w,0.3]].forEach(([P,d,z])=>{ pos.push(P[0]+nx*d,P[1]+ny*d,z); col.push(c.r,c.g,c.b); }); idx.push(o,o+1,o+2,o,o+2,o+3); } }
+      if(md3==='sw'){ const w=7; for(const sg of (q.cotes||[-1,1])){ const d0=sg*(q.wt||0), o=pos.length/3;      // cordon d'angle : face inclinée du congé (7 mm) du ou des côtés soudés ; pleine pénétration : bande dans l'épaisseur de la paroi
+          (sg?[[q.a,d0,w],[q.b,d0,w],[q.b,d0+sg*w,0.3],[q.a,d0+sg*w,0.3]]:[[q.a,-(q.wt||2),0.4],[q.b,-(q.wt||2),0.4],[q.b,(q.wt||2),0.4],[q.a,(q.wt||2),0.4]]).forEach(([P,d,z])=>{ pos.push(P[0]+nx*d,P[1]+ny*d,z); col.push(c.r,c.g,c.b); }); idx.push(o,o+1,o+2,o,o+2,o+3); } }
       else if(q.paroi){ for(const sg of [-1,1]){ const o=pos.length/3, d=sg*(q.w/2+0.35); [[q.a,0],[q.b,0],[q.b,hbd],[q.a,hbd]].forEach(([P,z])=>{ pos.push(P[0]+nx*d,P[1]+ny*d,z); col.push(c.r,c.g,c.b); }); idx.push(o,o+1,o+2,o,o+2,o+3); } } });
     if(idx.length) gRig.add(maille(pos,col,idx)); }
   const F=efforts(), Nmax=Math.max(...F.map(x=>x.N),1);
@@ -781,7 +796,7 @@ async function preparerNote(){
     <tr><td>Contrainte équivalente σ<sub>Ed</sub> (von Mises, en peau)</td><td class="n">${f(F.sigMax,0)} N/mm²</td><td>f<sub>y</sub> = ${f(F.fy,0)} N/mm² (${h(nuN)})</td></tr>
     <tr><td>Déformation plastique ε<sub>pl</sub></td><td class="n">${f(F.eplMax*100,2)} %</td><td>ε<sub>lim</sub> = 5 % (NF EN 1993-1-5 annexe C.8) – taux ${f(r.uPl*100,0)} %</td></tr>
     <tr><td>Compression sur le béton</td><td class="n">${daN(F.C)} daN</td><td>pression moyenne ${f(F.pmoy,1)} N/mm² sur ${f(F.Ac/100,0)} cm² ; pic ${f(F.pmax,1)} N/mm² (indicatif)</td></tr>
-    <tr><td>Effort linéique maxi en pied de paroi du profilé</td><td class="n">${f(F.qmax,0)} N/mm</td><td>contrainte ≈ ${f(F.sprof,0)} N/mm² (indicatif)</td></tr>
+    <tr><td>Effort linéique maxi en pied de paroi du profilé</td><td class="n">${f(piedProfil(F).q,0)} N/mm</td><td>contrainte ≈ ${f(piedProfil(F).s,0)} N/mm² (indicatif)</td></tr>
     ${(r.sd?r.sd.L:[]).map(s=>`<tr><td>${s.lib} : contrainte équivalente σ<sub>w</sub></td><td class="n">${f(s.sw,0)} N/mm²</td><td>q = ${f(s.q,0)} N/mm ; ${s.txt} – taux ${f(s.u*100,0)} % (NF EN 1993-1-8 §${s.ty==='pp'?'4.7.1':'4.5.3.2'}, indicatif)</td></tr>`).join('')}
     ${r.rd&&r.rd.max?`<tr><td>Raidisseurs : contrainte de von Mises (raidisseur R${r.rd.max.ir+1})</td><td class="n">${f(r.rd.max.sig,0)} N/mm²</td><td>f<sub>y</sub> = ${f(r.rd.max.fy,0)} N/mm²${r.rd.max.r>1?` ; plastifié, ε<sub>pl</sub> = ${f(r.rd.max.epl*100,2)} % / 5 %`:''} – taux ${f(r.rd.u*100,0)} % (indicatif)</td></tr>`:''}
     <tr><td>Décollement maxi / enfoncement maxi</td><td class="n">${f(F.wmax,3)} / ${f(-F.wmin,3)} mm</td><td>maillage ${f(F.h,0)} mm, ${F.nddl} inconnues, ${F.it} itérations${F.conv?'':' – non convergé'}</td></tr>
@@ -898,7 +913,7 @@ if(CH0){ ['diam','cl'].forEach(k=>{ if(CH0[k]&&[...$(k).options].some(o=>o.value
 PRET=true; majCheville();
 </script>
 <script>EXPORT.init({code:'AN1',titre:'Note de calcul – ancrage de platine',excel:false,avant:()=>preparerNote(),zones:()=>[$('note')],affaire:()=>IDENT.lire(),nom:()=>{ const K=IDENT.lire(); return K.doc||K.repere||K.num||'ancrage'; }});</script>
-<script src="../commun/aide.js?v=3.10"></script>
+<script src="../commun/aide.js?v=3.11"></script>
 <script>AIDE.init({titre:"Aide – AN1 Ancrages",manuel:"an1",intro:"AN1 vérifie les ancrages d'une platine sur béton (chevilles mécaniques et chimiques) selon la NF EN 1992-4 et son annexe nationale, avec les données des ETE : répartition des efforts en platine rigide, tous les modes de rupture en traction et en cisaillement, interactions, situation sismique (annexe C) et h_ef optimale. Prédimensionnement APS/APD : la platine rigide est une hypothèse à justifier, ou à contrôler avec la méthode CBFEM (platine flexible en éléments finis)",
   etapes:[{t:"Saisie",html:"Panneau de gauche : identification, béton (NF EN 1992-1-1 Tab. 3.1), bords, cheville (données de l'ETE, schéma de pose coté : tige ou goujon, trou de platine, perçage, résine ou clip d'expansion, h<sub>ef</sub>, t<sub>fix</sub>, h), disposition, platine et profilé, méthode. Les conditions de pose (température, perçage, état du trou, durée d'utilisation, espace annulaire, α<sub>sus</sub>, armatures) sont regroupées dans un bloc replié « Conditions de pose » de la carte Cheville, avec leur résumé ; valeurs par défaut : plage I, perforateur, trou sec, 50 ans, espace annulaire comblé, ψ<sub>re,N</sub> = 1. Elles figurent dans les hypothèses de la cheville des notes.",cible:"#pSaisie"},
     {t:"Vues",html:"Vue 3D cotée (rotation et zoom à la souris ; chaînes de cotes platine / chevilles, l<sub>x</sub>, l<sub>y</sub>, épaisseur h, distances aux bords finis en rouge ; SCU X/Y/Z placé hors de la platine) ou plan 2D coté (mêmes cotes, bords du béton : trait fort si fini, trait mixte si infini ou lointain) . Barre d'outils du plan 2D : « ↖ Sélection » (cliquer une cheville ou le profilé puis glisser, accrochage au quadrillage), « ＋ Chevilles » (clic pour poser), « ✕ Supprimer » ou touche Suppr, « ↺ / ↻ 90° » pour tourner le profilé.",cible:"#v3d"},
@@ -915,6 +930,7 @@ PRET=true; majCheville();
     {q:"Quelle confiance accorder au CBFEM de AN1 ?",r:"Le modèle (plaque MITC4, contact unilatéral, chevilles en traction seule, plasticité par rigidité sécante) est vérifié sur des cas théoriques et retrouve entre −9 % et +7 % la cheville la plus tendue de dix-neuf notes de comparaison (en traction centrée : −3 % à −9 %, non sécuritaire, alerte affichée) ; sur deux autres, à très faibles efforts (poteau fortement comprimé, charges quasi nulles), les faibles tractions sont sous-estimées. La déformation plastique ε<sub>pl</sub> affichée est indicative (pointes locales sous-estimées par rapport aux notes de comparaison). Le point sensible est la raideur des chevilles : le logiciel de comparaison utilise des raideurs d'essais non publiées, AN1 une règle calée sur 12 notes de comparaison (E<sub>s</sub>·A<sub>s</sub>/L avec L = 80 mm en scellement chimique M10 à M24 ; 160 ou 125 kN/mm pour la HST4 M8 à M20 en béton non fissuré ou fissuré) signalée « à vérifier » et modifiable. Une cheville plus raide augmente l'effet de levier : en cas de doute, tester une raideur double. Prédimensionnement, non valable pour exécution."},
     {q:"Comment placer les raidisseurs ?",r:"Carte « Raidisseurs et soudures » : choisir une disposition type selon le profilé (I : faces extérieures des ailes, bouts d'ailes, âme ; tube carré : angles ou milieux des côtés ; tube rond : 4, 6 ou 8 rayonnants) puis « Appliquer ». Le tableau reste entièrement modifiable : face du profilé, position le long de la face (mm, ou angle sur un tube rond), longueur, hauteur, épaisseur, forme ; « Ajouter un raidisseur » en place un librement. Un raidisseur est efficace s'il est adossé : dans le prolongement d'une paroi ou face à l'âme. Sur un tube rond, la paroi mince ne l'encastre pas (pied semi-rigide) : il est d'autant plus efficace qu'il est haut et que le tube est épais."},
     {q:"Comment sont vérifiées les soudures des raidisseurs ?",r:"Cordons sur la platine : effort q perpendiculaire à la platine et cisaillement v le long du cordon (flux de cisaillement entre le raidisseur et la platine), contrainte équivalente σ<sub>w</sub> = √(2·(q/(n·a))² + 3·(v/(n·a))²). Deux valeurs sont calculées et la plus forte est retenue : après redistribution plastique sur tout le cordon, et à la pointe locale (souvent en bout de raidisseur, près d'une cheville ; notée « (pointe) » dans le détail par cordon). Sur un tube (rond, carré ou rectangulaire), la contrainte est multipliée par un coefficient de pointe de 1,35 calé sur deux notes détaillées. Comparé à quatre notes détaillées : +7 % et −20 % (profilés en I), 0 % et −1 % (tubes) sur le cordon le plus chargé (indicatif, à vérifier). La soudure verticale du raidisseur sur le profilé n'est pas vérifiée : lui donner au moins la même gorge."},
+    {q:"De quel côté est dessiné un cordon d'angle « d'un seul côté » ?",r:"La carte « Soudures » (vue 3D et plan 2D) dessine un cordon par côté soudé : deux pour « des deux côtés », un seul pour « d'un seul côté », une bande dans l'épaisseur de la paroi pour la pleine pénétration. Le cordon unique est placé du côté opposé au centre du profilé : à l'extérieur d'un tube, sur la face extérieure d'une aile ; pour l'âme et les raidisseurs, d'un côté conventionnel. Le calcul ne dépend pas du côté : un cordon reprend seul l'effort de la paroi."},
     {q:"Quand combler l'espace annulaire ?",r:"Le jeu entre la cheville et le trou de la platine répartit mal le cisaillement : près d'un bord, seule la rangée la plus proche du bord est comptée, et la norme ne couvre que 1, 2 ou 4 chevilles (NF EN 1992-4 Fig. 1.2) ; en séisme les résistances au cisaillement sont divisées par deux (α<sub>gap</sub> = 0,5). AN1 le signale et propose « Combler l'espace annulaire » : rondelle de remplissage avec injection, ou trou rempli de mortier. La disposition doit alors figurer sur les plans."},
     {q:"Que ne vérifie pas le CBFEM de AN1 ?",r:"Les soudures et les raidisseurs ne sont vérifiés qu'à titre indicatif (soudure verticale des raidisseurs sur le profilé et voilement de leur bord libre non vérifiés) ; ne sont pas vérifiés : la pression diamétrale des trous, la section du profilé au-delà de la contrainte en pied de paroi, les platines non rectangulaires ou décollées (mortier, calage), la répartition du cisaillement en platine flexible (reprise du calcul rigide)."},
     {q:"Quels coefficients partiels ?",r:"AN Tab. 4.1 : acier en traction 1,2·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,4 (1,5 pour 5.8 et 8.8 ; 1,4 pour HST4 selon l'ETE) ; acier en cisaillement 1,0·f<sub>uk</sub>/f<sub>yk</sub> ≥ 1,25 ; béton γ<sub>Mc</sub> = γ<sub>c</sub>·γ<sub>inst</sub> avec γ<sub>c</sub> = 1,5 (1,3 en sismique)."},

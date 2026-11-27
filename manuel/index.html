@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<script src="../commun/auth.js?v=3.10"></script>
-<script src="../commun/suivi.js?v=3.10"></script>
-<script src="../commun/projet.js?v=3.10"></script>
+<script src="../commun/auth.js?v=3.11"></script>
+<script src="../commun/suivi.js?v=3.11"></script>
+<script src="../commun/projet.js?v=3.11"></script>
 <script>calcProteger("../");</script>
 <title>FIP Études — Manuel technique</title>
 <link rel="icon" href="../commun/img/picto-fip.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../commun/calc.css?v=3.10">
-<script src="../commun/apps.js?v=3.10"></script>
-<script src="../commun/data/profils.js?v=3.10"></script>
-<script src="../commun/barres3d.js?v=3.10"></script>
-<script src="../commun/acier.js?v=3.10"></script>
-<script src="../commun/data/tuyauterie.js?v=3.10"></script>
-<script src="../commun/charges.js?v=3.10"></script>
-<script src="../commun/coefvent.js?v=3.10"></script>
-<script src="../commun/tendues.js?v=3.10"></script>
-<script src="../commun/portique.js?v=3.10"></script>
-<script src="../commun/chevilles.js?v=3.10"></script>
-<script src="../commun/cbfem.js?v=3.10"></script>
-<script src="../commun/topo.js?v=3.10"></script>
-<script src="../commun/zip.js?v=3.10"></script>
-<script src="../commun/laser.js?v=3.10"></script>
-<script src="../commun/fluides.js?v=3.10"></script>
-<script src="../commun/libertes.js?v=3.10"></script>
+<link rel="stylesheet" href="../commun/calc.css?v=3.11">
+<script src="../commun/apps.js?v=3.11"></script>
+<script src="../commun/data/profils.js?v=3.11"></script>
+<script src="../commun/barres3d.js?v=3.11"></script>
+<script src="../commun/acier.js?v=3.11"></script>
+<script src="../commun/data/tuyauterie.js?v=3.11"></script>
+<script src="../commun/charges.js?v=3.11"></script>
+<script src="../commun/coefvent.js?v=3.11"></script>
+<script src="../commun/tendues.js?v=3.11"></script>
+<script src="../commun/portique.js?v=3.11"></script>
+<script src="../commun/chevilles.js?v=3.11"></script>
+<script src="../commun/cbfem.js?v=3.11"></script>
+<script src="../commun/topo.js?v=3.11"></script>
+<script src="../commun/zip.js?v=3.11"></script>
+<script src="../commun/laser.js?v=3.11"></script>
+<script src="../commun/fluides.js?v=3.11"></script>
+<script src="../commun/libertes.js?v=3.11"></script>
 <style>
   main{grid-template-columns:minmax(230px,290px) 1fr}
   nav.toc{position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px);overflow:auto}
@@ -290,7 +290,7 @@ Pannes laminées : poutre continue (≥ 4 portiques) ou isostatique, (M<sub>y</s
 <li><b>Coefficient de pointe</b> sur les cordons des raidisseurs : σ<sub>w</sub> multipliée par 1,35 (<code>CBFEM.K_POINTE_TUBE</code>). Les deux notes détaillées sur tubes donnent le même rapport AN1 / note sans coefficient : 165 / 222 = 0,74 (tube carré) et 239 / 325 = 0,74 (tube rond), la note dépassant ce que le raidisseur plastifié en traction simple peut transmettre (f<sub>y</sub>·t). Explications possibles, non modélisées : état de contrainte biaxial du raidisseur (jusqu'à 1,155·f<sub>y</sub>), partage inégal entre les deux cordons (écarts de ±3 à ±12 % relevés entre les deux côtés). <b>Coefficient empirique, à vérifier.</b></li>
 </ul>
 <p>AN1 / note R3 : cheville la plus tendue 2 565 / 2 428 daN (+5,7 %) ; platine plastifiée (ε<sub>pl</sub> 0,04 % / 0,05 %) ; raidisseurs 235 / 235 N/mm² (ε<sub>pl</sub> 0 / 0,08 %) ; soudure du tube 88 / 96 N/mm² (57 sur la paroi tendue dans la note ; valeur AN1 sensible au maillage : 54 à 119 N/mm² pour une maille de 6 à 12 mm) ; soudures des huit raidisseurs 222, 222, 191, 196 (côté tendu), 203, 201 (vers le côté comprimé), 23, 22 (côté comprimé) contre 220, 222, 200, 199, 133, 140, 26, 22 N/mm² (cordon le plus chargé : 0 %, taux 62 % / 62 %). Note R4 avec le coefficient : 125, 318, 98, 204, 90, 322 / 111, 320, 148, 218, 142, 325 N/mm² (cordon le plus chargé −1 %, taux 89 % / 93 % ; deux raidisseurs côté comprimé restent sous-estimés de 35 %). Profilés en I (notes R1 et R2) : modèle inchangé – la suppression de la liaison au pied y dégraderait la comparaison (soudures des ailes raidies sous-estimées de moitié).</p>
-<p><b>Cartes de couleurs (3.07)</b> : en plus de la platine, la vue 3D et le plan 2D colorent les raidisseurs (σ<sub>x</sub> = 12·M·(ζ − ½)/(t·h²), τ = 1,5·V/(t·h)·(1 − (2ζ − 1)²), von Mises, rapporté à f<sub>y</sub>), le pied des parois du profilé (σ = |q|/t, seule grandeur du profilé donnée par le modèle à parois indéformables) et, dans la carte « Soudures », les cordons (σ<sub>w</sub> local lissé ; tube : répartition linéaire du groupe). Les valeurs locales des cordons peuvent dépasser la valeur vérifiée, calculée après redistribution plastique le long du cordon.</p>
+<p><b>Cartes de couleurs (3.07)</b> : en plus de la platine, la vue 3D et le plan 2D colorent les raidisseurs (σ<sub>x</sub> = 12·M·(ζ − ½)/(t·h²), τ = 1,5·V/(t·h)·(1 − (2ζ − 1)²), von Mises, rapporté à f<sub>y</sub>), le pied des parois du profilé (σ = |q|/t, seule grandeur du profilé donnée par le modèle à parois indéformables) et, dans la carte « Soudures », les cordons (σ<sub>w</sub> local lissé ; tube : répartition linéaire du groupe). Les valeurs locales des cordons peuvent dépasser la valeur vérifiée, calculée après redistribution plastique le long du cordon. Depuis la 3.11, la carte dessine un cordon par côté soudé : deux pour des cordons d'angle des deux côtés, un seul pour un cordon d'un seul côté (côté opposé au centre du profilé : extérieur d'un tube, face extérieure d'une aile ; côté conventionnel pour l'âme et les raidisseurs), une bande dans l'épaisseur pour la pleine pénétration. La ligne d'information « Profilé : contrainte en pied de paroi » reprend la valeur maximale de la carte (tube : répartition linéaire du groupe de parois) et non plus le pic local aux angles d'un tube.</p>
 <p><b>Espace annulaire (3.06)</b> : case « espace annulaire comblé » non cochée par défaut pour une nouvelle étude et désormais mémorisée (les études antérieures gardent « comblé »). Alertes avec bouton « Combler l'espace annulaire » : chevilles cisaillées près d'un bord avec jeu (hors domaine au-delà de 1, 2 ou 4 chevilles, NF EN 1992-4 Fig. 1.2) ; combinaison sismique cisaillée avec jeu (α<sub>gap</sub> = 0,5, annexe C.5).</p>
 <p><b>Combinaison affichée (3.02)</b> : la plus défavorable (taux maximal) est cochée par défaut et suivie à chaque calcul tant que l'utilisateur n'en coche pas une autre. Raideur automatique des chevilles : règle de ce chapitre (qualification ci-dessous), libellée « Automatique » dans l'outil.</p>
 <p><b>Import depuis S1 (2.62)</b> : carte « Fixations sur l'ouvrage », bouton « Vérifier les chevilles dans AN1 » par platine chevillée. Effort de l'ouvrage sur l'appui F = −R (axes globaux X le long des tuyauteries, Y, Z vertical), projeté dans les axes de la platine (x, y dans son plan, z sortant du béton, trièdre direct) : N = F·z (&gt; 0 en traction), V<sub>x</sub> = F·x, V<sub>y</sub> = F·y, M<sub>x</sub> = M·x, M<sub>y</sub> = M·y, M<sub>z</sub> = M·z, avec sol (x, y, z) = (X, Y, Z), plafond (X, −Y, −Z), mur (−X, Z, Y) : vue de face, y vers le haut (<code>CHEV.effortsPlatine</code>). kN → ×100 daN, kN·m → ×100 daN·m. Combinaisons transmises : parmi les ELU et, séparément, les sismiques, celles qui rendent extrêmes N, −N, |V|, |M<sub>x</sub>|, |M<sub>y</sub>|, |M<sub>z</sub>| et la traction estimée N/4 + |M<sub>x</sub>|/(2a<sub>2</sub>) + |M<sub>y</sub>|/(2a<sub>1</sub>). Chevilles : 4 aux angles a<sub>1</sub> × a<sub>2</sub> ; platine max(a + 80 ; 150) mm.</p>
@@ -391,6 +391,7 @@ Pression diamétrale F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</
 
 <article class="card" id="journal"><div class="theme">Qualification</div><h2>17. Journal des modifications ayant un impact sur les résultats</h2>
 <table><tr><th>Version</th><th>Module</th><th>Modification</th><th>Impact</th></tr>
+<tr><td>3.11</td><td>AN1 (affichage)</td><td>Carte « Soudures » (vue 3D, plan 2D, note) : un cordon dessiné par côté soudé – un seul pour « cordon d'angle d'un seul côté » (deux étaient toujours dessinés), bande dans l'épaisseur pour la pleine pénétration.</td><td>Aucun sur les vérifications : le calcul tenait déjà compte du nombre de cordons. Ligne d'information « Profilé : contrainte en pied de paroi » d'un tube : valeur de la carte de couleurs (répartition linéaire) au lieu du pic local de jonction (exemple : 81 au lieu de 3 602 N/mm²).</td></tr>
 <tr><td>3.10</td><td>AN1 (CBFEM)</td><td>Calage sur une quatrième note détaillée (R3, tube carré à 8 raidisseurs). Tubes ronds, carrés et rectangulaires : raidisseur non lié à la platine sur la première maille contre le tube (jonction) ; contrainte des cordons des raidisseurs multipliée par un coefficient de pointe de 1,35 (empirique, calé sur les deux notes détaillées sur tubes, à vérifier), affiché dans le détail par cordon. 4 tests ajoutés, 1 resserré.</td><td>Tubes avec raidisseurs : soudure du tube réduite (R3 : 201 → 88 N/mm², note 96) ; soudures des raidisseurs augmentées (R3 : 188 → 222, note 222 ; R4 : 239 → 322, note 325). Chevilles, platine et contrainte des raidisseurs : moins de 0,3 %. Profilés en I, U et cornières : inchangés.</td></tr>
 <tr><td>3.09</td><td>AN1 (CBFEM)</td><td>Calage sur une troisième note détaillée (R4, tube rond à 6 raidisseurs). Tube rond : platine retenue en rotation par la rigidité de coque de la paroi (plus d'encastrement), raidisseurs à pied semi-rigide (k<sub>r</sub> = 1,5·E·t³·H³/r³, à vérifier), jonction raidisseur – tube corrigée. Soudures des raidisseurs sur la platine (tous profilés) : cisaillement longitudinal (flux raidisseur – platine) et pointe locale ajoutés ; colonne « v » et mention « (pointe) » dans le détail par cordon. 9 tests ajoutés.</td><td>Tube rond avec raidisseurs : cheville la plus tendue augmentée (note R4 : −11 % → +0,2 %). Tube rond sans raidisseur : tractions augmentées (jusqu'à +17 % sur l'exemple). Soudures des raidisseurs : taux augmentés (R1 : 286 → 304 N/mm² ; R2 : 195 → 229 ; R4 : 139 → 239). Profilés en I, U, cornières et tubes carrés : chevilles, platine et raidisseurs inchangés.</td></tr>
 <tr><td>3.08</td><td>AN1 (CBFEM)</td><td>Calage sur une deuxième note détaillée (R2). Raidisseurs en section en T (platine pour semelle). Soudures d'une paroi sans raidisseur : effort au moins égal à celui du profilé seul (théorie des poutres) et, avec deux cordons, moment de la platine transmis à la paroi (cordon le plus chargé q/2 + Δm/(t + a)) ; détail par cordon complété (q du modèle, q du profilé seul, Δm). 5 tests ajoutés.</td><td>Taux des soudures des parois non raidies augmentés (aile tendue de la note R2 : 251 N/mm² au lieu de 82) ; contrainte des raidisseurs augmentée de quelques % à 40 % (section en T) ; tractions des chevilles modifiées de moins de 4 % en présence de raidisseurs. Sans raidisseur : chevilles et platine inchangées, soudures du profilé au moins égales à celles du profilé seul.</td></tr>
@@ -693,6 +694,6 @@ function tests(){
 }
 try{ tests(); }catch(e){ $('tests').innerHTML=`<div class="msg bad">Erreur d'exécution des tests : ${e.message}</div>`; }
 </script>
-<script src="../commun/replier.js?v=3.10"></script>
+<script src="../commun/replier.js?v=3.11"></script>
 </body>
 </html>
