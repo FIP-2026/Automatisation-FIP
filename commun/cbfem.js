@@ -13,6 +13,7 @@
      (rigidité sécante, critère de von Mises sur σ = 6M/(t·h²) et τ = V/(t·h)) : flèche liée à la platine (soudure),
      pied côté profilé lié au corps rigide du profilé, en déplacement et, si le raidisseur est adossé (prolongement d'une
      paroi ou paroi derrière lui), en rotation ; I = t·h³/12, A_v = 5/6·t·h ;
+   - soudures (3.07) : efforts des cordons par résultante (cordons), contrainte équivalente dans la gorge (sigmaSoudure) ;
    - résolution : factorisation LDLᵀ en ligne de ciel, itérations sur l'état des contacts, des chevilles et des
      rigidités sécantes.
    Sorties : traction par cheville, pression de contact, contrainte équivalente et déformation plastique de la
@@ -255,7 +256,8 @@ const CBFEM = (() => {
     // raidisseurs : effort tranchant V et moment M par élément, contrainte de von Mises (σ = 6M/(t·h²), τ = V/(t·h)), efforts au pied
     const raid = RB.map((R) => { const fyR = R.r.fy || fy; let r = 0, sk = 0; R.E.forEach((e) => { if (e.r > r) { r = e.r; sk = (e.k + 0.5) * e.Le; } });
       const pts = lin.filter((z) => z.raid === R.ir), F = pts.reduce((s, z) => s + z.q * z.ds, 0), e0 = R.E[0];
-      return { ir: R.ir, L: R.L, enc: !!R.r.enc, r, sig: Math.min(r, 1) * fyR, epl: Math.max(0, r - 1) * fyR / ES, fy: fyR, s: sk, V0: e0.s * e0.V, M0: e0.s * e0.M, F, qmax: Math.max(...pts.map((z) => Math.abs(z.qm))) }; });
+      return { ir: R.ir, L: R.L, enc: !!R.r.enc, r, sig: Math.min(r, 1) * fyR, epl: Math.max(0, r - 1) * fyR / ES, fy: fyR, s: sk, V0: e0.s * e0.V, M0: e0.s * e0.M, F, qmax: Math.max(...pts.map((z) => Math.abs(z.qm))),
+        a: R.r.a, b: R.r.b, t: R.r.t, el: R.E.map((e) => ({ s0: e.k * e.Le, s1: (e.k + 1) * e.Le, h: e.hm, V: e.V, M: e.M, r: e.r })) }; });   // el : V, M élastiques (rigidité initiale), r = σ_vm/f_y
     let wmax = 0, wmin = 0; for (let n = 0; n < nn; n++) { if (u[3 * n] > wmax) wmax = u[3 * n]; if (u[3 * n] < wmin) wmin = u[3 * n]; }
     return { T, C, Ac, pmoy: Ac ? C / Ac : 0, Cx: C ? Cx / C : 0, Cy: C ? Cy / C : 0, pmax, sigMax: Math.min(rmax, 1) * fy, eplMax: Math.max(0, rmax - 1) * fy / ES, rmax, qmax, sprof, wmax, wmin,
       elems, lin, raid, X, Y, Wn, Pn, Rn, it, conv, nddl, h, fy, rot: [u[T1], u[T2]], w0: u[W0] };
@@ -265,18 +267,29 @@ const CBFEM = (() => {
      autour du milieu du cordon). Les efforts locaux opposés de part et d'autre d'une paroi ou entre parois voisines se compensent
      dans les résultantes ; pour un tube (tube = true), ils se compensent seulement à l'échelle du tube entier : ses parois forment
      un seul groupe de cordons, q = |F|/ΣL + |Mx|·|y|max/Ix + |My|·|x|max/Iy (répartition linéaire, inerties de ligne).
-     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q }] */
-  function cordons(res, nW, tube) {
+     Jonction de deux parois (âme sur aile) : les points de liaison du bout de la paroi qui s'arrête sont comptés avec la paroi
+     continue (parois : lignes moyennes [{a, b, t}] du modèle, facultatif), sinon l'effort de la jonction est partagé au hasard.
+     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q }] ;
+     chaque point de res.lin reçoit qd, effort linéique local à afficher (valeur lissée ; tube : répartition linéaire du groupe). */
+  function cordons(res, nW, tube, parois) {
     const out = [], seg = (P) => { let L = 0, F = 0; P.forEach((z) => { L += z.ds; F += z.q * z.ds; }); const x0 = P[0].x, y0 = P[0].y, sc = P.reduce((s, z) => s + Math.hypot(z.x - x0, z.y - y0) * z.ds, 0) / L; let M = 0; P.forEach((z) => { M += z.q * z.ds * (Math.hypot(z.x - x0, z.y - y0) - sc); });
       return { L, F, M, q: Math.abs(F) / L + 4 * Math.abs(M) / (L * L) }; };
     const W = res.lin.filter((z) => z.raid == null);
     if (tube && W.length) { let L = 0, F = 0, sx = 0, sy = 0; W.forEach((z) => { L += z.ds; F += z.q * z.ds; sx += z.x * z.ds; sy += z.y * z.ds; }); const cx = sx / L, cy = sy / L; let Mx = 0, My = 0, Ix = 0, Iy = 0, xm = 0, ym = 0;
       W.forEach((z) => { const dx = z.x - cx, dy = z.y - cy; Mx += z.q * z.ds * dy; My += z.q * z.ds * dx; Ix += dy * dy * z.ds; Iy += dx * dx * z.ds; xm = Math.max(xm, Math.abs(dx)); ym = Math.max(ym, Math.abs(dy)); });
+      W.forEach((z) => { z.qd = F / L + Mx * (z.y - cy) / (Ix || 1) + My * (z.x - cx) / (Iy || 1); });
       out.push({ type: "tube", i: 0, L, F, M: Math.hypot(Mx, My), q: Math.abs(F) / L + Math.abs(Mx) * ym / (Ix || 1) + Math.abs(My) * xm / (Iy || 1) }); }
-    else for (let i = 0; i < nW; i++) { const P = W.filter((z) => z.iw === i); if (P.length) out.push({ type: "paroi", i, ...seg(P) }); }
+    else { const de = W.map((z) => { if (!parois) return z.iw; for (let j = 0; j < parois.length; j++) { if (j === z.iw) continue; const w = parois[j], dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], l2 = dx * dx + dy * dy || 1, k = ((z.x - w.a[0]) * dx + (z.y - w.a[1]) * dy) / l2;
+          if (k > 0.05 && k < 0.95 && Math.hypot(z.x - w.a[0] - k * dx, z.y - w.a[1] - k * dy) <= w.t / 2 + z.t / 2 + 0.5) return j; } return z.iw; });      // point situé dans l'épaisseur d'une autre paroi, hors de ses bouts
+      for (let i = 0; i < nW; i++) { const P = W.filter((z, k) => de[k] === i); if (P.length) out.push({ type: "paroi", i, ...seg(P) }); } }
     (res.raid || []).forEach((r) => { const P = res.lin.filter((z) => z.raid === r.ir); if (P.length) out.push({ type: "raid", i: r.ir, ...seg(P) }); });
+    res.lin.forEach((z) => { if (z.qd == null || !(tube && z.raid == null)) z.qd = tube && z.raid == null ? z.qd : z.qm; });      // qd : effort linéique local à afficher (N/mm)
     return out;
   }
+  /* ---------- contrainte équivalente dans la gorge d'un cordon d'angle (N/mm²), méthode directionnelle NF EN 1993-1-8 §4.5.3.2 ----------
+     q : effort par mm normal à la platine (transversal au cordon), v : effort par mm le long du cordon, n : nombre de cordons, a : gorge (mm).
+     Cordon à 45° : σ⊥ = τ⊥ = q/(n·a·√2), τ∥ = v/(n·a) ; σ_w = √(σ⊥² + 3·(τ⊥² + τ∥²)) = √(2·(q/(n·a))² + 3·(v/(n·a))²) ≤ f_u/(β_w·γ_M2) */
+  const sigmaSoudure = (q, v, n, a) => Math.sqrt(2 * (q / (n * a)) ** 2 + 3 * ((v || 0) / (n * a)) ** 2);
   /* ---------- contrôle de l'élément : bande console (longueur L, largeur b, épaisseur t, n éléments), charge P en bout → flèche ---------- */
   function consoleTest(L, b, t, n, P) {
     const nddl = 6 * (n + 1), haut = new Int32Array(nddl), K = elementaire(L / n, b), D = ES * t * t * t / (12 * (1 - NU * NU)), Gs = 5 / 6 * ES / (2 * (1 + NU)) * t;
@@ -288,6 +301,6 @@ const CBFEM = (() => {
     const f = new Float64Array(nddl); f[3 * (2 * n)] = P / 2; f[3 * (2 * n + 1)] = P / 2; factoriser(S); const u = resoudre(S, f);
     return (u[3 * (2 * n)] + u[3 * (2 * n + 1)]) / 2;
   }
-  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, raideurCheville, elementaire, lignes, consoleTest, NU, ES };
+  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, sigmaSoudure, raideurCheville, elementaire, lignes, consoleTest, NU, ES };
 })();
 if (typeof module !== "undefined") module.exports = CBFEM;
