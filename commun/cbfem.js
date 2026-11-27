@@ -9,10 +9,11 @@
    - profilé : parois indéformables dans leur plan (section plane w = w0 + θ1·y − θ2·x imposée par pénalité le long
      des lignes moyennes des parois) ; N, Mx, My appliqués à ce corps rigide (au centre de la platine) ;
    - raidisseurs (3.06) : plats verticaux soudés au profilé et à la platine, modélisés en poutres de Timoshenko de hauteur
-     variable h(s) (triangulaire, chanfreinée ou rectangulaire) le long de leur pied, acier élastique – parfaitement plastique
-     (rigidité sécante, critère de von Mises sur σ = 6M/(t·h²) et τ = V/(t·h)) : flèche liée à la platine (soudure),
+     variable h(s) (triangulaire, chanfreinée ou rectangulaire) le long de leur pied, section en T avec une bande de platine
+     pour semelle (3.08), acier élastique – parfaitement plastique (rigidité sécante, critère de von Mises sur σ = M·z_s/I au
+     bord libre et τ = V/(t·h)) : flèche liée à la platine (soudure),
      pied côté profilé lié au corps rigide du profilé, en déplacement et, si le raidisseur est adossé (prolongement d'une
-     paroi ou paroi derrière lui), en rotation ; I = t·h³/12, A_v = 5/6·t·h ;
+     paroi ou paroi derrière lui), en rotation ; A_v = 5/6·t·h ;
    - soudures (3.07) : efforts des cordons par résultante (cordons), contrainte équivalente dans la gorge (sigmaSoudure) ;
    - résolution : factorisation LDLᵀ en ligne de ciel, itérations sur l'état des contacts, des chevilles et des
      rigidités sécantes.
@@ -184,11 +185,16 @@ const CBFEM = (() => {
     const PT = []; o.parois.forEach((w, iw) => { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), n = Math.max(1, Math.ceil(L / (0.6 * h)));
       const ox = -(w.b[1] - w.a[1]) / L * w.t / 2, oy = (w.b[0] - w.a[0]) / L * w.t / 2;      // deux faces de la paroi (cordons de part et d'autre)
       for (let k = 0; k <= n; k++) { const u = k / n, x = w.a[0] + (w.b[0] - w.a[0]) * u, y = w.a[1] + (w.b[1] - w.a[1]) * u, ds = L / n * (k === 0 || k === n ? 0.5 : 1);
-        for (const sg of (o.faces === 1 ? [0] : [-1, 1])) PT.push({ x: x + sg * ox, y: y + sg * oy, xm: x, ym: y, ds, t: w.t, iw, k, N: interp(x + sg * ox, y + sg * oy) }); } });
+        for (const sg of (o.faces === 1 ? [0] : [-1, 1])) PT.push({ x: x + sg * ox, y: y + sg * oy, xm: x, ym: y, ds, t: w.t, iw, k, sg, N: interp(x + sg * ox, y + sg * oy) }); } });
     // raidisseurs : nœuds de poutre (w, θ) le long du pied, éléments de Timoshenko de hauteur variable
     const RB = RD.map((r, ir) => { const L = Math.hypot(r.b[0] - r.a[0], r.b[1] - r.a[1]), n = Math.max(2, Math.ceil(L / (0.6 * h))), ux = (r.b[0] - r.a[0]) / L, uy = (r.b[1] - r.a[1]) / L, N = [], E = [];
       for (let k = 0; k <= n; k++) { const s = L * k / n, x = r.a[0] + ux * s, y = r.a[1] + uy * s; N.push({ s, x, y, ds: L / n * (k === 0 ? 0 : k === 1 ? 1.5 : k === n ? 0.5 : 1), w: nddl, th: nddl + 1, P: k ? interp(x, y) : [] }); nddl += 2; }   // nœud 0 (contre le profilé) : non lié à la platine, déjà tenue par la paroi à cet endroit
-      for (let k = 0; k < n; k++) { const Le = L / n, hm = Math.max(2, hauteurRaid(r, (k + 0.5) * Le, L)); E.push({ k, Le, hm, EI: ES * r.t * hm * hm * hm / 12, GA: 5 / 6 * ES / (2 * (1 + NU)) * r.t * hm, s: 1, r: 0 }); }
+      /* section en T : âme = raidisseur (t × h), semelle = bande de platine de largeur b_eff = t + 2·c_eff·t_p (c_eff = o.semelle, 0 : raidisseur seul) ;
+         c_eff = 6 par défaut : résultats peu sensibles entre 3 et 20 ; zs : distance du centre de gravité au bord libre du raidisseur */
+      const ce = o.semelle == null ? 6 : o.semelle, Af = ce > 0 ? (r.t + 2 * ce * t) * t : 0;
+      for (let k = 0; k < n; k++) { const Le = L / n, hm = Math.max(2, hauteurRaid(r, (k + 0.5) * Le, L)), Aw = r.t * hm, yg = Af ? (Aw * hm / 2 - Af * t / 2) / (Aw + Af) : hm / 2,
+          I = r.t * hm * hm * hm / 12 + Aw * (hm / 2 - yg) ** 2 + (Af ? Af * t * t / 12 + Af * (yg + t / 2) ** 2 : 0);
+        E.push({ k, Le, hm, I, zs: hm - yg, EI: ES * I, GA: 5 / 6 * ES / (2 * (1 + NU)) * r.t * hm, s: 1, r: 0 }); }
       return { r, ir, L, ux, uy, N, E }; });
     // cheville : ressort lié au déplacement moyen sous la rondelle (8 points au rayon 2/3·d_w/2) : pas de charge ponctuelle (résultat indépendant du maillage)
     const sousRondelle = (a, k) => { const dw = Array.isArray(o.dw) ? o.dw[k] : o.dw; if (!(dw > 0)) return interp(a.x, a.y); const m = new Map(), r = dw / 3;
@@ -227,7 +233,7 @@ const CBFEM = (() => {
         const mx = D * (k[0] + NU * k[1]), myy = D * (k[1] + NU * k[0]), mxy = D * (1 - NU) / 2 * k[2], meq = Math.sqrt(mx * mx - mx * myy + myy * myy + 3 * mxy * mxy), r = meq / my;
         e.r = r; if (plast) { const sn = r > 1 ? (1.5 - 0.5 / (r * r)) / r : 1, s2 = 0.5 * (e.s + sn); if (Math.abs(s2 - e.s) > ds) ds = Math.abs(s2 - e.s); e.s = s2; } }
       for (const R of RB) { const fyR = R.r.fy || fy; for (const e of R.E) { const a = R.N[e.k], b = R.N[e.k + 1], V = e.GA * ((u[b.w] - u[a.w]) / e.Le - (u[a.th] + u[b.th]) / 2), M = e.EI * (u[b.th] - u[a.th]) / e.Le;
-          e.V = V; e.M = M; e.r = Math.sqrt((6 * M / (R.r.t * e.hm * e.hm)) ** 2 + 3 * (V / (R.r.t * e.hm)) ** 2) / fyR;      // rapport élastique (rigidité initiale) : > 1 = plastifié
+          e.V = V; e.M = M; e.r = Math.sqrt((M * e.zs / e.I) ** 2 + 3 * (V / (R.r.t * e.hm)) ** 2) / fyR;      // rapport élastique (rigidité initiale) : > 1 = plastifié ; σ au bord libre = M·z_s/I
           if (plast) { const sn = e.r > 1 ? 1 / e.r : 1, s2 = 0.5 * (e.s + sn); if (Math.abs(s2 - e.s) > ds) ds = Math.abs(s2 - e.s); e.s = s2; } } }
       if (!chg && ds < 2e-3) { conv = true; it++; break; }
     }
@@ -237,7 +243,10 @@ const CBFEM = (() => {
     for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const n = nd(i, j); if (cont[n] && u[3 * n] < 0) { const p = -o.kc * u[3 * n], F = p * aire[n]; pres[n] = p; C += F; Ac += aire[n]; Cx += F * X[i]; Cy += F * Y[j]; } }
     // pression lissée par élément (moyenne des 4 nœuds)
     const elems = EL.map((e) => { const p = (pres[e.dl[0] / 3] + pres[e.dl[3] / 3] + pres[e.dl[6] / 3] + pres[e.dl[9] / 3]) / 4; if (p > pmax) pmax = p;
-      return { x: X[e.i], y: Y[e.j], a: e.a, b: e.b, r: e.r, sig: Math.min(e.r, 1) * fy, epl: Math.max(0, e.r - 1) * fy / ES, p, w: (u[e.dl[0]] + u[e.dl[3]] + u[e.dl[6]] + u[e.dl[9]]) / 4 }; });
+      const kk = [0, 0, 0]; for (let m = 0; m < 3; m++) { let v = 0; for (let q = 0; q < 12; q++) v += e.K.Bc[m][q] * u[e.dl[q]]; kk[m] = v; }
+      const sD = e.s * D;                                                          // moments réels (N·mm/mm) : mxx fléchit selon x
+      return { x: X[e.i], y: Y[e.j], a: e.a, b: e.b, r: e.r, sig: Math.min(e.r, 1) * fy, epl: Math.max(0, e.r - 1) * fy / ES, p, w: (u[e.dl[0]] + u[e.dl[3]] + u[e.dl[6]] + u[e.dl[9]]) / 4,
+        mxx: sD * (kk[0] + NU * kk[1]), myy: sD * (kk[1] + NU * kk[0]), mxy: sD * (1 - NU) / 2 * kk[2] }; });
     let rmax = 0; elems.forEach((e) => { if (e.r > rmax) rmax = e.r; });
     // champs aux nœuds de la grille (indice i·ny + j, indépendant de la numérotation) : w, pression, rapport r moyen des mailles voisines
     const Wn = new Float64Array(nx * ny), Pn = new Float64Array(nx * ny), Rn = new Float64Array(nx * ny), cnt = new Float64Array(nx * ny);
@@ -246,7 +255,7 @@ const CBFEM = (() => {
     for (let k = 0; k < Rn.length; k++) Rn[k] /= cnt[k] || 1;
     // efforts linéiques en pied de paroi (N/mm, > 0 : la paroi tire la platine vers le haut)
     let qmax = 0, sprof = 0; const st = {};
-    PT.forEach((p) => { let g = -u[W0] - p.y * u[T1] + p.x * u[T2]; for (const [n, c] of p.N) g += c * u[3 * n]; const k = p.iw + "_" + p.k; (st[k] = st[k] || { x: p.xm, y: p.ym, q: 0, t: p.t, iw: p.iw, k: p.k, ds: p.ds }).q += -kp * g / p.ds; });
+    PT.forEach((p) => { let g = -u[W0] - p.y * u[T1] + p.x * u[T2]; for (const [n, c] of p.N) g += c * u[3 * n]; const k = p.iw + "_" + p.k, e = (st[k] = st[k] || { x: p.xm, y: p.ym, q: 0, t: p.t, iw: p.iw, k: p.k, ds: p.ds, qf: [0, 0] }), qq = -kp * g / p.ds; e.q += qq; if (p.sg) e.qf[p.sg < 0 ? 0 : 1] += qq; else { e.qf[0] += qq / 2; e.qf[1] += qq / 2; } });      // qf : effort de chaque face de la paroi (cordon de chaque côté)
     const nW = o.parois.length;
     RB.forEach((R) => R.N.forEach((q, k) => { if (!q.P.length) return; let g = -u[q.w]; for (const [n, c] of q.P) g += c * u[3 * n]; st["r" + R.ir + "_" + k] = { x: q.x, y: q.y, q: -kp * g / q.ds, t: R.r.t, iw: nW + R.ir, k, ds: q.ds, raid: R.ir }; }));
     const lin = Object.values(st);
@@ -269,20 +278,38 @@ const CBFEM = (() => {
      un seul groupe de cordons, q = |F|/ΣL + |Mx|·|y|max/Ix + |My|·|x|max/Iy (répartition linéaire, inerties de ligne).
      Jonction de deux parois (âme sur aile) : les points de liaison du bout de la paroi qui s'arrête sont comptés avec la paroi
      continue (parois : lignes moyennes [{a, b, t}] du modèle, facultatif), sinon l'effort de la jonction est partagé au hasard.
-     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q }] ;
+     opt (3.08) : { fy, N, Mx, My, raidies: [indices des parois portant un raidisseur] } pour les parois du profilé NON raidies
+     (une paroi raidie est soulagée par ses raidisseurs : efforts du modèle seuls ; calage sur deux notes détaillées) :
+       - dm : moment de la platine transmis à la paroi par ses deux cordons (N·mm/mm) = saut du moment de flexion normal à la paroi
+         de part et d'autre (moyenne le long du cordon), plafonné au moment plastique de la paroi f_y·t²/4 ;
+       - qbt : effort linéique maximal de la paroi sous les efforts du profilé seul (théorie des poutres, section à parois minces :
+         σ = N/A + flexion déviée, q = |σ|·t), N, Mx, My étant les efforts au centre du profilé ; les raidisseurs ne sont pas comptés.
+     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q, dm, qbt, t }] ;
      chaque point de res.lin reçoit qd, effort linéique local à afficher (valeur lissée ; tube : répartition linéaire du groupe). */
-  function cordons(res, nW, tube, parois) {
+  function cordons(res, nW, tube, parois, opt) {
+    /* moment de flexion de la platine au point (x, y) dans la direction n (N·mm/mm) */
+    const mPl = (x, y, n) => { const e = res.elems.find((q) => x >= q.x - 1e-9 && x <= q.x + q.a + 1e-9 && y >= q.y - 1e-9 && y <= q.y + q.b + 1e-9); return e ? e.mxx * n[0] * n[0] + e.myy * n[1] * n[1] + 2 * e.mxy * n[0] * n[1] : 0; };
+    const couple = (P, w) => { if (!opt || !w || !res.elems || res.elems[0].mxx == null) return 0; const dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], l = Math.hypot(dx, dy) || 1, n = [-dy / l, dx / l], d = w.t / 2 + 0.75 * res.h; let s = 0, L = 0;
+      P.forEach((z) => { s += Math.abs(mPl(z.x + n[0] * d, z.y + n[1] * d, n) - mPl(z.x - n[0] * d, z.y - n[1] * d, n)) * z.ds; L += z.ds; }); return Math.min(L ? s / L : 0, (opt.fy || 235) * w.t * w.t / 4); };
+    /* profilé seul : caractéristiques de la section à parois minces (lignes moyennes), contrainte au point (x, y) */
+    let sigBT = null;
+    if (opt && parois && parois.length && (opt.N || opt.Mx || opt.My)) { let A = 0, sx = 0, sy = 0; parois.forEach((w) => { const l = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) * w.t; A += l; sx += l * (w.a[0] + w.b[0]) / 2; sy += l * (w.a[1] + w.b[1]) / 2; });
+      const gx = sx / A, gy = sy / A; let Ixx = 0, Iyy = 0, Ixy = 0; parois.forEach((w) => { const l = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) * w.t, x1 = w.a[0] - gx, y1 = w.a[1] - gy, x2 = w.b[0] - gx, y2 = w.b[1] - gy;
+        Ixx += l * (y1 * y1 + y1 * y2 + y2 * y2) / 3; Iyy += l * (x1 * x1 + x1 * x2 + x2 * x2) / 3; Ixy += l * (2 * x1 * y1 + x1 * y2 + x2 * y1 + 2 * x2 * y2) / 6; });
+      const N = opt.N || 0, Mx = opt.Mx || 0, My2 = -(opt.My || 0), det = Ixx * Iyy - Ixy * Ixy || 1;                      // Mx tend les y > 0 ; My tend les x < 0
+      sigBT = (x, y) => N / A + ((Mx * Iyy - My2 * Ixy) * (y - gy) + (My2 * Ixx - Mx * Ixy) * (x - gx)) / det; }
+    const bt = (P) => (sigBT ? Math.max(...P.map((z) => Math.abs(sigBT(z.x, z.y)) * z.t)) : 0), raidie = (i) => !!(opt && opt.raidies && opt.raidies.includes(i));
     const out = [], seg = (P) => { let L = 0, F = 0; P.forEach((z) => { L += z.ds; F += z.q * z.ds; }); const x0 = P[0].x, y0 = P[0].y, sc = P.reduce((s, z) => s + Math.hypot(z.x - x0, z.y - y0) * z.ds, 0) / L; let M = 0; P.forEach((z) => { M += z.q * z.ds * (Math.hypot(z.x - x0, z.y - y0) - sc); });
       return { L, F, M, q: Math.abs(F) / L + 4 * Math.abs(M) / (L * L) }; };
     const W = res.lin.filter((z) => z.raid == null);
     if (tube && W.length) { let L = 0, F = 0, sx = 0, sy = 0; W.forEach((z) => { L += z.ds; F += z.q * z.ds; sx += z.x * z.ds; sy += z.y * z.ds; }); const cx = sx / L, cy = sy / L; let Mx = 0, My = 0, Ix = 0, Iy = 0, xm = 0, ym = 0;
       W.forEach((z) => { const dx = z.x - cx, dy = z.y - cy; Mx += z.q * z.ds * dy; My += z.q * z.ds * dx; Ix += dy * dy * z.ds; Iy += dx * dx * z.ds; xm = Math.max(xm, Math.abs(dx)); ym = Math.max(ym, Math.abs(dy)); });
       W.forEach((z) => { z.qd = F / L + Mx * (z.y - cy) / (Ix || 1) + My * (z.x - cx) / (Iy || 1); });
-      out.push({ type: "tube", i: 0, L, F, M: Math.hypot(Mx, My), q: Math.abs(F) / L + Math.abs(Mx) * ym / (Ix || 1) + Math.abs(My) * xm / (Iy || 1) }); }
+      out.push({ type: "tube", i: 0, L, F, M: Math.hypot(Mx, My), q: Math.abs(F) / L + Math.abs(Mx) * ym / (Ix || 1) + Math.abs(My) * xm / (Iy || 1), dm: 0, qbt: res.raid && res.raid.length ? 0 : bt(W), t: W[0].t }); }
     else { const de = W.map((z) => { if (!parois) return z.iw; for (let j = 0; j < parois.length; j++) { if (j === z.iw) continue; const w = parois[j], dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], l2 = dx * dx + dy * dy || 1, k = ((z.x - w.a[0]) * dx + (z.y - w.a[1]) * dy) / l2;
           if (k > 0.05 && k < 0.95 && Math.hypot(z.x - w.a[0] - k * dx, z.y - w.a[1] - k * dy) <= w.t / 2 + z.t / 2 + 0.5) return j; } return z.iw; });      // point situé dans l'épaisseur d'une autre paroi, hors de ses bouts
-      for (let i = 0; i < nW; i++) { const P = W.filter((z, k) => de[k] === i); if (P.length) out.push({ type: "paroi", i, ...seg(P) }); } }
-    (res.raid || []).forEach((r) => { const P = res.lin.filter((z) => z.raid === r.ir); if (P.length) out.push({ type: "raid", i: r.ir, ...seg(P) }); });
+      for (let i = 0; i < nW; i++) { const P = W.filter((z, k) => de[k] === i), Pi = W.filter((z) => z.iw === i); if (P.length) out.push({ type: "paroi", i, ...seg(P), raidie: raidie(i), dm: raidie(i) ? 0 : couple(Pi, parois && parois[i]), qbt: raidie(i) ? 0 : bt(Pi), t: Pi.length ? Pi[0].t : 0 }); } }
+    (res.raid || []).forEach((r) => { const P = res.lin.filter((z) => z.raid === r.ir); if (P.length) out.push({ type: "raid", i: r.ir, ...seg(P), dm: 0, qbt: 0, t: r.t }); });
     res.lin.forEach((z) => { if (z.qd == null || !(tube && z.raid == null)) z.qd = tube && z.raid == null ? z.qd : z.qm; });      // qd : effort linéique local à afficher (N/mm)
     return out;
   }
@@ -290,6 +317,8 @@ const CBFEM = (() => {
      q : effort par mm normal à la platine (transversal au cordon), v : effort par mm le long du cordon, n : nombre de cordons, a : gorge (mm).
      Cordon à 45° : σ⊥ = τ⊥ = q/(n·a·√2), τ∥ = v/(n·a) ; σ_w = √(σ⊥² + 3·(τ⊥² + τ∥²)) = √(2·(q/(n·a))² + 3·(v/(n·a))²) ≤ f_u/(β_w·γ_M2) */
   const sigmaSoudure = (q, v, n, a) => Math.sqrt(2 * (q / (n * a)) ** 2 + 3 * ((v || 0) / (n * a)) ** 2);
+  /* effort normal par cordon d'une paroi à deux cordons (N/mm) : q/2 + dm/(t + a) (dm : moment transmis par les deux cordons, bras t + a) */
+  const effortCordon = (q, dm, t, a, n) => (n === 2 ? q / 2 + (dm || 0) / (t + a) : q);
   /* ---------- contrôle de l'élément : bande console (longueur L, largeur b, épaisseur t, n éléments), charge P en bout → flèche ---------- */
   function consoleTest(L, b, t, n, P) {
     const nddl = 6 * (n + 1), haut = new Int32Array(nddl), K = elementaire(L / n, b), D = ES * t * t * t / (12 * (1 - NU * NU)), Gs = 5 / 6 * ES / (2 * (1 + NU)) * t;
@@ -301,6 +330,6 @@ const CBFEM = (() => {
     const f = new Float64Array(nddl); f[3 * (2 * n)] = P / 2; f[3 * (2 * n + 1)] = P / 2; factoriser(S); const u = resoudre(S, f);
     return (u[3 * (2 * n)] + u[3 * (2 * n + 1)]) / 2;
   }
-  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, sigmaSoudure, raideurCheville, elementaire, lignes, consoleTest, NU, ES };
+  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, sigmaSoudure, effortCordon, raideurCheville, elementaire, lignes, consoleTest, NU, ES };
 })();
 if (typeof module !== "undefined") module.exports = CBFEM;
