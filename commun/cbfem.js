@@ -15,8 +15,11 @@
      pied côté profilé lié au corps rigide du profilé, en déplacement et, si le raidisseur est adossé (prolongement d'une
      paroi ou paroi derrière lui), en rotation ; A_v = 5/6·t·h ;
    - tube rond (3.09) : la platine n'est pas encastrée sur la paroi (une ligne de liaison + rigidité de rotation de coque
-     2·β·D) ; raidisseurs rayonnants à pied semi-rigide (k_r = κ·E·t³·H³/r³, à vérifier), non liés à la platine sur la
-     première maille contre le tube ;
+     2·β·D) ; raidisseurs rayonnants à pied semi-rigide (k_r = κ·E·t³·H³/r³, à vérifier) ;
+   - tubes ronds, carrés et rectangulaires (3.10) : raidisseurs non liés à la platine sur la première maille contre le tube,
+     coefficient de pointe sur leurs cordons (K_POINTE_TUBE) ;
+   - cordons des raidisseurs (3.12) : liaison raidisseur – platine élasto-plastique, effort plafonné par la résistance des cordons
+     (raid[].rw, N/mm) ; contrainte au pied du raidisseur √((q/t)² + 3·(v/t)²) ; paroi soulagée à moins de K_COUV·t_p d'un raidisseur ;
    - soudures (3.07) : efforts des cordons par résultante (cordons), contrainte équivalente dans la gorge (sigmaSoudure) ;
    - résolution : factorisation LDLᵀ en ligne de ciel, itérations sur l'état des contacts, des chevilles et des
      rigidités sécantes.
@@ -77,6 +80,13 @@ const CBFEM = (() => {
      (t, r : épaisseur et rayon moyen du tube ; H : hauteur du raidisseur). Anneau libre de largeur H : κ ≈ 0,25 ; la coque tenue par la
      platine et par les autres raidisseurs est plus raide : κ calé sur une note de comparaison détaillée (tube 168,3 × 5, 6 raidisseurs 100 × 200 × 5). */
   const K_RAID_TUBE = 1.5;
+  /* raidisseurs sur tubes (ronds, carrés, rectangulaires), 3.10 — À VÉRIFIER : (1) le raidisseur n'est pas lié à la platine sur la première maille
+     contre le tube (la paroi y tient déjà la platine ; sinon efforts opposés parasites à la jonction, qui chargent à tort la soudure du tube) ;
+     (2) contrainte de ses cordons sur la platine multipliée par K_POINTE_TUBE : les deux notes détaillées sur tubes (carré 80 × 3 à 8 raidisseurs,
+     rond 168,3 × 5 à 6 raidisseurs) donnent une pointe supérieure de 35 % (0,74 = 165/222 = 239/325), au-delà de f_y·t du raidisseur :
+     état biaxial du raidisseur (jusqu'à 1,155·f_y) et partage inégal entre les deux cordons (±3 à 12 % relevés), non modélisés. */
+  const K_POINTE_TUBE = 1.35;
+  const K_COUV = 5;      // voir cordons() : portée du soulagement d'une paroi par un raidisseur, en épaisseurs de platine — À VÉRIFIER
   /* raidisseur défini sur une face → pied dans le repère de la platine
      r : { face, pos (mm depuis l'origine de la face, ou angle ° sur un tube rond ; ignoré sur un bout), L (longueur du pied), H (hauteur),
            t (épaisseur), forme ('tri' | 'chf' | 'rect'), bh, bv (chanfreinée : bord horizontal en tête, bord vertical en pointe) }
@@ -91,6 +101,7 @@ const CBFEM = (() => {
     const g = ((pr && pr.a) || 0) * Math.PI / 180, c = Math.cos(g), s = Math.sin(g), ex = (pr && pr.x) || 0, ey = (pr && pr.y) || 0, R = ([x, y]) => [ex + x * c - y * s, ey + x * s + y * c];
     const H = Math.max(5, +r.H || 100), forme = r.forme || "tri";
     const out = { a: R(a), b: R(b), t: Math.max(1, +r.t || 6), H, bh: forme === "rect" ? L : forme === "chf" ? Math.min(L, +r.bh || 0) : 0, bv: forme === "rect" ? H : forme === "chf" ? Math.min(H, +r.bv || 0) : 0, enc, forme };
+    if (F.cercle || (!/^(HE|IP|UP|L)/.test(p.f || "") && !p.parois)) out.rac = true;      // tube (rond, carré, rectangulaire) : voir K_POINTE_TUBE
     if (F.cercle) out.kr = K_RAID_TUBE * ES * Math.pow(F.t, 3) * Math.pow(H, 3) / Math.pow(F.r - F.t / 2, 3);      // pied semi-rigide (voir K_RAID_TUBE)
     return out;
   }
@@ -203,8 +214,8 @@ const CBFEM = (() => {
         for (const sg of (o.faces === 1 || rot ? [0] : [-1, 1])) PT.push({ x: x + sg * ox, y: y + sg * oy, xm: x, ym: y, ds, t: w.t, iw, k, sg, N: interp(x + sg * ox, y + sg * oy), kr: rot ? w.kr * (o.kCoque == null ? 1 : o.kCoque) * ds : 0, nx: -2 * ox / w.t, ny: -2 * oy / w.t }); } });
     // raidisseurs : nœuds de poutre (w, θ) le long du pied, éléments de Timoshenko de hauteur variable
     const RB = RD.map((r, ir) => { const L = Math.hypot(r.b[0] - r.a[0], r.b[1] - r.a[1]), n = Math.max(2, Math.ceil(L / (0.6 * h))), ux = (r.b[0] - r.a[0]) / L, uy = (r.b[1] - r.a[1]) / L, N = [], E = [];
-      const k1 = r.kr != null ? Math.min(n - 1, Math.max(1, Math.ceil((o.racine == null ? 1 : o.racine) * h / (L / n) - 1e-9))) : 1;      // premier nœud lié à la platine
-      for (let k = 0; k <= n; k++) { const s = L * k / n, x = r.a[0] + ux * s, y = r.a[1] + uy * s; N.push({ s, x, y, ds: L / n * (k < k1 ? 0 : k === k1 ? k1 + 0.5 : k === n ? 0.5 : 1), w: nddl, th: nddl + 1, P: k >= k1 ? interp(x, y) : [] }); nddl += 2; }   // nœud 0 (contre le profilé) : non lié à la platine, déjà tenue par la paroi à cet endroit
+      const k1 = r.kr != null || r.rac || o.racine != null ? Math.min(n - 1, Math.max(1, Math.ceil((o.racine == null ? 1 : o.racine) * h / (L / n) - 1e-9))) : 1;      // premier nœud lié à la platine
+      for (let k = 0; k <= n; k++) { const s = L * k / n, x = r.a[0] + ux * s, y = r.a[1] + uy * s; N.push({ s, x, y, ds: L / n * (k < k1 ? 0 : k === k1 ? k1 + 0.5 : k === n ? 0.5 : 1), w: nddl, th: nddl + 1, P: k >= k1 ? interp(x, y) : [], sl: 1 }); nddl += 2; }   // nœud 0 (contre le profilé) : non lié à la platine, déjà tenue par la paroi à cet endroit
       /* section en T : âme = raidisseur (t × h), semelle = bande de platine de largeur b_eff = t + 2·c_eff·t_p (c_eff = o.semelle, 0 : raidisseur seul) ;
          c_eff = 6 par défaut : résultats peu sensibles entre 3 et 20 ; zs : distance du centre de gravité au bord libre du raidisseur */
       const ce = o.semelle == null ? 6 : o.semelle, Af = ce > 0 ? (r.t + 2 * ce * t) * t : 0;
@@ -224,7 +235,8 @@ const CBFEM = (() => {
     const D = ES * t * t * t / (12 * (1 - NU * NU)), Gs = 5 / 6 * ES / (2 * (1 + NU)) * t, my = fy * t * t / 6;
     const kp = 1e4 * Math.max(Gs, ...ka), cont = new Uint8Array(nn).fill(1);
     const f = new Float64Array(nddl); f[W0] = o.comb.N || 0; f[T1] = o.comb.Mx || 0; f[T2] = o.comb.My || 0;
-    let u = null, it = 0, conv = false; const plast = o.plastique !== false, ITMAX = o.itmax || 80;
+    let u = null, it = 0, conv = false; const plast = o.plastique !== false, ITMAX = o.itmax || (RB.some((R) => R.r.rw > 0) ? 120 : 80);
+    const pc0 = (rw, v) => Math.sqrt(Math.max(1e-4 * rw * rw, rw * rw - 3 * v * v) / 2);      // effort normal plafond d'un cordon (au moins 1 % de r_w/√2)
     for (; it < ITMAX; it++) {
       const S = ciel(nddl, haut), add = (i, j, v) => { if (i <= j) S.v[idx(S, i, j)] += v; };
       for (const e of EL) { const Kb = e.K.Kb, Ks = e.K.Ks, dl = e.dl, sb = D * e.s; for (let r = 0; r < 12; r++) for (let c = 0; c < 12; c++) if (dl[r] <= dl[c]) S.v[idx(S, dl[r], dl[c])] += sb * Kb[r * 12 + c] + Gs * Ks[r * 12 + c]; }
@@ -234,7 +246,7 @@ const CBFEM = (() => {
         /* rotation autour de la paroi : pente de la platine dans la direction n = −(βx·nx + βy·ny) ; corps rigide : θ1·ny − θ2·nx */
         if (p.kr) { const gr = p.N.flatMap(([n, c]) => [[3 * n + 1, c * p.nx], [3 * n + 2, c * p.ny]]).concat([[T1, p.ny], [T2, -p.nx]]); for (const [i1, c1] of gr) for (const [i2, c2] of gr) add(i1, i2, p.kr * c1 * c2); } }
       for (const R of RB) {
-        for (const q of R.N) { if (!q.P.length) continue; const g = q.P.map(([n, c]) => [3 * n, c]).concat([[q.w, -1]]); for (const [i1, c1] of g) for (const [i2, c2] of g) add(i1, i2, kp * c1 * c2); }
+        for (const q of R.N) { if (!q.P.length) continue; const g = q.P.map(([n, c]) => [3 * n, c]).concat([[q.w, -1]]), kl = kp * q.sl; for (const [i1, c1] of g) for (const [i2, c2] of g) add(i1, i2, kl * c1 * c2); }
         for (const e of R.E) { const a = R.N[e.k], b = R.N[e.k + 1], dl = [a.w, a.th, b.w, b.th], Bs = [-1 / e.Le, -0.5, 1 / e.Le, -0.5], Bb = [0, -1, 0, 1];
           for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if (dl[r] <= dl[c]) S.v[idx(S, dl[r], dl[c])] += e.s * (e.GA * e.Le * Bs[r] * Bs[c] + e.EI / e.Le * Bb[r] * Bb[c]); }
         // pied côté profilé : w = w0 + θ1·y − θ2·x ; rotation (si adossé) θ = dw/ds = θ1·u_y − θ2·u_x
@@ -253,7 +265,18 @@ const CBFEM = (() => {
       for (const R of RB) { const fyR = R.r.fy || fy; for (const e of R.E) { const a = R.N[e.k], b = R.N[e.k + 1], V = e.GA * ((u[b.w] - u[a.w]) / e.Le - (u[a.th] + u[b.th]) / 2), M = e.EI * (u[b.th] - u[a.th]) / e.Le;
           e.V = V; e.M = M; e.r = Math.sqrt((M * e.zs / e.I) ** 2 + 3 * (V / (R.r.t * e.hm)) ** 2) / fyR;      // rapport élastique (rigidité initiale) : > 1 = plastifié ; σ au bord libre = M·z_s/I
           if (plast) { const sn = e.r > 1 ? 1 / e.r : 1, s2 = 0.5 * (e.s + sn); if (Math.abs(s2 - e.s) > ds) ds = Math.abs(s2 - e.s); e.s = s2; } } }
-      if (!chg && ds < 2e-3) { conv = true; it++; break; }
+      /* cordons d'un raidisseur sur la platine (3.12) : liaison élastique – parfaitement plastique. L'effort q par mm (normal à la platine) est plafonné
+         par la résistance des cordons r.rw = n·a·f_u/(β_w·γ_M2) (N/mm ; pleine pénétration : f_y·t), compte tenu du cisaillement longitudinal v
+         (flux raidisseur – platine) : √(2·q² + 3·v²) ≤ r_w, soit |q| ≤ √((r_w² − 3·v²)/2). Rigidité sécante de la liaison (la pénalité couvre
+         plusieurs ordres de grandeur : assouplissement direct, raidissement amorti). */
+      let dq = 0;
+      for (const R of RB) { const rw = R.r.rw; if (!(rw > 0) || !plast) continue; const vE = R.E.map((e) => (e.I ? Math.abs(e.s * e.V * e.Sf / e.I) : 0)), nE = R.E.length;
+        for (const q of R.N) { if (!q.P.length) continue; let g = -u[q.w]; for (const [n, c] of q.P) g += c * u[3 * n];
+          const k = Math.round(q.s / R.L * nE), v = k >= nE ? vE[nE - 1] : k <= 0 ? vE[0] : (vE[k - 1] + vE[k]) / 2, pc = o.vSoud === false ? rw / Math.SQRT2 : (pc0(rw, v));
+          const qe = kp * Math.abs(g) / q.ds, qa = q.sl * qe, sn = qe > pc ? pc / qe : 1;       // qe : effort de la liaison rigide pour cet écart ; qa : effort actuel
+          q.pc = pc; if (qa > pc * 1.03 + 1 || (q.sl < 1 && qa < pc * 0.97 - 1)) dq++;
+          q.sl = sn < q.sl ? Math.max(sn, 1e-9) : Math.sqrt(q.sl * sn); if (q.sl > 0.97) q.sl = 1; } }      // retour à la liaison rigide dès que l'effort repasse sous le plafond
+      if (!chg && ds < 2e-3 && !dq) { conv = true; it++; break; }
     }
     // ---- dépouillement
     const T = AN.map((a, k) => (a.actif ? ka[k] * a.w : 0));
@@ -275,7 +298,7 @@ const CBFEM = (() => {
     let qmax = 0, sprof = 0; const st = {};
     PT.forEach((p) => { let g = -u[W0] - p.y * u[T1] + p.x * u[T2]; for (const [n, c] of p.N) g += c * u[3 * n]; const k = p.iw + "_" + p.k, e = (st[k] = st[k] || { x: p.xm, y: p.ym, q: 0, t: p.t, iw: p.iw, k: p.k, ds: p.ds, qf: [0, 0] }), qq = -kp * g / p.ds; e.q += qq; if (p.sg) e.qf[p.sg < 0 ? 0 : 1] += qq; else { e.qf[0] += qq / 2; e.qf[1] += qq / 2; } });      // qf : effort de chaque face de la paroi (cordon de chaque côté)
     const nW = o.parois.length;
-    RB.forEach((R) => R.N.forEach((q, k) => { if (!q.P.length) return; let g = -u[q.w]; for (const [n, c] of q.P) g += c * u[3 * n]; st["r" + R.ir + "_" + k] = { x: q.x, y: q.y, q: -kp * g / q.ds, t: R.r.t, iw: nW + R.ir, k, ds: q.ds, raid: R.ir, s: q.s }; }));
+    RB.forEach((R) => R.N.forEach((q, k) => { if (!q.P.length) return; let g = -u[q.w]; for (const [n, c] of q.P) g += c * u[3 * n]; st["r" + R.ir + "_" + k] = { x: q.x, y: q.y, q: -kp * q.sl * g / q.ds, pl: q.sl < 1, t: R.r.t, iw: nW + R.ir, k, ds: q.ds, raid: R.ir, s: q.s }; }));
     const lin = Object.values(st);
     // lissage sur un rayon max(10 mm ; 2,5·t_paroi) (les extrémités et les angles de parois sont des points singuliers du modèle)
     lin.forEach((s) => { const Rl = o.lissage || Math.max(10, 2.5 * s.t), v = lin.filter((z) => Math.hypot(z.x - s.x, z.y - s.y) <= Rl + 1e-6); let F = 0, L = 0; v.forEach((z) => { F += z.q * z.ds; L += z.ds; }); s.qm = F / L;   // lissage commun aux parois et aux raidisseurs : à leur jonction, les efforts locaux opposés (points de liaison distants de t/2) se compensent
@@ -287,11 +310,16 @@ const CBFEM = (() => {
          moyenne des éléments voisins ; pointe locale hors du pied (zone singulière sur 2,5·t, au moins 10 mm) : qv = max √(q² + 1,5·v²) (équivalent à q seul dans σ_w) */
       const vE = R.E.map((e) => (e.I ? Math.abs(e.s * e.V * e.Sf / e.I) : 0)), s0 = Math.min(Math.max(10, 2.5 * R.r.t), 0.5 * R.L); let qv = -1, vmax = 0, ql = 0, vl = 0;
       pts.forEach((z) => { z.v = z.k >= R.E.length ? vE[z.k - 1] : (vE[z.k - 1] + vE[z.k]) / 2; if (z.s < s0 - 1e-6) return; const e = Math.sqrt(z.qm * z.qm + 1.5 * z.v * z.v); if (e > qv) { qv = e; ql = Math.abs(z.qm); vl = z.v; } if (z.v > vmax) vmax = z.v; });
-      return { ir: R.ir, L: R.L, enc: !!R.r.enc, kr: R.r.kr, H: R.r.H, vmax, ql, vl, r, sig: Math.min(r, 1) * fyR, epl: Math.max(0, r - 1) * fyR / ES, fy: fyR, s: sk, V0: e0.s * e0.V, M0: e0.s * e0.M, F, qmax: Math.max(...pts.map((z) => Math.abs(z.qm))),
+      /* contrainte au pied du raidisseur, le long du cordon (3.12) : σ_z = q/t (effort normal à la platine), τ = v/t (cisaillement longitudinal) ;
+         von Mises √(σ_z² + 3·τ²), valeurs lissées hors de la zone singulière du pied côté profilé ; rb : rapport de la poutre (flexion, cisaillement vertical) */
+      let rp = 0, sp = 0; pts.forEach((z) => { if (z.s < s0 - 1e-6) return; const e = Math.sqrt(z.qm * z.qm + 3 * z.v * z.v) / (R.r.t * fyR); if (e > rp) { rp = e; sp = z.s; } });
+      const rb = r; if (o.pied !== false && rp > r) { r = rp; sk = sp; }
+      const Lp = pts.reduce((s, z) => s + z.ds, 0) || 1, ppl = pts.reduce((s, z) => s + (z.pl ? z.ds : 0), 0) / Lp;      // part du cordon sur la platine à sa résistance
+      return { ir: R.ir, L: R.L, ppl, rb, rp, rw: R.r.rw, enc: !!R.r.enc, kr: R.r.kr, rac: !!(R.r.rac || R.r.kr != null), H: R.r.H, vmax, ql, vl, r, sig: Math.min(r, 1) * fyR, epl: Math.max(0, r - 1) * fyR / ES, fy: fyR, s: sk, V0: e0.s * e0.V, M0: e0.s * e0.M, F, qmax: Math.max(...pts.map((z) => Math.abs(z.qm))),
         a: R.r.a, b: R.r.b, t: R.r.t, el: R.E.map((e) => ({ s0: e.k * e.Le, s1: (e.k + 1) * e.Le, h: e.hm, V: e.V, M: e.M, r: e.r, s: e.s, v: e.I ? e.s * e.V * e.Sf / e.I : 0 })) }; });   // el : V, M élastiques (rigidité initiale), r = σ_vm/f_y
     let wmax = 0, wmin = 0; for (let n = 0; n < nn; n++) { if (u[3 * n] > wmax) wmax = u[3 * n]; if (u[3 * n] < wmin) wmin = u[3 * n]; }
     return { T, C, Ac, pmoy: Ac ? C / Ac : 0, Cx: C ? Cx / C : 0, Cy: C ? Cy / C : 0, pmax, sigMax: Math.min(rmax, 1) * fy, eplMax: Math.max(0, rmax - 1) * fy / ES, rmax, qmax, sprof, wmax, wmin,
-      elems, lin, raid, X, Y, Wn, Pn, Rn, it, conv, nddl, h, fy, rot: [u[T1], u[T2]], w0: u[W0] };
+      elems, lin, raid, X, Y, Wn, Pn, Rn, it, conv, nddl, h, fy, tp: t, rot: [u[T1], u[T2]], w0: u[W0] };
   }
   /* ---------- efforts des cordons de soudure sur la platine (N/mm), d'après les efforts linéiques du calcul ----------
      Redistribution plastique le long de chaque cordon : q = |F|/L + 4·|M|/L² (F : résultante normale à la platine, M : son moment
@@ -309,7 +337,7 @@ const CBFEM = (() => {
      Raidisseurs (3.09, calage sur trois notes détaillées) : en plus de q (redistribution plastique sur tout le cordon), v = cisaillement
        longitudinal maximal raidisseur – platine (flux V·S_f/I de la section en T) et (ql, vl) = pointe locale (effort lissé, hors du pied) ;
        contrainte du cordon = max[σ_w(q, v) ; σ_w(ql, vl)] : la redistribution le long du cordon n'efface pas la pointe en bout de raidisseur.
-     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q, dm, qbt, t, v, ql, vl }] ;
+     res : résultat de calculer() ; nW : nombre de parois du profilé ; retour [{ type: 'paroi' | 'tube' | 'raid', i, L, F, M, q, dm, qbt, t, v, ql, vl, kw }] (kw : coefficient de pointe des raidisseurs sur tube) ;
      chaque point de res.lin reçoit qd, effort linéique local à afficher (valeur lissée ; tube : répartition linéaire du groupe). */
   function cordons(res, nW, tube, parois, opt) {
     /* moment de flexion de la platine au point (x, y) dans la direction n (N·mm/mm) */
@@ -323,7 +351,11 @@ const CBFEM = (() => {
         Ixx += l * (y1 * y1 + y1 * y2 + y2 * y2) / 3; Iyy += l * (x1 * x1 + x1 * x2 + x2 * x2) / 3; Ixy += l * (2 * x1 * y1 + x1 * y2 + x2 * y1 + 2 * x2 * y2) / 6; });
       const N = opt.N || 0, Mx = opt.Mx || 0, My2 = -(opt.My || 0), det = Ixx * Iyy - Ixy * Ixy || 1;                      // Mx tend les y > 0 ; My tend les x < 0
       sigBT = (x, y) => N / A + ((Mx * Iyy - My2 * Ixy) * (y - gy) + (My2 * Ixx - Mx * Ixy) * (x - gx)) / det; }
-    const bt = (P) => (sigBT ? Math.max(...P.map((z) => Math.abs(sigBT(z.x, z.y)) * z.t)) : 0), raidie = (i) => !!(opt && opt.raidies && opt.raidies.includes(i));
+    const bt = (P) => (sigBT ? Math.max(...P.map((z) => Math.abs(sigBT(z.x, z.y)) * z.t)) : 0), 
+      /* paroi « raidie » (soulagée par ses raidisseurs : efforts du modèle seuls) seulement si aucun de ses points n'est à plus de K_COUV·t_p du pied
+         d'un raidisseur (3.12, calage sur trois notes détaillées de profilés en I : 1,7 et 2,7·t_p → soulagée ; 9·t_p → non) */
+      pieds = (res.raid || []).map((r) => r.a), couverte = (i) => { const P = res.lin.filter((z) => z.raid == null && z.iw === i), d = K_COUV * (res.tp || 0); return !res.tp || P.every((z) => pieds.some((a) => Math.hypot(z.x - a[0], z.y - a[1]) <= d + 1e-6)); },
+      raidie = (i) => !!(opt && opt.raidies && opt.raidies.includes(i)) && couverte(i);
     const out = [], seg = (P) => { let L = 0, F = 0; P.forEach((z) => { L += z.ds; F += z.q * z.ds; }); const x0 = P[0].x, y0 = P[0].y, sc = P.reduce((s, z) => s + Math.hypot(z.x - x0, z.y - y0) * z.ds, 0) / L; let M = 0; P.forEach((z) => { M += z.q * z.ds * (Math.hypot(z.x - x0, z.y - y0) - sc); });
       return { L, F, M, q: Math.abs(F) / L + 4 * Math.abs(M) / (L * L) }; };
     const W = res.lin.filter((z) => z.raid == null);
@@ -334,7 +366,7 @@ const CBFEM = (() => {
     else { const de = W.map((z) => { if (!parois) return z.iw; for (let j = 0; j < parois.length; j++) { if (j === z.iw) continue; const w = parois[j], dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], l2 = dx * dx + dy * dy || 1, k = ((z.x - w.a[0]) * dx + (z.y - w.a[1]) * dy) / l2;
           if (k > 0.05 && k < 0.95 && Math.hypot(z.x - w.a[0] - k * dx, z.y - w.a[1] - k * dy) <= w.t / 2 + z.t / 2 + 0.5) return j; } return z.iw; });      // point situé dans l'épaisseur d'une autre paroi, hors de ses bouts
       for (let i = 0; i < nW; i++) { const P = W.filter((z, k) => de[k] === i), Pi = W.filter((z) => z.iw === i); if (P.length) out.push({ type: "paroi", i, ...seg(P), raidie: raidie(i), dm: raidie(i) ? 0 : couple(Pi, parois && parois[i]), qbt: raidie(i) ? 0 : bt(Pi), t: Pi.length ? Pi[0].t : 0 }); } }
-    (res.raid || []).forEach((r) => { const P = res.lin.filter((z) => z.raid === r.ir); if (P.length) out.push({ type: "raid", i: r.ir, ...seg(P), dm: 0, qbt: 0, t: r.t, v: r.vmax || 0, ql: r.ql || 0, vl: r.vl || 0 }); });
+    (res.raid || []).forEach((r) => { const P = res.lin.filter((z) => z.raid === r.ir); if (P.length) out.push({ type: "raid", i: r.ir, ...seg(P), dm: 0, qbt: 0, t: r.t, v: r.vmax || 0, ql: r.ql || 0, vl: r.vl || 0, kw: r.rac ? K_POINTE_TUBE : 1, ppl: r.ppl || 0 }); });
     res.lin.forEach((z) => { if (z.qd == null || !(tube && z.raid == null)) z.qd = tube && z.raid == null ? z.qd : z.qm; });      // qd : effort linéique local à afficher (N/mm)
     return out;
   }
@@ -355,6 +387,6 @@ const CBFEM = (() => {
     const f = new Float64Array(nddl); f[3 * (2 * n)] = P / 2; f[3 * (2 * n + 1)] = P / 2; factoriser(S); const u = resoudre(S, f);
     return (u[3 * (2 * n)] + u[3 * (2 * n + 1)]) / 2;
   }
-  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, sigmaSoudure, effortCordon, raideurCheville, elementaire, lignes, consoleTest, NU, ES };
+  return { calculer, parois, paroisPlacees, facesProfil, raidisseur, hauteurRaid, cordons, sigmaSoudure, effortCordon, raideurCheville, elementaire, lignes, consoleTest, NU, ES, K_RAID_TUBE, K_POINTE_TUBE, K_COUV };
 })();
 if (typeof module !== "undefined") module.exports = CBFEM;
